@@ -29,6 +29,10 @@ class Frontend {
             themeManager.init();
         }
 
+        if (layoutSwitcher) {
+            layoutSwitcher.init();
+        }
+
         this.renderProducts();
 
         if (contactForm) {
@@ -43,6 +47,17 @@ class Frontend {
             if (productSearch) {
                 productSearch.updateLanguage();
             }
+            if (layoutSwitcher) {
+                layoutSwitcher.renderLayoutControls();
+            }
+        });
+
+        window.addEventListener('layoutChanged', () => {
+            this.renderProducts();
+        });
+
+        window.addEventListener('sortChanged', () => {
+            this.renderProducts();
         });
     }
 
@@ -147,14 +162,20 @@ class Frontend {
 
         sortedSeries.forEach(seriesId => {
             const seriesData = this.productsData[seriesId];
-            const seriesElement = this.createSeriesElement(seriesId, seriesData);
+            
+            let sortedProducts = seriesData.products || {};
+            if (layoutSwitcher) {
+                sortedProducts = layoutSwitcher.sortProducts(sortedProducts);
+            }
+            
+            const seriesElement = this.createSeriesElement(seriesId, seriesData, sortedProducts);
             container.appendChild(seriesElement);
         });
 
         this.initLazyLoad();
     }
 
-    createSeriesElement(seriesId, seriesData) {
+    createSeriesElement(seriesId, seriesData, products = null) {
         const seriesDiv = document.createElement('div');
         seriesDiv.className = 'product-series';
 
@@ -168,9 +189,10 @@ class Frontend {
         const productsContainer = document.createElement('div');
         productsContainer.className = 'products-container';
 
-        const products = seriesData.products || {};
-        Object.keys(products).forEach(productId => {
-            const productData = products[productId];
+        const productsToRender = products || seriesData.products || {};
+        
+        Object.keys(productsToRender).forEach(productId => {
+            const productData = productsToRender[productId];
             const productCard = this.createProductCard(seriesId, productId, productData);
             productsContainer.appendChild(productCard);
         });
