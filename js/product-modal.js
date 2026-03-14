@@ -2,8 +2,8 @@ class ProductModal {
     constructor() {
         this.modal = null;
         this.currentProduct = null;
-        this.currentIndex = 0;
         this.productsList = [];
+        this.currentIndex = 0;
     }
 
     init() {
@@ -13,8 +13,8 @@ class ProductModal {
 
     createModal() {
         const modal = document.createElement('div');
-        modal.id = 'product-modal';
         modal.className = 'product-modal';
+        modal.id = 'product-modal';
         modal.innerHTML = `
             <div class="modal-overlay"></div>
             <div class="modal-container">
@@ -22,7 +22,7 @@ class ProductModal {
                 <div class="modal-content">
                     <div class="modal-image-section">
                         <div class="main-image-container">
-                            <img src="" alt="" class="main-image">
+                            <img class="main-image" src="" alt="">
                             <button class="image-nav prev">‹</button>
                             <button class="image-nav next">›</button>
                         </div>
@@ -30,7 +30,7 @@ class ProductModal {
                     <div class="modal-info-section">
                         <h2 class="product-title"></h2>
                         <div class="product-price"></div>
-                        <div class="product-description"></div>
+                        <p class="product-description"></p>
                         <div class="product-materials">
                             <h3>材质信息</h3>
                             <div class="materials-grid"></div>
@@ -49,30 +49,26 @@ class ProductModal {
     bindEvents() {
         const closeBtn = this.modal.querySelector('.modal-close');
         const overlay = this.modal.querySelector('.modal-overlay');
-
-        closeBtn.addEventListener('click', () => this.close());
-        overlay.addEventListener('click', () => this.close());
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.modal.classList.contains('active')) {
-                this.close();
-            }
-        });
-
         const prevBtn = this.modal.querySelector('.image-nav.prev');
         const nextBtn = this.modal.querySelector('.image-nav.next');
 
+        closeBtn.addEventListener('click', () => this.close());
+        overlay.addEventListener('click', () => this.close());
         prevBtn.addEventListener('click', () => this.navigate(-1));
         nextBtn.addEventListener('click', () => this.navigate(1));
 
+        document.addEventListener('keydown', (e) => {
+            if (!this.modal.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') this.close();
+            if (e.key === 'ArrowLeft') this.navigate(-1);
+            if (e.key === 'ArrowRight') this.navigate(1);
+        });
+
         const contactBtn = this.modal.querySelector('.contact-btn');
         contactBtn.addEventListener('click', () => {
-            if (contactForm) {
-                const subject = `咨询: ${this.currentProduct?.name?.zh || ''}`;
-                document.getElementById('contact-subject').value = subject;
-                this.close();
-                document.querySelector('.contact-section')?.scrollIntoView({ behavior: 'smooth' });
-            }
+            this.close();
+            document.querySelector('.contact-section')?.scrollIntoView({ behavior: 'smooth' });
         });
     }
 
@@ -84,6 +80,10 @@ class ProductModal {
         this.render();
         this.modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+
+        if (typeof socialShare !== 'undefined') {
+            socialShare.setProduct(productData, seriesId);
+        }
     }
 
     close() {
@@ -127,19 +127,14 @@ class ProductModal {
     }
 
     findSeriesId(product) {
-        for (const [seriesId, seriesData] of Object.entries(frontend?.productsData || {})) {
-            if (seriesData.products && seriesData.products[product.id]) {
-                return seriesId;
-            }
-        }
-        return '';
+        return product.seriesId || 'default';
     }
 
     getMaterialLabel(key) {
         const labels = {
-            'zh': { 'upper': '鞋面', 'lining': '内里', 'sole': '鞋底' },
-            'en': { 'upper': 'Upper', 'lining': 'Lining', 'sole': 'Sole' },
-            'ko': { 'upper': ' Shoe upper', 'lining': '안감', 'sole': '鞋底' }
+            'zh': { 'upper': '鞋面', 'lining': '内里', 'sole': '鞋底', 'heel': '鞋跟', 'insole': '鞋垫' },
+            'en': { 'upper': 'Upper', 'lining': 'Lining', 'sole': 'Sole', 'heel': 'Heel', 'insole': 'Insole' },
+            'ko': { 'upper': ' Shoe upper', 'lining': '안감', 'sole': '鞋底', 'heel': '히엘', 'insole': '인솔' }
         };
         const currentLang = i18n?.currentLanguage || 'zh';
         return labels[currentLang]?.[key] || key;

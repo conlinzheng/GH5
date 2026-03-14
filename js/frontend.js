@@ -37,6 +37,10 @@ class Frontend {
             productFilter.init();
         }
 
+        if (socialShare) {
+            socialShare.init();
+        }
+
         this.renderProducts();
 
         if (contactForm) {
