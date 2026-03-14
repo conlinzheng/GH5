@@ -521,13 +521,6 @@ img[data-src].loaded {
     font-size: 0.9rem;
 }
 
-.no-results {
-    text-align: center;
-    padding: 3rem;
-    color: #666;
-    font-size: 1.1rem;
-}
-
 /* 产品弹窗样式 */
 .product-modal {
     display: none;
@@ -1358,6 +1351,134 @@ body { background: var(--theme-background); color: var(--theme-text); }
 .layout-small .product-price {
     font-size: 0.85rem;
     margin-top: 0;
+}
+
+/* 产品筛选过滤器样式 */
+.filter-panel {
+    background: #fff;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+}
+
+.filter-title {
+    font-weight: bold;
+    font-size: 15px;
+    color: #333;
+}
+
+.filter-reset {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.filter-reset:hover {
+    text-decoration: underline;
+}
+
+.filter-content {
+    padding: 15px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 150px;
+}
+
+.filter-label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.filter-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+}
+
+.filter-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #007bff;
+}
+
+.filter-active {
+    padding: 10px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 40px;
+}
+
+.filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: #e3f2fd;
+    color: #1976d2;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.tag-remove {
+    background: none;
+    border: none;
+    color: #1976d2;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.tag-remove:hover {
+    color: #d32f2f;
 }
 
 /* 响应式 */
