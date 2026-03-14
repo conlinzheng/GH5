@@ -33,11 +33,27 @@ class Frontend {
             layoutSwitcher.init();
         }
 
+        if (productFilter) {
+            productFilter.init();
+        }
+
         this.renderProducts();
 
         if (contactForm) {
             contactForm.init();
         }
+
+        window.addEventListener('layoutChanged', () => {
+            this.renderProducts();
+        });
+
+        window.addEventListener('sortChanged', () => {
+            this.renderProducts();
+        });
+
+        window.addEventListener('filterChanged', () => {
+            this.renderProducts();
+        });
 
         window.addEventListener('languageChanged', () => {
             this.renderProducts();
@@ -50,14 +66,9 @@ class Frontend {
             if (layoutSwitcher) {
                 layoutSwitcher.renderLayoutControls();
             }
-        });
-
-        window.addEventListener('layoutChanged', () => {
-            this.renderProducts();
-        });
-
-        window.addEventListener('sortChanged', () => {
-            this.renderProducts();
+            if (productFilter) {
+                productFilter.renderFilterPanel();
+            }
         });
     }
 
@@ -163,7 +174,16 @@ class Frontend {
         sortedSeries.forEach(seriesId => {
             const seriesData = this.productsData[seriesId];
             
-            let sortedProducts = seriesData.products || {};
+            let productsToFilter = seriesData.products || {};
+            
+            if (productFilter && productFilter.hasActiveFilters()) {
+                const filters = productFilter.getActiveFilters();
+                productsToFilter = Object.fromEntries(
+                    productFilter.filterProducts(seriesData.products || {}, filters)
+                );
+            }
+            
+            let sortedProducts = productsToFilter;
             if (layoutSwitcher) {
                 sortedProducts = layoutSwitcher.sortProducts(sortedProducts);
             }
