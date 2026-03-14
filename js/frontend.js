@@ -4,39 +4,48 @@ class Frontend {
         this.currentSlide = 0;
     }
 
-    /**
-     * 初始化前台应用
-     */
     async init() {
-        // 初始化多语言支持
         i18n.init();
-
-        // 初始化轮播图
         this.initCarousel();
-
-        // 加载产品数据
         await this.loadProductsData();
 
-        // 渲染产品
+        if (productModal) {
+            productModal.init();
+        }
+
+        if (productSearch) {
+            productSearch.init();
+        }
+
+        if (productCompare) {
+            productCompare.init();
+        }
+
+        if (browseHistory) {
+            browseHistory.init();
+        }
+
+        if (themeManager) {
+            themeManager.init();
+        }
+
         this.renderProducts();
 
-        // 初始化联系表单
         if (contactForm) {
             contactForm.init();
         }
 
-        // 绑定语言变化事件
         window.addEventListener('languageChanged', () => {
             this.renderProducts();
             if (contactForm) {
                 contactForm.updateLanguage();
             }
+            if (productSearch) {
+                productSearch.updateLanguage();
+            }
         });
     }
 
-    /**
-     * 初始化轮播图
-     */
     initCarousel() {
         const carousel = document.querySelector('.carousel');
         if (!carousel) return;
@@ -69,9 +78,6 @@ class Frontend {
         this.updateCarousel();
     }
 
-    /**
-     * 更新轮播图
-     */
     updateCarousel() {
         const slides = document.querySelectorAll('.carousel-item');
         slides.forEach((slide, index) => {
@@ -83,9 +89,6 @@ class Frontend {
         });
     }
 
-    /**
-     * 加载产品数据
-     */
     async loadProductsData() {
         const container = document.getElementById('product-series');
         if (!container) return;
@@ -130,9 +133,6 @@ class Frontend {
         }
     }
 
-    /**
-     * 渲染产品
-     */
     renderProducts() {
         const container = document.getElementById('product-series');
         if (!container || !this.productsData) return;
@@ -154,9 +154,6 @@ class Frontend {
         this.initLazyLoad();
     }
 
-    /**
-     * 创建系列元素
-     */
     createSeriesElement(seriesId, seriesData) {
         const seriesDiv = document.createElement('div');
         seriesDiv.className = 'product-series';
@@ -201,9 +198,6 @@ class Frontend {
         return seriesDiv;
     }
 
-    /**
-     * 创建产品卡片
-     */
     createProductCard(seriesId, productId, productData) {
         const card = document.createElement('div');
         card.className = 'product-card';
@@ -238,12 +232,40 @@ class Frontend {
         card.appendChild(imageDiv);
         card.appendChild(infoDiv);
 
+        const compareBtn = document.createElement('button');
+        compareBtn.className = 'compare-btn';
+        compareBtn.innerHTML = '⚖';
+        compareBtn.title = i18n.t('compare') || '添加到对比';
+        compareBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const product = { id: productId, seriesId, ...productData };
+            if (productCompare) {
+                productCompare.toggle(product);
+                this.updateCompareButton(compareBtn, productId);
+            }
+        });
+        card.appendChild(compareBtn);
+
+        setTimeout(() => {
+            if (productCompare) {
+                this.updateCompareButton(compareBtn, productId);
+            }
+        }, 100);
+
+        card.addEventListener('click', () => {
+            if (productModal) {
+                const allProducts = this.productsData[seriesId]?.products || {};
+                productModal.open(seriesId, productId, { id: productId, seriesId, ...productData }, allProducts);
+                
+                if (browseHistory) {
+                    browseHistory.add({ id: productId, seriesId, ...productData });
+                }
+            }
+        });
+
         return card;
     }
 
-    /**
-     * 初始化图片懒加载
-     */
     initLazyLoad() {
         const lazyImages = document.querySelectorAll('img[data-src]');
 
@@ -267,6 +289,27 @@ class Frontend {
                 image.src = image.dataset.src;
                 image.classList.add('loaded');
             });
+        }
+    }
+
+    updateCompareButton(btn, productId) {
+        if (!productCompare) return;
+        
+        if (productCompare.isInCompare(productId)) {
+            btn.classList.add('in-compare');
+            btn.title = i18n.t('removeCompare') || '取消对比';
+        } else {
+            btn.classList.remove('in-compare');
+            btn.title = i18n.t('compare') || '添加到对比';
+        }
+
+        const compareBar = document.getElementById('compare-bar');
+        if (compareBar) {
+            if (productCompare.compareList.length > 0) {
+                compareBar.classList.add('active');
+            } else {
+                compareBar.classList.remove('active');
+            }
         }
     }
 }
