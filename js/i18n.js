@@ -32,7 +32,9 @@ class I18n {
                 reset: '重置',
                 priceRange: '价格区间',
                 material: '材质',
-                inStock: '仅显示有货'
+                inStock: '仅显示有货',
+                share: '分享',
+                shareTo: '分享到'
             },
             en: {
                 home: 'Home',
@@ -63,7 +65,9 @@ class I18n {
                 reset: 'Reset',
                 priceRange: 'Price Range',
                 material: 'Material',
-                inStock: 'In Stock Only'
+                inStock: 'In Stock Only',
+                share: 'Share',
+                shareTo: 'Share to'
             },
             ko: {
                 home: '홈',
@@ -94,7 +98,9 @@ class I18n {
                 reset: '초기화',
                 priceRange: '가격대',
                 material: '재질',
-                inStock: '재고 있음만'
+                inStock: '재고 있음만',
+                share: '공유',
+                shareTo: '공유하기'
             }
         };
     }
