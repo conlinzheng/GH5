@@ -1,0 +1,45 @@
+{
+  "seriesName": {
+    "zh": "真皮系列",
+    "en": "Genuine Leather Series",
+    "ko": "진피 시리즈"
+  },
+  "products": {
+    "中文数字123 (1).png": {
+      "name": { "zh": "真皮女鞋1", "en": "Genuine Leather Shoes 1", "ko": "진피 여성화 1" },
+      "description": { "zh": "100%真皮，品质保证", "en": "100% genuine leather, quality guaranteed", "ko": "100% 진피, 품질 보증" },
+      "price": "599",
+      "materials": { "upper": "真皮", "lining": "猪皮", "sole": "橡胶" }
+    },
+    "中文数字123 (2).png": {
+      "name": { "zh": "真皮女鞋2", "en": "Genuine Leather Shoes 2", "ko": "진피 여성화 2" },
+      "description": { "zh": "精致做工，舒适透气", "en": "Exquisite craftsmanship, comfortable and breathable", "ko": "정밀한 마감, 편안하고 통기성" },
+      "price": "699",
+      "materials": { "upper": "真皮", "lining": "猪皮", "sole": "真皮" }
+    },
+    "中文数字123 (3).png": {
+      "name": { "zh": "真皮女鞋3", "en": "Genuine Leather Shoes 3", "ko": "진피 여성화 3" },
+      "description": { "zh": "经典真皮，优雅大方", "en": "Classic genuine leather, elegant", "ko": "클래식 진피, 우아하고 세련됨" },
+      "price": "799",
+      "materials": { "upper": "真皮", "lining": "猪皮", "sole": "真皮" }
+    },
+    "中文数字123 (4).png": {
+      "name": { "zh": "真皮女鞋4", "en": "Genuine Leather Shoes 4", "ko": "진피 여성화 4" },
+      "description": { "zh": "柔软舒适，适合长时间穿着", "en": "Soft and comfortable, suitable for long wear", "ko": "부드럽고 편안한, 오랫동안 착용하기 적합" },
+      "price": "649",
+      "materials": { "upper": "真皮", "lining": "织物", "sole": "橡胶" }
+    },
+    "中文数字123 (5).png": {
+      "name": { "zh": "真皮女鞋5", "en": "Genuine Leather Shoes 5", "ko": "진피 여성화 5" },
+      "description": { "zh": "高端定制，品质之选", "en": "High-end custom, quality choice", "ko": "하이엔드 맞춤, 품질의 선택" },
+      "price": "899",
+      "materials": { "upper": "真皮", "lining": "猪皮", "sole": "真皮" }
+    },
+    "勃肯1 (1).jpg": {
+      "name": { "zh": "勃肯凉鞋1", "en": "Birkenstock Sandals 1", "ko": "ビルケンシュトック 샌들 1" },
+      "description": { "zh": "德国品牌，舒适健康", "en": "German brand, comfortable and healthy", "ko": "독일 브랜드, 편안하고 건강" },
+      "price": "499",
+      "materials": { "upper": "真皮", "lining": "软木", "sole": "EVA" }
+    }
+  }
+}
