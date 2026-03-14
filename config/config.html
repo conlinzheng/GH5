@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理</title>
+    <link rel="stylesheet" href="css/config-style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="container">
+                <h1>后台管理</h1>
+                <div class="nav-actions">
+                    <button id="btn-set-token" class="btn">设置 Token</button>
+                    <button id="btn-save-config" class="btn btn-primary">保存所有更改</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="admin-layout">
+                <aside class="admin-sidebar">
+                    <ul class="nav-menu">
+                        <li><a href="#product-editor" class="nav-item">产品编辑</a></li>
+                        <li><a href="#upload" class="nav-item">图片上传</a></li>
+                        <li><a href="#series-manager" class="nav-item">系列管理</a></li>
+                        <li><a href="#config-editor" class="nav-item">网站配置</a></li>
+                    </ul>
+                </aside>
+
+                <section class="admin-content">
+                    <div id="view-container">
+                        <div class="welcome-view">
+                            <h2>欢迎使用后台管理系统</h2>
+                            <p>请从左侧选择一个功能模块开始操作</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <div id="token-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>设置 GitHub Token</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>请输入您的 GitHub 个人访问令牌，用于上传图片和更新产品信息。</p>
+                <p>令牌需要具有 <strong>repo</strong> 权限。</p>
+                <a href="https://github.com/settings/tokens/new" target="_blank" class="token-link">生成新令牌</a>
+                <div class="form-group">
+                    <label for="github-token">GitHub Token:</label>
+                    <input type="password" id="github-token" class="form-control" placeholder="输入您的 GitHub Token">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-token">取消</button>
+                <button class="btn btn-primary" id="save-token">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-container"></div>
+
+    <script src="../js/github-api.js"></script>
+    <script src="../js/cache-manager.js"></script>
+    <script src="js/notifier.js"></script>
+    <script src="js/data-manager.js"></script>
+    <script src="js/github-sync.js"></script>
+    <script src="js/product-editor.js"></script>
+    <script src="js/upload-manager.js"></script>
+    <script src="js/series-manager.js"></script>
+    <script src="js/config-editor.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
