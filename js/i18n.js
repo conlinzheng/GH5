@@ -27,7 +27,12 @@ class I18n {
                 switchTheme: '切换主题',
                 selectTheme: '选择主题',
                 view: '视图',
-                sortBy: '排序'
+                sortBy: '排序',
+                filter: '筛选',
+                reset: '重置',
+                priceRange: '价格区间',
+                material: '材质',
+                inStock: '仅显示有货'
             },
             en: {
                 home: 'Home',
@@ -53,7 +58,12 @@ class I18n {
                 switchTheme: 'Switch Theme',
                 selectTheme: 'Select Theme',
                 view: 'View',
-                sortBy: 'Sort'
+                sortBy: 'Sort',
+                filter: 'Filter',
+                reset: 'Reset',
+                priceRange: 'Price Range',
+                material: 'Material',
+                inStock: 'In Stock Only'
             },
             ko: {
                 home: '홈',
@@ -79,7 +89,12 @@ class I18n {
                 switchTheme: '테마 변경',
                 selectTheme: '테마 선택',
                 view: '보기',
-                sortBy: '정렬'
+                sortBy: '정렬',
+                filter: '필터',
+                reset: '초기화',
+                priceRange: '가격대',
+                material: '재질',
+                inStock: '재고 있음만'
             }
         };
     }
