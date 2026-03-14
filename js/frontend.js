@@ -4,17 +4,39 @@ class Frontend {
         this.currentSlide = 0;
     }
 
+    /**
+     * 初始化前台应用
+     */
     async init() {
+        // 初始化多语言支持
         i18n.init();
+
+        // 初始化轮播图
         this.initCarousel();
+
+        // 加载产品数据
         await this.loadProductsData();
+
+        // 渲染产品
         this.renderProducts();
 
+        // 初始化联系表单
+        if (contactForm) {
+            contactForm.init();
+        }
+
+        // 绑定语言变化事件
         window.addEventListener('languageChanged', () => {
             this.renderProducts();
+            if (contactForm) {
+                contactForm.updateLanguage();
+            }
         });
     }
 
+    /**
+     * 初始化轮播图
+     */
     initCarousel() {
         const carousel = document.querySelector('.carousel');
         if (!carousel) return;
@@ -47,6 +69,9 @@ class Frontend {
         this.updateCarousel();
     }
 
+    /**
+     * 更新轮播图
+     */
     updateCarousel() {
         const slides = document.querySelectorAll('.carousel-item');
         slides.forEach((slide, index) => {
@@ -58,6 +83,9 @@ class Frontend {
         });
     }
 
+    /**
+     * 加载产品数据
+     */
     async loadProductsData() {
         const container = document.getElementById('product-series');
         if (!container) return;
@@ -102,6 +130,9 @@ class Frontend {
         }
     }
 
+    /**
+     * 渲染产品
+     */
     renderProducts() {
         const container = document.getElementById('product-series');
         if (!container || !this.productsData) return;
@@ -123,6 +154,9 @@ class Frontend {
         this.initLazyLoad();
     }
 
+    /**
+     * 创建系列元素
+     */
     createSeriesElement(seriesId, seriesData) {
         const seriesDiv = document.createElement('div');
         seriesDiv.className = 'product-series';
@@ -167,6 +201,9 @@ class Frontend {
         return seriesDiv;
     }
 
+    /**
+     * 创建产品卡片
+     */
     createProductCard(seriesId, productId, productData) {
         const card = document.createElement('div');
         card.className = 'product-card';
@@ -204,6 +241,9 @@ class Frontend {
         return card;
     }
 
+    /**
+     * 初始化图片懒加载
+     */
     initLazyLoad() {
         const lazyImages = document.querySelectorAll('img[data-src]');
 
