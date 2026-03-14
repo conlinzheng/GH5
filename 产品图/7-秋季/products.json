@@ -1,0 +1,39 @@
+{
+  "seriesName": {
+    "zh": "秋季系列",
+    "en": "Autumn Series",
+    "ko": "가을 시리즈"
+  },
+  "products": {
+    "@@@ (1).png": {
+      "name": { "zh": "秋季新品1", "en": "Autumn New 1", "ko": "가을 신제품 1" },
+      "description": { "zh": "秋季时尚新品，舒适保暖", "en": "Autumn fashion new, comfortable warm", "ko": "가을 패션 신제품, 편안하고 따뜻함" },
+      "price": "399",
+      "materials": { "upper": "PU", "lining": "绒毛", "sole": "EVA" }
+    },
+    "@@@ (2).png": {
+      "name": { "zh": "秋季新品2", "en": "Autumn New 2", "ko": "가을 신제품 2" },
+      "description": { "zh": "秋季休闲鞋，优雅大方", "en": "Autumn casual shoes, elegant", "ko": "가을 캐주얼 Shoes, 우아함" },
+      "price": "429",
+      "materials": { "upper": "真皮", "lining": "猪皮", "sole": "橡胶" }
+    },
+    "@@@ (3).png": {
+      "name": { "zh": "秋季新品3", "en": "Autumn New 3", "ko": "가을 신제품 3" },
+      "description": { "zh": "秋季经典，简约时尚", "en": "Autumn classic, simple fashionable", "ko": "가을 클래식, 심플 세련됨" },
+      "price": "379",
+      "materials": { "upper": "PU", "lining": "织物", "sole": "EVA" }
+    },
+    "@@@ (4).png": {
+      "name": { "zh": "秋季新品4", "en": "Autumn New 4", "ko": "가을 신제품 4" },
+      "description": { "zh": "秋季商务，成熟稳重", "en": "Autumn business, mature", "ko": "가을 비즈니스, 성숙함" },
+      "price": "499",
+      "materials": { "upper": "真皮", "lining": "猪皮", "sole": "真皮" }
+    },
+    "@@@ (5).png": {
+      "name": { "zh": "秋季新品5", "en": "Autumn New 5", "ko": "가을 신제품 5" },
+      "description": { "zh": "秋季潮流，个性十足", "en": "Autumn trend, full of personality", "ko": "가을 트렌드, 개성 충만" },
+      "price": "449",
+      "materials": { "upper": "PU", "lining": "织物", "sole": "橡胶" }
+    }
+  }
+}
