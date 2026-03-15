@@ -2,43 +2,79 @@ class Frontend {
     constructor() {
         this.productsData = null;
         this.currentSlide = 0;
+        this.featureSettings = this.loadFeatureSettings();
+    }
+
+    loadFeatureSettings() {
+        const defaultSettings = {
+            'toggle-backtotop': true,
+            'toggle-imagezoom': true,
+            'toggle-search': true,
+            'toggle-compare': true,
+            'toggle-history': true,
+            'toggle-filter': true,
+            'toggle-layout': true,
+            'toggle-share': true,
+            'toggle-theme': true,
+            'toggle-language': true
+        };
+        const saved = localStorage.getItem('site_features');
+        return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+    }
+
+    isFeatureEnabled(featureKey) {
+        return this.featureSettings[featureKey] !== false;
     }
 
     async init() {
         i18n.init();
-        this.initCarousel();
+
+        if (this.isFeatureEnabled('toggle-language')) {
+            this.initCarousel();
+        } else {
+            document.querySelector('.language-switcher').style.display = 'none';
+        }
+
         await this.loadProductsData();
 
         if (productModal) {
             productModal.init();
         }
 
-        if (productSearch) {
+        if (productSearch && this.isFeatureEnabled('toggle-search')) {
             productSearch.init();
         }
 
-        if (productCompare) {
+        if (productCompare && this.isFeatureEnabled('toggle-compare')) {
             productCompare.init();
         }
 
-        if (browseHistory) {
+        if (browseHistory && this.isFeatureEnabled('toggle-history')) {
             browseHistory.init();
         }
 
-        if (themeManager) {
+        if (themeManager && this.isFeatureEnabled('toggle-theme')) {
             themeManager.init();
         }
 
-        if (layoutSwitcher) {
+        if (layoutSwitcher && this.isFeatureEnabled('toggle-layout')) {
             layoutSwitcher.init();
         }
 
-        if (productFilter) {
+        if (productFilter && this.isFeatureEnabled('toggle-filter')) {
             productFilter.init();
         }
 
-        if (socialShare) {
+        if (socialShare && this.isFeatureEnabled('toggle-share')) {
             socialShare.init();
+        }
+
+        if (backToTop && this.isFeatureEnabled('toggle-backtotop')) {
+            backToTop.init();
+        }
+
+        if (imageZoom && this.isFeatureEnabled('toggle-imagezoom')) {
+            imageZoom.init();
         }
 
         this.renderProducts();
@@ -64,13 +100,13 @@ class Frontend {
             if (contactForm) {
                 contactForm.updateLanguage();
             }
-            if (productSearch) {
+            if (productSearch && this.isFeatureEnabled('toggle-search')) {
                 productSearch.updateLanguage();
             }
-            if (layoutSwitcher) {
+            if (layoutSwitcher && this.isFeatureEnabled('toggle-layout')) {
                 layoutSwitcher.renderLayoutControls();
             }
-            if (productFilter) {
+            if (productFilter && this.isFeatureEnabled('toggle-filter')) {
                 productFilter.renderFilterPanel();
             }
         });
@@ -293,8 +329,10 @@ class Frontend {
         card.appendChild(compareBtn);
 
         setTimeout(() => {
-            if (productCompare) {
+            if (productCompare && this.isFeatureEnabled('toggle-compare')) {
                 this.updateCompareButton(compareBtn, productId);
+            } else {
+                compareBtn.style.display = 'none';
             }
         }, 100);
 
@@ -303,7 +341,7 @@ class Frontend {
                 const allProducts = this.productsData[seriesId]?.products || {};
                 productModal.open(seriesId, productId, { id: productId, seriesId, ...productData }, allProducts);
                 
-                if (browseHistory) {
+                if (browseHistory && this.isFeatureEnabled('toggle-history')) {
                     browseHistory.add({ id: productId, seriesId, ...productData });
                 }
             }
