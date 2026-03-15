@@ -34,7 +34,12 @@ class I18n {
                 material: '材质',
                 inStock: '仅显示有货',
                 share: '分享',
-                shareTo: '分享到'
+                shareTo: '分享到',
+                backToTop: '回到顶部',
+                imageZoom: '图片放大',
+                enableFeature: '开启功能',
+                disableFeature: '关闭功能',
+                featureSettings: '功能设置'
             },
             en: {
                 home: 'Home',
@@ -67,7 +72,12 @@ class I18n {
                 material: 'Material',
                 inStock: 'In Stock Only',
                 share: 'Share',
-                shareTo: 'Share to'
+                shareTo: 'Share to',
+                backToTop: 'Back to Top',
+                imageZoom: 'Image Zoom',
+                enableFeature: 'Enable',
+                disableFeature: 'Disable',
+                featureSettings: 'Feature Settings'
             },
             ko: {
                 home: '홈',
@@ -100,7 +110,12 @@ class I18n {
                 material: '재질',
                 inStock: '재고 있음만',
                 share: '공유',
-                shareTo: '공유하기'
+                shareTo: '공유하기',
+                backToTop: '맨위로',
+                imageZoom: '이미지 확대',
+                enableFeature: '기능 활성화',
+                disableFeature: '기능 비활성화',
+                featureSettings: '기능 설정'
             }
         };
     }
