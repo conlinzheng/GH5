@@ -2,7 +2,7 @@ class I18n {
     constructor() {
         this.supportedLanguages = ['zh', 'en', 'ko'];
         this.currentLanguage = localStorage.getItem('language') || 'zh';
-        this.translations = {
+        this.defaultTranslations = {
             zh: {
                 home: '首页',
                 about: '关于我们',
@@ -118,6 +118,12 @@ class I18n {
                 featureSettings: '기능 설정'
             }
         };
+        this.translations = this.loadTranslations();
+    }
+
+    loadTranslations() {
+        const saved = localStorage.getItem('translations');
+        return saved ? JSON.parse(saved) : this.defaultTranslations;
     }
 
     init() {
@@ -204,7 +210,7 @@ class I18n {
     }
 
     t(key, fallback = '') {
-        return this.translations[this.currentLanguage][key] || fallback;
+        return this.translations[this.currentLanguage]?.[key] || fallback;
     }
 
     getLocalizedField(obj, field, lang = this.currentLanguage) {
@@ -229,6 +235,63 @@ class I18n {
 
     getSupportedLanguages() {
         return this.supportedLanguages;
+    }
+
+    exportTranslations() {
+        const data = JSON.stringify(this.translations, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'translations.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    async importTranslations(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    this.translations = this.mergeTranslations(this.translations, imported);
+                    localStorage.setItem('translations', JSON.stringify(this.translations));
+                    this.updateLanguageUI();
+                    resolve(true);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+            reader.onerror = reject;
+            reader.readAsText(file);
+        });
+    }
+
+    mergeTranslations(current, imported) {
+        const result = { ...current };
+        for (const lang of this.supportedLanguages) {
+            if (imported[lang]) {
+                result[lang] = { ...result[lang], ...imported[lang] };
+            }
+        }
+        return result;
+    }
+
+    getTranslations() {
+        return JSON.parse(JSON.stringify(this.translations));
+    }
+
+    setTranslations(newTranslations) {
+        this.translations = newTranslations;
+        this.defaultTranslations = newTranslations;
+        localStorage.setItem('translations', JSON.stringify(this.translations));
+        this.updateLanguageUI();
+    }
+
+    resetTranslations() {
+        this.translations = this.defaultTranslations;
+        localStorage.removeItem('translations');
+        this.updateLanguageUI();
     }
 }
 
