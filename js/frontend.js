@@ -169,7 +169,7 @@ class Frontend {
 
         try {
             const cachedData = cacheManager.get('products_data');
-            if (cachedData) {
+            if (cachedData && Object.keys(cachedData).length > 0) {
                 this.productsData = cachedData;
                 return;
             }
@@ -186,24 +186,34 @@ class Frontend {
                         productsData[seriesId] = seriesData;
                     } catch (error) {
                         productsData[seriesId] = {
-                            seriesName: { zh: seriesId.split('-')[1] || seriesId, en: seriesId.split('-')[1] || seriesId, ko: seriesId.split('-')[1] || seriesId },
+                            seriesName: {
+                                zh: seriesId.split('-')[1] || seriesId,
+                                en: seriesId.split('-')[1] || seriesId,
+                                ko: seriesId.split('-')[1] || seriesId
+                            },
                             products: {}
                         };
                     }
                 }
             }
 
-            cacheManager.set('products_data', productsData);
-            this.productsData = productsData;
+            if (Object.keys(productsData).length > 0) {
+                cacheManager.set('products_data', productsData);
+                this.productsData = productsData;
+            } else {
+                container.innerHTML = '<div class="error">未找到产品数据</div>';
+            }
         } catch (error) {
             console.error('Error loading products data:', error);
-            container.innerHTML = '<div class="error">加载产品数据失败，请刷新页面重试</div>';
+            container.innerHTML = '<div class="error">加载产品数据失败，请刷新页面重试<br><small>' + error.message + '</small></div>';
         }
     }
 
     renderProducts() {
         const container = document.getElementById('product-series');
-        if (!container || !this.productsData) return;
+        if (!container || !this.productsData) {
+            return;
+        }
 
         container.innerHTML = '';
 
@@ -218,7 +228,9 @@ class Frontend {
             let productsToFilter = seriesData.products || {};
             if (productFilter && productFilter.hasActiveFilters()) {
                 const filters = productFilter.getActiveFilters();
-                productsToFilter = Object.fromEntries(productFilter.filterProducts(seriesData.products || {}, filters));
+                productsToFilter = Object.fromEntries(
+                    productFilter.filterProducts(seriesData.products || {}, filters)
+                );
             }
             let sortedProducts = productsToFilter;
             if (layoutSwitcher) {
