@@ -5,13 +5,13 @@ class BrowseHistory {
     }
 
     init() {
-        this.loadHistory();
+        this.renderHistoryWidget();
     }
 
     add(product) {
         const history = this.getHistory();
-        
-        const existingIndex = history.findIndex(p => p.id === product.id && p.seriesId === product.seriesId);
+
+        const existingIndex = history.findIndex(item => item.id === product.id && item.seriesId === product.seriesId);
         if (existingIndex !== -1) {
             history.splice(existingIndex, 1);
         }
@@ -21,7 +21,7 @@ class BrowseHistory {
             seriesId: product.seriesId,
             name: product.name,
             price: product.price,
-            image: `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${product.seriesId}/${product.id}`,
+            image: `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(product.seriesId)}/${encodeURIComponent(product.id)}`,
             timestamp: Date.now()
         };
 
@@ -53,73 +53,57 @@ class BrowseHistory {
         }
     }
 
-    loadHistory() {
-        this.renderHistoryWidget();
-    }
-
     clear() {
         localStorage.removeItem(this.historyKey);
         this.renderHistoryWidget();
     }
 
     renderHistoryWidget() {
-        let widget = document.getElementById('browse-history-widget');
+        let widget = document.getElementById('history-widget');
         if (!widget) {
             widget = document.createElement('div');
-            widget.id = 'browse-history-widget';
-            widget.className = 'browse-history-widget';
+            widget.id = 'history-widget';
+            widget.className = 'history-widget';
             document.body.appendChild(widget);
         }
 
         const history = this.getHistory();
-        
         if (history.length === 0) {
-            widget.innerHTML = '';
-            widget.classList.remove('active');
+            widget.style.display = 'none';
             return;
         }
 
-        const currentLang = i18n?.currentLanguage || 'zh';
-        const titles = {
-            'zh': '最近浏览',
-            'en': 'Recently Viewed',
-            'ko': '최근 본 상품'
-        };
-
+        widget.style.display = 'block';
         widget.innerHTML = `
-            <div class="browse-history-header">
-                <h3>${titles[currentLang]}</h3>
-                <button class="clear-history" title="${i18n?.t('clearHistory') || '清空'}">🗑</button>
+            <div class="history-header">
+                <span>${i18n?.t('recentlyViewed') || '最近浏览'}</span>
+                <button class="clear-history">${i18n?.t('clearHistory') || '清空'}</button>
             </div>
-            <div class="browse-history-list">
-                ${history.slice(0, 6).map(item => `
+            <div class="history-list">
+                ${history.slice(0, 5).map(item => `
                     <div class="history-item" data-id="${item.id}" data-series="${item.seriesId}">
-                        <img src="${item.image}" alt="${item.name?.[currentLang] || item.name?.zh || ''}">
-                        <span class="history-name">${item.name?.[currentLang] || item.name?.zh || ''}</span>
+                        <img src="${item.image}" alt="${item.name?.zh || ''}">
                     </div>
                 `).join('')}
             </div>
         `;
 
-        widget.querySelector('.clear-history')?.addEventListener('click', () => this.clear());
-        
+        widget.querySelector('.clear-history').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.clear();
+        });
+
         widget.querySelectorAll('.history-item').forEach(item => {
             item.addEventListener('click', () => {
                 const id = item.dataset.id;
                 const seriesId = item.dataset.series;
-                const product = history.find(p => p.id === id && p.seriesId === seriesId);
-                if (product && productModal) {
-                    const allProducts = {};
-                    productModal.open(seriesId, id, product, allProducts);
+                const productData = history.find(h => h.id === id && h.seriesId === seriesId);
+                if (productData && productModal) {
+                    const seriesProducts = frontend?.productsData?.[seriesId]?.products || {};
+                    productModal.open(seriesId, id, productData, seriesProducts);
                 }
             });
         });
-
-        widget.classList.add('active');
-    }
-
-    getRecentProducts(count = 6) {
-        return this.getHistory().slice(0, count);
     }
 }
 

@@ -211,9 +211,7 @@ class Frontend {
 
     renderProducts() {
         const container = document.getElementById('product-series');
-        if (!container || !this.productsData) {
-            return;
-        }
+        if (!container || !this.productsData) return;
 
         container.innerHTML = '';
 
@@ -225,17 +223,21 @@ class Frontend {
 
         sortedSeries.forEach(seriesId => {
             const seriesData = this.productsData[seriesId];
+            
             let productsToFilter = seriesData.products || {};
+            
             if (productFilter && productFilter.hasActiveFilters()) {
                 const filters = productFilter.getActiveFilters();
                 productsToFilter = Object.fromEntries(
                     productFilter.filterProducts(seriesData.products || {}, filters)
                 );
             }
+            
             let sortedProducts = productsToFilter;
             if (layoutSwitcher) {
                 sortedProducts = layoutSwitcher.sortProducts(sortedProducts);
             }
+            
             const seriesElement = this.createSeriesElement(seriesId, seriesData, sortedProducts);
             container.appendChild(seriesElement);
         });
@@ -258,7 +260,7 @@ class Frontend {
         productsContainer.className = 'products-container';
 
         const productsToRender = products || seriesData.products || {};
-
+        
         Object.keys(productsToRender).forEach(productId => {
             const productData = productsToRender[productId];
             const productCard = this.createProductCard(seriesId, productId, productData);
@@ -270,12 +272,16 @@ class Frontend {
         const prevBtn = document.createElement('button');
         prevBtn.className = 'series-nav prev';
         prevBtn.textContent = '‹';
-        prevBtn.addEventListener('click', () => { productsContainer.scrollBy({ left: -300, behavior: 'smooth' }); });
+        prevBtn.addEventListener('click', () => {
+            productsContainer.scrollBy({ left: -300, behavior: 'smooth' });
+        });
 
         const nextBtn = document.createElement('button');
         nextBtn.className = 'series-nav next';
         nextBtn.textContent = '›';
-        nextBtn.addEventListener('click', () => { productsContainer.scrollBy({ left: 300, behavior: 'smooth' }); });
+        nextBtn.addEventListener('click', () => {
+            productsContainer.scrollBy({ left: 300, behavior: 'smooth' });
+        });
 
         productsWrapper.appendChild(prevBtn);
         productsWrapper.appendChild(nextBtn);
@@ -292,9 +298,9 @@ class Frontend {
         imageDiv.className = 'product-image';
 
         const img = document.createElement('img');
-        img.src = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${seriesId}/${productId}`;
+        img.src = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(seriesId)}/${encodeURIComponent(productId)}`;
         img.alt = i18n.getLocalizedField(productData, 'name');
-        img.dataset.src = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${seriesId}/${productId}`;
+        img.dataset.src = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(seriesId)}/${encodeURIComponent(productId)}`;
         imageDiv.appendChild(img);
 
         const infoDiv = document.createElement('div');
@@ -344,7 +350,7 @@ class Frontend {
             if (productModal) {
                 const allProducts = this.productsData[seriesId]?.products || {};
                 productModal.open(seriesId, productId, { id: productId, seriesId, ...productData }, allProducts);
-
+                
                 if (browseHistory && this.isFeatureEnabled('toggle-history')) {
                     browseHistory.add({ id: productId, seriesId, ...productData });
                 }
@@ -382,7 +388,7 @@ class Frontend {
 
     updateCompareButton(btn, productId) {
         if (!productCompare) return;
-
+        
         if (productCompare.isInCompare(productId)) {
             btn.classList.add('in-compare');
             btn.title = i18n.t('removeCompare') || '取消对比';
@@ -404,5 +410,6 @@ class Frontend {
 
 window.addEventListener('DOMContentLoaded', async () => {
     const frontend = new Frontend();
+    window.frontend = frontend;
     await frontend.init();
 });
