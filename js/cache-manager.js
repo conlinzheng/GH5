@@ -3,68 +3,71 @@ class CacheManager {
         this.defaultTTL = 3600000;
     }
 
-    get(key) {
+    get(key, ttl = this.defaultTTL) {
         try {
+            if (!window.localStorage) return null;
             const item = localStorage.getItem(key);
             if (!item) return null;
-
-            const { value, timestamp, ttl } = JSON.parse(item);
+            const parsedItem = JSON.parse(item);
             const now = Date.now();
-
-            if (ttl && now - timestamp > ttl) {
-                localStorage.removeItem(key);
+            if (now - parsedItem.timestamp > ttl) {
+                this.clear(key);
                 return null;
             }
-
-            return value;
+            return parsedItem.data;
         } catch (error) {
-            console.error('Cache get error:', error);
             return null;
         }
     }
 
-    set(key, value, ttl = this.defaultTTL) {
+    set(key, data) {
         try {
-            const item = {
-                value,
-                timestamp: Date.now(),
-                ttl
-            };
+            if (!window.localStorage) return false;
+            const item = { data, timestamp: Date.now() };
             localStorage.setItem(key, JSON.stringify(item));
             return true;
         } catch (error) {
-            console.error('Cache set error:', error);
             return false;
         }
     }
 
     clear(key) {
-        localStorage.removeItem(key);
+        try {
+            if (!window.localStorage) return false;
+            localStorage.removeItem(key);
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 
     clearAll() {
-        const keys = Object.keys(localStorage);
-        keys.forEach(key => {
-            if (key.startsWith('cache_')) {
-                localStorage.removeItem(key);
-            }
-        });
+        try {
+            if (!window.localStorage) return false;
+            localStorage.clear();
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 
     getSize() {
         let size = 0;
-        for (let key in localStorage) {
-            if (localStorage.hasOwnProperty(key)) {
-                size += localStorage[key].length + key.length;
+        try {
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    size += localStorage[key].length;
+                }
             }
-        }
+        } catch (e) {}
         return size;
+    }
+
+    exists(key, ttl = this.defaultTTL) {
+        return this.get(key, ttl) !== null;
     }
 }
 
 const cacheManager = new CacheManager();
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = cacheManager;
-} else {
-    window.cacheManager = cacheManager;
-}
+if (typeof module !== 'undefined' && module.exports) { module.exports = cacheManager; }
+else { window.cacheManager = cacheManager; }
