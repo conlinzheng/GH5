@@ -5,7 +5,6 @@ class CacheManager {
 
     get(key, ttl = this.defaultTTL) {
         try {
-            if (!window.localStorage) return null;
             const item = localStorage.getItem(key);
             if (!item) return null;
             const parsedItem = JSON.parse(item);
@@ -22,7 +21,6 @@ class CacheManager {
 
     set(key, data) {
         try {
-            if (!window.localStorage) return false;
             const item = { data, timestamp: Date.now() };
             localStorage.setItem(key, JSON.stringify(item));
             return true;
@@ -33,7 +31,6 @@ class CacheManager {
 
     clear(key) {
         try {
-            if (!window.localStorage) return false;
             localStorage.removeItem(key);
             return true;
         } catch (error) {
@@ -43,7 +40,6 @@ class CacheManager {
 
     clearAll() {
         try {
-            if (!window.localStorage) return false;
             localStorage.clear();
             return true;
         } catch (error) {
