@@ -16,7 +16,8 @@ class Frontend {
             'toggle-layout': true,
             'toggle-share': true,
             'toggle-theme': true,
-            'toggle-language': true
+            'toggle-language': true,
+            'toggle-contact': true
         };
         const saved = localStorage.getItem('site_features');
         return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
@@ -79,8 +80,13 @@ class Frontend {
 
         this.renderProducts();
 
-        if (contactForm) {
+        if (contactForm && this.isFeatureEnabled('toggle-contact')) {
             contactForm.init();
+        }
+
+        if (!this.isFeatureEnabled('toggle-contact')) {
+            const contactSection = document.querySelector('.contact-section');
+            if (contactSection) contactSection.style.display = 'none';
         }
 
         window.addEventListener('layoutChanged', () => {
@@ -97,7 +103,7 @@ class Frontend {
 
         window.addEventListener('languageChanged', () => {
             this.renderProducts();
-            if (contactForm) {
+            if (contactForm && this.isFeatureEnabled('toggle-contact')) {
                 contactForm.updateLanguage();
             }
             if (productSearch && this.isFeatureEnabled('toggle-search')) {
@@ -180,11 +186,7 @@ class Frontend {
                         productsData[seriesId] = seriesData;
                     } catch (error) {
                         productsData[seriesId] = {
-                            seriesName: {
-                                zh: seriesId.split('-')[1] || seriesId,
-                                en: seriesId.split('-')[1] || seriesId,
-                                ko: seriesId.split('-')[1] || seriesId
-                            },
+                            seriesName: { zh: seriesId.split('-')[1] || seriesId, en: seriesId.split('-')[1] || seriesId, ko: seriesId.split('-')[1] || seriesId },
                             products: {}
                         };
                     }
@@ -213,21 +215,15 @@ class Frontend {
 
         sortedSeries.forEach(seriesId => {
             const seriesData = this.productsData[seriesId];
-            
             let productsToFilter = seriesData.products || {};
-            
             if (productFilter && productFilter.hasActiveFilters()) {
                 const filters = productFilter.getActiveFilters();
-                productsToFilter = Object.fromEntries(
-                    productFilter.filterProducts(seriesData.products || {}, filters)
-                );
+                productsToFilter = Object.fromEntries(productFilter.filterProducts(seriesData.products || {}, filters));
             }
-            
             let sortedProducts = productsToFilter;
             if (layoutSwitcher) {
                 sortedProducts = layoutSwitcher.sortProducts(sortedProducts);
             }
-            
             const seriesElement = this.createSeriesElement(seriesId, seriesData, sortedProducts);
             container.appendChild(seriesElement);
         });
@@ -250,7 +246,7 @@ class Frontend {
         productsContainer.className = 'products-container';
 
         const productsToRender = products || seriesData.products || {};
-        
+
         Object.keys(productsToRender).forEach(productId => {
             const productData = productsToRender[productId];
             const productCard = this.createProductCard(seriesId, productId, productData);
@@ -262,16 +258,12 @@ class Frontend {
         const prevBtn = document.createElement('button');
         prevBtn.className = 'series-nav prev';
         prevBtn.textContent = '‹';
-        prevBtn.addEventListener('click', () => {
-            productsContainer.scrollBy({ left: -300, behavior: 'smooth' });
-        });
+        prevBtn.addEventListener('click', () => { productsContainer.scrollBy({ left: -300, behavior: 'smooth' }); });
 
         const nextBtn = document.createElement('button');
         nextBtn.className = 'series-nav next';
         nextBtn.textContent = '›';
-        nextBtn.addEventListener('click', () => {
-            productsContainer.scrollBy({ left: 300, behavior: 'smooth' });
-        });
+        nextBtn.addEventListener('click', () => { productsContainer.scrollBy({ left: 300, behavior: 'smooth' }); });
 
         productsWrapper.appendChild(prevBtn);
         productsWrapper.appendChild(nextBtn);
@@ -340,7 +332,7 @@ class Frontend {
             if (productModal) {
                 const allProducts = this.productsData[seriesId]?.products || {};
                 productModal.open(seriesId, productId, { id: productId, seriesId, ...productData }, allProducts);
-                
+
                 if (browseHistory && this.isFeatureEnabled('toggle-history')) {
                     browseHistory.add({ id: productId, seriesId, ...productData });
                 }
@@ -378,7 +370,7 @@ class Frontend {
 
     updateCompareButton(btn, productId) {
         if (!productCompare) return;
-        
+
         if (productCompare.isInCompare(productId)) {
             btn.classList.add('in-compare');
             btn.title = i18n.t('removeCompare') || '取消对比';
