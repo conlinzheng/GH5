@@ -1,0 +1,99 @@
+{
+  "seriesName": {
+    "zh": "秋季",
+    "en": "秋季",
+    "ko": "秋季"
+  },
+  "products": {
+    "@@@ (1).png": {
+      "name": {
+        "zh": "@@@ (1)",
+        "en": "@@@ (1)",
+        "ko": "@@@ (1)"
+      },
+      "description": {
+        "zh": "@@@ (1) - 高品质产品",
+        "en": "@@@ (1) - High quality product",
+        "ko": "@@@ (1) - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "@@@ (2).png": {
+      "name": {
+        "zh": "@@@ (2)",
+        "en": "@@@ (2)",
+        "ko": "@@@ (2)"
+      },
+      "description": {
+        "zh": "@@@ (2) - 高品质产品",
+        "en": "@@@ (2) - High quality product",
+        "ko": "@@@ (2) - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "@@@ (3).png": {
+      "name": {
+        "zh": "@@@ (3)",
+        "en": "@@@ (3)",
+        "ko": "@@@ (3)"
+      },
+      "description": {
+        "zh": "@@@ (3) - 高品质产品",
+        "en": "@@@ (3) - High quality product",
+        "ko": "@@@ (3) - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "@@@ (4).png": {
+      "name": {
+        "zh": "@@@ (4)",
+        "en": "@@@ (4)",
+        "ko": "@@@ (4)"
+      },
+      "description": {
+        "zh": "@@@ (4) - 高品质产品",
+        "en": "@@@ (4) - High quality product",
+        "ko": "@@@ (4) - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "@@@ (5).png": {
+      "name": {
+        "zh": "@@@ (5)",
+        "en": "@@@ (5)",
+        "ko": "@@@ (5)"
+      },
+      "description": {
+        "zh": "@@@ (5) - 高品质产品",
+        "en": "@@@ (5) - High quality product",
+        "ko": "@@@ (5) - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    }
+  }
+}
