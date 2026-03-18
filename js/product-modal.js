@@ -659,7 +659,9 @@ class ProductModal {
         // 更新弹窗内容
         const mainImage = this.modal.querySelector('#modal-main-image');
         if (product.images && product.images.length > 0) {
-            const mainImageUrl = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(this.currentSeries)}/${encodeURIComponent(product.images[0].filename)}`;
+            // 查找主图（带 (1) 的图片）
+            const mainImageObj = product.images.find(img => img.isMain) || product.images[0];
+            const mainImageUrl = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(this.currentSeries)}/${encodeURIComponent(mainImageObj.filename)}`;
             mainImage.src = mainImageUrl;
             mainImage.alt = product.name?.[currentLang] || product.name?.zh || '';
         }
