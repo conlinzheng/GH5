@@ -146,7 +146,7 @@ class ThemeManager {
         const existing = document.getElementById('theme-switcher');
         if (existing) existing.remove();
 
-        const header = document.querySelector('header nav .container');
+        const header = document.querySelector('.nav-actions');
         if (!header) return;
 
         const currentLang = i18n?.currentLanguage || 'zh';
