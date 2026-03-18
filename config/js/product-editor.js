@@ -19,26 +19,29 @@ class ProductEditor {
 
     /**
      * 渲染产品编辑器
+     * @param {HTMLElement} container - 容器元素
      */
-    async render() {
-        if (!this.container) return;
+    async render(container) {
+        this.container = container;
+        if (!container) return;
 
-        this.container.innerHTML = '<div class="loading">加载产品数据中...</div>';
+        container.innerHTML = '<div class="loading">加载产品数据中...</div>';
 
         try {
             await dataManager.loadFromGitHub();
-            this.renderProducts();
+            this.renderProducts(container);
         } catch (error) {
             console.error('Error loading product data:', error);
-            this.container.innerHTML = '<div class="error">加载产品数据失败，请确保已设置 GitHub Token</div>';
+            container.innerHTML = '<div class="error">加载产品数据失败，请确保已设置 GitHub Token</div>';
         }
     }
 
     /**
      * 渲染产品列表
+     * @param {HTMLElement} container - 容器元素
      */
-    renderProducts() {
-        if (!this.container) return;
+    renderProducts(container) {
+        if (!container) return;
 
         const productsData = dataManager.getProductsData();
         const seriesList = dataManager.getSeriesList();
