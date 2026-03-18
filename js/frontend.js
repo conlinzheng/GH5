@@ -18,6 +18,7 @@ class Frontend {
         const defaultSettings = {
             'toggle-backtotop': true,
             'toggle-imagezoom': true,
+            'toggle-modal': true,
             'toggle-search': true,
             'toggle-compare': true,
             'toggle-history': true,
