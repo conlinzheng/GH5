@@ -4,5 +4,114 @@
     "en": "真皮系列",
     "ko": "真皮系列"
   },
-  "products": {}
+  "products": {
+    "中文数字123 (1).png": {
+      "name": {
+        "zh": "中文数字123",
+        "en": "中文数字123",
+        "ko": "中文数字123"
+      },
+      "description": {
+        "zh": "中文数字123 - 高品质产品",
+        "en": "中文数字123 - High quality product",
+        "ko": "中文数字123 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "中文数字123 (2).png": {
+      "name": {
+        "zh": "中文数字123",
+        "en": "中文数字123",
+        "ko": "中文数字123"
+      },
+      "description": {
+        "zh": "中文数字123 - 高品质产品",
+        "en": "中文数字123 - High quality product",
+        "ko": "中文数字123 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "中文数字123 (3).png": {
+      "name": {
+        "zh": "中文数字123",
+        "en": "中文数字123",
+        "ko": "中文数字123"
+      },
+      "description": {
+        "zh": "中文数字123 - 高品质产品",
+        "en": "中文数字123 - High quality product",
+        "ko": "中文数字123 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "中文数字123 (4).png": {
+      "name": {
+        "zh": "中文数字123",
+        "en": "中文数字123",
+        "ko": "中文数字123"
+      },
+      "description": {
+        "zh": "中文数字123 - 高品质产品",
+        "en": "中文数字123 - High quality product",
+        "ko": "中文数字123 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "中文数字123 (5).png": {
+      "name": {
+        "zh": "中文数字123",
+        "en": "中文数字123",
+        "ko": "中文数字123"
+      },
+      "description": {
+        "zh": "中文数字123 - 高品质产品",
+        "en": "中文数字123 - High quality product",
+        "ko": "中文数字123 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "勃肯1 (1).jpg": {
+      "name": {
+        "zh": "勃肯1",
+        "en": "勃肯1",
+        "ko": "勃肯1"
+      },
+      "description": {
+        "zh": "勃肯1 - 高品质产品",
+        "en": "勃肯1 - High quality product",
+        "ko": "勃肯1 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    }
+  }
 }
