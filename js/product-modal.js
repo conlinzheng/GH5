@@ -1,82 +1,96 @@
+/**
+ * ProductModal 类 - 负责产品详情弹窗功能
+ * 包括弹窗显示、图片预览、系列产品展示等
+ */
 class ProductModal {
     constructor() {
         this.modal = document.getElementById('product-modal');
+        this.lightbox = document.getElementById('lightbox');
         this.currentProduct = null;
         this.currentSeries = null;
         this.currentSeriesName = null;
         this.currentProductId = null;
         this.currentImageIndex = 0;
         this.allProducts = null;
-        this.isImageModalOpen = false;
-        this.imageModal = null;
+        this.currentLightboxImages = [];
         this.init();
     }
 
+    /**
+     * 初始化产品模态框
+     */
     init() {
         this.setupEventListeners();
-        this.createImageModal();
+        this.createLightbox();
     }
 
+    /**
+     * 设置事件监听器
+     */
     setupEventListeners() {
+        // 模态框关闭按钮
         if (this.modal) {
-            const closeBtn = this.modal.querySelector('#modal-close');
+            const closeBtn = this.modal.querySelector('.modal-close');
             if (closeBtn) {
                 closeBtn.addEventListener('click', () => this.close());
             }
             
+            // 点击模态框背景关闭
             this.modal.addEventListener('click', (e) => {
                 if (e.target === this.modal) {
                     this.close();
                 }
             });
         }
-    }
 
-    createImageModal() {
-        this.imageModal = document.createElement('div');
-        this.imageModal.className = 'modal image-modal';
-        this.imageModal.innerHTML = `
-            <div class="modal-content image-modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">图片预览</h2>
-                    <button class="modal-close" id="image-modal-close">×</button>
-                </div>
-                <div class="modal-body">
-                    <div class="image-preview-container">
-                        <img id="preview-image" src="" alt="产品图片">
-                        <div class="image-navigation">
-                            <button id="prev-image" class="nav-btn">←</button>
-                            <button id="next-image" class="nav-btn">→</button>
-                        </div>
-                        <div class="image-counter"></div>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(this.imageModal);
-
-        const closeBtn = this.imageModal.querySelector('#image-modal-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.closeImageModal());
-        }
-
-        const prevBtn = this.imageModal.querySelector('#prev-image');
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => this.showPreviousImage());
-        }
-
-        const nextBtn = this.imageModal.querySelector('#next-image');
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => this.showNextImage());
-        }
-
-        this.imageModal.addEventListener('click', (e) => {
-            if (e.target === this.imageModal) {
-                this.closeImageModal();
+        // 键盘事件
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.close();
+                this.closeLightbox();
+            } else if (e.key === 'ArrowLeft') {
+                this.navigateLightbox(-1);
+            } else if (e.key === 'ArrowRight') {
+                this.navigateLightbox(1);
             }
         });
     }
 
+    /**
+     * 创建灯箱
+     */
+    createLightbox() {
+        if (!this.lightbox) {
+            this.lightbox = document.createElement('div');
+            this.lightbox.className = 'lightbox';
+            this.lightbox.id = 'lightbox';
+            this.lightbox.innerHTML = `
+                <div class="lightbox-content" onclick="event.stopPropagation()">
+                    <span class="close-lightbox" onclick="productModal.closeLightbox(event)">&times;</span>
+                    <button class="lightbox-nav lightbox-prev" onclick="productModal.navigateLightbox(-1)" title="上一张">❮</button>
+                    <img class="lightbox-image" id="lightbox-image" src="" alt="">
+                    <button class="lightbox-nav lightbox-next" onclick="productModal.navigateLightbox(1)" title="下一张">❯</button>
+                    <div class="lightbox-counter" id="lightbox-counter"></div>
+                </div>
+            `;
+            document.body.appendChild(this.lightbox);
+        }
+
+        // 灯箱点击事件
+        if (this.lightbox) {
+            this.lightbox.addEventListener('click', (e) => {
+                this.closeLightbox(e);
+            });
+        }
+    }
+
+    /**
+     * 打开产品详情弹窗
+     * @param {string} seriesId 系列ID
+     * @param {string} productId 产品ID
+     * @param {Object} product 产品数据
+     * @param {Object} allProducts 所有产品数据
+     */
     open(seriesId, productId, product, allProducts) {
         this.currentSeries = seriesId;
         this.currentProductId = productId;
@@ -97,6 +111,9 @@ class ProductModal {
         document.body.style.overflow = 'hidden';
     }
 
+    /**
+     * 关闭产品详情弹窗
+     */
     close() {
         if (this.modal) {
             this.modal.classList.remove('visible');
@@ -104,53 +121,90 @@ class ProductModal {
         }
     }
 
-    openImageModal(imageIndex = 0) {
-        this.currentImageIndex = imageIndex;
-        this.isImageModalOpen = true;
-        this.updateImageModal();
-        this.imageModal.classList.add('visible');
-        document.body.style.overflow = 'hidden';
-    }
-
-    closeImageModal() {
-        this.isImageModalOpen = false;
-        this.imageModal.classList.remove('visible');
-        document.body.style.overflow = '';
-    }
-
-    showPreviousImage() {
-        const images = this.getProductImages();
-        if (images.length > 0) {
-            this.currentImageIndex = (this.currentImageIndex - 1 + images.length) % images.length;
-            this.updateImageModal();
+    /**
+     * 打开图片灯箱
+     * @param {string} src 图片路径
+     */
+    openLightbox(src) {
+        if (this.lightbox) {
+            const lightboxImage = this.lightbox.querySelector('.lightbox-image');
+            if (lightboxImage) {
+                lightboxImage.src = src;
+            }
+            this.lightbox.style.display = 'flex';
+            
+            // 设置灯箱图片列表
+            this.currentLightboxImages = this.getProductImages();
+            this.currentImageIndex = this.currentLightboxImages.indexOf(src);
+            
+            this.updateLightboxCounter();
         }
     }
 
-    showNextImage() {
-        const images = this.getProductImages();
-        if (images.length > 0) {
-            this.currentImageIndex = (this.currentImageIndex + 1) % images.length;
-            this.updateImageModal();
+    /**
+     * 关闭图片灯箱
+     * @param {Event} event 事件对象
+     */
+    closeLightbox(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        if (this.lightbox) {
+            this.lightbox.style.display = 'none';
         }
     }
 
-    updateImageModal() {
-        const images = this.getProductImages();
-        if (images.length === 0) return;
+    /**
+     * 导航灯箱图片
+     * @param {number} direction 方向（-1：上一张，1：下一张）
+     */
+    navigateLightbox(direction) {
+        if (this.currentLightboxImages.length === 0) return;
 
-        const previewImage = this.imageModal.querySelector('#preview-image');
-        const imageCounter = this.imageModal.querySelector('.image-counter');
+        this.currentImageIndex += direction;
 
-        if (previewImage) {
-            previewImage.src = images[this.currentImageIndex];
-            previewImage.alt = `${i18n.getLocalizedField(this.currentProduct, 'name')} - 图片 ${this.currentImageIndex + 1}`;
+        // 循环切换
+        if (this.currentImageIndex < 0) {
+            this.currentImageIndex = this.currentLightboxImages.length - 1;
+        } else if (this.currentImageIndex >= this.currentLightboxImages.length) {
+            this.currentImageIndex = 0;
         }
 
-        if (imageCounter) {
-            imageCounter.textContent = `${this.currentImageIndex + 1} / ${images.length}`;
+        const lightboxImage = this.lightbox.querySelector('.lightbox-image');
+        if (lightboxImage) {
+            lightboxImage.src = this.currentLightboxImages[this.currentImageIndex];
+            this.updateLightboxCounter();
         }
     }
 
+    /**
+     * 更新灯箱计数器
+     */
+    updateLightboxCounter() {
+        const counter = this.lightbox.querySelector('.lightbox-counter');
+        const prevBtn = this.lightbox.querySelector('.lightbox-prev');
+        const nextBtn = this.lightbox.querySelector('.lightbox-next');
+
+        // 如果只有一张图片，隐藏计数器和导航按钮
+        if (this.currentLightboxImages.length <= 1) {
+            if (counter) counter.textContent = '';
+            if (prevBtn) prevBtn.style.display = 'none';
+            if (nextBtn) nextBtn.style.display = 'none';
+        } else {
+            // 多张图片，显示计数器和导航按钮
+            if (counter) {
+                counter.textContent = `${this.currentImageIndex + 1} / ${this.currentLightboxImages.length}`;
+            }
+            if (prevBtn) prevBtn.style.display = 'block';
+            if (nextBtn) nextBtn.style.display = 'block';
+        }
+    }
+
+    /**
+     * 获取产品图片
+     * @returns {Array} 图片URL数组
+     */
     getProductImages() {
         const images = [];
         const seriesId = this.currentSeries;
@@ -167,21 +221,9 @@ class ProductModal {
         return images;
     }
 
-    getRelatedImages() {
-        const images = [];
-        const seriesId = this.currentSeries;
-        
-        // 只添加当前产品的图片，不添加整个系列的图片
-        if (this.currentProduct && this.currentProduct.images) {
-            this.currentProduct.images.forEach(img => {
-                const imageUrl = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(seriesId)}/${encodeURIComponent(img.filename)}`;
-                images.push(imageUrl);
-            });
-        }
-        
-        return images;
-    }
-
+    /**
+     * 渲染产品详情
+     */
     render() {
         if (!this.currentProduct || !this.modal) return;
 
@@ -194,41 +236,52 @@ class ProductModal {
 
         // 构建产品详情HTML
         const html = `
-            <div class="product-modal-content">
-                <div class="product-images">
+            <div class="modal-body">
+                <!-- 左侧图片 -->
+                <div class="modal-images">
                     <div class="main-image-container">
-                        <img id="modal-main-image" src="" alt="${i18n.getLocalizedField(product, 'name')}">
-                        <div class="image-actions">
-                            <button class="btn btn-outline btn-sm" id="view-all-images">查看所有图片</button>
-                        </div>
+                        <img id="modal-main-image" src="" alt="${i18n.getLocalizedField(product, 'name')}" onclick="productModal.openLightbox(this.src)">
+                        <div class="zoom-hint" data-i18n="modal.zoomHint">点击查看大图</div>
                     </div>
-                    <div class="thumbnail-images">
-                        <!-- Thumbnails will be dynamically added -->
+                    <div class="modal-gallery" id="modal-gallery">
+                        <!-- 相关图片将动态加载 -->
                     </div>
                 </div>
-                <div class="product-details">
-                    <h3 id="modal-series">${this.currentSeriesName}</h3>
+
+                <!-- 右侧信息 -->
+                <div class="modal-info">
+                    <div class="modal-series" id="modal-series">${this.currentSeriesName}</div>
                     <h2 id="modal-product-name">${i18n.getLocalizedField(product, 'name')}</h2>
-                    <p id="modal-product-description">${i18n.getLocalizedField(product, 'description')}</p>
+                    <p class="modal-description" id="modal-description">${i18n.getLocalizedField(product, 'description')}</p>
                     
-                    ${product.price ? `<div class="product-price">${product.price}</div>` : ''}
-                    
-                    <div class="product-info">
-                        <h4>产品信息</h4>
-                        <ul>
-                            <li><strong>系列：</strong>${this.currentSeriesName}</li>
-                            <li><strong>编号：</strong>${product.id || this.currentProductId}</li>
-                            ${product.images ? `<li><strong>图片数量：</strong>${product.images.length}</li>` : ''}
-                        </ul>
+                    <!-- 产品详细信息 -->
+                    <div class="product-specs">
+                        <div class="spec-item">
+                            <span class="spec-label" data-i18n="spec.upperMaterial">鞋面材质：</span>
+                            <span class="spec-value" id="spec-upper">${product.upperMaterial || '-'}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label" data-i18n="spec.innerMaterial">内里材质：</span>
+                            <span class="spec-value" id="spec-inner">${product.innerMaterial || '-'}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label" data-i18n="spec.soleMaterial">鞋底材质：</span>
+                            <span class="spec-value" id="spec-sole">${product.soleMaterial || '-'}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label" data-i18n="spec.moq">起订量：</span>
+                            <span class="spec-value" id="spec-moq">${product.moq || '-'}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label" data-i18n="spec.deliveryTime">交货周期：</span>
+                            <span class="spec-value" id="spec-delivery">${product.deliveryTime || '-'}</span>
+                        </div>
                     </div>
                     
-                    <div class="social-share">
-                        <h4>分享</h4>
-                        <div class="share-buttons">
-                            <a href="https://weixin.qq.com/share" class="share-btn wechat" target="_blank">微信</a>
-                            <a href="https://weibo.com/share" class="share-btn weibo" target="_blank">微博</a>
-                            <a href="https://twitter.com/share" class="share-btn twitter" target="_blank">Twitter</a>
-                        </div>
+                    <div class="modal-actions">
+                        <button class="contact-btn" onclick="window.location.href='#contact'">
+                            <span data-i18n="modal.contactUs">联系我们</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -244,64 +297,30 @@ class ProductModal {
             const mainImageUrl = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(this.currentSeries)}/${encodeURIComponent(mainImageObj.filename)}`;
             mainImage.src = mainImageUrl;
             mainImage.alt = i18n.getLocalizedField(product, 'name') || '';
-
-            // 添加点击查看大图事件
-            mainImage.addEventListener('click', () => {
-                const mainImageIndex = product.images.findIndex(img => img.isMain) || 0;
-                this.openImageModal(mainImageIndex);
-            });
         }
 
-        // 添加缩略图
-        const thumbnailContainer = this.modal.querySelector('.thumbnail-images');
-        if (thumbnailContainer && product.images && product.images.length > 0) {
+        // 添加相关图片
+        const gallery = this.modal.querySelector('#modal-gallery');
+        if (gallery && product.images && product.images.length > 0) {
+            let galleryHtml = '';
             product.images.forEach((img, index) => {
-                const thumbnail = document.createElement('div');
-                thumbnail.className = 'thumbnail-item';
-                if (img.isMain) {
-                    thumbnail.classList.add('active');
-                }
-                
-                const thumbnailImg = document.createElement('img');
-                const thumbnailUrl = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(this.currentSeries)}/${encodeURIComponent(img.filename)}`;
-                thumbnailImg.src = thumbnailUrl;
-                thumbnailImg.alt = `${i18n.getLocalizedField(product, 'name')} - 缩略图 ${index + 1}`;
-                
-                // 添加点击事件
-                thumbnail.addEventListener('click', () => {
-                    // 更新主图
-                    if (mainImage) {
-                        mainImage.src = thumbnailUrl;
-                    }
-                    
-                    // 更新缩略图激活状态
-                    document.querySelectorAll('.thumbnail-item').forEach(item => {
-                        item.classList.remove('active');
-                    });
-                    thumbnail.classList.add('active');
-                    
-                    // 打开图片预览
-                    this.openImageModal(index);
-                });
-                
-                thumbnail.appendChild(thumbnailImg);
-                thumbnailContainer.appendChild(thumbnail);
+                const imageUrl = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(this.currentSeries)}/${encodeURIComponent(img.filename)}`;
+                galleryHtml += `
+                    <div class="modal-gallery-item">
+                        <img src="${imageUrl}" 
+                             alt="${i18n.getLocalizedField(product, 'name')} - 图片 ${index + 1}" 
+                             class="gallery-thumb"
+                             onclick="document.getElementById('modal-main-image').src='${imageUrl}'; productModal.openLightbox('${imageUrl}')">
+                    </div>
+                `;
             });
-        }
-
-        // 添加查看所有图片按钮事件
-        const viewAllImagesBtn = this.modal.querySelector('#view-all-images');
-        if (viewAllImagesBtn) {
-            viewAllImagesBtn.addEventListener('click', () => {
-                this.openImageModal(0);
-            });
+            gallery.innerHTML = galleryHtml;
         }
 
         // 添加系列名称点击事件，显示整个系列的产品
         const seriesName = this.modal.querySelector('#modal-series');
         if (seriesName) {
             seriesName.style.cursor = 'pointer';
-            seriesName.style.color = '#667eea';
             seriesName.addEventListener('click', () => {
                 this.showSeriesProducts();
             });
@@ -311,6 +330,9 @@ class ProductModal {
         this.addStyles();
     }
 
+    /**
+     * 显示系列产品
+     */
     showSeriesProducts() {
         if (!this.allProducts) return;
 
@@ -364,323 +386,372 @@ class ProductModal {
         }
     }
 
+    /**
+     * 添加样式
+     */
     addStyles() {
+        // 检查是否已经添加了样式
+        if (document.getElementById('product-modal-styles')) {
+            return;
+        }
+
         // 添加产品模态框样式
         const style = document.createElement('style');
+        style.id = 'product-modal-styles';
         style.textContent = `
-            .product-modal-content {
-                display: flex;
-                gap: 2rem;
-                max-height: 80vh;
-                overflow: hidden;
+            /* 产品模态框样式 */
+            .product-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                z-index: 1000;
+                justify-content: center;
+                align-items: center;
             }
-            
-            .product-images {
-                flex: 0 0 40%;
+
+            .product-modal.visible {
                 display: flex;
-                flex-direction: column;
-                gap: 1rem;
             }
-            
+
+            .modal-content {
+                background-color: #fff;
+                border-radius: 8px;
+                width: 90%;
+                max-width: 1000px;
+                max-height: 90vh;
+                overflow-y: auto;
+                position: relative;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            }
+
+            .modal-close {
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: #999;
+                z-index: 10;
+            }
+
+            .modal-close:hover {
+                color: #333;
+            }
+
+            .modal-body {
+                display: flex;
+                padding: 30px;
+                gap: 30px;
+            }
+
+            .modal-images {
+                flex: 0 0 45%;
+            }
+
             .main-image-container {
                 position: relative;
-                border-radius: var(--border-radius);
+                margin-bottom: 20px;
+                border-radius: 8px;
                 overflow: hidden;
-                box-shadow: var(--shadow);
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }
-            
-            .main-image-container img {
+
+            #modal-main-image {
                 width: 100%;
                 height: auto;
-                max-height: 500px;
+                max-height: 400px;
                 object-fit: contain;
                 cursor: pointer;
-                transition: var(--transition);
+                transition: transform 0.3s ease;
             }
-            
-            .main-image-container img:hover {
+
+            #modal-main-image:hover {
                 transform: scale(1.02);
             }
-            
-            .image-actions {
+
+            .zoom-hint {
                 position: absolute;
-                bottom: 1rem;
-                right: 1rem;
+                bottom: 10px;
+                right: 10px;
+                background: rgba(0, 0, 0, 0.6);
+                color: #fff;
+                padding: 5px 10px;
+                border-radius: 4px;
+                font-size: 12px;
             }
-            
-            .thumbnail-images {
+
+            .modal-gallery {
                 display: flex;
-                gap: 0.5rem;
+                gap: 10px;
                 overflow-x: auto;
-                padding: 0.5rem 0;
+                padding: 10px 0;
             }
-            
-            .thumbnail-item {
+
+            .modal-gallery-item {
                 flex: 0 0 80px;
                 height: 80px;
-                border-radius: var(--border-radius);
+                border-radius: 4px;
                 overflow: hidden;
                 cursor: pointer;
                 border: 2px solid transparent;
-                transition: var(--transition);
+                transition: all 0.3s ease;
             }
-            
-            .thumbnail-item:hover {
-                border-color: var(--primary-color);
+
+            .modal-gallery-item:hover {
+                border-color: #667eea;
                 transform: translateY(-2px);
             }
-            
-            .thumbnail-item.active {
-                border-color: var(--primary-color);
-                box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-            }
-            
-            .thumbnail-item img {
+
+            .gallery-thumb {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
             }
-            
-            .product-details {
+
+            .modal-info {
                 flex: 1;
-                overflow-y: auto;
-                padding-right: 1rem;
             }
-            
-            .product-details h3 {
-                font-size: 1.125rem;
-                color: var(--text-light);
-                margin-bottom: 0.5rem;
+
+            .modal-series {
+                font-size: 14px;
+                color: #999;
+                margin-bottom: 10px;
                 cursor: pointer;
             }
-            
-            .product-details h3:hover {
+
+            .modal-series:hover {
                 text-decoration: underline;
+                color: #667eea;
             }
-            
-            .product-details h2 {
-                font-size: 2rem;
-                font-weight: 700;
-                margin-bottom: 1rem;
-                color: var(--dark-color);
-            }
-            
-            .product-details p {
-                margin-bottom: 1.5rem;
-                color: var(--text-light);
-                line-height: 1.6;
-            }
-            
-            .product-price {
-                font-size: 1.5rem;
-                font-weight: 700;
-                color: var(--primary-color);
-                margin-bottom: 1.5rem;
-            }
-            
-            .product-info {
-                background: var(--light-color);
-                padding: 1.5rem;
-                border-radius: var(--border-radius);
-                margin-bottom: 1.5rem;
-            }
-            
-            .product-info h4 {
-                font-size: 1.125rem;
+
+            #modal-product-name {
+                font-size: 24px;
                 font-weight: 600;
-                margin-bottom: 1rem;
-                color: var(--dark-color);
+                margin-bottom: 15px;
+                color: #333;
             }
-            
-            .product-info ul {
-                list-style: none;
+
+            .modal-description {
+                font-size: 16px;
+                line-height: 1.5;
+                margin-bottom: 20px;
+                color: #666;
             }
-            
-            .product-info li {
-                margin-bottom: 0.5rem;
-                color: var(--text-color);
+
+            .product-specs {
+                margin-bottom: 30px;
             }
-            
-            .social-share {
-                margin-top: 2rem;
-            }
-            
-            .social-share h4 {
-                font-size: 1.125rem;
-                font-weight: 600;
-                margin-bottom: 1rem;
-                color: var(--dark-color);
-            }
-            
-            .share-buttons {
+
+            .spec-item {
                 display: flex;
-                gap: 1rem;
+                margin-bottom: 10px;
+                font-size: 14px;
             }
-            
-            .share-btn {
-                padding: 0.5rem 1rem;
-                border-radius: var(--border-radius);
-                font-weight: 600;
-                text-decoration: none;
-                transition: var(--transition);
-                font-size: 0.875rem;
+
+            .spec-label {
+                flex: 0 0 100px;
+                font-weight: 500;
+                color: #666;
             }
-            
-            .share-btn.wechat {
-                background: #07C160;
-                color: white;
+
+            .spec-value {
+                flex: 1;
+                color: #333;
             }
-            
-            .share-btn.weibo {
-                background: #E6162D;
-                color: white;
+
+            .modal-actions {
+                margin-top: 30px;
             }
-            
-            .share-btn.twitter {
-                background: #1DA1F2;
-                color: white;
+
+            .contact-btn {
+                background-color: #667eea;
+                color: #fff;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 4px;
+                font-size: 16px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
             }
-            
-            .share-btn:hover {
+
+            .contact-btn:hover {
+                background-color: #5a6fd8;
                 transform: translateY(-2px);
-                box-shadow: var(--shadow);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
             }
-            
-            .image-modal-content {
-                max-width: 90vw;
-                max-height: 90vh;
+
+            /* 灯箱样式 */
+            .lightbox {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.9);
+                z-index: 2000;
+                justify-content: center;
+                align-items: center;
             }
-            
-            .image-preview-container {
+
+            .lightbox-content {
                 position: relative;
-                text-align: center;
+                max-width: 90%;
+                max-height: 90%;
             }
-            
-            #preview-image {
+
+            .lightbox-image {
                 max-width: 100%;
-                max-height: 70vh;
+                max-height: 80vh;
                 object-fit: contain;
             }
-            
-            .image-navigation {
+
+            .close-lightbox {
+                position: absolute;
+                top: -40px;
+                right: 0;
+                color: #fff;
+                font-size: 30px;
+                cursor: pointer;
+            }
+
+            .lightbox-nav {
                 position: absolute;
                 top: 50%;
-                left: 0;
-                right: 0;
                 transform: translateY(-50%);
-                display: flex;
-                justify-content: space-between;
-                padding: 0 1rem;
-            }
-            
-            .nav-btn {
-                background: rgba(255, 255, 255, 0.9);
+                background: rgba(255, 255, 255, 0.3);
+                color: #fff;
                 border: none;
                 width: 40px;
                 height: 40px;
                 border-radius: 50%;
-                font-size: 1.5rem;
+                font-size: 20px;
                 cursor: pointer;
-                box-shadow: var(--shadow);
-                transition: var(--transition);
+                transition: all 0.3s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
-            
-            .nav-btn:hover {
-                background: var(--primary-color);
-                color: white;
+
+            .lightbox-nav:hover {
+                background: rgba(255, 255, 255, 0.5);
             }
-            
-            .image-counter {
+
+            .lightbox-prev {
+                left: -50px;
+            }
+
+            .lightbox-next {
+                right: -50px;
+            }
+
+            .lightbox-counter {
                 position: absolute;
-                bottom: 1rem;
+                bottom: -30px;
                 left: 50%;
                 transform: translateX(-50%);
-                background: rgba(0, 0, 0, 0.7);
-                color: white;
-                padding: 0.25rem 0.75rem;
-                border-radius: 20px;
-                font-size: 0.875rem;
+                color: #fff;
+                font-size: 14px;
             }
-            
+
+            /* 系列产品样式 */
             .series-products {
-                max-height: 80vh;
-                overflow-y: auto;
+                padding: 20px;
             }
-            
+
             .series-products h3 {
-                font-size: 1.5rem;
+                font-size: 20px;
                 font-weight: 600;
-                margin-bottom: 1.5rem;
-                color: var(--dark-color);
+                margin-bottom: 20px;
+                color: #333;
             }
-            
+
             .series-products-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 1.5rem;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
             }
-            
+
             .series-product-item {
-                background: white;
-                border-radius: var(--border-radius);
+                background: #fff;
+                border-radius: 8px;
                 overflow: hidden;
-                box-shadow: var(--shadow);
-                transition: var(--transition);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease;
                 cursor: pointer;
             }
-            
+
             .series-product-item:hover {
                 transform: translateY(-5px);
-                box-shadow: var(--shadow-lg);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             }
-            
+
             .series-product-image {
-                height: 200px;
+                height: 150px;
                 overflow: hidden;
             }
-            
+
             .series-product-image img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
-                transition: var(--transition);
+                transition: transform 0.3s ease;
             }
-            
+
             .series-product-item:hover .series-product-image img {
                 transform: scale(1.05);
             }
-            
+
             .series-product-info {
-                padding: 1.5rem;
+                padding: 15px;
             }
-            
+
             .series-product-info h4 {
-                font-size: 1.125rem;
+                font-size: 14px;
                 font-weight: 600;
-                margin-bottom: 0.5rem;
-                color: var(--dark-color);
+                margin-bottom: 5px;
+                color: #333;
             }
-            
+
             .series-product-info p {
-                color: var(--text-light);
-                font-size: 0.875rem;
-                line-height: 1.5;
+                font-size: 12px;
+                color: #666;
+                line-height: 1.4;
             }
-            
+
+            /* 响应式设计 */
             @media (max-width: 768px) {
-                .product-modal-content {
+                .modal-body {
                     flex-direction: column;
+                    padding: 20px;
+                    gap: 20px;
                 }
-                
-                .product-images {
+
+                .modal-images {
                     flex: 1;
                 }
-                
-                .main-image-container img {
+
+                #modal-main-image {
                     max-height: 300px;
+                }
+
+                .lightbox-prev {
+                    left: 10px;
+                }
+
+                .lightbox-next {
+                    right: 10px;
+                }
+
+                .series-products-grid {
+                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                 }
             }
         `;
@@ -690,5 +761,9 @@ class ProductModal {
 
 // 初始化产品模态框
 window.addEventListener('DOMContentLoaded', () => {
-    window.productModal = new ProductModal();
+    try {
+        window.productModal = new ProductModal();
+    } catch (error) {
+        console.error('Error initializing ProductModal:', error);
+    }
 });
