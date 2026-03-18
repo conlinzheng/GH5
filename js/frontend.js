@@ -161,6 +161,52 @@ class Frontend {
         });
     }
 
+    parseProductName(filename) {
+        const nameWithoutExt = filename.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+        const match = nameWithoutExt.match(/^(.+)\s*\((\d+)\)$/);
+        if (match) {
+            return {
+                productName: match[1].trim(),
+                imageIndex: parseInt(match[2])
+            };
+        }
+        return {
+            productName: nameWithoutExt,
+            imageIndex: 1
+        };
+    }
+
+    groupImagesByProduct(filenames) {
+        const products = {};
+        
+        filenames.forEach(filename => {
+            const ext = filename.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/);
+            if (!ext) return;
+
+            const { productName, imageIndex } = this.parseProductName(filename);
+            
+            if (!products[productName]) {
+                products[productName] = {
+                    name: { zh: productName, en: productName, ko: productName },
+                    description: { zh: `${productName} - 高品质产品`, en: `${productName} - High quality product`, ko: `${productName} - 고품질 제품` },
+                    price: '',
+                    images: []
+                };
+            }
+            
+            products[productName].images.push({
+                filename: filename,
+                isMain: imageIndex === 1
+            });
+        });
+
+        Object.values(products).forEach(product => {
+            product.images.sort((a, b) => a.imageIndex - b.imageIndex);
+        });
+
+        return products;
+    }
+
     async loadProductsData() {
         const container = document.getElementById('product-series');
         if (!container) return;
@@ -170,7 +216,7 @@ class Frontend {
         try {
             const cachedData = cacheManager.get('products_data');
             const cacheVersion = localStorage.getItem('products_data_version');
-            if (cachedData && Object.keys(cachedData).length > 0 && cacheVersion === 'v2') {
+            if (cachedData && Object.keys(cachedData).length > 0 && cacheVersion === 'v3') {
                 this.productsData = cachedData;
                 return;
             }
@@ -182,10 +228,28 @@ class Frontend {
                 if (series.type === 'dir') {
                     const seriesId = series.name;
                     try {
-                        const productsJson = await githubAPI.fetchFile(`产品图/${seriesId}/products.json`);
-                        const seriesData = JSON.parse(productsJson.content);
-                        productsData[seriesId] = seriesData;
+                        const files = await githubAPI.fetchDirectory(`产品图/${seriesId}`);
+                        const imageFiles = files.filter(f => 
+                            f.type === 'file' && 
+                            /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name) &&
+                            f.name !== 'products.json'
+                        );
+                        
+                        const groupedProducts = this.groupImagesByProduct(imageFiles.map(f => f.name));
+                        
+                        const seriesNumber = seriesId.split('-')[0] || '';
+                        const seriesName = seriesId.split('-').slice(1).join('-') || seriesId;
+                        
+                        productsData[seriesId] = {
+                            seriesName: {
+                                zh: seriesName,
+                                en: seriesName,
+                                ko: seriesName
+                            },
+                            products: groupedProducts
+                        };
                     } catch (error) {
+                        console.error(`Error loading series ${seriesId}:`, error);
                         productsData[seriesId] = {
                             seriesName: {
                                 zh: seriesId.split('-')[1] || seriesId,
@@ -200,7 +264,7 @@ class Frontend {
 
             if (Object.keys(productsData).length > 0) {
                 cacheManager.set('products_data', productsData);
-                localStorage.setItem('products_data_version', 'v2');
+                localStorage.setItem('products_data_version', 'v3');
                 this.productsData = productsData;
             } else {
                 container.innerHTML = '<div class="error">未找到产品数据</div>';
@@ -262,6 +326,13 @@ class Frontend {
         productsContainer.className = 'products-container';
 
         const productsToRender = products || seriesData.products || {};
+        const productCount = Object.keys(productsToRender).length;
+        
+        if (productCount >= 8) {
+            productsContainer.className = 'products-container multi-row';
+        } else {
+            productsContainer.className = 'products-container single-row';
+        }
         
         Object.keys(productsToRender).forEach(productId => {
             const productData = productsToRender[productId];
@@ -271,22 +342,24 @@ class Frontend {
 
         productsWrapper.appendChild(productsContainer);
 
-        const prevBtn = document.createElement('button');
-        prevBtn.className = 'series-nav prev';
-        prevBtn.textContent = '‹';
-        prevBtn.addEventListener('click', () => {
-            productsContainer.scrollBy({ left: -300, behavior: 'smooth' });
-        });
+        if (productCount > 10) {
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'series-nav prev';
+            prevBtn.textContent = '‹';
+            prevBtn.addEventListener('click', () => {
+                productsContainer.scrollBy({ left: -500, behavior: 'smooth' });
+            });
+            productsWrapper.appendChild(prevBtn);
 
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'series-nav next';
-        nextBtn.textContent = '›';
-        nextBtn.addEventListener('click', () => {
-            productsContainer.scrollBy({ left: 300, behavior: 'smooth' });
-        });
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'series-nav next';
+            nextBtn.textContent = '›';
+            nextBtn.addEventListener('click', () => {
+                productsContainer.scrollBy({ left: 500, behavior: 'smooth' });
+            });
+            productsWrapper.appendChild(nextBtn);
+        }
 
-        productsWrapper.appendChild(prevBtn);
-        productsWrapper.appendChild(nextBtn);
         seriesDiv.appendChild(productsWrapper);
 
         return seriesDiv;
@@ -299,10 +372,15 @@ class Frontend {
         const imageDiv = document.createElement('div');
         imageDiv.className = 'product-image';
 
+        const mainImage = productData.images?.find(img => img.isMain) || productData.images?.[0];
+        const imageUrl = mainImage 
+            ? `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(seriesId)}/${encodeURIComponent(mainImage.filename)}`
+            : '';
+        
         const img = document.createElement('img');
-        img.src = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(seriesId)}/${encodeURIComponent(productId)}`;
+        img.src = imageUrl;
         img.alt = i18n.getLocalizedField(productData, 'name');
-        img.dataset.src = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(seriesId)}/${encodeURIComponent(productId)}`;
+        img.dataset.src = imageUrl;
         imageDiv.appendChild(img);
 
         const infoDiv = document.createElement('div');
@@ -321,6 +399,13 @@ class Frontend {
             price.className = 'product-price';
             price.textContent = `价格: ${productData.price}`;
             infoDiv.appendChild(price);
+        }
+
+        if (productData.images && productData.images.length > 1) {
+            const imageCount = document.createElement('div');
+            imageCount.className = 'image-count';
+            imageCount.textContent = `${productData.images.length}张图片`;
+            infoDiv.appendChild(imageCount);
         }
 
         card.appendChild(imageDiv);
