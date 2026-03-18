@@ -1,378 +1,298 @@
 class I18n {
-    constructor() {
-        this.supportedLanguages = ['zh', 'en', 'ko'];
-        this.currentLanguage = localStorage.getItem('language') || 'zh';
-        this.defaultTranslations = {
-            zh: {
-                home: '首页',
-                about: '关于我们',
-                contact: '联系方式',
-                products: '产品系列',
-                aboutUs: '关于我们',
-                contactUs: '联系方式',
-                socialMedia: '社交媒体',
-                copyright: '© 2026 产品展示. 保留所有权利.',
-                wechat: '微信',
-                weibo: '微博',
-                instagram: 'Instagram',
-                compare: '添加到对比',
-                removeCompare: '取消对比',
-                compareTitle: '产品对比',
-                clearCompare: '清空',
-                startCompare: '开始对比',
-                selectAtLeast: '请至少添加2个产品进行对比',
-                maxCompare: '最多只能添加4个产品进行对比',
-                clearHistory: '清空历史',
-                recentlyViewed: '最近浏览',
-                switchTheme: '切换主题',
-                selectTheme: '选择主题',
-                view: '视图',
-                sortBy: '排序',
-                filter: '筛选',
-                reset: '重置',
-                priceRange: '价格区间',
-                material: '材质',
-                inStock: '仅显示有货',
-                share: '分享',
-                shareTo: '分享到',
-                backToTop: '回到顶部',
-                imageZoom: '图片放大',
-                enableFeature: '开启功能',
-                disableFeature: '关闭功能',
-                featureSettings: '功能设置'
-            },
-            en: {
-                home: 'Home',
-                about: 'About',
-                contact: 'Contact',
-                products: 'Product Series',
-                aboutUs: 'About Us',
-                contactUs: 'Contact Us',
-                socialMedia: 'Social Media',
-                copyright: '© 2026 Product Display. All rights reserved.',
-                wechat: 'WeChat',
-                weibo: 'Weibo',
-                instagram: 'Instagram',
-                compare: 'Add to Compare',
-                removeCompare: 'Remove from Compare',
-                compareTitle: 'Product Comparison',
-                clearCompare: 'Clear',
-                startCompare: 'Compare',
-                selectAtLeast: 'Please select at least 2 products to compare',
-                maxCompare: 'Maximum 4 products can be compared',
-                clearHistory: 'Clear History',
-                recentlyViewed: 'Recently Viewed',
-                switchTheme: 'Switch Theme',
-                selectTheme: 'Select Theme',
-                view: 'View',
-                sortBy: 'Sort',
-                filter: 'Filter',
-                reset: 'Reset',
-                priceRange: 'Price Range',
-                material: 'Material',
-                inStock: 'In Stock Only',
-                share: 'Share',
-                shareTo: 'Share to',
-                backToTop: 'Back to Top',
-                imageZoom: 'Image Zoom',
-                enableFeature: 'Enable',
-                disableFeature: 'Disable',
-                featureSettings: 'Feature Settings'
-            },
-            ko: {
-                home: '홈',
-                about: '소개',
-                contact: '연락처',
-                products: '제품 시리즈',
-                aboutUs: '회사 소개',
-                contactUs: '연락처',
-                socialMedia: '소셜 미디어',
-                copyright: '© 2026 제품 디스플레이. 모든 권리 보유.',
-                wechat: '위챗',
-                weibo: '웨이보',
-                instagram: '인스타그램',
-                compare: '비교에 추가',
-                removeCompare: '비교에서 제거',
-                compareTitle: '제품 비교',
-                clearCompare: '비우기',
-                startCompare: '비교 시작',
-                selectAtLeast: '비교하려면 최소 2개 이상의 제품을 선택하세요',
-                maxCompare: '최대 4개 제품만 비교할 수 있습니다',
-                clearHistory: '기록 지우기',
-                recentlyViewed: '최근 본 상품',
-                switchTheme: '테마 변경',
-                selectTheme: '테마 선택',
-                view: '보기',
-                sortBy: '정렬',
-                filter: '필터',
-                reset: '초기화',
-                priceRange: '가격대',
-                material: '재질',
-                inStock: '재고 있음만',
-                share: '공유',
-                shareTo: '공유하기',
-                backToTop: '맨위로',
-                imageZoom: '이미지 확대',
-                enableFeature: '기능 활성화',
-                disableFeature: '기능 비활성화',
-                featureSettings: '기능 설정'
-            }
-        };
-        this.translations = this.loadTranslations();
-    }
-
-    loadTranslations() {
-        const saved = localStorage.getItem('translations');
-        return saved ? JSON.parse(saved) : this.defaultTranslations;
-    }
-
-    /**
-     * 初始化多语言支持
-     */
-    init() {
-        this.bindLanguageSwitcher();
-        this.updateLanguageUI();
-    }
-
-    isReady() {
-        return this.translations && this.translations[this.currentLanguage];
-    }
-
-    /**
-     * 绑定语言切换按钮事件
-     */
-    bindLanguageSwitcher() {
-        const languageButtons = document.querySelectorAll('.language-switcher button');
-        languageButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                const lang = e.target.dataset.lang;
-                this.switchLanguage(lang);
-            });
-        });
-    }
-
-    /**
-     * 切换语言
-     * @param {string} lang - 语言代码
-     */
-    switchLanguage(lang) {
-        if (!this.supportedLanguages.includes(lang)) {
-            return;
+  constructor() {
+    this.currentLang = 'zh';
+    this.defaultLang = 'zh';
+    this.supportedLangs = ['zh', 'en', 'ko'];
+    this.translations = {
+      zh: {
+        site: {
+          title: 'GH5',
+          description: '产品展示网站'
+        },
+        header: {
+          logo: 'GH5',
+          language: '语言'
+        },
+        carousel: {
+          welcome: '欢迎来到 GH5',
+          description: '探索我们的优质产品'
+        },
+        search: {
+          placeholder: '搜索产品...',
+          button: '搜索'
+        },
+        products: {
+          loading: '加载中...',
+          noResults: '没有找到产品',
+          viewDetails: '查看详情'
+        },
+        contact: {
+          title: '联系我们',
+          name: '姓名',
+          email: '邮箱',
+          message: '留言',
+          submit: '提交',
+          success: '提交成功！',
+          error: '提交失败，请重试'
+        },
+        footer: {
+          copyright: '© 2026 GH5. All rights reserved.'
+        },
+        modal: {
+          close: '关闭',
+          previous: '上一张',
+          next: '下一张'
         }
+      },
+      en: {
+        site: {
+          title: 'GH5',
+          description: 'Product Showcase'
+        },
+        header: {
+          logo: 'GH5',
+          language: 'Language'
+        },
+        carousel: {
+          welcome: 'Welcome to GH5',
+          description: 'Explore our quality products'
+        },
+        search: {
+          placeholder: 'Search products...',
+          button: 'Search'
+        },
+        products: {
+          loading: 'Loading...',
+          noResults: 'No products found',
+          viewDetails: 'View Details'
+        },
+        contact: {
+          title: 'Contact Us',
+          name: 'Name',
+          email: 'Email',
+          message: 'Message',
+          submit: 'Submit',
+          success: 'Submitted successfully!',
+          error: 'Submission failed, please try again'
+        },
+        footer: {
+          copyright: '© 2026 GH5. All rights reserved.'
+        },
+        modal: {
+          close: 'Close',
+          previous: 'Previous',
+          next: 'Next'
+        }
+      },
+      ko: {
+        site: {
+          title: 'GH5',
+          description: '제품 전시'
+        },
+        header: {
+          logo: 'GH5',
+          language: '언어'
+        },
+        carousel: {
+          welcome: 'GH5에 오신 것을 환영합니다',
+          description: '우리의 고품질 제품을 탐험하세요'
+        },
+        search: {
+          placeholder: '제품 검색...',
+          button: '검색'
+        },
+        products: {
+          loading: '로딩 중...',
+          noResults: '제품을 찾을 수 없습니다',
+          viewDetails: '세부 정보 보기'
+        },
+        contact: {
+          title: '문의하기',
+          name: '이름',
+          email: '이메일',
+          message: '메시지',
+          submit: '제출',
+          success: '성공적으로 제출되었습니다!',
+          error: '제출 실패, 다시 시도하세요'
+        },
+        footer: {
+          copyright: '© 2026 GH5. All rights reserved.'
+        },
+        modal: {
+          close: '닫기',
+          previous: '이전',
+          next: '다음'
+        }
+      }
+    };
+    this.isReady = false;
+  }
 
-        this.currentLanguage = lang;
-        localStorage.setItem('language', lang);
-        this.updateLanguageUI();
+  init() {
+    try {
+      const savedLang = localStorage.getItem('gh5_language');
+      if (savedLang && this.supportedLangs.includes(savedLang)) {
+        this.currentLang = savedLang;
+      } else {
+        const browserLang = navigator.language.split('-')[0];
+        if (this.supportedLangs.includes(browserLang)) {
+          this.currentLang = browserLang;
+        }
+      }
 
-        // 触发语言变化事件
-        const event = new CustomEvent('languageChanged', { detail: { language: lang } });
-        window.dispatchEvent(event);
+      this.isReady = true;
+      this._updateLanguageDisplay();
+      this._dispatchLanguageChanged();
+    } catch (error) {
+      console.error('I18n init error:', error);
+      this.currentLang = this.defaultLang;
+      this.isReady = true;
+    }
+  }
+
+  switchLanguage(lang) {
+    if (!this.supportedLangs.includes(lang)) {
+      console.warn(`Language ${lang} is not supported`);
+      return false;
     }
 
-    /**
-     * 更新页面语言UI
-     */
-    updateLanguageUI() {
-        // 更新语言切换按钮状态
-        const languageButtons = document.querySelectorAll('.language-switcher button');
-        languageButtons.forEach(button => {
-            if (button.dataset.lang === this.currentLanguage) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
-            }
-        });
+    try {
+      this.currentLang = lang;
+      localStorage.setItem('gh5_language', lang);
+      this._updateLanguageDisplay();
+      this._dispatchLanguageChanged();
+      return true;
+    } catch (error) {
+      console.error('Switch language error:', error);
+      return false;
+    }
+  }
 
-        // 更新页面静态文本
-        this.translateStaticElements();
+  t(key) {
+    try {
+      const keys = key.split('.');
+      let value = this.translations[this.currentLang];
+
+      for (const k of keys) {
+        if (value && typeof value === 'object') {
+          value = value[k];
+        } else {
+          console.warn(`Translation key not found: ${key}`);
+          return key;
+        }
+      }
+
+      return value || key;
+    } catch (error) {
+      console.error('Translation error:', error);
+      return key;
+    }
+  }
+
+  getLocalizedField(obj, field) {
+    if (!obj || !field) {
+      return '';
     }
 
-    /**
-     * 翻译静态页面元素
-     */
-    translateStaticElements() {
-        // 产品标题
-        const productsTitle = document.getElementById('products-title');
-        if (productsTitle) {
-            productsTitle.textContent = this.t('products');
-        }
-
-        // 页脚
-        const aboutUs = document.getElementById('about-us');
-        if (aboutUs) {
-            aboutUs.textContent = this.t('aboutUs');
-        }
-
-        const contactUs = document.getElementById('contact-us');
-        if (contactUs) {
-            contactUs.textContent = this.t('contactUs');
-        }
-
-        const socialMedia = document.getElementById('social-media');
-        if (socialMedia) {
-            socialMedia.textContent = this.t('socialMedia');
-        }
-
-        const copyright = document.getElementById('copyright');
-        if (copyright) {
-            copyright.textContent = this.t('copyright');
-        }
-
-        const wechatLink = document.getElementById('wechat-link');
-        if (wechatLink) {
-            wechatLink.textContent = this.t('wechat');
-        }
-
-        const weiboLink = document.getElementById('weibo-link');
-        if (weiboLink) {
-            weiboLink.textContent = this.t('weibo');
-        }
-
-        const instagramLink = document.getElementById('instagram-link');
-        if (instagramLink) {
-            instagramLink.textContent = this.t('instagram');
-        }
+    const localizedField = `${field}_${this.currentLang}`;
+    if (obj[localizedField]) {
+      return obj[localizedField];
     }
 
-    /**
-     * 获取翻译文本
-     * @param {string} key - 翻译键名
-     * @param {string} fallback -  fallback文本
-     * @returns {string} 翻译后的文本
-     */
-    t(key, fallback = '') {
-        if (!this.translations || !this.translations[this.currentLanguage]) {
-            return fallback || key;
+    if (obj[field]) {
+      return obj[field];
+    }
+
+    return '';
+  }
+
+  getCurrentLanguage() {
+    return this.currentLang;
+  }
+
+  getSupportedLanguages() {
+    return this.supportedLangs;
+  }
+
+  getLanguageName(lang) {
+    const names = {
+      zh: '中文',
+      en: 'English',
+      ko: '한국어'
+    };
+    return names[lang] || lang;
+  }
+
+  isReady() {
+    return this.isReady;
+  }
+
+  exportTranslations() {
+    try {
+      return JSON.stringify(this.translations, null, 2);
+    } catch (error) {
+      console.error('Export translations error:', error);
+      return '{}';
+    }
+  }
+
+  importTranslations(jsonString) {
+    try {
+      const data = JSON.parse(jsonString);
+      
+      if (typeof data !== 'object') {
+        throw new Error('Invalid translations format');
+      }
+
+      for (const lang of this.supportedLangs) {
+        if (data[lang]) {
+          this.translations[lang] = {
+            ...this.translations[lang],
+            ...data[lang]
+          };
         }
-        return this.translations[this.currentLanguage][key] || fallback;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Import translations error:', error);
+      return false;
     }
+  }
 
-    /**
-     * 从对象中获取本地化字段
-     * @param {object} obj - 包含多语言字段的对象
-     * @param {string} field - 字段名
-     * @param {string} lang - 语言代码，默认使用当前语言
-     * @returns {string} 本地化后的字段值
-     */
-    getLocalizedField(obj, field, lang = null) {
-        if (!obj || !obj[field]) {
-            return '';
-        }
-
-        if (!this.translations) {
-            return typeof obj[field] === 'string' ? obj[field] : (obj[field].zh || obj[field].en || obj[field].ko || '');
-        }
-
-        const currentLang = lang || this.currentLanguage || 'zh';
-
-        if (typeof obj[field] === 'string') {
-            return obj[field];
-        }
-
-        if (typeof obj[field] === 'object') {
-            return obj[field][currentLang] || obj[field]['zh'] || '';
-        }
-
-        return '';
+  _updateLanguageDisplay() {
+    const langBtn = document.getElementById('language-toggle');
+    if (langBtn) {
+      const langText = langBtn.querySelector('.lang-text');
+      if (langText) {
+        langText.textContent = this.currentLang.toUpperCase();
+      }
     }
+  }
 
-    /**
-     * 获取当前语言
-     * @returns {string} 当前语言代码
-     */
-    getCurrentLanguage() {
-        return this.currentLanguage;
-    }
+  _dispatchLanguageChanged() {
+    const event = new CustomEvent('languageChanged', {
+      detail: {
+        language: this.currentLang
+      }
+    });
+    document.dispatchEvent(event);
+  }
 
-    /**
-     * 获取支持的语言列表
-     * @returns {array} 语言代码数组
-     */
-    getSupportedLanguages() {
-        return this.supportedLanguages;
-    }
-
-    /**
-     * 导出翻译字典为JSON文件
-     */
-    exportTranslations() {
-        const data = JSON.stringify(this.translations, null, 2);
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'translations.json';
-        a.click();
-        URL.revokeObjectURL(url);
-    }
-
-    /**
-     * 从JSON文件导入翻译
-     * @param {File} file - JSON文件对象
-     */
-    async importTranslations(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    this.translations = this.mergeTranslations(this.translations, imported);
-                    localStorage.setItem('translations', JSON.stringify(this.translations));
-                    this.updateLanguageUI();
-                    resolve(true);
-                } catch (error) {
-                    reject(error);
-                }
-            };
-            reader.onerror = reject;
-            reader.readAsText(file);
-        });
-    }
-
-    /**
-     * 合并导入的翻译
-     */
-    mergeTranslations(current, imported) {
-        const result = { ...current };
-        for (const lang of this.supportedLanguages) {
-            if (imported[lang]) {
-                result[lang] = { ...result[lang], ...imported[lang] };
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 获取翻译字典（用于编辑）
-     */
-    getTranslations() {
-        return JSON.parse(JSON.stringify(this.translations));
-    }
-
-    /**
-     * 设置翻译字典（用于批量更新）
-     */
-    setTranslations(newTranslations) {
-        this.translations = newTranslations;
-        this.defaultTranslations = newTranslations;
-        localStorage.setItem('translations', JSON.stringify(this.translations));
-        this.updateLanguageUI();
-    }
-
-    /**
-     * 重置为默认翻译
-     */
-    resetTranslations() {
-        this.translations = this.defaultTranslations;
-        localStorage.removeItem('translations');
-        this.updateLanguageUI();
-    }
+  updatePageElements() {
+    const elements = document.querySelectorAll('[data-i18n]');
+    
+    elements.forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      const translation = this.t(key);
+      
+      if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+        element.placeholder = translation;
+      } else {
+        element.textContent = translation;
+      }
+    });
+  }
 }
 
-// 导出单例
 const i18n = new I18n();
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = i18n;
-} else {
-    window.i18n = i18n;
-}
