@@ -88,38 +88,20 @@ class DataManager {
                 );
 
                 // 尝试读取 products.json
-                let seriesData;
+                let seriesData = null;
                 try {
                     const productsJson = await githubAPI.fetchFile(`产品图/${seriesId}/products.json`);
-                    seriesData = JSON.parse(productsJson.content);
-                    
-                    // 如果 products 为空，从图片文件名生成产品数据
-                    if (!seriesData.products || Object.keys(seriesData.products).length === 0) {
-                        seriesData.products = {};
-                        imageFiles.forEach(img => {
-                            // 使用正则提取产品名和序号: "中文 (1)" -> "中文", 1
-                            const nameWithoutExt = img.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
-                            const match = nameWithoutExt.match(/^(.+)\s*\((\d+)\)$/);
-                            const productName = match ? match[1].trim() : nameWithoutExt;
-                            
-                            seriesData.products[img.name] = {
-                                name: { 
-                                    zh: productName, 
-                                    en: productName, 
-                                    ko: productName 
-                                },
-                                description: { 
-                                    zh: `${productName} - 高品质产品`, 
-                                    en: `${productName} - High quality product`, 
-                                    ko: `${productName} - 고품질 제품` 
-                                },
-                                price: '',
-                                materials: { upper: '', lining: '', sole: '' }
-                            };
-                        });
+                    const parsed = JSON.parse(productsJson.content);
+                    // 检查是否有产品数据
+                    if (parsed.products && Object.keys(parsed.products).length > 0) {
+                        seriesData = parsed;
                     }
                 } catch (error) {
-                    // products.json不存在，从图片文件名生成产品数据
+                    // products.json 不存在或解析失败
+                }
+
+                // 如果没有产品数据，从图片文件名生成
+                if (!seriesData || !seriesData.products || Object.keys(seriesData.products).length === 0) {
                     seriesData = {
                         seriesName: {
                             zh: seriesId.split('-')[1] || seriesId,
@@ -131,11 +113,7 @@ class DataManager {
                     
                     // 从图片文件名生成产品
                     imageFiles.forEach(img => {
-                        // 使用正则提取产品名和序号: "中文 (1)" -> "中文", 1
-                        const nameWithoutExt = img.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
-                        const match = nameWithoutExt.match(/^(.+)\s*\((\d+)\)$/);
-                        const productName = match ? match[1].trim() : nameWithoutExt;
-                        
+                        const productName = img.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
                         seriesData.products[img.name] = {
                             name: { 
                                 zh: productName, 
