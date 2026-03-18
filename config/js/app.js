@@ -14,6 +14,12 @@ class App {
      * 初始化应用
      */
     init() {
+        // 初始化 GitHub Token
+        const savedToken = localStorage.getItem('github_token');
+        if (savedToken) {
+            githubAPI.setToken(savedToken);
+        }
+
         // 绑定路由变化事件
         window.addEventListener('hashchange', () => {
             this.handleRouteChange();
