@@ -159,17 +159,36 @@ class ProductCompare {
         const currentLang = i18n?.currentLanguage || 'zh';
         const products = this.compareList;
 
+        const labels = {
+            'zh': {
+                attribute: '属性', image: '图片', price: '价格', description: '描述',
+                series: '系列', stock: '库存', imageCount: '图片数量',
+                remove: '移除', inStock: '有货', outStock: '缺货'
+            },
+            'en': {
+                attribute: 'Attribute', image: 'Image', price: 'Price', description: 'Description',
+                series: 'Series', stock: 'Stock', imageCount: 'Images',
+                remove: 'Remove', inStock: 'In Stock', outStock: 'Out of Stock'
+            },
+            'ko': {
+                attribute: '속성', image: '이미지', price: '가격', description: '설명',
+                series: '시리즈', stock: '재고', imageCount: '이미지 수',
+                remove: '제거', inStock: '재고 있음', outStock: '재고 없음'
+            }
+        };
+        const t = labels[currentLang] || labels['zh'];
+
         let html = `
             <table class="compare-table">
                 <thead>
                     <tr>
-                        <th>属性</th>
+                        <th>${t.attribute}</th>
                         ${products.map(p => `<th>${p.name?.[currentLang] || p.name?.zh || ''}</th>`).join('')}
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>图片</td>
+                        <td>${t.image}</td>
                         ${products.map(p => {
                             const mainImageFile = p.images?.find(img => img.isMain) || p.images?.[0];
                             const imageUrl = mainImageFile ? `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(p.seriesId)}/${encodeURIComponent(mainImageFile.filename)}` : '';
@@ -177,32 +196,66 @@ class ProductCompare {
                         }).join('')}
                     </tr>
                     <tr>
-                        <td>价格</td>
-                        ${products.map(p => `<td class="price">¥${p.price || '-'}</td>`).join('')}
+                        <td>${t.series}</td>
+                        ${products.map(p => `<td>${p.seriesId || '-'}</td>`).join('')}
                     </tr>
                     <tr>
-                        <td>描述</td>
+                        <td>${t.price}</td>
+                        ${products.map(p => `<td class="price">${p.price ? '¥' + p.price : '-'}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td>${t.description}</td>
                         ${products.map(p => `<td>${p.description?.[currentLang] || p.description?.zh || '-'}</td>`).join('')}
                     </tr>
-                    ${this.renderMaterialsRow(products, currentLang)}
+                    <tr>
+                        <td>${t.imageCount}</td>
+                        ${products.map(p => `<td>${p.images?.length || 0}</td>`).join('')}
+                    </tr>
+                    ${this.renderMaterialsRow(products, currentLang, labels)}
+                    <tr>
+                        <td>${t.remove}</td>
+                        ${products.map(p => `
+                            <td><button class="btn-remove-compare" data-id="${p.id}" data-series="${p.seriesId}">${t.remove}</button></td>
+                        `).join('')}
+                    </tr>
                 </tbody>
             </table>
         `;
 
         tableContainer.innerHTML = html;
+
+        tableContainer.querySelectorAll('.btn-remove-compare').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const productId = btn.dataset.id;
+                const seriesId = btn.dataset.series;
+                this.remove(productId);
+                this.renderCompareBar();
+                this.renderCompareTable();
+                if (typeof frontend !== 'undefined' && frontend.updateCompareButton) {
+                    const compareBtn = document.querySelector(`.product-card[data-product-id="${productId}"] .compare-btn`);
+                    if (compareBtn) {
+                        frontend.updateCompareButton(compareBtn, productId);
+                    }
+                }
+            });
+        });
     }
 
-    renderMaterialsRow(products, currentLang) {
+    renderMaterialsRow(products, currentLang, labels) {
         const materialKeys = ['upper', 'lining', 'sole'];
         const materialLabels = {
             'zh': { 'upper': '鞋面', 'lining': '内里', 'sole': '鞋底' },
             'en': { 'upper': 'Upper', 'lining': 'Lining', 'sole': 'Sole' },
             'ko': { 'upper': '신발 상단', 'lining': '안감', 'sole': '밑창' }
         };
+        const ml = materialLabels[currentLang] || materialLabels['zh'];
+
+        const hasMaterials = products.some(p => p.materials);
+        if (!hasMaterials) return '';
 
         return materialKeys.map(key => `
             <tr>
-                <td>${materialLabels[currentLang]?.[key] || key}</td>
+                <td>${ml[key] || key}</td>
                 ${products.map(p => `<td>${p.materials?.[key] || '-'}</td>`).join('')}
             </tr>
         `).join('');
