@@ -20,7 +20,24 @@ class ProductEditor {
     /**
      * 渲染产品编辑器
      */
-    render() {
+    async render() {
+        if (!this.container) return;
+
+        this.container.innerHTML = '<div class="loading">加载产品数据中...</div>';
+
+        try {
+            await dataManager.loadFromGitHub();
+            this.renderProducts();
+        } catch (error) {
+            console.error('Error loading product data:', error);
+            this.container.innerHTML = '<div class="error">加载产品数据失败，请确保已设置 GitHub Token</div>';
+        }
+    }
+
+    /**
+     * 渲染产品列表
+     */
+    renderProducts() {
         if (!this.container) return;
 
         const productsData = dataManager.getProductsData();
