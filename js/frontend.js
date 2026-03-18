@@ -3,6 +3,7 @@ class Frontend {
         this.productsData = null;
         this.currentSlide = 0;
         this.featureSettings = this.loadFeatureSettings();
+        this.initEventListeners();
     }
 
     loadFeatureSettings() {
@@ -19,8 +20,13 @@ class Frontend {
             'toggle-language': true,
             'toggle-contact': true
         };
-        const saved = localStorage.getItem('site_features');
-        return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+        try {
+            const saved = localStorage.getItem('site_features');
+            return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+        } catch (error) {
+            console.error('Error loading feature settings:', error);
+            return defaultSettings;
+        }
     }
 
     isFeatureEnabled(featureKey) {
@@ -28,94 +34,78 @@ class Frontend {
     }
 
     async init() {
-        i18n.init();
+        try {
+            i18n.init();
+            
+            if (this.isFeatureEnabled('toggle-language')) {
+                this.initCarousel();
+            } else {
+                const languageSwitcher = document.querySelector('.language-switcher');
+                if (languageSwitcher) languageSwitcher.style.display = 'none';
+            }
 
-        if (this.isFeatureEnabled('toggle-language')) {
-            this.initCarousel();
-        } else {
-            document.querySelector('.language-switcher').style.display = 'none';
+            await this.loadProductsData();
+            this.initModules();
+            this.renderProducts();
+        } catch (error) {
+            console.error('Error initializing frontend:', error);
+            this.showErrorMessage('初始化失败，请刷新页面重试');
         }
+    }
 
-        await this.loadProductsData();
+    initModules() {
+        const modules = [
+            { name: 'productModal', feature: 'toggle-modal' },
+            { name: 'productSearch', feature: 'toggle-search' },
+            { name: 'productCompare', feature: 'toggle-compare' },
+            { name: 'browseHistory', feature: 'toggle-history' },
+            { name: 'themeManager', feature: 'toggle-theme' },
+            { name: 'layoutSwitcher', feature: 'toggle-layout' },
+            { name: 'productFilter', feature: 'toggle-filter' },
+            { name: 'socialShare', feature: 'toggle-share' },
+            { name: 'backToTop', feature: 'toggle-backtotop' },
+            { name: 'imageZoom', feature: 'toggle-imagezoom' },
+            { name: 'contactForm', feature: 'toggle-contact' }
+        ];
 
-        if (productModal) {
-            productModal.init();
-        }
-
-        if (productSearch && this.isFeatureEnabled('toggle-search')) {
-            productSearch.init();
-        }
-
-        if (productCompare && this.isFeatureEnabled('toggle-compare')) {
-            productCompare.init();
-        }
-
-        if (browseHistory && this.isFeatureEnabled('toggle-history')) {
-            browseHistory.init();
-        }
-
-        if (themeManager && this.isFeatureEnabled('toggle-theme')) {
-            themeManager.init();
-        }
-
-        if (layoutSwitcher && this.isFeatureEnabled('toggle-layout')) {
-            layoutSwitcher.init();
-        }
-
-        if (productFilter && this.isFeatureEnabled('toggle-filter')) {
-            productFilter.init();
-        }
-
-        if (socialShare && this.isFeatureEnabled('toggle-share')) {
-            socialShare.init();
-        }
-
-        if (backToTop && this.isFeatureEnabled('toggle-backtotop')) {
-            backToTop.init();
-        }
-
-        if (imageZoom && this.isFeatureEnabled('toggle-imagezoom')) {
-            imageZoom.init();
-        }
-
-        this.renderProducts();
-
-        if (contactForm && this.isFeatureEnabled('toggle-contact')) {
-            contactForm.init();
-        }
+        modules.forEach(({ name, feature }) => {
+            if (window[name] && (!feature || this.isFeatureEnabled(feature))) {
+                try {
+                    window[name].init();
+                } catch (error) {
+                    console.error(`Error initializing ${name}:`, error);
+                }
+            }
+        });
 
         if (!this.isFeatureEnabled('toggle-contact')) {
             const contactSection = document.querySelector('.contact-section');
             if (contactSection) contactSection.style.display = 'none';
         }
+    }
 
-        window.addEventListener('layoutChanged', () => {
-            this.renderProducts();
-        });
+    initEventListeners() {
+        window.addEventListener('layoutChanged', () => this.renderProducts());
+        window.addEventListener('sortChanged', () => this.renderProducts());
+        window.addEventListener('filterChanged', () => this.renderProducts());
+        window.addEventListener('languageChanged', () => this.handleLanguageChange());
+    }
 
-        window.addEventListener('sortChanged', () => {
-            this.renderProducts();
-        });
-
-        window.addEventListener('filterChanged', () => {
-            this.renderProducts();
-        });
-
-        window.addEventListener('languageChanged', () => {
-            this.renderProducts();
-            if (contactForm && this.isFeatureEnabled('toggle-contact')) {
-                contactForm.updateLanguage();
-            }
-            if (productSearch && this.isFeatureEnabled('toggle-search')) {
-                productSearch.updateLanguage();
-            }
-            if (layoutSwitcher && this.isFeatureEnabled('toggle-layout')) {
-                layoutSwitcher.renderLayoutControls();
-            }
-            if (productFilter && this.isFeatureEnabled('toggle-filter')) {
-                productFilter.renderFilterPanel();
-            }
-        });
+    handleLanguageChange() {
+        this.renderProducts();
+        
+        if (window.contactForm && this.isFeatureEnabled('toggle-contact')) {
+            contactForm.updateLanguage();
+        }
+        if (window.productSearch && this.isFeatureEnabled('toggle-search')) {
+            productSearch.updateLanguage();
+        }
+        if (window.layoutSwitcher && this.isFeatureEnabled('toggle-layout')) {
+            layoutSwitcher.renderLayoutControls();
+        }
+        if (window.productFilter && this.isFeatureEnabled('toggle-filter')) {
+            productFilter.renderFilterPanel();
+        }
     }
 
     initCarousel() {
@@ -188,7 +178,11 @@ class Frontend {
             if (!products[productName]) {
                 products[productName] = {
                     name: { zh: productName, en: productName, ko: productName },
-                    description: { zh: `${productName} - 高品质产品`, en: `${productName} - High quality product`, ko: `${productName} - 고품질 제품` },
+                    description: { 
+                        zh: `${productName} - 高品质产品`, 
+                        en: `${productName} - High quality product`, 
+                        ko: `${productName} - 고품질 제품` 
+                    },
                     price: '',
                     images: []
                 };
@@ -200,6 +194,7 @@ class Frontend {
             });
         });
 
+        // 按图片索引排序
         Object.values(products).forEach(product => {
             product.images.sort((a, b) => a.imageIndex - b.imageIndex);
         });
@@ -214,6 +209,7 @@ class Frontend {
         container.innerHTML = '<div class="loading">加载产品数据中...</div>';
 
         try {
+            // 尝试从缓存加载
             const cachedData = cacheManager.get('products_data');
             const cacheVersion = localStorage.getItem('products_data_version');
             if (cachedData && Object.keys(cachedData).length > 0 && cacheVersion === 'v3') {
@@ -221,76 +217,78 @@ class Frontend {
                 return;
             }
 
-            try {
-                const seriesList = await githubAPI.fetchDirectory('产品图');
-                const productsData = {};
+            // 从GitHub API加载数据
+            const seriesList = await githubAPI.fetchDirectory('产品图');
+            const productsData = await this.fetchSeriesData(seriesList);
 
-                for (const series of seriesList) {
-                    if (series.type === 'dir') {
-                        const seriesId = series.name;
-                        try {
-                            const files = await githubAPI.fetchDirectory(`产品图/${seriesId}`);
-                            
-                            // 优先读取 products.json
-                            const productsJsonFile = files.find(f => f.name === 'products.json');
-                            let seriesData;
-                            
-                            if (productsJsonFile) {
-                                // 存在 products.json，读取其中的数据
-                                const productsJson = await githubAPI.fetchFile(`产品图/${seriesId}/products.json`);
-                                seriesData = JSON.parse(productsJson.content);
-                            } else {
-                                // 不存在 products.json，从图片文件名生成
-                                const imageFiles = files.filter(f => 
-                                    f.type === 'file' && 
-                                    /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name)
-                                );
-                                
-                                const groupedProducts = this.groupImagesByProduct(imageFiles.map(f => f.name));
-                                
-                                const seriesNumber = seriesId.split('-')[0] || '';
-                                const seriesName = seriesId.split('-').slice(1).join('-') || seriesId;
-                                
-                                seriesData = {
-                                    seriesName: {
-                                        zh: seriesName,
-                                        en: seriesName,
-                                        ko: seriesName
-                                    },
-                                    products: groupedProducts
-                                };
-                            }
-                            
-                            productsData[seriesId] = seriesData;
-                        } catch (error) {
-                            console.error(`Error loading series ${seriesId}:`, error);
-                            productsData[seriesId] = {
-                                seriesName: {
-                                    zh: seriesId.split('-')[1] || seriesId,
-                                    en: seriesId.split('-')[1] || seriesId,
-                                    ko: seriesId.split('-')[1] || seriesId
-                                },
-                                products: {}
-                            };
-                        }
-                    }
-                }
-
-                if (Object.keys(productsData).length > 0) {
-                    cacheManager.set('products_data', productsData);
-                    localStorage.setItem('products_data_version', 'v3');
-                    this.productsData = productsData;
-                } else {
-                    this.useLocalTestData();
-                }
-            } catch (error) {
-                console.error('GitHub API error, using local test data:', error);
+            if (Object.keys(productsData).length > 0) {
+                cacheManager.set('products_data', productsData);
+                localStorage.setItem('products_data_version', 'v3');
+                this.productsData = productsData;
+            } else {
                 this.useLocalTestData();
             }
         } catch (error) {
             console.error('Error loading products data:', error);
             this.useLocalTestData();
         }
+    }
+
+    async fetchSeriesData(seriesList) {
+        const productsData = {};
+
+        for (const series of seriesList) {
+            if (series.type === 'dir') {
+                const seriesId = series.name;
+                try {
+                    const files = await githubAPI.fetchDirectory(`产品图/${seriesId}`);
+                    
+                    // 优先读取 products.json
+                    const productsJsonFile = files.find(f => f.name === 'products.json');
+                    let seriesData;
+                    
+                    if (productsJsonFile) {
+                        // 存在 products.json，读取其中的数据
+                        const productsJson = await githubAPI.fetchFile(`产品图/${seriesId}/products.json`);
+                        seriesData = JSON.parse(productsJson.content);
+                    } else {
+                        // 不存在 products.json，从图片文件名生成
+                        const imageFiles = files.filter(f => 
+                            f.type === 'file' && 
+                            /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name)
+                        );
+                        
+                        const groupedProducts = this.groupImagesByProduct(imageFiles.map(f => f.name));
+                        
+                        const seriesNumber = seriesId.split('-')[0] || '';
+                        const seriesName = seriesId.split('-').slice(1).join('-') || seriesId;
+                        
+                        seriesData = {
+                            seriesName: {
+                                zh: seriesName,
+                                en: seriesName,
+                                ko: seriesName
+                            },
+                            products: groupedProducts
+                        };
+                    }
+                    
+                    productsData[seriesId] = seriesData;
+                } catch (error) {
+                    console.error(`Error loading series ${seriesId}:`, error);
+                    productsData[seriesId] = {
+                        seriesName: {
+                            zh: seriesId.split('-')[1] || seriesId,
+                            en: seriesId.split('-')[1] || seriesId,
+                            ko: seriesId.split('-')[1] || seriesId
+                        },
+                        products: {}
+                    };
+                }
+            }
+        }
+
+        return productsData;
     }
 
     useLocalTestData() {
@@ -373,7 +371,7 @@ class Frontend {
 
         container.className = 'product-series-container';
         
-        if (layoutSwitcher) {
+        if (window.layoutSwitcher) {
             layoutSwitcher.applyLayout();
         }
         
@@ -390,7 +388,7 @@ class Frontend {
             
             let productsToFilter = seriesData.products || {};
             
-            if (productFilter && productFilter.hasActiveFilters()) {
+            if (window.productFilter && productFilter.hasActiveFilters()) {
                 const filters = productFilter.getActiveFilters();
                 productsToFilter = Object.fromEntries(
                     productFilter.filterProducts(seriesData.products || {}, filters)
@@ -398,7 +396,7 @@ class Frontend {
             }
             
             let sortedProducts = productsToFilter;
-            if (layoutSwitcher) {
+            if (window.layoutSwitcher) {
                 sortedProducts = layoutSwitcher.sortProducts(sortedProducts);
             }
             
@@ -509,6 +507,7 @@ class Frontend {
         card.appendChild(imageDiv);
         card.appendChild(infoDiv);
 
+        // 添加对比按钮
         const compareBtn = document.createElement('button');
         compareBtn.className = 'compare-btn';
         compareBtn.innerHTML = '⚖';
@@ -516,15 +515,16 @@ class Frontend {
         compareBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const product = { id: productId, seriesId, ...productData };
-            if (productCompare) {
+            if (window.productCompare) {
                 productCompare.toggle(product);
                 this.updateCompareButton(compareBtn, productId);
             }
         });
         card.appendChild(compareBtn);
 
+        // 延迟更新对比按钮状态
         setTimeout(() => {
-            if (productCompare && this.isFeatureEnabled('toggle-compare')) {
+            if (window.productCompare && this.isFeatureEnabled('toggle-compare')) {
                 this.updateCompareButton(compareBtn, productId);
             } else {
                 compareBtn.style.display = 'none';
@@ -533,11 +533,11 @@ class Frontend {
 
         // 为整个卡片添加点击事件
         card.addEventListener('click', () => {
-            if (productModal) {
+            if (window.productModal) {
                 const allProducts = this.productsData[seriesId]?.products || {};
                 productModal.open(seriesId, productId, { id: productId, seriesId, ...productData }, allProducts);
                 
-                if (browseHistory && this.isFeatureEnabled('toggle-history')) {
+                if (window.browseHistory && this.isFeatureEnabled('toggle-history')) {
                     browseHistory.add({ id: productId, seriesId, ...productData });
                 }
             }
@@ -577,6 +577,7 @@ class Frontend {
                 imageObserver.observe(image);
             });
         } else {
+            // 降级方案：直接加载所有图片
             lazyImages.forEach(image => {
                 image.src = image.dataset.src;
                 image.classList.add('loaded');
@@ -585,7 +586,7 @@ class Frontend {
     }
 
     updateCompareButton(btn, productId) {
-        if (!productCompare) return;
+        if (!window.productCompare) return;
         
         if (productCompare.isInCompare(productId)) {
             btn.classList.add('in-compare');
@@ -604,10 +605,21 @@ class Frontend {
             }
         }
     }
+
+    showErrorMessage(message) {
+        const container = document.getElementById('product-series');
+        if (container) {
+            container.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+    }
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    const frontend = new Frontend();
-    window.frontend = frontend;
-    await frontend.init();
+    try {
+        const frontend = new Frontend();
+        window.frontend = frontend;
+        await frontend.init();
+    } catch (error) {
+        console.error('Error initializing Frontend:', error);
+    }
 });
