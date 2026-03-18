@@ -50,6 +50,7 @@ class ProductEditor {
             <div class="product-editor-header">
                 <h2>产品编辑</h2>
                 <div class="editor-actions">
+                    <button id="save-all-products" class="btn btn-success">保存全部</button>
                     <button id="scan-new-images" class="btn btn-primary">扫描新图片</button>
                 </div>
             </div>
@@ -314,6 +315,25 @@ class ProductEditor {
                     notifier.success('产品删除成功');
                 }
             });
+        });
+
+        // 保存全部
+        document.getElementById('save-all-products')?.addEventListener('click', async () => {
+            try {
+                notifier.info('正在保存...');
+                const seriesList = dataManager.getSeriesList();
+                let savedCount = 0;
+                
+                for (const seriesId of seriesList) {
+                    await dataManager.saveToGitHub(seriesId);
+                    savedCount++;
+                }
+                
+                notifier.success(`已保存 ${savedCount} 个系列到仓库`);
+            } catch (error) {
+                console.error('Error saving all products:', error);
+                notifier.error('保存失败');
+            }
         });
 
         // 扫描新图片
