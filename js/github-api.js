@@ -28,130 +28,136 @@ class GitHubAPI {
         const url = `${this.apiUrl}/contents/${encodeURIComponent(path)}`;
         const response = await this._fetch(url);
         if (response.content) {
-            response.content = atob(response.content);
+            response.content = decodeURIComponent(escape(atob(response.content)));
         }
         return response;
     }
 
-    async commitFile(path, content, message, sha = '') {
+    async commitFile(path, content, message) {
         const url = `${this.apiUrl}/contents/${encodeURIComponent(path)}`;
         
-        let fileSha = sha;
-        if (!sha) {
-            try {
-                const existingFile = await this.fetchFile(path);
-                fileSha = existingFile.sha;
-            } catch (error) {
-            }
+        let sha = '';
+        try {
+            const existingFile = await this.fetchFile(path);
+            sha = existingFile.sha;
+        } catch (error) {
         }
 
         const data = {
             message,
             content: btoa(unescape(encodeURIComponent(content))),
+            sha
         };
-
-        if (fileSha) {
-            data.sha = fileSha;
-        }
 
         return this._fetch(url, {
             method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(data)
         });
     }
 
     async _fetch(url, options = {}) {
+        if (this.rateLimit.remaining <= 0 && Date.now() < this.rateLimit.reset * 1000) {
+            const waitTime = this.rateLimit.reset * 1000 - Date.now() + 1000;
+            await this._sleep(waitTime);
+        }
+
         const headers = {
             'Accept': 'application/vnd.github.v3+json',
+            ...options.headers
         };
 
         if (this.token) {
             headers['Authorization'] = `token ${this.token}`;
         }
 
-        const response = await fetch(url, {
-            ...options,
-            headers: {
-                ...headers,
-                ...options.headers
+        let response;
+        try {
+            response = await fetch(url, {
+                ...options,
+                headers
+            });
+
+            if (response.headers.has('X-RateLimit-Remaining')) {
+                this.rateLimit.remaining = parseInt(response.headers.get('X-RateLimit-Remaining'));
+                this.rateLimit.reset = parseInt(response.headers.get('X-RateLimit-Reset'));
             }
-        });
 
-        if (response.status === 403) {
-            const remaining = response.headers.get('X-RateLimit-Remaining');
-            const reset = response.headers.get('X-RateLimit-Reset');
-            this.rateLimit = {
-                remaining: parseInt(remaining) || 0,
-                reset: parseInt(reset) || 0
-            };
-
-            if (this.rateLimit.remaining === 0) {
-                const waitTime = (this.rateLimit.reset - Date.now() / 1000) * 1000;
-                throw new Error(`Rate limit exceeded. Please wait ${Math.ceil(waitTime / 1000)} seconds.`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `GitHub API error: ${response.status}`);
             }
-        }
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'GitHub API request failed');
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return await response.json();
+            } else {
+                return await response.text();
+            }
+        } catch (error) {
+            if (error.message.includes('403') && error.message.includes('rate limit')) {
+                const waitTime = this.rateLimit.reset * 1000 - Date.now() + 1000;
+                if (waitTime > 0) {
+                    await this._sleep(waitTime);
+                    return this._fetch(url, options);
+                }
+            }
+            throw error;
         }
+    }
 
-        return response.json();
+    _sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     async fileToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onload = () => {
+                const base64 = reader.result.split(',')[1];
+                resolve(base64);
+            };
             reader.onerror = reject;
             reader.readAsDataURL(file);
         });
     }
 
     async uploadImage(seriesId, file) {
-        const base64 = await this.fileToBase64(file);
         const path = `产品图/${seriesId}/${file.name}`;
-        return this.commitFile(path, atob(base64), `Upload ${file.name}`);
+        const base64Content = await this.fileToBase64(file);
+        const message = `Upload image: ${file.name}`;
+        return this.commitFile(path, atob(base64Content), message);
     }
 
     async scanForNewImages() {
+        const seriesList = await this.fetchDirectory('产品图');
         const newImages = {};
-        try {
-            const seriesList = await this.fetchDirectory('产品图');
-            for (const series of seriesList) {
-                if (series.type === 'dir') {
-                    const seriesId = series.name;
-                    let productsJson;
-                    try {
-                        productsJson = await this.fetchFile(`产品图/${seriesId}/products.json`);
-                        const products = JSON.parse(productsJson.content).products || {};
-                        const existingFiles = Object.keys(products);
 
-                        const files = await this.fetchDirectory(`产品图/${seriesId}`);
-                        const imageFiles = files.filter(f => 
-                            f.type === 'file' && 
-                            /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name)
-                        );
+        for (const series of seriesList) {
+            if (series.type === 'dir') {
+                const seriesId = series.name;
+                const images = await this.fetchDirectory(`产品图/${seriesId}`);
+                const imageFiles = images.filter(item => 
+                    item.type === 'file' && 
+                    /\.(jpg|jpeg|png|gif|webp)$/i.test(item.name)
+                );
 
-                        const newFiles = imageFiles.filter(f => !existingFiles.includes(f.name));
-                        if (newFiles.length > 0) {
-                            newImages[seriesId] = newFiles.map(f => f.name);
-                        }
-                    } catch (e) {
-                        const files = await this.fetchDirectory(`产品图/${seriesId}`);
-                        const imageFiles = files.filter(f => 
-                            f.type === 'file' && 
-                            /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name)
-                        );
-                        if (imageFiles.length > 0) {
-                            newImages[seriesId] = imageFiles.map(f => f.name);
-                        }
+                try {
+                    const productsJson = await this.fetchFile(`产品图/${seriesId}/products.json`);
+                    const products = JSON.parse(productsJson.content).products || {};
+                    
+                    const newImageFiles = imageFiles.filter(img => !products[img.name]);
+                    if (newImageFiles.length > 0) {
+                        newImages[seriesId] = newImageFiles.map(img => img.name);
                     }
+                } catch (error) {
+                    newImages[seriesId] = imageFiles.map(img => img.name);
                 }
             }
-        } catch (error) {
-            console.error('Error scanning for new images:', error);
         }
+
         return newImages;
     }
 }
