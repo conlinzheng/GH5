@@ -1,16 +1,21 @@
+ .products-container {
+     display: flex;
+     gap: 1rem;
+     padding: 1rem 0;
++    justify-content: center;
++    flex-wrap: wrap;
+     scroll-behavior: smooth;
+ }
+ 
  .products-container.single-row {
      flex-wrap: nowrap;
+     overflow-x: auto;
      justify-content: flex-start;
  }
  
  .products-container.multi-row {
      flex-wrap: wrap;
-     justify-content: flex-start;
+-    justify-content: flex-start;
++    justify-content: center;
+     overflow-x: visible;
  }
- 
- .products-container.multi-row .product-card {
-     flex: 0 0 calc(20% - 1rem);
-     min-width: 200px;
- }
- 
-.product-card {
