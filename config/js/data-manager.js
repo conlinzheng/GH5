@@ -92,6 +92,28 @@ class DataManager {
                 try {
                     const productsJson = await githubAPI.fetchFile(`产品图/${seriesId}/products.json`);
                     seriesData = JSON.parse(productsJson.content);
+                    
+                    // 如果 products 为空，从图片文件名生成产品数据
+                    if (!seriesData.products || Object.keys(seriesData.products).length === 0) {
+                        seriesData.products = {};
+                        imageFiles.forEach(img => {
+                            const productName = img.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+                            seriesData.products[img.name] = {
+                                name: { 
+                                    zh: productName, 
+                                    en: productName, 
+                                    ko: productName 
+                                },
+                                description: { 
+                                    zh: `${productName} - 高品质产品`, 
+                                    en: `${productName} - High quality product`, 
+                                    ko: `${productName} - 고품질 제품` 
+                                },
+                                price: '',
+                                materials: { upper: '', lining: '', sole: '' }
+                            };
+                        });
+                    }
                 } catch (error) {
                     // products.json不存在，从图片文件名生成产品数据
                     seriesData = {
