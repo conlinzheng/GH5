@@ -169,7 +169,8 @@ class Frontend {
 
         try {
             const cachedData = cacheManager.get('products_data');
-            if (cachedData && Object.keys(cachedData).length > 0) {
+            const cacheVersion = localStorage.getItem('products_data_version');
+            if (cachedData && Object.keys(cachedData).length > 0 && cacheVersion === 'v2') {
                 this.productsData = cachedData;
                 return;
             }
@@ -199,6 +200,7 @@ class Frontend {
 
             if (Object.keys(productsData).length > 0) {
                 cacheManager.set('products_data', productsData);
+                localStorage.setItem('products_data_version', 'v2');
                 this.productsData = productsData;
             } else {
                 container.innerHTML = '<div class="error">未找到产品数据</div>';
