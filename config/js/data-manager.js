@@ -97,7 +97,11 @@ class DataManager {
                     if (!seriesData.products || Object.keys(seriesData.products).length === 0) {
                         seriesData.products = {};
                         imageFiles.forEach(img => {
-                            const productName = img.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+                            // 使用正则提取产品名和序号: "中文 (1)" -> "中文", 1
+                            const nameWithoutExt = img.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+                            const match = nameWithoutExt.match(/^(.+)\s*\((\d+)\)$/);
+                            const productName = match ? match[1].trim() : nameWithoutExt;
+                            
                             seriesData.products[img.name] = {
                                 name: { 
                                     zh: productName, 
@@ -127,7 +131,11 @@ class DataManager {
                     
                     // 从图片文件名生成产品
                     imageFiles.forEach(img => {
-                        const productName = img.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+                        // 使用正则提取产品名和序号: "中文 (1)" -> "中文", 1
+                        const nameWithoutExt = img.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+                        const match = nameWithoutExt.match(/^(.+)\s*\((\d+)\)$/);
+                        const productName = match ? match[1].trim() : nameWithoutExt;
+                        
                         seriesData.products[img.name] = {
                             name: { 
                                 zh: productName, 
