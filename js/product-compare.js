@@ -143,13 +143,15 @@ class ProductCompare {
 
         const modal = document.getElementById('compare-modal');
         modal?.classList.add('active');
+        document.body.style.overflow = 'hidden';
 
-        this.renderCompareTable();
+        setTimeout(() => this.renderCompareTable(), 50);
     }
 
     closeCompareModal() {
         const modal = document.getElementById('compare-modal');
         modal?.classList.remove('active');
+        document.body.style.overflow = 'auto';
     }
 
     renderCompareTable() {
