@@ -80,13 +80,21 @@ class DataManager {
 
             const productsData = {};
             for (const seriesId of this.seriesList) {
+                // 扫描该系列下的图片
+                const images = await githubAPI.fetchDirectory(`产品图/${seriesId}`);
+                const imageFiles = images.filter(item => 
+                    item.type === 'file' && 
+                    /\.(jpg|jpeg|png|gif|webp)$/i.test(item.name)
+                );
+
+                // 尝试读取 products.json
+                let seriesData;
                 try {
                     const productsJson = await githubAPI.fetchFile(`产品图/${seriesId}/products.json`);
-                    const seriesData = JSON.parse(productsJson.content);
-                    productsData[seriesId] = seriesData;
+                    seriesData = JSON.parse(productsJson.content);
                 } catch (error) {
-                    // products.json不存在，创建默认数据
-                    productsData[seriesId] = {
+                    // products.json不存在，从图片文件名生成产品数据
+                    seriesData = {
                         seriesName: {
                             zh: seriesId.split('-')[1] || seriesId,
                             en: seriesId.split('-')[1] || seriesId,
@@ -94,7 +102,28 @@ class DataManager {
                         },
                         products: {}
                     };
+                    
+                    // 从图片文件名生成产品
+                    imageFiles.forEach(img => {
+                        const productName = img.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+                        seriesData.products[img.name] = {
+                            name: { 
+                                zh: productName, 
+                                en: productName, 
+                                ko: productName 
+                            },
+                            description: { 
+                                zh: `${productName} - 高品质产品`, 
+                                en: `${productName} - High quality product`, 
+                                ko: `${productName} - 고품질 제품` 
+                            },
+                            price: '',
+                            materials: { upper: '', lining: '', sole: '' }
+                        };
+                    });
                 }
+
+                productsData[seriesId] = seriesData;
             }
 
             this.productsData = productsData;
