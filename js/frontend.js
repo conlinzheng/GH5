@@ -279,6 +279,12 @@ class Frontend {
         const container = document.getElementById('product-series');
         if (!container || !this.productsData) return;
 
+        container.className = 'product-series-container';
+        
+        if (layoutSwitcher) {
+            layoutSwitcher.applyLayout();
+        }
+        
         container.innerHTML = '';
 
         const sortedSeries = Object.keys(this.productsData).sort((a, b) => {
