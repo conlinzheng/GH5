@@ -18,9 +18,9 @@
       },
       "price": "",
       "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
+        "upper": "PU",
+        "lining": "PU",
+        "sole": "tpr"
       }
     },
     "中文-ABC (1).png": {
