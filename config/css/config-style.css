@@ -324,6 +324,227 @@ nav h1 {
     color: #666;
 }
 
+.loading::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 错误提示 */
+.error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    font-size: 1.2rem;
+    color: #dc3545;
+    text-align: center;
+    padding: 0 20px;
+}
+
+/* 标签页样式 */
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab:hover {
+    background-color: #f8f9fa;
+}
+
+.tab.active {
+    border-bottom-color: #3498db;
+    color: #3498db;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px 0;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 图片上传样式 */
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: #3498db;
+    background-color: #f8f9fa;
+}
+
+.upload-area input[type="file"] {
+    display: none;
+}
+
+.upload-area-label {
+    display: block;
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.file-list {
+    margin-top: 20px;
+}
+
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.file-item img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.file-info {
+    flex: 1;
+}
+
+.file-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.file-size {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.file-remove {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.file-remove:hover {
+    background-color: #c0392b;
+}
+
+/* 进度条样式 */
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #f3f3f3;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #3498db;
+    transition: width 0.3s ease;
+    border-radius: 10px;
+}
+
+/* 系列管理样式 */
+.series-list {
+    margin: 20px 0;
+}
+
+.series-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+}
+
+.series-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.series-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* 网站配置样式 */
+.config-section {
+    margin-bottom: 30px;
+}
+
+.config-section h3 {
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* 翻译管理样式 */
+.translation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.translation-table th,
+.translation-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.translation-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #555;
+}
+
+.translation-table td input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
     .admin-layout {
@@ -342,6 +563,22 @@ nav h1 {
     .nav-menu {
         display: flex;
         overflow-x: auto;
+    }
+
+    .nav-item {
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+        border-left-color: transparent;
+        border-bottom-color: #3498db;
+    }
+
+    .nav-item.active {
+        border-left-color: transparent;
+        border-bottom-color: #3498db;
     }
 
     .modal-content {
@@ -364,204 +601,14 @@ nav h1 {
     .admin-content {
         padding: 10px;
     }
-}
 
-/* 产品编辑器样式 */
-.product-editor-header, .upload-manager-header, .series-manager-header, .config-editor-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
+    .file-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
 
-.product-table, .series-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-.product-table th, .product-table td,
-.series-table th, .series-table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-    vertical-align: top;
-}
-
-.product-table th {
-    background-color: #f8f9fa;
-    font-weight: bold;
-}
-
-.product-image img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 4px;
-}
-
-.language-tabs {
-    display: flex;
-    gap: 5px;
-    margin-bottom: 5px;
-}
-
-.tab-btn {
-    padding: 3px 8px;
-    border: 1px solid #ddd;
-    background: #fff;
-    cursor: pointer;
-    font-size: 0.8rem;
-    border-radius: 3px;
-}
-
-.tab-btn.active {
-    background-color: #3498db;
-    color: #fff;
-    border-color: #3498db;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-.tab-content input, .tab-content textarea {
-    width: 100%;
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    font-size: 0.9rem;
-}
-
-.tab-content textarea {
-    min-height: 60px;
-    resize: vertical;
-}
-
-.materials-inputs {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.materials-inputs input {
-    width: 100%;
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    font-size: 0.85rem;
-}
-
-.series-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-}
-
-.series-name-editor {
-    margin-bottom: 15px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-}
-
-.series-name-editor h4 {
-    margin-bottom: 10px;
-}
-
-.image-previews {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 15px 0;
-}
-
-.image-preview {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.image-preview img {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    margin-bottom: 5px;
-}
-
-.preview-info {
-    text-align: center;
-    font-size: 0.8rem;
-}
-
-.preview-name {
-    display: block;
-    max-width: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.upload-progress {
-    margin: 15px 0;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 20px;
-    background-color: #f3f3f3;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.progress-bar {
-    height: 100%;
-    background-color: #3498db;
-    transition: width 0.3s ease;
-}
-
-.progress-text {
-    text-align: center;
-    margin-top: 5px;
-    font-size: 0.9rem;
-    color: #666;
-}
-
-.series-input-group {
-    display: flex;
-    gap: 10px;
-}
-
-.series-input-group input {
-    flex: 1;
-}
-
-.config-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.form-section {
-    margin-bottom: 25px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-}
-
-.form-section h3 {
-    margin-bottom: 15px;
-    color: #333;
+    .file-remove {
+        align-self: flex-end;
+    }
 }

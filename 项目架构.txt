@@ -33,7 +33,7 @@ GH5/
 │   ├── frontend.js                # 主入口（初始化、渲染）
 │   ├── github-api.js              # GitHub API 封装
 │   ├── cache-manager.js           # 缓存管理
-│   ├── i18n.js                   # 多语言系统
+│   ├── i18n.js                    # 多语言系统
 │   ├── product-modal.js           # 产品详情弹窗
 │   ├── product-search.js          # 产品搜索
 │   ├── product-compare.js         # 产品对比
@@ -99,7 +99,7 @@ GH5/
   - #product-editor    产品编辑
   - #upload           图片上传
   - #series-manager   系列管理
-  - #config-editor   网站配置
+  - #config-editor    网站配置
   - #translation-manager 翻译管理
 
 四、JS 模块说明
@@ -114,12 +114,10 @@ GH5/
 ├── isFeatureEnabled(key)            检查功能是否开启
 ├── init()                          初始化所有模块
 ├── initCarousel()                  初始化轮播图
-├── loadProductsData()              加载产品数据（优先缓存）
-├── parseProductName(filename)       解析产品名称和序号
-├── groupImagesByProduct(filenames)  按文件名分组产品
+├── loadProductsData()               加载产品数据（优先缓存）
 ├── renderProducts()                 渲染产品列表
 ├── createSeriesElement()            创建产品系列元素
-├── createProductCard()             创建产品卡片
+├── createProductCard()              创建产品卡片
 ├── initLazyLoad()                  初始化懒加载
 └── updateCompareButton()           更新对比按钮状态
 
@@ -127,28 +125,28 @@ GH5/
 ├── constructor()                   初始化（owner: conlinzheng, repo: GH5）
 ├── setToken(token)                 设置 GitHub Token
 ├── fetchDirectory(path)            获取目录内容
-├── fetchFile(path)                 获取文件内容（Base64 解码，UTF-8）
+├── fetchFile(path)                 获取文件内容（Base64 解码）
 ├── commitFile(path, content, msg)  提交文件到 GitHub
 ├── _fetch(url, options)            统一请求方法（含限流处理）
 ├── fileToBase64(file)              文件转 Base64
-├── uploadImage(seriesId, file)     上传图片
-└── scanForNewImages()             扫描新图片
+├── uploadImage(seriesId, file)    上传图片
+└── scanForNewImages()              扫描新图片
 
 【cache-manager.js】- 缓存管理
-├── get(key, ttl)                  获取缓存
-├── set(key, data)                 设置缓存
+├── get(key, ttl)                   获取缓存
+├── set(key, data)                  设置缓存
 ├── clear(key)                      清除缓存
-├── clearAll()                     清除所有缓存
-├── getSize()                      获取缓存大小
+├── clearAll()                      清除所有缓存
+├── getSize()                       获取缓存大小
 └── exists(key)                     检查缓存是否存在
 
 【i18n.js】- 多语言系统
 ├── init()                          初始化语言
-├── switchLanguage(lang)             切换语言
+├── switchLanguage(lang)            切换语言
 ├── getLocalizedField(obj, field)   获取本地化字段
 ├── t(key)                          翻译静态文本
 ├── isReady()                       检查是否就绪
-├── exportTranslations()             导出翻译
+└── exportTranslations()            导出翻译
 └── importTranslations()             导入翻译
 
 4.2 功能模块
@@ -159,7 +157,7 @@ GH5/
 ├── open(seriesId, productId, data) 打开弹窗
 ├── close()                         关闭弹窗
 ├── navigate(direction)             图片导航
-├── render()                        渲染内容
+├── render()                       渲染内容
 └── findSeriesId()                  查找系列ID
 
 【product-search.js】- 产品搜索
@@ -180,17 +178,17 @@ GH5/
 
 【browse-history.js】- 浏览历史
 ├── init()                          初始化历史记录
-├── add(product)                   添加浏览记录
-├── getHistory()                   获取历史
+├── add(product)                    添加浏览记录
+├── getHistory()                    获取历史
 ├── saveHistory()                   保存历史
 ├── clear()                         清空历史
-└── renderHistoryWidget()          渲染历史小部件
+└── renderHistoryWidget()           渲染历史小部件
 
 【theme-manager.js】- 主题切换
 ├── init()                          初始化主题
 ├── setTheme(theme)                 设置主题
 ├── toggleTheme()                   切换主题
-└── getCurrentTheme()              获取当前主题
+└── getCurrentTheme()               获取当前主题
 
 【layout-switcher.js】- 布局切换
 ├── init()                          初始化布局
@@ -204,32 +202,32 @@ GH5/
 【product-filter.js】- 产品筛选
 ├── init()                          初始化筛选
 ├── renderFilterPanel()             渲染筛选面板
-├── hasActiveFilters()              检查是否有筛选
+├── hasActiveFilters()               检查是否有筛选
 ├── getActiveFilters()              获取筛选条件
-├── filterProducts(products, f)     筛选产品
+├── filterProducts(products, f)    筛选产品
 └── clearFilters()                  清除筛选
 
 【social-share.js】- 社交分享
 ├── init()                          初始化分享
-├── setProduct(product, seriesId)  设置分享产品
-├── share(platform)                分享到平台
-└── renderShareButtons()           渲染分享按钮
+├── setProduct(product, seriesId)   设置分享产品
+├── share(platform)                 分享到平台
+└── renderShareButtons()            渲染分享按钮
 
 【back-to-top.js】- 回到顶部
 ├── init()                          初始化按钮
 ├── show()                          显示按钮
-├── hide()                          隐藏按钮
+├── hide()                           隐藏按钮
 └── scrollToTop()                   滚动到顶部
 
 【image-zoom.js】- 图片放大
 ├── init()                          初始化放大功能
-├── zoom(image)                     放大图片
-└── close()                         关闭放大
+├── zoom(image)                      放大图片
+└── close()                          关闭放大
 
 【contact-form.js】- 联系方式表单
 ├── init()                          初始化表单
 ├── submitForm()                     提交表单
-├── validateForm()                   验证表单
+├── validateForm()                  验证表单
 └── updateLanguage()                更新语言
 
 4.3 后台模块 (config/js/)
@@ -256,16 +254,16 @@ GH5/
 └── uploadFile()                   上传文件
 
 【notifier.js】- 通知系统
-├── success(message)                显示成功
+├── success(message)                 显示成功
 ├── error(message)                  显示错误
 ├── warning(message)                显示警告
-└── info(message)                  显示信息
+└── info(message)                   显示信息
 
 【product-editor.js】- 产品编辑
 ├── render()                        渲染编辑界面
 ├── saveProduct()                   保存产品
 ├── deleteProduct()                 删除产品
-└── addProduct()                   添加产品
+└── addProduct()                    添加产品
 
 【upload-manager.js】- 图片上传
 ├── render()                        渲染上传界面
@@ -275,8 +273,8 @@ GH5/
 
 【series-manager.js】- 系列管理
 ├── render()                        渲染系列管理
-├── addSeries()                     添加系列
-└── deleteSeries()                  删除系列
+├── addSeries()                      添加系列
+└── deleteSeries()                   删除系列
 
 【config-editor.js】- 网站配置
 ├── render()                        渲染配置界面
@@ -286,9 +284,9 @@ GH5/
 【translation-manager.js】- 翻译管理
 ├── render()                        渲染翻译界面
 ├── loadTranslations()              加载翻译
-├── saveTranslations()              保存翻译
+├── saveTranslations()               保存翻译
 ├── exportTranslations()            导出翻译
-└── importTranslations()            导入翻译
+└── importTranslations()             导入翻译
 
 五、函数引用关系
 ================================================================================
@@ -316,20 +314,20 @@ frontend.js: DOMContentLoaded
     │       ├─► productModal.init()         初始化弹窗
     │       ├─► productSearch.init()        初始化搜索
     │       ├─► productCompare.init()        初始化对比
-    │       ├─► browseHistory.init()        初始化历史
+    │       ├─► browseHistory.init()         初始化历史
     │       ├─► themeManager.init()          初始化主题
-    │       ├─► layoutSwitcher.init()        初始化布局
+    │       ├─► layoutSwitcher.init()       初始化布局
     │       ├─► productFilter.init()         初始化筛选
     │       ├─► socialShare.init()           初始化分享
     │       ├─► backToTop.init()            初始化回到顶部
     │       ├─► imageZoom.init()            初始化图片放大
     │       │
-    │       └─► renderProducts()             渲染产品
+    │       └─► renderProducts()           渲染产品
     │               │
     │               └─► createProductCard()  创建产品卡片
     │                       │
     │                       ├─► i18n.getLocalizedField()  获取翻译
-    │                       └─► initLazyLoad()            懒加载
+    │                       └─► initLazyLoad()           懒加载
 
 5.2 事件流
 --------------------------------------------------------------------------------
@@ -381,14 +379,14 @@ DOM (产品卡片)
 ================================================================================
 
 缓存键值：
-  - products_data            产品数据
-  - products_data_version    缓存版本（控制刷新）
-  - site_features            功能开关设置
-  - theme                    当前主题
-  - layout                   当前布局
-  - product_compare          对比列表
-  - browse_history           浏览历史
-  - translations             翻译数据
+  - products_data           产品数据
+  - products_data_version   缓存版本（控制刷新）
+  - site_features           功能开关设置
+  - theme                   当前主题
+  - layout                  当前布局
+  - product_compare         对比列表
+  - browse_history          浏览历史
+  - translations            翻译数据
 
 版本控制：
   - v1: 初始版本
@@ -405,11 +403,11 @@ DOM (产品卡片)
   - 产品数据：从 GitHub products.json 动态加载
 
 语言切换：
- 1. 用户点击语言按钮
- 2. i18n.switchLanguage(lang)
- 3. 保存到 localStorage
- 4. 触发 languageChanged 事件
- 5. frontend 监听事件，重新渲染产品
+  1. 用户点击语言按钮
+  2. i18n.switchLanguage(lang)
+  3. 保存到 localStorage
+  4. 触发 languageChanged 事件
+  5. frontend 监听事件，重新渲染产品
 
 九、页面访问地址
 ================================================================================
@@ -425,7 +423,7 @@ DOM (产品卡片)
 GitHub 仓库：
   - https://github.com/conlinzheng/GH5
 
-十，快速开始
+十、快速开始
 ================================================================================
 
 1. 访问主站

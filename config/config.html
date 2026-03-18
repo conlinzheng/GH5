@@ -22,6 +22,7 @@
     <main>
         <div class="container">
             <div class="admin-layout">
+                <!-- 左侧导航 -->
                 <aside class="admin-sidebar">
                     <ul class="nav-menu">
                         <li><a href="#product-editor" class="nav-item">产品编辑</a></li>
@@ -32,8 +33,10 @@
                     </ul>
                 </aside>
 
+                <!-- 右侧内容区 -->
                 <section class="admin-content">
                     <div id="view-container">
+                        <!-- 视图将通过 JavaScript 动态加载 -->
                         <div class="welcome-view">
                             <h2>欢迎使用后台管理系统</h2>
                             <p>请从左侧选择一个功能模块开始操作</p>
@@ -44,6 +47,7 @@
         </div>
     </main>
 
+    <!-- Token 设置模态框 -->
     <div id="token-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -66,6 +70,7 @@
         </div>
     </div>
 
+    <!-- 通知容器 -->
     <div id="notification-container"></div>
 
     <script src="../js/github-api.js"></script>

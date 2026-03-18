@@ -37,14 +37,14 @@ class ImageZoom {
 
     bindEvents() {
         document.addEventListener('mouseover', (e) => {
-            const img = e.target.closest('.product-image img, .modal-main-image img');
+            const img = e.target.closest('.product-image img, .modal-product-image img');
             if (img && this.settings.enabled) {
                 this.preview(img);
             }
         });
 
         document.addEventListener('click', (e) => {
-            const img = e.target.closest('.product-image img, .modal-main-image img');
+            const img = e.target.closest('.product-image img, .modal-product-image img');
             if (img && this.settings.enabled && !this.overlay.classList.contains('active')) {
                 this.open(img);
             }
@@ -78,7 +78,7 @@ class ImageZoom {
         this.settings = { ...this.settings, ...newSettings };
         localStorage.setItem('imageZoom_settings', JSON.stringify(this.settings));
         
-        const images = document.querySelectorAll('.product-image img, .modal-main-image img');
+        const images = document.querySelectorAll('.product-image img, .modal-product-image img');
         images.forEach(img => {
             img.style.cursor = this.settings.enabled ? this.settings.cursor : 'default';
         });
@@ -89,6 +89,10 @@ class ImageZoom {
     }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    window.imageZoom = new ImageZoom();
-});
+const imageZoom = new ImageZoom();
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = imageZoom;
+} else {
+    window.imageZoom = imageZoom;
+}

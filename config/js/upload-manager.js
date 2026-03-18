@@ -3,8 +3,12 @@ class UploadManager {
         this.container = document.getElementById('upload-manager');
     }
 
+    /**
+     * 初始化上传管理器
+     */
     async init() {
         try {
+            // 加载系列列表
             const seriesList = await githubSync.fetchSeriesList();
             this.render(seriesList);
         } catch (error) {
@@ -13,6 +17,10 @@ class UploadManager {
         }
     }
 
+    /**
+     * 渲染上传管理器
+     * @param {array} seriesList - 系列列表
+     */
     render(seriesList) {
         if (!this.container) return;
 
@@ -42,6 +50,7 @@ class UploadManager {
                     <input type="file" id="image-upload" class="form-control" multiple accept="image/*">
                 </div>
                 <div class="image-previews" id="image-previews">
+                    <!-- 图片预览将在这里动态生成 -->
                 </div>
                 <div class="upload-progress" id="upload-progress" style="display: none;">
                     <div class="progress-bar" id="progress-bar"></div>
@@ -55,6 +64,9 @@ class UploadManager {
         this.bindEvents();
     }
 
+    /**
+     * 绑定事件
+     */
     bindEvents() {
         const seriesSelect = document.getElementById('series-select');
         const imageUpload = document.getElementById('image-upload');
@@ -66,16 +78,19 @@ class UploadManager {
 
         let selectedFiles = [];
 
+        // 系列选择变化
         seriesSelect.addEventListener('change', () => {
             this.updateUploadButton();
         });
 
+        // 图片选择变化
         imageUpload.addEventListener('change', (e) => {
             selectedFiles = Array.from(e.target.files);
             this.renderImagePreviews(selectedFiles);
             this.updateUploadButton();
         });
 
+        // 上传按钮点击
         uploadBtn.addEventListener('click', async () => {
             const seriesId = seriesSelect.value;
             if (!seriesId || selectedFiles.length === 0) return;
@@ -106,6 +121,7 @@ class UploadManager {
                     notifier.error(`有 ${results.failed.length} 张图片上传失败`);
                 }
 
+                // 清空选择
                 imageUpload.value = '';
                 selectedFiles = [];
                 imagePreviews.innerHTML = '';
@@ -119,6 +135,10 @@ class UploadManager {
         });
     }
 
+    /**
+     * 渲染图片预览
+     * @param {array} files - 文件数组
+     */
     renderImagePreviews(files) {
         const imagePreviews = document.getElementById('image-previews');
         imagePreviews.innerHTML = '';
@@ -141,6 +161,9 @@ class UploadManager {
         });
     }
 
+    /**
+     * 更新上传按钮状态
+     */
     updateUploadButton() {
         const seriesSelect = document.getElementById('series-select');
         const imageUpload = document.getElementById('image-upload');
@@ -161,6 +184,11 @@ class UploadManager {
         }
     }
 
+    /**
+     * 格式化文件大小
+     * @param {number} bytes - 文件大小（字节）
+     * @returns {string} 格式化后的文件大小
+     */
     formatFileSize(bytes) {
         if (bytes === 0) return '0 B';
         const k = 1024;
@@ -170,6 +198,7 @@ class UploadManager {
     }
 }
 
+// 导出单例
 const uploadManager = new UploadManager();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = uploadManager;

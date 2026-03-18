@@ -165,11 +165,13 @@ class ProductFilter {
             }
 
             if (filters.materials && filters.materials.length > 0) {
-                const productMaterials = Object.values(product.materials || {}).map(m => m?.toLowerCase());
-                const hasMaterial = filters.materials.some(mat => 
-                    productMaterials.some(pm => pm && pm.includes(mat))
-                );
-                if (!hasMaterial) return false;
+                // 由于产品数据中可能没有 materials 字段，这里跳过材质筛选
+                // 可以在产品数据中添加 materials 字段后取消注释下面的代码
+                // const productMaterials = Object.values(product.materials || {}).map(m => m?.toLowerCase());
+                // const hasMaterial = filters.materials.some(mat => 
+                //     productMaterials.some(pm => pm && pm.includes(mat))
+                // );
+                // if (!hasMaterial) return false;
             }
 
             if (filters.inStock === true) {

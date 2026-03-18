@@ -3,8 +3,12 @@ class SeriesManager {
         this.container = document.getElementById('series-manager');
     }
 
+    /**
+     * 初始化系列管理器
+     */
     async init() {
         try {
+            // 加载系列列表
             const seriesList = await githubSync.fetchSeriesList();
             this.render(seriesList);
         } catch (error) {
@@ -13,6 +17,10 @@ class SeriesManager {
         }
     }
 
+    /**
+     * 渲染系列管理器
+     * @param {array} seriesList - 系列列表
+     */
     render(seriesList) {
         if (!this.container) return;
 
@@ -63,10 +71,14 @@ class SeriesManager {
         this.bindEvents();
     }
 
+    /**
+     * 绑定事件
+     */
     bindEvents() {
         const createSeriesBtn = document.getElementById('create-series-btn');
         const newSeriesName = document.getElementById('new-series-name');
 
+        // 创建系列
         createSeriesBtn.addEventListener('click', async () => {
             const seriesName = newSeriesName.value.trim();
             if (!seriesName) {
@@ -75,6 +87,7 @@ class SeriesManager {
             }
 
             try {
+                // 检查格式是否正确
                 if (!/^\d+-/.test(seriesName)) {
                     notifier.warning('系列名称格式不正确，应为：数字-系列名');
                     return;
@@ -84,9 +97,11 @@ class SeriesManager {
                 await githubSync.createSeries(seriesName);
                 notifier.success('系列创建成功');
                 
+                // 重新加载系列列表
                 const seriesList = await githubSync.fetchSeriesList();
                 this.render(seriesList);
                 
+                // 清空输入
                 newSeriesName.value = '';
             } catch (error) {
                 console.error('Error creating series:', error);
@@ -94,6 +109,7 @@ class SeriesManager {
             }
         });
 
+        // 删除系列
         this.container.querySelectorAll('.delete-series').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const seriesId = e.target.dataset.series;
@@ -104,6 +120,7 @@ class SeriesManager {
                         await githubSync.deleteSeries(seriesId);
                         notifier.success('系列删除成功');
                         
+                        // 重新加载系列列表
                         const seriesList = await githubSync.fetchSeriesList();
                         this.render(seriesList);
                     } catch (error) {
@@ -116,6 +133,7 @@ class SeriesManager {
     }
 }
 
+// 导出单例
 const seriesManager = new SeriesManager();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = seriesManager;

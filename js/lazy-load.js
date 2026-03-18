@@ -3,6 +3,9 @@ class LazyLoad {
         this.observer = null;
     }
 
+    /**
+     * 初始化懒加载
+     */
     init() {
         if ('IntersectionObserver' in window) {
             this.observer = new IntersectionObserver((entries, observer) => {
@@ -21,10 +24,14 @@ class LazyLoad {
 
             this.observeImages();
         } else {
+            // 降级方案，直接加载所有图片
             this.loadAllImages();
         }
     }
 
+    /**
+     * 观察所有需要懒加载的图片
+     */
     observeImages() {
         const lazyImages = document.querySelectorAll('img[data-src]');
         lazyImages.forEach(image => {
@@ -32,6 +39,10 @@ class LazyLoad {
         });
     }
 
+    /**
+     * 加载单个图片
+     * @param {HTMLElement} image - 图片元素
+     */
     loadImage(image) {
         const src = image.dataset.src;
         if (src) {
@@ -40,6 +51,9 @@ class LazyLoad {
         }
     }
 
+    /**
+     * 加载所有图片（降级方案）
+     */
     loadAllImages() {
         const lazyImages = document.querySelectorAll('img[data-src]');
         lazyImages.forEach(image => {
@@ -48,6 +62,7 @@ class LazyLoad {
     }
 }
 
+// 导出单例
 const lazyLoad = new LazyLoad();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = lazyLoad;

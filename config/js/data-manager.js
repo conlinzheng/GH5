@@ -6,24 +6,52 @@ class DataManager {
         this.events = {};
     }
 
+    /**
+     * 加载网站配置
+     * @returns {object} 网站配置
+     */
     loadSiteConfig() {
         try {
             const config = localStorage.getItem('site_config');
             return config ? JSON.parse(config) : {
-                contactInfo: { phone: '123-456-7890', email: 'info@example.com' },
-                footer: { aboutText: '我们提供高品质的产品，满足您的需求。', copyright: '© 2026 产品展示. 保留所有权利.' },
-                socialLinks: { wechat: '#', weibo: '#', instagram: '#' }
+                contactInfo: {
+                    phone: '123-456-7890',
+                    email: 'info@example.com'
+                },
+                footer: {
+                    aboutText: '我们提供高品质的产品，满足您的需求。',
+                    copyright: '© 2026 产品展示. 保留所有权利.'
+                },
+                socialLinks: {
+                    wechat: '#',
+                    weibo: '#',
+                    instagram: '#'
+                }
             };
         } catch (error) {
             console.error('Error loading site config:', error);
             return {
-                contactInfo: { phone: '123-456-7890', email: 'info@example.com' },
-                footer: { aboutText: '我们提供高品质的产品，满足您的需求。', copyright: '© 2026 产品展示. 保留所有权利.' },
-                socialLinks: { wechat: '#', weibo: '#', instagram: '#' }
+                contactInfo: {
+                    phone: '123-456-7890',
+                    email: 'info@example.com'
+                },
+                footer: {
+                    aboutText: '我们提供高品质的产品，满足您的需求。',
+                    copyright: '© 2026 产品展示. 保留所有权利.'
+                },
+                socialLinks: {
+                    wechat: '#',
+                    weibo: '#',
+                    instagram: '#'
+                }
             };
         }
     }
 
+    /**
+     * 保存网站配置
+     * @param {object} config - 网站配置
+     */
     saveSiteConfig(config) {
         this.siteConfig = config;
         try {
@@ -34,10 +62,17 @@ class DataManager {
         }
     }
 
+    /**
+     * 获取网站配置
+     * @returns {object} 网站配置
+     */
     getSiteConfig() {
         return this.siteConfig;
     }
 
+    /**
+     * 从GitHub加载产品数据
+     */
     async loadFromGitHub() {
         try {
             const seriesList = await githubAPI.fetchDirectory('产品图');
@@ -50,8 +85,13 @@ class DataManager {
                     const seriesData = JSON.parse(productsJson.content);
                     productsData[seriesId] = seriesData;
                 } catch (error) {
+                    // products.json不存在，创建默认数据
                     productsData[seriesId] = {
-                        seriesName: { zh: seriesId.split('-')[1] || seriesId, en: seriesId.split('-')[1] || seriesId, ko: seriesId.split('-')[1] || seriesId },
+                        seriesName: {
+                            zh: seriesId.split('-')[1] || seriesId,
+                            en: seriesId.split('-')[1] || seriesId,
+                            ko: seriesId.split('-')[1] || seriesId
+                        },
                         products: {}
                     };
                 }
@@ -65,6 +105,10 @@ class DataManager {
         }
     }
 
+    /**
+     * 保存产品数据到GitHub
+     * @param {string} seriesId - 系列ID
+     */
     async saveToGitHub(seriesId) {
         try {
             const seriesData = this.productsData[seriesId];
@@ -81,25 +125,52 @@ class DataManager {
         }
     }
 
+    /**
+     * 获取所有系列
+     * @returns {array} 系列列表
+     */
     getSeriesList() {
         return this.seriesList;
     }
 
+    /**
+     * 获取所有产品数据
+     * @returns {object} 产品数据
+     */
     getProductsData() {
         return this.productsData;
     }
 
+    /**
+     * 按系列获取产品
+     * @param {string} seriesId - 系列ID
+     * @returns {object} 系列产品数据
+     */
     getProductsBySeries(seriesId) {
         return this.productsData[seriesId] || {
-            seriesName: { zh: seriesId.split('-')[1] || seriesId, en: seriesId.split('-')[1] || seriesId, ko: seriesId.split('-')[1] || seriesId },
+            seriesName: {
+                zh: seriesId.split('-')[1] || seriesId,
+                en: seriesId.split('-')[1] || seriesId,
+                ko: seriesId.split('-')[1] || seriesId
+            },
             products: {}
         };
     }
 
+    /**
+     * 更新产品数据
+     * @param {string} seriesId - 系列ID
+     * @param {string} productId - 产品ID
+     * @param {object} data - 产品数据
+     */
     updateProduct(seriesId, productId, data) {
         if (!this.productsData[seriesId]) {
             this.productsData[seriesId] = {
-                seriesName: { zh: seriesId.split('-')[1] || seriesId, en: seriesId.split('-')[1] || seriesId, ko: seriesId.split('-')[1] || seriesId },
+                seriesName: {
+                    zh: seriesId.split('-')[1] || seriesId,
+                    en: seriesId.split('-')[1] || seriesId,
+                    ko: seriesId.split('-')[1] || seriesId
+                },
                 products: {}
             };
         }
@@ -108,10 +179,20 @@ class DataManager {
         this.trigger('productUpdated', { seriesId, productId, data });
     }
 
+    /**
+     * 添加产品
+     * @param {string} seriesId - 系列ID
+     * @param {string} productId - 产品ID
+     * @param {object} productData - 产品数据
+     */
     addProduct(seriesId, productId, productData) {
         if (!this.productsData[seriesId]) {
             this.productsData[seriesId] = {
-                seriesName: { zh: seriesId.split('-')[1] || seriesId, en: seriesId.split('-')[1] || seriesId, ko: seriesId.split('-')[1] || seriesId },
+                seriesName: {
+                    zh: seriesId.split('-')[1] || seriesId,
+                    en: seriesId.split('-')[1] || seriesId,
+                    ko: seriesId.split('-')[1] || seriesId
+                },
                 products: {}
             };
         }
@@ -120,6 +201,11 @@ class DataManager {
         this.trigger('productAdded', { seriesId, productId, productData });
     }
 
+    /**
+     * 删除产品
+     * @param {string} seriesId - 系列ID
+     * @param {string} productId - 产品ID
+     */
     deleteProduct(seriesId, productId) {
         if (this.productsData[seriesId] && this.productsData[seriesId].products[productId]) {
             delete this.productsData[seriesId].products[productId];
@@ -127,10 +213,19 @@ class DataManager {
         }
     }
 
+    /**
+     * 更新系列信息
+     * @param {string} seriesId - 系列ID
+     * @param {object} seriesData - 系列数据
+     */
     updateSeries(seriesId, seriesData) {
         if (!this.productsData[seriesId]) {
             this.productsData[seriesId] = {
-                seriesName: { zh: seriesId.split('-')[1] || seriesId, en: seriesId.split('-')[1] || seriesId, ko: seriesId.split('-')[1] || seriesId },
+                seriesName: {
+                    zh: seriesId.split('-')[1] || seriesId,
+                    en: seriesId.split('-')[1] || seriesId,
+                    ko: seriesId.split('-')[1] || seriesId
+                },
                 products: {}
             };
         }
@@ -139,6 +234,33 @@ class DataManager {
         this.trigger('seriesUpdated', { seriesId, seriesData });
     }
 
+    /**
+     * 添加系列
+     * @param {string} seriesId - 系列ID
+     * @param {object} seriesData - 系列数据
+     */
+    addSeries(seriesId, seriesData) {
+        this.productsData[seriesId] = seriesData;
+        this.seriesList.push(seriesId);
+        this.trigger('seriesAdded', { seriesId, seriesData });
+    }
+
+    /**
+     * 删除系列
+     * @param {string} seriesId - 系列ID
+     */
+    deleteSeries(seriesId) {
+        if (this.productsData[seriesId]) {
+            delete this.productsData[seriesId];
+            this.seriesList = this.seriesList.filter(id => id !== seriesId);
+            this.trigger('seriesDeleted', seriesId);
+        }
+    }
+
+    /**
+     * 扫描新图片
+     * @returns {object} 新图片列表
+     */
     async scanForNewImages() {
         try {
             return await githubAPI.scanForNewImages();
@@ -148,6 +270,11 @@ class DataManager {
         }
     }
 
+    /**
+     * 注册事件监听器
+     * @param {string} event - 事件名称
+     * @param {function} callback - 回调函数
+     */
     on(event, callback) {
         if (!this.events[event]) {
             this.events[event] = [];
@@ -155,6 +282,11 @@ class DataManager {
         this.events[event].push(callback);
     }
 
+    /**
+     * 触发事件
+     * @param {string} event - 事件名称
+     * @param {any} data - 事件数据
+     */
     trigger(event, data) {
         if (this.events[event]) {
             this.events[event].forEach(callback => {
@@ -163,6 +295,11 @@ class DataManager {
         }
     }
 
+    /**
+     * 移除事件监听器
+     * @param {string} event - 事件名称
+     * @param {function} callback - 回调函数
+     */
     off(event, callback) {
         if (this.events[event]) {
             this.events[event] = this.events[event].filter(cb => cb !== callback);
@@ -170,6 +307,7 @@ class DataManager {
     }
 }
 
+// 导出单例
 const dataManager = new DataManager();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = dataManager;

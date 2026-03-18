@@ -439,6 +439,7 @@ class Frontend {
             }
         }, 100);
 
+        // 为整个卡片添加点击事件
         card.addEventListener('click', () => {
             if (productModal) {
                 const allProducts = this.productsData[seriesId]?.products || {};
@@ -448,6 +449,18 @@ class Frontend {
                     browseHistory.add({ id: productId, seriesId, ...productData });
                 }
             }
+        });
+
+        // 确保图片点击也能触发卡片点击事件
+        img.addEventListener('click', (e) => {
+            e.stopPropagation();
+            card.click();
+        });
+
+        // 确保图片容器点击也能触发卡片点击事件
+        imageDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            card.click();
         });
 
         return card;
