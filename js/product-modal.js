@@ -86,6 +86,7 @@ class ProductModal {
         this.modal.classList.add('active');
         document.body.style.overflow = 'hidden';
 
+        // 更新社交分享
         if (typeof socialShare !== 'undefined') {
             socialShare.setProduct(productData, seriesId);
         }
@@ -110,7 +111,9 @@ class ProductModal {
 
         const mainImage = this.modal.querySelector('.main-image');
         const seriesId = this.findSeriesId(product);
-        mainImage.src = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(seriesId)}/${encodeURIComponent(product.id)}`;
+        const mainImageFile = product.images?.find(img => img.isMain) || product.images?.[0];
+        const imageUrl = mainImageFile ? `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${encodeURIComponent(seriesId)}/${encodeURIComponent(mainImageFile.filename)}` : '';
+        mainImage.src = imageUrl;
         mainImage.alt = product.name?.[currentLang] || product.name?.zh || '';
 
         this.modal.querySelector('.product-title').textContent = 
@@ -144,7 +147,7 @@ class ProductModal {
         const labels = {
             'zh': { 'upper': '鞋面', 'lining': '内里', 'sole': '鞋底' },
             'en': { 'upper': 'Upper', 'lining': 'Lining', 'sole': 'Sole' },
-            'ko': { 'upper': ' Shoe upper', 'lining': '안감', 'sole': '鞋底' }
+            'ko': { 'upper': '신발 상단', 'lining': '안감', 'sole': '밑창' }
         };
         const currentLang = i18n?.currentLanguage || 'zh';
         return labels[currentLang]?.[key] || key;

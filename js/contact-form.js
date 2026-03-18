@@ -82,7 +82,9 @@ class ContactForm {
                     const response = await fetch(this.formspreeEndpoint, {
                         method: 'POST',
                         body: formData,
-                        headers: { 'Accept': 'application/json' }
+                        headers: {
+                            'Accept': 'application/json'
+                        }
                     });
 
                     if (response.ok) {
@@ -95,7 +97,7 @@ class ContactForm {
                 } else {
                     const subject = encodeURIComponent(formData.get('subject'));
                     const body = encodeURIComponent(`姓名: ${formData.get('name')}\n邮箱: ${formData.get('email')}\n\n${formData.get('message')}`);
-                    window.location.href = `mailto:your-email@example.com?subject=${subject}&body=${body}`;
+                    window.location.href = `mailto:info@example.com?subject=${subject}&body=${body}`;
                     statusDiv.textContent = t.success;
                     statusDiv.className = 'contact-status success';
                     form.reset();
@@ -118,6 +120,7 @@ class ContactForm {
 }
 
 const contactForm = new ContactForm();
+
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = contactForm;
 } else {

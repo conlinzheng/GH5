@@ -1,65 +1,62 @@
 class ErrorHandler {
-    constructor() {
-        this.errorContainer = null;
-    }
+    /**
+     * 处理错误
+     * @param {Error} error - 错误对象
+     * @param {string} fallback -  fallback消息
+     * @returns {string} 处理后的错误消息
+     */
+    handleError(error, fallback = '发生错误，请稍后重试') {
+        console.error('Error:', error);
 
-    init() {
-        this.createErrorContainer();
-    }
-
-    createErrorContainer() {
-        this.errorContainer = document.createElement('div');
-        this.errorContainer.className = 'error-container';
-        this.errorContainer.style.cssText = '
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            max-width: 400px;
-        ';
-        document.body.appendChild(this.errorContainer);
-    }
-
-    showError(message, duration = 5000) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = message;
-        errorDiv.style.cssText = '
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px 20px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            animation: slideIn 0.3s ease;
-        ';
-
-        this.errorContainer.appendChild(errorDiv);
-
-        setTimeout(() => {
-            errorDiv.remove();
-        }, duration);
-    }
-
-    handleError(error, context = '') {
-        console.error('Error in', context, error);
-        let message = error.message || 'An error occurred';
-        if (context) {
-            message = `${context}: ${message}`;
+        // 根据错误类型返回不同的错误消息
+        if (error.message.includes('404')) {
+            return '请求的资源不存在';
+        } else if (error.message.includes('403')) {
+            return '没有权限访问该资源';
+        } else if (error.message.includes('rate limit')) {
+            return 'API请求频率过高，请稍后重试';
+        } else if (error.message.includes('network')) {
+            return '网络错误，请检查网络连接';
         }
-        this.showError(message);
+
+        return fallback;
+    }
+
+    /**
+     * 显示错误消息
+     * @param {string} message - 错误消息
+     * @param {HTMLElement} container - 容器元素
+     */
+    showError(message, container) {
+        if (!container) return;
+
+        container.innerHTML = `<div class="error">${message}</div>`;
+    }
+
+    /**
+     * 显示加载状态
+     * @param {HTMLElement} container - 容器元素
+     * @param {string} message - 加载消息
+     */
+    showLoading(container, message = '加载中...') {
+        if (!container) return;
+
+        container.innerHTML = `<div class="loading">${message}</div>`;
+    }
+
+    /**
+     * 清除错误或加载状态
+     * @param {HTMLElement} container - 容器元素
+     */
+    clearStatus(container) {
+        if (!container) return;
+
+        container.innerHTML = '';
     }
 }
 
+// 导出单例
 const errorHandler = new ErrorHandler();
-window.addEventListener('error', (event) => {
-    errorHandler.handleError(event.error, 'Global error');
-});
-
-window.addEventListener('unhandledrejection', (event) => {
-    errorHandler.handleError(event.reason, 'Unhandled promise rejection');
-});
-
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = errorHandler;
 } else {

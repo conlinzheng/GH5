@@ -81,6 +81,10 @@ class BackToTop {
     }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    window.backToTop = new BackToTop();
-});
+const backToTop = new BackToTop();
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = backToTop;
+} else {
+    window.backToTop = backToTop;
+}

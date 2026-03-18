@@ -3,17 +3,36 @@ class ConfigEditor {
         this.container = document.getElementById('config-editor');
     }
 
+    /**
+     * 初始化配置编辑器
+     */
     init() {
         const siteConfig = dataManager.getSiteConfig();
         this.render(siteConfig);
     }
 
+    /**
+     * 渲染配置编辑器
+     * @param {object} siteConfig - 网站配置
+     */
     render(siteConfig) {
         if (!this.container) return;
 
-        const contactInfo = siteConfig.contactInfo || { phone: '123-456-7890', email: 'info@example.com' };
-        const footer = siteConfig.footer || { aboutText: '我们提供高品质的产品，满足您的需求。', copyright: '© 2026 产品展示. 保留所有权利.' };
-        const socialLinks = siteConfig.socialLinks || { wechat: '#', weibo: '#', instagram: '#' };
+        const contactInfo = siteConfig.contactInfo || {
+            phone: '123-456-7890',
+            email: 'info@example.com'
+        };
+
+        const footer = siteConfig.footer || {
+            aboutText: '我们提供高品质的产品，满足您的需求。',
+            copyright: '© 2026 产品展示. 保留所有权利.'
+        };
+
+        const socialLinks = siteConfig.socialLinks || {
+            wechat: '#',
+            weibo: '#',
+            instagram: '#'
+        };
 
         const html = `
             <div class="config-editor-header">
@@ -69,11 +88,15 @@ class ConfigEditor {
         this.bindEvents();
     }
 
+    /**
+     * 绑定事件
+     */
     bindEvents() {
         const saveConfigBtn = document.getElementById('save-config');
         const exportConfigBtn = document.getElementById('export-config');
         const importConfigBtn = document.getElementById('import-config');
 
+        // 保存配置
         saveConfigBtn.addEventListener('click', () => {
             const contactInfo = {
                 phone: document.getElementById('contact-phone').value,
@@ -91,11 +114,17 @@ class ConfigEditor {
                 instagram: document.getElementById('social-instagram').value
             };
 
-            const config = { contactInfo, footer, socialLinks };
+            const config = {
+                contactInfo,
+                footer,
+                socialLinks
+            };
+
             dataManager.saveSiteConfig(config);
             notifier.success('配置保存成功');
         });
 
+        // 导出配置
         exportConfigBtn.addEventListener('click', () => {
             const config = dataManager.getSiteConfig();
             const configJson = JSON.stringify(config, null, 2);
@@ -108,6 +137,7 @@ class ConfigEditor {
             URL.revokeObjectURL(url);
         });
 
+        // 导入配置
         importConfigBtn.addEventListener('click', () => {
             const input = document.createElement('input');
             input.type = 'file';
@@ -135,6 +165,7 @@ class ConfigEditor {
     }
 }
 
+// 导出单例
 const configEditor = new ConfigEditor();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = configEditor;

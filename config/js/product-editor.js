@@ -3,8 +3,12 @@ class ProductEditor {
         this.container = document.getElementById('product-editor');
     }
 
+    /**
+     * 初始化产品编辑器
+     */
     async init() {
         try {
+            // 加载产品数据
             await dataManager.loadFromGitHub();
             this.render();
         } catch (error) {
@@ -13,6 +17,9 @@ class ProductEditor {
         }
     }
 
+    /**
+     * 渲染产品编辑器
+     */
     render() {
         if (!this.container) return;
 
@@ -96,6 +103,13 @@ class ProductEditor {
         this.bindEvents();
     }
 
+    /**
+     * 渲染产品行
+     * @param {string} seriesId - 系列ID
+     * @param {string} productId - 产品ID
+     * @param {object} product - 产品数据
+     * @returns {string} HTML字符串
+     */
     renderProductRow(seriesId, productId, product) {
         const name = product.name || { zh: '', en: '', ko: '' };
         const description = product.description || { zh: '', en: '', ko: '' };
@@ -160,19 +174,28 @@ class ProductEditor {
         `;
     }
 
+    /**
+     * 绑定事件
+     */
     bindEvents() {
+        // 语言标签切换
         this.container.querySelectorAll('.language-tabs .tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const tabContainer = e.target.closest('.language-tabs');
                 const lang = e.target.dataset.lang;
+                
+                // 切换标签
                 tabContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
+                
+                // 切换内容
                 const contentContainer = tabContainer.nextElementSibling;
                 contentContainer.querySelectorAll('.lang-content').forEach(c => c.classList.remove('active'));
                 contentContainer.querySelector(`.lang-content[data-lang="${lang}"]`).classList.add('active');
             });
         });
 
+        // 产品字段输入
         this.container.querySelectorAll('.product-field').forEach(input => {
             input.addEventListener('input', (e) => {
                 const row = e.target.closest('tr');
@@ -202,6 +225,7 @@ class ProductEditor {
             });
         });
 
+        // 材质字段输入
         this.container.querySelectorAll('.material-field').forEach(input => {
             input.addEventListener('input', (e) => {
                 const row = e.target.closest('tr');
@@ -226,6 +250,7 @@ class ProductEditor {
             });
         });
 
+        // 系列名称输入
         this.container.querySelectorAll('.series-name-input').forEach(input => {
             input.addEventListener('input', (e) => {
                 const seriesId = e.target.dataset.series;
@@ -242,6 +267,7 @@ class ProductEditor {
             });
         });
 
+        // 保存系列
         this.container.querySelectorAll('.save-series').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const seriesId = e.target.dataset.series;
@@ -255,6 +281,7 @@ class ProductEditor {
             });
         });
 
+        // 删除产品
         this.container.querySelectorAll('.delete-product').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const row = e.target.closest('tr');
@@ -269,6 +296,7 @@ class ProductEditor {
             });
         });
 
+        // 扫描新图片
         document.getElementById('scan-new-images').addEventListener('click', async () => {
             try {
                 notifier.info('正在扫描新图片...');
@@ -279,8 +307,9 @@ class ProductEditor {
                     return;
                 }
 
+                // 为新图片添加到表格
                 Object.entries(newImages).forEach(([seriesId, images]) => {
-                    const table = this.container.querySelector(`.series-section .product-table tbody`);
+                    const table = this.container.querySelector(`.series-section[data-series="${seriesId}"] .product-table tbody`);
                     if (table) {
                         images.forEach(image => {
                             const productData = {
@@ -295,6 +324,7 @@ class ProductEditor {
                     }
                 });
 
+                // 重新绑定事件
                 this.bindEvents();
                 notifier.success('新图片扫描完成');
             } catch (error) {
@@ -305,6 +335,7 @@ class ProductEditor {
     }
 }
 
+// 导出单例
 const productEditor = new ProductEditor();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = productEditor;
