@@ -555,20 +555,22 @@
         document.getElementById('export-btn').addEventListener('click', exportTranslations);
         document.getElementById('import-btn').addEventListener('click', () => document.getElementById('file-input').click());
         document.getElementById('file-input').addEventListener('change', (e) => {
-            if (e.target.files[0]) importTranslations(e.target.files[0]);
+            if (e.target.files.length > 0) {
+                importTranslations(e.target.files[0]);
+            }
         });
         document.getElementById('save-btn').addEventListener('click', saveTranslations);
         document.getElementById('reset-btn').addEventListener('click', resetTranslations);
         document.getElementById('add-btn').addEventListener('click', addTranslation);
-        
+        document.getElementById('search-input').addEventListener('input', renderTranslations);
+
         document.querySelectorAll('.lang-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
+                currentLang = tab.dataset.lang;
             });
         });
-        
-        document.getElementById('search-input').addEventListener('input', renderTranslations);
 
         loadTranslations();
     </script>
