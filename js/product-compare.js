@@ -26,7 +26,7 @@ class ProductCompare {
             <div class="compare-modal" id="compare-modal">
                 <div class="compare-modal-content">
                     <button class="compare-close" id="compare-close">&times;</button>
-                    <h2>产品对比</h2>
+                    <h2>${i18n?.t('compareTitle') || '产品对比'}</h2>
                     <div class="compare-table-wrapper" id="compare-table"></div>
                 </div>
             </div>
