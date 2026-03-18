@@ -505,6 +505,10 @@ class ProductModal {
         this.render();
         this.modal.style.display = 'block';
         document.body.style.overflow = 'hidden';
+        
+        if (typeof socialShare !== 'undefined') {
+            socialShare.renderShareButton(this.modal);
+        }
     }
 
     close() {

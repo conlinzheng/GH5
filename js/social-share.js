@@ -69,9 +69,26 @@ class SocialShare {
         ];
     }
 
-    renderShareButton() {
-        const modalInfo = document.querySelector('.modal-info-section');
-        if (!modalInfo) return;
+    renderShareButton(modalElement) {
+        if (!modalElement) {
+            let shareContainer = document.getElementById('share-container');
+            if (!shareContainer) {
+                shareContainer = document.createElement('div');
+                shareContainer.id = 'share-container';
+                shareContainer.className = 'share-container';
+                shareContainer.innerHTML = `
+                    <h3 class="share-title">${i18n?.t('share') || '分享'}</h3>
+                    <div class="share-platforms" id="share-platforms"></div>
+                `;
+                const modalActions = document.querySelector('.modal-actions');
+                if (modalActions) {
+                    modalActions.appendChild(shareContainer);
+                } else {
+                    return;
+                }
+            }
+            return;
+        }
 
         let shareContainer = document.getElementById('share-container');
         if (!shareContainer) {
@@ -83,9 +100,11 @@ class SocialShare {
                 <div class="share-platforms" id="share-platforms"></div>
             `;
             
-            const actionsSection = document.querySelector('.product-actions');
-            if (actionsSection) {
-                actionsSection.parentNode.insertBefore(shareContainer, actionsSection);
+            const modalActions = modalElement.querySelector('.modal-actions');
+            if (modalActions) {
+                modalActions.appendChild(shareContainer);
+            } else {
+                return;
             }
         }
 
