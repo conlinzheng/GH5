@@ -1,0 +1,99 @@
+{
+  "seriesName": {
+    "zh": "夏季",
+    "en": "夏季",
+    "ko": "夏季"
+  },
+  "products": {
+    "41.png": {
+      "name": {
+        "zh": "41",
+        "en": "41",
+        "ko": "41"
+      },
+      "description": {
+        "zh": "41 - 高品质产品",
+        "en": "41 - High quality product",
+        "ko": "41 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "42.png": {
+      "name": {
+        "zh": "42",
+        "en": "42",
+        "ko": "42"
+      },
+      "description": {
+        "zh": "42 - 高品质产品",
+        "en": "42 - High quality product",
+        "ko": "42 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "43.png": {
+      "name": {
+        "zh": "43",
+        "en": "43",
+        "ko": "43"
+      },
+      "description": {
+        "zh": "43 - 高品质产品",
+        "en": "43 - High quality product",
+        "ko": "43 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "44.png": {
+      "name": {
+        "zh": "44",
+        "en": "44",
+        "ko": "44"
+      },
+      "description": {
+        "zh": "44 - 高品质产品",
+        "en": "44 - High quality product",
+        "ko": "44 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "45.png": {
+      "name": {
+        "zh": "45",
+        "en": "45",
+        "ko": "45"
+      },
+      "description": {
+        "zh": "45 - 高品质产品",
+        "en": "45 - High quality product",
+        "ko": "45 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    }
+  }
+}
