@@ -229,25 +229,38 @@ class Frontend {
                     const seriesId = series.name;
                     try {
                         const files = await githubAPI.fetchDirectory(`产品图/${seriesId}`);
-                        const imageFiles = files.filter(f => 
-                            f.type === 'file' && 
-                            /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name) &&
-                            f.name !== 'products.json'
-                        );
                         
-                        const groupedProducts = this.groupImagesByProduct(imageFiles.map(f => f.name));
+                        // 优先读取 products.json
+                        const productsJsonFile = files.find(f => f.name === 'products.json');
+                        let seriesData;
                         
-                        const seriesNumber = seriesId.split('-')[0] || '';
-                        const seriesName = seriesId.split('-').slice(1).join('-') || seriesId;
+                        if (productsJsonFile) {
+                            // 存在 products.json，读取其中的数据
+                            const productsJson = await githubAPI.fetchFile(`产品图/${seriesId}/products.json`);
+                            seriesData = JSON.parse(productsJson.content);
+                        } else {
+                            // 不存在 products.json，从图片文件名生成
+                            const imageFiles = files.filter(f => 
+                                f.type === 'file' && 
+                                /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name)
+                            );
+                            
+                            const groupedProducts = this.groupImagesByProduct(imageFiles.map(f => f.name));
+                            
+                            const seriesNumber = seriesId.split('-')[0] || '';
+                            const seriesName = seriesId.split('-').slice(1).join('-') || seriesId;
+                            
+                            seriesData = {
+                                seriesName: {
+                                    zh: seriesName,
+                                    en: seriesName,
+                                    ko: seriesName
+                                },
+                                products: groupedProducts
+                            };
+                        }
                         
-                        productsData[seriesId] = {
-                            seriesName: {
-                                zh: seriesName,
-                                en: seriesName,
-                                ko: seriesName
-                            },
-                            products: groupedProducts
-                        };
+                        productsData[seriesId] = seriesData;
                     } catch (error) {
                         console.error(`Error loading series ${seriesId}:`, error);
                         productsData[seriesId] = {
