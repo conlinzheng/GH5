@@ -69,15 +69,23 @@
     }
     
     .file-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: block;
       padding: 10px;
       border-bottom: 1px solid #e9ecef;
+      cursor: move;
+      transition: all 0.2s;
     }
     
     .file-item:hover {
       background: #f8f9fa;
+    }
+    
+    .file-item:active {
+      cursor: grabbing;
+    }
+    
+    .file-item.dragging {
+      opacity: 0.5;
     }
     
     .file-actions {
@@ -165,6 +173,42 @@
     .btn-toggle:disabled {
       background: #adb5bd;
       cursor: not-allowed;
+    }
+    
+    #file-list-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    #file-list-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    
+    #file-list-container::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+    
+    #file-list-container::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+    
+    .other-images-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .other-images-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    
+    .other-images-container::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 3px;
+    }
+    
+    .other-images-container::-webkit-scrollbar-thumb:hover {
+      background: #999;
     }
     
     .status-message {
@@ -315,7 +359,7 @@
           <div style="margin-bottom: 15px;">
             <button id="btn-toggle-all-images" class="btn-toggle" onclick="adminPanel.toggleAllImages()">一键折叠/展开所有图片</button>
           </div>
-          <div id="file-list-container">
+          <div id="file-list-container" style="max-height: 70vh; overflow-y: auto; padding-right: 5px;">
             <ul id="file-list" class="file-list" style="min-height: 200px;">
               <!-- 文件列表将通过 JavaScript 动态生成 -->
             </ul>
@@ -743,8 +787,13 @@
           // 创建产品组容器
           const groupContainer = document.createElement('li');
           groupContainer.className = 'file-item';
+          groupContainer.draggable = true;
           groupContainer.style.borderBottom = '2px solid #e9ecef';
           groupContainer.style.padding = '20px';
+          groupContainer.style.marginBottom = '10px';
+          groupContainer.style.backgroundColor = '#fff';
+          groupContainer.style.borderRadius = '8px';
+          groupContainer.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
           groupContainer.dataset.productName = productName;
           
           // 产品组标题和折叠按钮
@@ -819,10 +868,13 @@
             otherImagesContainer.style.display = 'none';
             otherImagesContainer.style.flexWrap = 'wrap';
             otherImagesContainer.style.gap = '15px';
-            otherImagesContainer.style.padding = '10px';
-            otherImagesContainer.style.backgroundColor = '#f5f5f5';
-            otherImagesContainer.style.borderRadius = '4px';
-            otherImagesContainer.style.marginTop = '10px';
+            otherImagesContainer.style.padding = '15px';
+            otherImagesContainer.style.marginTop = '15px';
+            otherImagesContainer.style.backgroundColor = '#f8f9fa';
+            otherImagesContainer.style.borderRadius = '8px';
+            otherImagesContainer.style.border = '1px solid #dee2e6';
+            otherImagesContainer.style.maxHeight = '500px';
+            otherImagesContainer.style.overflowY = 'auto';
             
             otherImages.forEach(product => {
               const seriesDisplayName = this.seriesNameMap[product.seriesId] || product.seriesId;
@@ -831,23 +883,31 @@
               imageItem.style.display = 'flex';
               imageItem.style.alignItems = 'center';
               imageItem.style.gap = '10px';
-              imageItem.style.padding = '10px';
+              imageItem.style.padding = '8px';
               imageItem.style.backgroundColor = '#ffffff';
-              imageItem.style.borderRadius = '4px';
-              imageItem.style.minWidth = '280px';
+              imageItem.style.borderRadius = '6px';
+              imageItem.style.minWidth = '250px';
+              imageItem.style.border = '1px solid #e9ecef';
+              imageItem.style.transition = 'box-shadow 0.2s';
+              
+              imageItem.onmouseenter = () => {
+                imageItem.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+              };
+              imageItem.onmouseleave = () => {
+                imageItem.style.boxShadow = 'none';
+              };
               
               const imageUrl = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${product.seriesId}/${product.image}`;
               
               imageItem.innerHTML = `
-                <div style="width: 50px; height: 50px; overflow: hidden; border-radius: 4px;">
+                <div style="width: 45px; height: 45px; overflow: hidden; border-radius: 4px; flex-shrink: 0;">
                   <img src="${imageUrl}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <div style="flex: 1;">
-                  <strong>${product.image}</strong>
-                  <br>
-                  <small>系列: ${seriesDisplayName}</small>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-weight: 500; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${product.image}</div>
+                  <small style="color: #666;">系列: ${seriesDisplayName}</small>
                 </div>
-                <div class="file-actions">
+                <div class="file-actions" style="flex-shrink: 0;">
                   <button class="btn-view" onclick="adminPanel.viewProduct('${product.id}', '${product.seriesId}')">查看</button>
                 </div>
               `;
@@ -874,7 +934,7 @@
           } else {
             container.style.display = 'none';
             if (btn) {
-              const count = container.querySelectorAll('div[style*="min-width: 280px"]').length;
+              const count = container.children.length;
               btn.textContent = `展开其他图片 (${count})`;
             }
           }
@@ -893,7 +953,7 @@
           if (anyVisible) {
             // 全部折叠
             container.style.display = 'none';
-            const count = container.querySelectorAll('div[style*="min-width: 280px"]').length;
+            const count = container.children.length;
             if (allButtons[index]) {
               allButtons[index].textContent = `展开其他图片 (${count})`;
             }
