@@ -584,6 +584,10 @@
           const startTime = new Date();
           document.getElementById('last-scan').textContent = startTime.toLocaleString();
           
+          // 清除缓存以确保获取最新数据
+          cacheManager.clearAll();
+          console.log('Cache cleared in admin scanFiles');
+          
           // 加载系列名称映射
           await this.loadSeriesNameMap();
           
@@ -638,6 +642,10 @@
       
       async loadSeriesNameMap() {
         try {
+          // 清除 config.json 的缓存以确保获取最新数据
+          cacheManager.clear('config.json');
+          console.log('Config.json cache cleared in admin loadSeriesNameMap');
+          
           // 尝试从配置文件加载系列名称映射
           let configFile;
           try {

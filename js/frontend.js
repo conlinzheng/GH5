@@ -202,6 +202,10 @@ class Frontend {
   
   async loadSeriesNameMap() {
     try {
+      // 清除 config.json 的缓存以确保获取最新数据
+      cacheManager.clear('config.json');
+      console.log('Config.json cache cleared in loadSeriesNameMap');
+      
       // 尝试从配置文件加载系列名称映射和排序信息
       let configFile;
       try {
