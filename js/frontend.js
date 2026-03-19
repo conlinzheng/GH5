@@ -214,6 +214,11 @@ class Frontend {
     
     // 渲染每个系列
     Object.entries(productsBySeries).forEach(([seriesId, seriesProducts]) => {
+      // 如果有选定的系列，只显示该系列
+      if (this.state.selectedSeries && this.state.selectedSeries !== seriesId) {
+        return;
+      }
+      
       const seriesDisplayName = this.state.seriesNameMap[seriesId] || seriesId;
       
       // 创建系列容器
