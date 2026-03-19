@@ -203,37 +203,78 @@ class Frontend {
     
     container.innerHTML = '';
     
-    let productsToRender = this.state.products;
-    
-    // 按系列筛选
-    if (this.state.selectedSeries) {
-      productsToRender = productsToRender.filter(p => p.seriesId === this.state.selectedSeries);
-    }
-    
-    // 分页
-    const startIndex = (this.state.currentPage - 1) * this.config.itemsPerPage;
-    const endIndex = startIndex + this.config.itemsPerPage;
-    const paginatedProducts = productsToRender.slice(startIndex, endIndex);
-    
-    // 更新总页数
-    this.state.totalPages = Math.ceil(productsToRender.length / this.config.itemsPerPage);
-    
-    // 渲染产品
-    paginatedProducts.forEach(product => {
-      const productElement = this._createProductElement(product);
-      container.appendChild(productElement);
+    // 按系列分组产品
+    const productsBySeries = {};
+    this.state.products.forEach(product => {
+      if (!productsBySeries[product.seriesId]) {
+        productsBySeries[product.seriesId] = [];
+      }
+      productsBySeries[product.seriesId].push(product);
     });
     
-    // 更新分页
-    this._updatePagination();
+    // 渲染每个系列
+    Object.entries(productsBySeries).forEach(([seriesId, seriesProducts]) => {
+      const seriesDisplayName = this.state.seriesNameMap[seriesId] || seriesId;
+      
+      // 创建系列容器
+      const seriesContainer = document.createElement('div');
+      seriesContainer.className = 'series-section';
+      seriesContainer.dataset.seriesId = seriesId;
+      
+      // 系列标题
+      const seriesTitle = document.createElement('h2');
+      seriesTitle.className = 'series-title';
+      seriesTitle.textContent = seriesDisplayName;
+      seriesContainer.appendChild(seriesTitle);
+      
+      // 产品容器
+      const productsWrapper = document.createElement('div');
+      productsWrapper.className = 'series-products-wrapper';
+      
+      // 左右切换按钮
+      const leftButton = document.createElement('button');
+      leftButton.className = 'series-nav-btn left';
+      leftButton.innerHTML = '&lt;';
+      leftButton.addEventListener('click', () => this.scrollSeries(seriesId, -1));
+      
+      const rightButton = document.createElement('button');
+      rightButton.className = 'series-nav-btn right';
+      rightButton.innerHTML = '&gt;';
+      rightButton.addEventListener('click', () => this.scrollSeries(seriesId, 1));
+      
+      // 产品列表
+      const productsContainer = document.createElement('div');
+      productsContainer.className = 'series-products';
+      
+      // 渲染系列产品
+      seriesProducts.forEach(product => {
+        const productElement = this._createProductElement(product);
+        productsContainer.appendChild(productElement);
+      });
+      
+      productsWrapper.appendChild(leftButton);
+      productsWrapper.appendChild(productsContainer);
+      productsWrapper.appendChild(rightButton);
+      seriesContainer.appendChild(productsWrapper);
+      
+      container.appendChild(seriesContainer);
+    });
     
     // 更新系列筛选按钮
     this._updateSeriesFilter();
   }
   
+  scrollSeries(seriesId, direction) {
+    const seriesWrapper = document.querySelector(`.series-section[data-series-id="${seriesId}"] .series-products`);
+    if (seriesWrapper) {
+      const scrollAmount = 300; // 每次滚动的距离
+      seriesWrapper.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+    }
+  }
+  
   _createProductElement(product) {
     const div = document.createElement('div');
-    div.className = 'product-item';
+    div.className = 'product-card';
     
     const seriesDisplayName = this.state.seriesNameMap[product.seriesId] || product.seriesId;
     

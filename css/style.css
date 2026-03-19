@@ -177,15 +177,8 @@ body {
   margin-bottom: var(--spacing-2xl);
 }
 
-.products-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
-}
-
-.product-series {
-  grid-column: 1 / -1;
-  margin-bottom: var(--spacing-xl);
+.series-section {
+  margin-bottom: var(--spacing-2xl);
 }
 
 .series-title {
@@ -197,10 +190,95 @@ body {
   padding-bottom: var(--spacing-sm);
 }
 
-.products-grid {
+.series-products-wrapper {
+  position: relative;
+  overflow: hidden;
+  margin: 0 var(--spacing-md);
+}
+
+.series-products {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: var(--spacing-md);
+  max-height: 600px; /* 约2行产品的高度 */
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: var(--spacing-md) 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--border-color);
+}
+
+.series-products::-webkit-scrollbar {
+  height: 6px;
+}
+
+.series-products::-webkit-scrollbar-track {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.series-products::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 3px;
+}
+
+.series-products::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+.series-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: var(--font-size-lg);
+  color: var(--primary-color);
+  z-index: 10;
+  transition: all var(--transition-fast);
+}
+
+.series-nav-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.series-nav-btn.left {
+  left: -20px;
+}
+
+.series-nav-btn.right {
+  right: -20px;
+}
+
+@media (max-width: 768px) {
+  .series-nav-btn {
+    width: 30px;
+    height: 30px;
+    font-size: var(--font-size-base);
+  }
+  
+  .series-nav-btn.left {
+    left: -15px;
+  }
+  
+  .series-nav-btn.right {
+    right: -15px;
+  }
+  
+  .series-products {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    max-height: 500px;
+  }
 }
 
 .product-card {
