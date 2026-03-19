@@ -10,6 +10,7 @@ class Frontend {
     this.state = {
       products: [],
       series: [],
+      seriesNameMap: {},
       currentLanguage: config.get('i18n.defaultLang'),
       isLoading: false
     };
@@ -88,12 +89,17 @@ class Frontend {
         console.log('Loading products from cache');
         this.state.products = cachedData.products || [];
         this.state.series = cachedData.series || [];
+        this.state.seriesNameMap = cachedData.seriesNameMap || {};
         this.renderProducts();
         return;
       }
 
       try {
         console.log('Loading products from GitHub API');
+        
+        // 加载系列名称映射
+        await this.loadSeriesNameMap();
+        
         const series = await githubAPI.fetchDirectory(this.config.productsPath);
         this.state.series = series.filter(item => item.type === 'dir');
 
@@ -134,7 +140,8 @@ class Frontend {
 
         cacheManager.set('products_data', {
           products: this.state.products,
-          series: this.state.series
+          series: this.state.series,
+          seriesNameMap: this.state.seriesNameMap
         }, this.config.cacheTTL);
       } catch (apiError) {
         if (typeof errorHandler !== 'undefined') {
@@ -157,6 +164,42 @@ class Frontend {
     } finally {
       this.state.isLoading = false;
       this._showLoading(false);
+    }
+  }
+  
+  async loadSeriesNameMap() {
+    try {
+      // 尝试从配置文件加载系列名称映射
+      let configFile;
+      try {
+        configFile = await githubAPI.fetchFile('config.json');
+        if (configFile && configFile.seriesNameMap) {
+          this.state.seriesNameMap = configFile.seriesNameMap;
+        }
+      } catch (error) {
+        // 如果配置文件不存在，使用默认映射
+        this.state.seriesNameMap = {
+          '1-PU系列': 'PU超纤',
+          '2-真皮系列': '真皮系列',
+          '3-短靴系列': '短靴系列',
+          '4-乐福系列': '乐福系列',
+          '5-春季': '春季系列',
+          '6-夏季': '夏季系列',
+          '7-秋季': '秋季系列'
+        };
+      }
+    } catch (error) {
+      console.error('Load series name map error:', error);
+      // 使用默认映射
+      this.state.seriesNameMap = {
+        '1-PU系列': 'PU超纤',
+        '2-真皮系列': '真皮系列',
+        '3-短靴系列': '短靴系列',
+        '4-乐福系列': '乐福系列',
+        '5-春季': '春季系列',
+        '6-夏季': '夏季系列',
+        '7-秋季': '秋季系列'
+      };
     }
   }
 
@@ -239,7 +282,9 @@ class Frontend {
 
     const seriesTitle = document.createElement('h3');
     seriesTitle.className = 'series-title';
-    seriesTitle.textContent = seriesItem.name;
+    // 使用系列名称映射显示自定义名称
+    const displayName = this.state.seriesNameMap[seriesItem.name] || seriesItem.name;
+    seriesTitle.textContent = displayName;
     seriesDiv.appendChild(seriesTitle);
 
     const productsGrid = document.createElement('div');
