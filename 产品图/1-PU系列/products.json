@@ -6,82 +6,34 @@
   },
   "products": {
     "中文 (1).png": {
-      "name": "21",
-      "description": "[object Object]",
-      "price": "3",
-      "materials": "[object Object]"
+      "name": "是啥",
+      "description": "321的",
+      "price": "4",
+      "materials": "56号"
     },
     "中文 (2).png": {
-      "name": {
-        "zh": "中文",
-        "en": "中文",
-        "ko": "中文"
-      },
-      "description": {
-        "zh": "中文 - 高品质产品",
-        "en": "中文 - High quality product",
-        "ko": "中文 - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+      "name": "是啥",
+      "description": "321的",
+      "price": "4",
+      "materials": "56号"
     },
     "中文 (3).png": {
-      "name": {
-        "zh": "中文",
-        "en": "中文",
-        "ko": "中文"
-      },
-      "description": {
-        "zh": "中文 - 高品质产品",
-        "en": "中文 - High quality product",
-        "ko": "中文 - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+      "name": "是啥",
+      "description": "321的",
+      "price": "4",
+      "materials": "56号"
     },
     "中文 (4).png": {
-      "name": {
-        "zh": "中文",
-        "en": "中文",
-        "ko": "中文"
-      },
-      "description": {
-        "zh": "中文 - 高品质产品",
-        "en": "中文 - High quality product",
-        "ko": "中文 - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+      "name": "是啥",
+      "description": "321的",
+      "price": "4",
+      "materials": "56号"
     },
     "中文 (5).png": {
-      "name": {
-        "zh": "中文",
-        "en": "中文",
-        "ko": "中文"
-      },
-      "description": {
-        "zh": "中文 - 高品质产品",
-        "en": "中文 - High quality product",
-        "ko": "中文 - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+      "name": "是啥",
+      "description": "321的",
+      "price": "4",
+      "materials": "56号"
     },
     "产品1 (1).jpg": {
       "name": {
@@ -119,5 +71,9 @@
         "sole": ""
       }
     }
-  }
+  },
+  "order": [
+    "[object Object]展开其他图片 (1)",
+    "21展开其他图片 (4)"
+  ]
 }
