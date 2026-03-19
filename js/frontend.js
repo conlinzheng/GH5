@@ -40,6 +40,21 @@ class Frontend {
         this.goToPage(page);
       });
     });
+    
+    // 刷新数据按钮
+    const refreshBtn = document.getElementById('refresh-data');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        this.refreshData();
+      });
+    }
+  }
+  
+  refreshData() {
+    // 清除缓存并重新加载数据
+    cacheManager.clearAll();
+    console.log('Data refreshed by user');
+    this.loadProductsData();
   }
   
   async loadProductsData() {
@@ -47,7 +62,11 @@ class Frontend {
       this.state.isLoading = true;
       this._showLoading(true);
 
-      // 无论是否有缓存，都重新加载系列名称映射和系列列表
+      // 清除缓存以确保获取最新数据
+      cacheManager.clearAll();
+      console.log('Cache cleared, loading fresh data from GitHub API');
+
+      // 重新加载系列名称映射和系列列表
       await this.loadSeriesNameMap();
       
       try {
@@ -55,7 +74,6 @@ class Frontend {
         const series = await githubAPI.fetchDirectory(this.config.productsPath);
         this.state.series = series.filter(item => item.type === 'dir');
         
-        // 始终从API加载最新的产品数据
         console.log('Loading products from GitHub API');
         
         // 并行请求所有系列的产品数据
