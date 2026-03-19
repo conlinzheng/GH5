@@ -84,22 +84,14 @@
       }
     },
     "勃肯1 (1).jpg": {
-      "name": {
-        "zh": "勃肯1",
-        "en": "勃肯1",
-        "ko": "勃肯1"
-      },
-      "description": {
-        "zh": "勃肯1 - 高品质产品",
-        "en": "勃肯1 - High quality product",
-        "ko": "勃肯1 - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+      "name": "博肯",
+      "description": "[object Object]博肯",
+      "price": "10",
+      "upperMaterial": "",
+      "innerMaterial": "",
+      "soleMaterial": "",
+      "customizable": "",
+      "minOrder": ""
     }
   },
   "order": [
