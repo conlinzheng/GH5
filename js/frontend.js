@@ -62,23 +62,58 @@ class Frontend {
         const products = [];
         const productPromises = this.state.series.map(async (seriesItem) => {
           try {
-            const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
-            if (productsFile && productsFile.products) {
-              const productEntries = Object.entries(productsFile.products);
-              productEntries.forEach(([fileName, productData]) => {
-                const product = {
-                  id: fileName,
-                  seriesId: seriesItem.name,
-                  name: productData.name,
-                  description: productData.description,
-                  price: productData.price,
-                  materials: productData.materials,
-                  specs: productData.materials,
-                  images: [`产品图/${seriesItem.name}/${fileName}`]
-                };
-                products.push(product);
-              });
+            // 获取系列目录下的所有文件
+            const files = await githubAPI.fetchDirectory(seriesItem.path);
+            const imageFiles = files.filter(file => {
+              const ext = file.name.split('.').pop().toLowerCase();
+              return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+            });
+            
+            // 按产品名称分组图片
+            const productGroups = {};
+            imageFiles.forEach(file => {
+              const productName = this.extractProductName(file.name);
+              if (!productGroups[productName]) {
+                productGroups[productName] = [];
+              }
+              productGroups[productName].push(file.name);
+            });
+            
+            // 获取产品数据文件
+            let productsFile;
+            try {
+              productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+            } catch (error) {
+              productsFile = { products: {} };
             }
+            
+            // 为每个产品创建数据
+            Object.entries(productGroups).forEach(([productName, images]) => {
+              // 找到主图（通常是 (1) 或没有数字的图片）
+              const mainImage = images.find(img => this.isMainImage(img)) || images[0];
+              
+              // 获取产品数据
+              const productData = productsFile.products[mainImage] || {
+                name: productName,
+                description: '',
+                price: '',
+                materials: ''
+              };
+              
+              // 构建产品对象
+              const product = {
+                id: mainImage,
+                seriesId: seriesItem.name,
+                name: productData.name,
+                description: productData.description,
+                price: productData.price,
+                materials: productData.materials,
+                specs: productData.materials,
+                images: images.map(img => `产品图/${seriesItem.name}/${img}`)
+              };
+              
+              products.push(product);
+            });
           } catch (error) {
             if (typeof errorHandler !== 'undefined') {
               errorHandler.handleApiError(error);
@@ -202,10 +237,33 @@ class Frontend {
     
     const seriesDisplayName = this.state.seriesNameMap[product.seriesId] || product.seriesId;
     
+    // 构建图片轮播
+    let imageCarousel = '';
+    if (product.images.length > 1) {
+      imageCarousel = `
+        <div class="product-image-carousel">
+          ${product.images.map((image, index) => `
+            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+              <img src="${image}" alt="${product.name} ${index + 1}" loading="lazy">
+            </div>
+          `).join('')}
+          <div class="carousel-controls">
+            ${product.images.map((_, index) => `
+              <button class="carousel-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    } else {
+      imageCarousel = `
+        <div class="product-image">
+          <img src="${product.images[0]}" alt="${product.name}" loading="lazy">
+        </div>
+      `;
+    }
+    
     div.innerHTML = `
-      <div class="product-image">
-        <img src="${product.images[0]}" alt="${product.name}" loading="lazy">
-      </div>
+      ${imageCarousel}
       <div class="product-info">
         <h3 class="product-name">${product.name}</h3>
         <p class="product-series">${seriesDisplayName}</p>
@@ -214,6 +272,35 @@ class Frontend {
         <p class="product-materials">${product.materials || ''}</p>
       </div>
     `;
+    
+    // 添加图片轮播功能
+    if (product.images.length > 1) {
+      setTimeout(() => {
+        const carousel = div.querySelector('.product-image-carousel');
+        const items = carousel.querySelectorAll('.carousel-item');
+        const dots = carousel.querySelectorAll('.carousel-dot');
+        
+        let currentIndex = 0;
+        
+        function showSlide(index) {
+          items.forEach(item => item.classList.remove('active'));
+          dots.forEach(dot => dot.classList.remove('active'));
+          items[index].classList.add('active');
+          dots[index].classList.add('active');
+          currentIndex = index;
+        }
+        
+        dots.forEach((dot, index) => {
+          dot.addEventListener('click', () => showSlide(index));
+        });
+        
+        // 自动轮播
+        setInterval(() => {
+          const nextIndex = (currentIndex + 1) % items.length;
+          showSlide(nextIndex);
+        }, 3000);
+      }, 0);
+    }
     
     return div;
   }
@@ -293,6 +380,23 @@ class Frontend {
     this.state.products = [];
     this.state.series = [];
     this.renderProducts();
+  }
+  
+  extractProductName(fileName) {
+    // 从文件名中提取产品名称
+    // 处理 "产品1 (1).jpg" 这样的格式
+    const match = fileName.match(/^(.+?)\s*\(\d+\)\.\w+$/);
+    if (match) {
+      return match[1].trim();
+    }
+    // 处理 "产品1.jpg" 这样的格式
+    return fileName.replace(/\.\w+$/, '').trim();
+  }
+  
+  isMainImage(fileName) {
+    // 判断是否为主图
+    // 主图通常是 (1) 或没有数字后缀的图片
+    return fileName.includes('(1)') || !fileName.match(/\s*\(\d+\)\.\w+$/);
   }
 }
 
