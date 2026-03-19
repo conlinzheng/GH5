@@ -48,6 +48,29 @@ class Frontend {
         this.refreshData();
       });
     }
+    
+    // 模态框关闭按钮
+    const modalClose = document.getElementById('modal-close');
+    if (modalClose) {
+      modalClose.addEventListener('click', () => {
+        this.closeProductDetails();
+      });
+    }
+    
+    // 模态框遮罩层
+    const modalOverlay = document.getElementById('modal-overlay');
+    if (modalOverlay) {
+      modalOverlay.addEventListener('click', () => {
+        this.closeProductDetails();
+      });
+    }
+    
+    // 键盘事件
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.closeProductDetails();
+      }
+    });
   }
   
   refreshData() {
@@ -55,6 +78,53 @@ class Frontend {
     cacheManager.clearAll();
     console.log('Data refreshed by user');
     this.loadProductsData();
+  }
+  
+  showProductDetails(product) {
+    const modal = document.getElementById('product-modal');
+    const modalBody = document.getElementById('modal-body');
+    
+    if (!modal || !modalBody) return;
+    
+    const seriesDisplayName = this.state.seriesNameMap[product.seriesId] || product.seriesId;
+    
+    // 构建产品详情HTML
+    const productDetailsHTML = `
+      <div class="product-details">
+        <div class="product-details-images">
+          ${product.images.map((image, index) => `
+            <div class="detail-image-item">
+              <img src="${image}" alt="${product.name} ${index + 1}">
+            </div>
+          `).join('')}
+        </div>
+        <div class="product-details-info">
+          <h2>${product.name}</h2>
+          <p class="series">系列: ${seriesDisplayName}</p>
+          <p class="description">${product.description || '无描述'}</p>
+          <p class="price">价格: ${product.price || '未设置'}</p>
+          ${product.upperMaterial ? `<p class="upper-material">鞋面材质: ${product.upperMaterial}</p>` : ''}
+          ${product.innerMaterial ? `<p class="inner-material">内里材质: ${product.innerMaterial}</p>` : ''}
+          ${product.soleMaterial ? `<p class="sole-material">鞋底材质: ${product.soleMaterial}</p>` : ''}
+          ${product.customizable ? `<p class="customizable">定制: ${product.customizable === 'true' ? '支持' : '不支持'}</p>` : ''}
+          ${product.minOrder ? `<p class="min-order">起订量: ${product.minOrder}</p>` : ''}
+        </div>
+      </div>
+    `;
+    
+    modalBody.innerHTML = productDetailsHTML;
+    modal.style.display = 'block';
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  
+  closeProductDetails() {
+    const modal = document.getElementById('product-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
   }
   
   async loadProductsData() {
@@ -371,7 +441,9 @@ class Frontend {
     }
     
     div.innerHTML = `
-      ${imageCarousel}
+      <div class="product-image-container" onclick="frontend.showProductDetails(${JSON.stringify(product).replace(/"/g, '&quot;')})">
+        ${imageCarousel}
+      </div>
       <div class="product-info">
         <h3 class="product-name">${product.name}</h3>
         <p class="product-series">${seriesDisplayName}</p>
