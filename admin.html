@@ -183,6 +183,13 @@
       color: #333;
     }
     
+    .series-folder-name {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 10px;
+      font-family: monospace;
+    }
+    
     .product-count {
       color: #6c757d;
       font-size: 14px;
@@ -513,6 +520,7 @@
           card.className = 'series-card';
           card.innerHTML = `
             <h3>${displayName}</h3>
+            <div class="series-folder-name">文件夹: ${seriesItem.name}</div>
             <div class="product-count">产品数量: ${seriesProducts.length}</div>
             <div class="progress-bar">
               <div class="progress-fill" style="width: ${seriesProducts.length > 0 ? '100%' : '0%'}"></div>
@@ -681,8 +689,20 @@
       }
       
       async editSeries(seriesName) {
+        // 获取系列相关信息
+        const series = this.series.find(s => s.name === seriesName);
         const currentDisplayName = this.seriesNameMap[seriesName] || seriesName;
-        const newDisplayName = prompt('请输入新的系列显示名称:', currentDisplayName);
+        const seriesProducts = this.products.filter(p => p.seriesId === seriesName);
+        
+        // 构建提示信息
+        const infoMessage = `系列信息:\n` +
+          `文件夹名称: ${seriesName}\n` +
+          `当前显示名称: ${currentDisplayName}\n` +
+          `产品数量: ${seriesProducts.length}\n` +
+          `文件夹路径: ${series ? series.path : '未知'}\n\n` +
+          `请输入新的系列显示名称:`;
+        
+        const newDisplayName = prompt(infoMessage, currentDisplayName);
         if (newDisplayName && newDisplayName !== currentDisplayName) {
           try {
             // 更新系列名称映射
