@@ -1,7 +1,7 @@
 class CacheManager {
   constructor() {
-    this.prefix = 'gh5_';
-    this.defaultTTL = 3600000;
+    this.prefix = config.get('cache.prefix', 'gh5_');
+    this.defaultTTL = config.get('cache.defaultTTL', 3600000);
   }
 
   get(key, ttl = this.defaultTTL) {

@@ -1,31 +1,31 @@
 class Frontend {
   constructor() {
     this.config = {
-      owner: 'conlinzheng',
-      repo: 'GH5',
-      productsPath: '产品图',
-      cacheTTL: 3600000
+      owner: config.get('github.owner'),
+      repo: config.get('github.repo'),
+      productsPath: config.get('github.productsPath'),
+      cacheTTL: config.get('cache.defaultTTL')
     };
 
     this.state = {
       products: [],
       series: [],
-      currentLanguage: 'zh',
+      currentLanguage: config.get('i18n.defaultLang'),
       isLoading: false
     };
 
     this.featureSettings = {
-      toggle-backtotop: true,
-      toggle-imagezoom: true,
-      toggle-search: true,
-      toggle-compare: true,
-      toggle-history: true,
-      toggle-filter: true,
-      toggle-layout: true,
-      toggle-share: true,
-      toggle-theme: true,
-      toggle-language: true,
-      toggle-contact: true
+      'toggle-backtotop': true,
+      'toggle-imagezoom': true,
+      'toggle-search': true,
+      'toggle-compare': true,
+      'toggle-history': true,
+      'toggle-filter': true,
+      'toggle-layout': true,
+      'toggle-share': true,
+      'toggle-theme': true,
+      'toggle-language': true,
+      'toggle-contact': true
     };
   }
 
@@ -63,13 +63,11 @@ class Frontend {
   }
 
   _setupEventListeners() {
-    document.addEventListener('DOMContentLoaded', () => {
-      this._initCarousel();
-      this._initSearch();
-      this._initContactForm();
-      this._initLanguageToggle();
-      this._initModal();
-    });
+    this._initCarousel();
+    this._initSearch();
+    this._initContactForm();
+    this._initLanguageToggle();
+    this._initModal();
 
     document.addEventListener('languageChanged', (event) => {
       this._handleLanguageChange(event.detail.language);
@@ -94,50 +92,123 @@ class Frontend {
         return;
       }
 
-      console.log('Loading products from GitHub API');
-      const series = await githubAPI.fetchDirectory(this.config.productsPath);
-      this.state.series = series.filter(item => item.type === 'dir');
+      try {
+        console.log('Loading products from GitHub API');
+        const series = await githubAPI.fetchDirectory(this.config.productsPath);
+        this.state.series = series.filter(item => item.type === 'dir');
 
-      const products = [];
-      for (const seriesItem of this.state.series) {
-        try {
-          const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
-          if (productsFile && productsFile.products) {
-            const productEntries = Object.entries(productsFile.products);
-            productEntries.forEach(([fileName, productData]) => {
-              const product = {
-                id: fileName,
-                seriesId: seriesItem.name,
-                name: productData.name,
-                description: productData.description,
-                price: productData.price,
-                materials: productData.materials,
-                specs: productData.materials,
-                images: [`产品图/${seriesItem.name}/${fileName}`]
-              };
-              products.push(product);
-            });
+        // 并行请求所有系列的产品数据
+        const products = [];
+        const productPromises = this.state.series.map(async (seriesItem) => {
+          try {
+            const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+            if (productsFile && productsFile.products) {
+              const productEntries = Object.entries(productsFile.products);
+              productEntries.forEach(([fileName, productData]) => {
+                const product = {
+                  id: fileName,
+                  seriesId: seriesItem.name,
+                  name: productData.name,
+                  description: productData.description,
+                  price: productData.price,
+                  materials: productData.materials,
+                  specs: productData.materials,
+                  images: [`产品图/${seriesItem.name}/${fileName}`]
+                };
+                products.push(product);
+              });
+            }
+          } catch (error) {
+            if (typeof errorHandler !== 'undefined') {
+              errorHandler.handleApiError(error);
+            } else {
+              console.warn(`Failed to load products for ${seriesItem.name}:`, error);
+            }
           }
-        } catch (error) {
-          console.warn(`Failed to load products for ${seriesItem.name}:`, error);
+        });
+        
+        // 等待所有请求完成
+        await Promise.all(productPromises);
+
+        this.state.products = products;
+
+        cacheManager.set('products_data', {
+          products: this.state.products,
+          series: this.state.series
+        }, this.config.cacheTTL);
+      } catch (apiError) {
+        if (typeof errorHandler !== 'undefined') {
+          errorHandler.handleApiError(apiError);
+        } else {
+          console.error('GitHub API error:', apiError);
         }
+        console.log('Using fallback local data');
+        this._loadLocalFallbackData();
       }
-
-      this.state.products = products;
-
-      cacheManager.set('products_data', {
-        products: this.state.products,
-        series: this.state.series
-      }, this.config.cacheTTL);
 
       this.renderProducts();
     } catch (error) {
-      console.error('Load products data error:', error);
+      if (typeof errorHandler !== 'undefined') {
+        errorHandler.handleError(error);
+      } else {
+        console.error('Load products data error:', error);
+      }
       this._showError('加载产品数据失败，请稍后重试');
     } finally {
       this.state.isLoading = false;
       this._showLoading(false);
     }
+  }
+
+  _loadLocalFallbackData() {
+    const fallbackData = {
+      series: [
+        { name: '1-PU系列', type: 'dir', path: '产品图/1-PU系列', size: 0 },
+        { name: '2-真皮系列', type: 'dir', path: '产品图/2-真皮系列', size: 0 },
+        { name: '3-短靴系列', type: 'dir', path: '产品图/3-短靴系列', size: 0 },
+        { name: '4-乐福系列', type: 'dir', path: '产品图/4-乐福系列', size: 0 },
+        { name: '5-春季', type: 'dir', path: '产品图/5-春季', size: 0 },
+        { name: '6-夏季', type: 'dir', path: '产品图/6-夏季', size: 0 },
+        { name: '7-秋季', type: 'dir', path: '产品图/7-秋季', size: 0 }
+      ],
+      products: [
+        {
+          id: '中文 (1).png',
+          seriesId: '1-PU系列',
+          name: { zh: '1', en: '1', ko: '1' },
+          description: { zh: '2', en: '2', ko: '2' },
+          price: '3',
+          materials: { upper: '', lining: '', sole: '' },
+          specs: { upper: '', lining: '', sole: '' },
+          images: ['产品图/1-PU系列/中文 (1).png']
+        },
+        {
+          id: '中文 (2).png',
+          seriesId: '1-PU系列',
+          name: { zh: '中文', en: 'Chinese', ko: '중국어' },
+          description: { zh: '中文 - 高品质产品', en: 'Chinese - High quality product', ko: '중국어 - 고품질 제품' },
+          price: '',
+          materials: { upper: '', lining: '', sole: '' },
+          specs: { upper: '', lining: '', sole: '' },
+          images: ['产品图/1-PU系列/中文 (2).png']
+        },
+        {
+          id: '勃肯1 (1).jpg',
+          seriesId: '2-真皮系列',
+          name: { zh: '勃肯1', en: 'Birkenstock 1', ko: '버켄스톡 1' },
+          description: { zh: '勃肯1 - 高品质产品', en: 'Birkenstock 1 - High quality product', ko: '버켄스톡 1 - 고품질 제품' },
+          price: '',
+          materials: { upper: '', lining: '', sole: '' },
+          specs: { upper: '', lining: '', sole: '' },
+          images: ['产品图/2-真皮系列/勃肯1 (1).jpg']
+        }
+      ]
+    };
+
+    this.state.series = fallbackData.series;
+    this.state.products = fallbackData.products;
+
+    cacheManager.set('products_data', fallbackData, this.config.cacheTTL);
   }
 
   renderProducts() {
@@ -407,25 +478,8 @@ class Frontend {
   }
 
   _updateLanguageDisplay() {
-    const elements = document.querySelectorAll('[data-i18n]');
-    elements.forEach(element => {
-      const key = element.getAttribute('data-i18n');
-      const translation = i18n.t(key);
-      
-      if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-        element.placeholder = translation;
-      } else {
-        element.textContent = translation;
-      }
-    });
-
-    const langBtn = document.getElementById('language-toggle');
-    if (langBtn) {
-      const langText = langBtn.querySelector('.lang-text');
-      if (langText) {
-        langText.textContent = i18n.getCurrentLanguage().toUpperCase();
-      }
-    }
+    // 使用i18n的统一方法来更新语言显示
+    i18n.updateLanguage();
   }
 
   _handleScroll() {
@@ -451,6 +505,12 @@ class Frontend {
   }
 
   _showError(message) {
+    // 显示错误通知
+    if (typeof errorHandler !== 'undefined') {
+      errorHandler.showError(message);
+    }
+    
+    // 在产品容器中显示错误消息
     const container = document.getElementById('products-container');
     if (container) {
       container.innerHTML = `
@@ -464,6 +524,11 @@ class Frontend {
 
 const frontend = new Frontend();
 
-document.addEventListener('DOMContentLoaded', () => {
+// 直接初始化，因为DOMContentLoaded事件可能已经触发
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    frontend.init();
+  });
+} else {
   frontend.init();
-});
+}

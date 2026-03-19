@@ -1,8 +1,8 @@
 class GitHubAPI {
-  constructor(owner, repo) {
+  constructor(owner = config.get('github.owner'), repo = config.get('github.repo')) {
     this.owner = owner;
     this.repo = repo;
-    this.baseUrl = 'https://api.github.com';
+    this.baseUrl = config.get('github.apiBaseUrl', 'https://api.github.com');
     this.token = null;
     this.rateLimit = {
       remaining: 60,
@@ -12,6 +12,23 @@ class GitHubAPI {
 
   setToken(token) {
     this.token = token;
+    if (token) {
+      // 保存到配置中
+      if (typeof config !== 'undefined') {
+        config.saveApiKey(token);
+      }
+    }
+  }
+
+  getToken() {
+    if (this.token) {
+      return this.token;
+    }
+    // 从配置中获取
+    if (typeof config !== 'undefined') {
+      return config.get('github.token');
+    }
+    return null;
   }
 
   async fetchDirectory(path = '') {
@@ -188,8 +205,9 @@ class GitHubAPI {
         'Content-Type': 'application/json'
       };
 
-      if (this.token) {
-        headers['Authorization'] = `token ${this.token}`;
+      const token = this.getToken();
+      if (token) {
+        headers['Authorization'] = `token ${token}`;
       }
 
       const response = await fetch(url, {
@@ -210,7 +228,11 @@ class GitHubAPI {
 
       return await response.json();
     } catch (error) {
-      console.error('Fetch error:', error);
+      if (typeof errorHandler !== 'undefined') {
+        errorHandler.handleApiError(error);
+      } else {
+        console.error('Fetch error:', error);
+      }
       throw error;
     }
   }
@@ -251,4 +273,4 @@ class GitHubAPI {
   }
 }
 
-const githubAPI = new GitHubAPI('conlinzheng', 'GH5');
+const githubAPI = new GitHubAPI();

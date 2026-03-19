@@ -1,8 +1,8 @@
 class I18n {
   constructor() {
-    this.currentLang = 'zh';
-    this.defaultLang = 'zh';
-    this.supportedLangs = ['zh', 'en', 'ko'];
+    this.currentLang = config.get('i18n.defaultLang', 'zh');
+    this.defaultLang = config.get('i18n.defaultLang', 'zh');
+    this.supportedLangs = config.get('i18n.supportedLangs', ['zh', 'en', 'ko']);
     this.translations = {
       zh: {
         site: {
@@ -141,7 +141,7 @@ class I18n {
       }
 
       this.isReady = true;
-      this._updateLanguageDisplay();
+      this.updateLanguage();
       this._dispatchLanguageChanged();
     } catch (error) {
       console.error('I18n init error:', error);
@@ -159,7 +159,7 @@ class I18n {
     try {
       this.currentLang = lang;
       localStorage.setItem('gh5_language', lang);
-      this._updateLanguageDisplay();
+      this.updateLanguage();
       this._dispatchLanguageChanged();
       return true;
     } catch (error) {
@@ -194,9 +194,8 @@ class I18n {
       return '';
     }
 
-    const localizedField = `${field}_${this.currentLang}`;
-    if (obj[localizedField]) {
-      return obj[localizedField];
+    if (obj[field] && typeof obj[field] === 'object' && obj[field][this.currentLang]) {
+      return obj[field][this.currentLang];
     }
 
     if (obj[field]) {
@@ -260,7 +259,12 @@ class I18n {
     }
   }
 
-  _updateLanguageDisplay() {
+  updateLanguage() {
+    this.updatePageElements();
+    this._updateLanguageButton();
+  }
+
+  _updateLanguageButton() {
     const langBtn = document.getElementById('language-toggle');
     if (langBtn) {
       const langText = langBtn.querySelector('.lang-text');

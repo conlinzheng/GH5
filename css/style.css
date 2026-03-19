@@ -590,6 +590,97 @@ body {
   }
 }
 
+/* 错误和成功通知 */
+.error-notification,
+.success-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  max-width: 400px;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.error-content,
+.success-content {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.error-content {
+  background-color: #fee2e2;
+  border-left: 4px solid #ef4444;
+}
+
+.success-content {
+  background-color: #dcfce7;
+  border-left: 4px solid #22c55e;
+}
+
+.error-message,
+.success-message {
+  flex: 1;
+  margin-right: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.error-message {
+  color: #b91c1c;
+}
+
+.success-message {
+  color: #166534;
+}
+
+.error-close,
+.success-close {
+  background: none;
+  border: none;
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.error-close {
+  color: #b91c1c;
+}
+
+.success-close {
+  color: #166534;
+}
+
+.error-close:hover,
+.success-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
 @media (max-width: 480px) {
   :root {
     --font-size-base: 0.8125rem;
