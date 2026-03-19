@@ -214,12 +214,13 @@
     </div>
     
     <div class="admin-nav">
-      <button id="btn-scan">扫描文件</button>
-      <button id="btn-refresh">刷新数据</button>
-      <button id="btn-clear-cache">清除缓存</button>
-      <button id="btn-export">导出数据</button>
-      <button id="btn-import">导入数据</button>
-    </div>
+    <button id="btn-scan">扫描文件</button>
+    <button id="btn-refresh">刷新数据</button>
+    <button id="btn-clear-cache">清除缓存</button>
+    <button id="btn-export">导出数据</button>
+    <button id="btn-import">导入数据</button>
+    <button id="btn-set-token">设置 API 密钥</button>
+  </div>
     
     <div class="admin-section">
       <h2>系列管理</h2>
@@ -310,11 +311,28 @@
         document.getElementById('btn-clear-cache').addEventListener('click', () => this.clearCache());
         document.getElementById('btn-export').addEventListener('click', () => this.exportData());
         document.getElementById('btn-import').addEventListener('click', () => this.importData());
+        document.getElementById('btn-set-token').addEventListener('click', () => this.setApiToken());
         
         document.getElementById('edit-form').addEventListener('submit', (e) => {
           e.preventDefault();
           this.saveProduct();
         });
+      }
+      
+      setApiToken() {
+        const token = prompt('请输入 GitHub API 密钥:');
+        if (token) {
+          try {
+            // 保存 API 密钥
+            config.saveApiKey(token);
+            // 更新 GitHub API 实例的 token
+            githubAPI.setToken(token);
+            this.showStatus('API 密钥设置成功', 'success');
+          } catch (error) {
+            console.error('Set API token error:', error);
+            this.showStatus('API 密钥设置失败: ' + error.message, 'error');
+          }
+        }
       }
       
       async scanFiles() {
