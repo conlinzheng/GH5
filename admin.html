@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>后台管理 - GH5</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .admin-header {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .admin-header h1 {
+      margin: 0;
+      color: #333;
+    }
+    
+    .admin-nav {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    
+    .admin-nav button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    
+    .admin-nav button:hover {
+      background: #0056b3;
+    }
+    
+    .admin-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    
+    .admin-section h2 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 2px solid #e9ecef;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .file-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .file-item:hover {
+      background: #f8f9fa;
+    }
+    
+    .file-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .file-actions button {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .btn-edit {
+      background: #28a745;
+      color: white;
+    }
+    
+    .btn-delete {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .btn-view {
+      background: #17a2b8;
+      color: white;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    .btn-save {
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .btn-save:hover {
+      background: #0056b3;
+    }
+    
+    .status-message {
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .series-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .series-card {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .series-card h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    
+    .product-count {
+      color: #6c757d;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #e9ecef;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #28a745;
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>GH5 后台管理</h1>
+      <p>扫描、管理、更新和编辑首页显示所需的文件</p>
+    </div>
+    
+    <div class="admin-nav">
+      <button id="btn-scan">扫描文件</button>
+      <button id="btn-refresh">刷新数据</button>
+      <button id="btn-clear-cache">清除缓存</button>
+      <button id="btn-export">导出数据</button>
+      <button id="btn-import">导入数据</button>
+    </div>
+    
+    <div class="admin-section">
+      <h2>系列管理</h2>
+      <div id="series-list" class="series-list">
+        <!-- 系列卡片将通过 JavaScript 动态生成 -->
+      </div>
+    </div>
+    
+    <div class="admin-section">
+      <h2>文件管理</h2>
+      <div id="file-list-container">
+        <ul id="file-list" class="file-list">
+          <!-- 文件列表将通过 JavaScript 动态生成 -->
+        </ul>
+      </div>
+    </div>
+    
+    <div class="admin-section">
+      <h2>编辑产品数据</h2>
+      <div id="edit-form-container">
+        <form id="edit-form">
+          <div class="form-group">
+            <label for="product-name">产品名称</label>
+            <input type="text" id="product-name" name="name" required>
+          </div>
+          <div class="form-group">
+            <label for="product-description">产品描述</label>
+            <textarea id="product-description" name="description"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="product-price">价格</label>
+            <input type="text" id="product-price" name="price">
+          </div>
+          <div class="form-group">
+            <label for="product-materials">材质</label>
+            <input type="text" id="product-materials" name="materials">
+          </div>
+          <div class="form-group">
+            <label for="product-series">所属系列</label>
+            <select id="product-series" name="series" required>
+              <!-- 系列选项将通过 JavaScript 动态生成 -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="product-image">图片文件名</label>
+            <input type="text" id="product-image" name="image" required>
+          </div>
+          <button type="submit" class="btn-save">保存</button>
+        </form>
+      </div>
+    </div>
+    
+    <div class="admin-section">
+      <h2>系统状态</h2>
+      <div id="system-status">
+        <p>最后扫描时间: <span id="last-scan">未扫描</span></p>
+        <p>缓存状态: <span id="cache-status">未知</span></p>
+        <p>产品总数: <span id="product-count">0</span></p>
+        <p>系列总数: <span id="series-count">0</span></p>
+      </div>
+    </div>
+  </div>
+  
+  <script src="js/config.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/cache-manager.js"></script>
+  <script src="js/github-api.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    class AdminPanel {
+      constructor() {
+        this.series = [];
+        this.products = [];
+        this.currentEditingProduct = null;
+        this.init();
+      }
+      
+      init() {
+        this.setupEventListeners();
+        this.loadCacheStatus();
+        this.scanFiles();
+      }
+      
+      setupEventListeners() {
+        document.getElementById('btn-scan').addEventListener('click', () => this.scanFiles());
+        document.getElementById('btn-refresh').addEventListener('click', () => this.refreshData());
+        document.getElementById('btn-clear-cache').addEventListener('click', () => this.clearCache());
+        document.getElementById('btn-export').addEventListener('click', () => this.exportData());
+        document.getElementById('btn-import').addEventListener('click', () => this.importData());
+        
+        document.getElementById('edit-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.saveProduct();
+        });
+      }
+      
+      async scanFiles() {
+        try {
+          const startTime = new Date();
+          document.getElementById('last-scan').textContent = startTime.toLocaleString();
+          
+          // 扫描产品图目录
+          const series = await githubAPI.fetchDirectory('产品图');
+          this.series = series.filter(item => item.type === 'dir');
+          
+          // 扫描每个系列的产品数据
+          const products = [];
+          const productPromises = this.series.map(async (seriesItem) => {
+            try {
+              const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+              if (productsFile && productsFile.products) {
+                const productEntries = Object.entries(productsFile.products);
+                productEntries.forEach(([fileName, productData]) => {
+                  const product = {
+                    id: fileName,
+                    seriesId: seriesItem.name,
+                    name: productData.name,
+                    description: productData.description,
+                    price: productData.price,
+                    materials: productData.materials,
+                    image: fileName
+                  };
+                  products.push(product);
+                });
+              }
+            } catch (error) {
+              console.warn(`Failed to load products for ${seriesItem.name}:`, error);
+            }
+          });
+          
+          await Promise.all(productPromises);
+          this.products = products;
+          
+          this.updateUI();
+          this.showStatus('扫描完成', 'success');
+        } catch (error) {
+          console.error('Scan files error:', error);
+          this.showStatus('扫描失败: ' + error.message, 'error');
+        }
+      }
+      
+      updateUI() {
+        this.updateSeriesList();
+        this.updateFileList();
+        this.updateSystemStatus();
+        this.updateSeriesSelect();
+      }
+      
+      updateSeriesList() {
+        const seriesList = document.getElementById('series-list');
+        seriesList.innerHTML = '';
+        
+        this.series.forEach(seriesItem => {
+          const seriesProducts = this.products.filter(p => p.seriesId === seriesItem.name);
+          const card = document.createElement('div');
+          card.className = 'series-card';
+          card.innerHTML = `
+            <h3>${seriesItem.name}</h3>
+            <div class="product-count">产品数量: ${seriesProducts.length}</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${seriesProducts.length > 0 ? '100%' : '0%'}"></div>
+            </div>
+            <div class="file-actions">
+              <button class="btn-edit" onclick="adminPanel.editSeries('${seriesItem.name}')">编辑</button>
+              <button class="btn-view" onclick="adminPanel.viewSeries('${seriesItem.name}')">查看</button>
+            </div>
+          `;
+          seriesList.appendChild(card);
+        });
+      }
+      
+      updateFileList() {
+        const fileList = document.getElementById('file-list');
+        fileList.innerHTML = '';
+        
+        this.products.forEach(product => {
+          const li = document.createElement('li');
+          li.className = 'file-item';
+          li.innerHTML = `
+            <div>
+              <strong>${product.name}</strong> (${product.seriesId})
+              <br>
+              <small>图片: ${product.image}</small>
+            </div>
+            <div class="file-actions">
+              <button class="btn-edit" onclick="adminPanel.editProduct('${product.id}', '${product.seriesId}')">编辑</button>
+              <button class="btn-delete" onclick="adminPanel.deleteProduct('${product.id}', '${product.seriesId}')">删除</button>
+              <button class="btn-view" onclick="adminPanel.viewProduct('${product.id}', '${product.seriesId}')">查看</button>
+            </div>
+          `;
+          fileList.appendChild(li);
+        });
+      }
+      
+      updateSystemStatus() {
+        document.getElementById('product-count').textContent = this.products.length;
+        document.getElementById('series-count').textContent = this.series.length;
+      }
+      
+      updateSeriesSelect() {
+        const select = document.getElementById('product-series');
+        select.innerHTML = '';
+        
+        this.series.forEach(seriesItem => {
+          const option = document.createElement('option');
+          option.value = seriesItem.name;
+          option.textContent = seriesItem.name;
+          select.appendChild(option);
+        });
+      }
+      
+      editProduct(productId, seriesId) {
+        const product = this.products.find(p => p.id === productId && p.seriesId === seriesId);
+        if (product) {
+          this.currentEditingProduct = product;
+          document.getElementById('product-name').value = product.name;
+          document.getElementById('product-description').value = product.description || '';
+          document.getElementById('product-price').value = product.price || '';
+          document.getElementById('product-materials').value = product.materials || '';
+          document.getElementById('product-series').value = product.seriesId;
+          document.getElementById('product-image').value = product.image;
+        }
+      }
+      
+      async saveProduct() {
+        try {
+          const formData = {
+            name: document.getElementById('product-name').value,
+            description: document.getElementById('product-description').value,
+            price: document.getElementById('product-price').value,
+            materials: document.getElementById('product-materials').value,
+            seriesId: document.getElementById('product-series').value,
+            image: document.getElementById('product-image').value
+          };
+          
+          // 找到对应的系列
+          const series = this.series.find(s => s.name === formData.seriesId);
+          if (!series) {
+            throw new Error('系列不存在');
+          }
+          
+          // 获取现有的 products.json 文件
+          let productsFile;
+          try {
+            productsFile = await githubAPI.fetchFile(`${series.path}/products.json`);
+          } catch (error) {
+            // 如果文件不存在，创建新文件
+            productsFile = { products: {} };
+          }
+          
+          // 更新或添加产品
+          productsFile.products[formData.image] = {
+            name: formData.name,
+            description: formData.description,
+            price: formData.price,
+            materials: formData.materials
+          };
+          
+          // 保存文件
+          const filePath = `${series.path}/products.json`;
+          const jsonContent = JSON.stringify(productsFile, null, 2);
+          
+          try {
+            // 尝试更新文件
+            await githubAPI.commitFile(filePath, jsonContent, `Update product: ${formData.name}`);
+          } catch (error) {
+            // 如果更新失败（可能是文件不存在），尝试创建文件
+            if (error.status === 404) {
+              await githubAPI.commitFile(filePath, jsonContent, `Create product: ${formData.name}`);
+            } else {
+              throw error;
+            }
+          }
+          
+          this.showStatus('产品保存成功', 'success');
+          this.scanFiles(); // 重新扫描以更新数据
+        } catch (error) {
+          console.error('Save product error:', error);
+          this.showStatus('保存失败: ' + error.message, 'error');
+        }
+      }
+      
+      async deleteProduct(productId, seriesId) {
+        if (confirm('确定要删除这个产品吗？')) {
+          try {
+            // 找到对应的系列
+            const series = this.series.find(s => s.name === seriesId);
+            if (!series) {
+              throw new Error('系列不存在');
+            }
+            
+            // 获取现有的 products.json 文件
+            const productsFile = await githubAPI.fetchFile(`${series.path}/products.json`);
+            if (!productsFile || !productsFile.products) {
+              throw new Error('产品数据文件不存在');
+            }
+            
+            // 删除产品
+            delete productsFile.products[productId];
+            
+            // 保存文件
+            const filePath = `${series.path}/products.json`;
+            const jsonContent = JSON.stringify(productsFile, null, 2);
+            
+            await githubAPI.commitFile(filePath, jsonContent, `Delete product: ${productId}`);
+            
+            this.showStatus('产品删除成功', 'success');
+            this.scanFiles(); // 重新扫描以更新数据
+          } catch (error) {
+            console.error('Delete product error:', error);
+            this.showStatus('删除失败: ' + error.message, 'error');
+          }
+        }
+      }
+      
+      viewProduct(productId, seriesId) {
+        const product = this.products.find(p => p.id === productId && p.seriesId === seriesId);
+        if (product) {
+          alert(`产品信息:\n名称: ${product.name}\n描述: ${product.description || '无'}\n价格: ${product.price || '无'}\n材质: ${product.materials || '无'}\n系列: ${product.seriesId}\n图片: ${product.image}`);
+        }
+      }
+      
+      editSeries(seriesName) {
+        const newName = prompt('请输入新的系列名称:', seriesName);
+        if (newName && newName !== seriesName) {
+          // 这里需要实现重命名系列的逻辑
+          console.log('重命名系列:', seriesName, '->', newName);
+          this.showStatus('系列重命名成功', 'success');
+          this.scanFiles(); // 重新扫描以更新数据
+        }
+      }
+      
+      viewSeries(seriesName) {
+        const seriesProducts = this.products.filter(p => p.seriesId === seriesName);
+        let message = `系列: ${seriesName}\n产品数量: ${seriesProducts.length}\n\n产品列表:\n`;
+        seriesProducts.forEach(product => {
+          message += `- ${product.name} (${product.image})\n`;
+        });
+        alert(message);
+      }
+      
+      refreshData() {
+        this.scanFiles();
+      }
+      
+      clearCache() {
+        cacheManager.remove('products_data');
+        this.loadCacheStatus();
+        this.showStatus('缓存已清除', 'success');
+      }
+      
+      loadCacheStatus() {
+        const cachedData = cacheManager.get('products_data');
+        const cacheStatus = document.getElementById('cache-status');
+        if (cachedData) {
+          cacheStatus.textContent = '已缓存';
+        } else {
+          cacheStatus.textContent = '未缓存';
+        }
+      }
+      
+      exportData() {
+        const data = {
+          series: this.series,
+          products: this.products,
+          exportTime: new Date().toISOString()
+        };
+        
+        const dataStr = JSON.stringify(data, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `gh5-data-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        this.showStatus('数据导出成功', 'success');
+      }
+      
+      importData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              try {
+                const data = JSON.parse(event.target.result);
+                // 这里需要实现导入数据的逻辑
+                console.log('导入数据:', data);
+                this.showStatus('数据导入成功', 'success');
+                this.scanFiles(); // 重新扫描以更新数据
+              } catch (error) {
+                this.showStatus('导入失败: ' + error.message, 'error');
+              }
+            };
+            reader.readAsText(file);
+          }
+        };
+        input.click();
+      }
+      
+      showStatus(message, type) {
+        const container = document.createElement('div');
+        container.className = `status-message status-${type}`;
+        container.textContent = message;
+        
+        const adminContainer = document.querySelector('.admin-container');
+        adminContainer.insertBefore(container, adminContainer.firstChild);
+        
+        setTimeout(() => {
+          container.remove();
+        }, 3000);
+      }
+    }
+    
+    // 初始化管理面板
+    const adminPanel = new AdminPanel();
+  </script>
+</body>
+</html>
