@@ -609,30 +609,73 @@
           filteredProducts = this.products.filter(p => p.seriesId === this.currentSeries);
         }
         
+        // 按产品分组
+        const productsByGroup = {};
         filteredProducts.forEach(product => {
-          const seriesDisplayName = this.seriesNameMap[product.seriesId] || product.seriesId;
-          const isMainImage = product.isMainImage ? '<span style="color: green; font-size: 12px; margin-left: 5px;">(主图)</span>' : '';
-          const li = document.createElement('li');
-          li.className = 'file-item';
-          const imageUrl = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${product.seriesId}/${product.image}`;
-          li.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="width: 80px; height: 80px; overflow: hidden; border-radius: 4px;">
+          const productName = this.extractProductName(product.image);
+          if (!productsByGroup[productName]) {
+            productsByGroup[productName] = [];
+          }
+          productsByGroup[productName].push(product);
+        });
+        
+        // 渲染每个产品组
+        Object.entries(productsByGroup).forEach(([productName, productGroup]) => {
+          // 创建产品组容器
+          const groupContainer = document.createElement('li');
+          groupContainer.className = 'file-item';
+          groupContainer.style.borderBottom = '2px solid #e9ecef';
+          groupContainer.style.padding = '20px';
+          
+          // 产品组标题
+          const groupTitle = document.createElement('div');
+          groupTitle.style.fontWeight = 'bold';
+          groupTitle.style.marginBottom = '15px';
+          groupTitle.style.fontSize = '16px';
+          groupTitle.textContent = `产品: ${productGroup[0].name}`;
+          groupContainer.appendChild(groupTitle);
+          
+          // 产品图片列表
+          const imagesContainer = document.createElement('div');
+          imagesContainer.style.display = 'flex';
+          imagesContainer.style.flexWrap = 'wrap';
+          imagesContainer.style.gap = '15px';
+          
+          productGroup.forEach(product => {
+            const seriesDisplayName = this.seriesNameMap[product.seriesId] || product.seriesId;
+            const isMainImage = product.isMainImage ? '<span style="color: green; font-size: 12px; margin-left: 5px;">(主图)</span>' : '';
+            
+            const imageItem = document.createElement('div');
+            imageItem.style.display = 'flex';
+            imageItem.style.alignItems = 'center';
+            imageItem.style.gap = '10px';
+            imageItem.style.padding = '10px';
+            imageItem.style.backgroundColor = '#f8f9fa';
+            imageItem.style.borderRadius = '4px';
+            imageItem.style.minWidth = '300px';
+            
+            const imageUrl = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${product.seriesId}/${product.image}`;
+            
+            imageItem.innerHTML = `
+              <div style="width: 60px; height: 60px; overflow: hidden; border-radius: 4px;">
                 <img src="${imageUrl}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">
               </div>
               <div style="flex: 1;">
-                <strong>${product.name}</strong> (${seriesDisplayName})${isMainImage}
+                <strong>${product.image}</strong>${isMainImage}
                 <br>
-                <small>图片: ${product.image}</small>
+                <small>系列: ${seriesDisplayName}</small>
               </div>
               <div class="file-actions">
-                <button class="btn-edit" onclick="adminPanel.editProduct('${product.id}', '${product.seriesId}')">编辑</button>
-                <button class="btn-delete" onclick="adminPanel.deleteProduct('${product.id}', '${product.seriesId}')">删除</button>
+                ${product.isMainImage ? `<button class="btn-edit" onclick="adminPanel.editProduct('${product.id}', '${product.seriesId}')">编辑</button>` : ''}
                 <button class="btn-view" onclick="adminPanel.viewProduct('${product.id}', '${product.seriesId}')">查看</button>
               </div>
-            </div>
-          `;
-          fileList.appendChild(li);
+            `;
+            
+            imagesContainer.appendChild(imageItem);
+          });
+          
+          groupContainer.appendChild(imagesContainer);
+          fileList.appendChild(groupContainer);
         });
       }
       
@@ -693,13 +736,30 @@
             productsFile = { products: {} };
           }
           
-          // 更新或添加产品
-          productsFile.products[formData.image] = {
-            name: formData.name,
-            description: formData.description,
-            price: formData.price,
-            materials: formData.materials
-          };
+          // 提取产品名称
+          const productName = this.extractProductName(formData.image);
+          
+          // 获取系列目录下的所有图片文件
+          const files = await githubAPI.fetchDirectory(series.path);
+          const imageFiles = files.filter(file => {
+            const ext = file.name.split('.').pop().toLowerCase();
+            return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+          });
+          
+          // 找到同组的所有图片
+          const sameGroupImages = imageFiles.filter(file => {
+            return this.extractProductName(file.name) === productName;
+          });
+          
+          // 更新同组的所有图片产品数据
+          sameGroupImages.forEach(file => {
+            productsFile.products[file.name] = {
+              name: formData.name,
+              description: formData.description,
+              price: formData.price,
+              materials: formData.materials
+            };
+          });
           
           // 保存文件
           const filePath = `${series.path}/products.json`;
@@ -717,7 +777,7 @@
             }
           }
           
-          this.showStatus('产品保存成功', 'success');
+          this.showStatus('产品保存成功，同组图片已自动更新', 'success');
           this.scanFiles(); // 重新扫描以更新数据
         } catch (error) {
           console.error('Save product error:', error);
