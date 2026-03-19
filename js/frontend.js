@@ -88,6 +88,7 @@ class Frontend {
             }
             
             // 为每个产品创建数据
+            const productsByGroup = {};
             Object.entries(productGroups).forEach(([productName, images]) => {
               // 找到主图（通常是 (1) 或没有数字的图片）
               const mainImage = images.find(img => this.isMainImage(img)) || images[0];
@@ -112,6 +113,21 @@ class Frontend {
                 images: images.map(img => `产品图/${seriesItem.name}/${img}`)
               };
               
+              productsByGroup[productName] = product;
+            });
+            
+            // 按排序顺序添加产品
+            if (productsFile.order) {
+              productsFile.order.forEach(productName => {
+                if (productsByGroup[productName]) {
+                  products.push(productsByGroup[productName]);
+                  delete productsByGroup[productName];
+                }
+              });
+            }
+            
+            // 添加剩余的产品
+            Object.values(productsByGroup).forEach(product => {
               products.push(product);
             });
           } catch (error) {
@@ -160,14 +176,17 @@ class Frontend {
   
   async loadSeriesNameMap() {
     try {
-      // 尝试从配置文件加载系列名称映射
+      // 尝试从配置文件加载系列名称映射和排序信息
       let configFile;
       try {
         configFile = await githubAPI.fetchFile('config.json');
         if (configFile && configFile.seriesNameMap) {
           this.state.seriesNameMap = configFile.seriesNameMap;
-          return;
         }
+        if (configFile && configFile.seriesOrder) {
+          this.state.seriesOrder = configFile.seriesOrder;
+        }
+        return;
       } catch (error) {
         console.log('Config file not found, using default series name map');
       }
@@ -212,12 +231,25 @@ class Frontend {
       productsBySeries[product.seriesId].push(product);
     });
     
+    // 获取系列顺序
+    let seriesOrder = this.state.seriesOrder || Object.keys(productsBySeries);
+    
+    // 确保所有系列都在排序中
+    Object.keys(productsBySeries).forEach(seriesId => {
+      if (!seriesOrder.includes(seriesId)) {
+        seriesOrder.push(seriesId);
+      }
+    });
+    
     // 渲染每个系列
-    Object.entries(productsBySeries).forEach(([seriesId, seriesProducts]) => {
+    seriesOrder.forEach(seriesId => {
       // 如果有选定的系列，只显示该系列
       if (this.state.selectedSeries && this.state.selectedSeries !== seriesId) {
         return;
       }
+      
+      const seriesProducts = productsBySeries[seriesId];
+      if (!seriesProducts) return;
       
       const seriesDisplayName = this.state.seriesNameMap[seriesId] || seriesId;
       

@@ -280,20 +280,24 @@
       <div class="admin-left">
         <div class="admin-section">
           <h2>系列管理</h2>
-          <div id="series-list" class="series-list">
+          <p style="color: #666; font-size: 14px; margin-bottom: 15px;">拖拽系列卡片可以调整显示顺序</p>
+          <div id="series-list" class="series-list" style="min-height: 200px;">
             <!-- 系列卡片将通过 JavaScript 动态生成 -->
           </div>
+          <button id="btn-save-series-order" class="btn-save" style="margin-top: 15px;">保存系列顺序</button>
         </div>
       </div>
       
       <div class="admin-center">
         <div class="admin-section">
           <h2>文件管理</h2>
+          <p style="color: #666; font-size: 14px; margin-bottom: 15px;">拖拽产品可以调整系列内显示顺序</p>
           <div id="file-list-container">
-            <ul id="file-list" class="file-list">
+            <ul id="file-list" class="file-list" style="min-height: 200px;">
               <!-- 文件列表将通过 JavaScript 动态生成 -->
             </ul>
           </div>
+          <button id="btn-save-product-order" class="btn-save" style="margin-top: 15px;">保存产品顺序</button>
         </div>
       </div>
       
@@ -370,6 +374,88 @@
         this.setupEventListeners();
         this.loadCacheStatus();
         this.scanFiles();
+        this.setupDragAndDrop();
+      }
+      
+      // 设置拖拽排序功能
+      setupDragAndDrop() {
+        // 系列排序
+        const seriesList = document.getElementById('series-list');
+        if (seriesList) {
+          let draggedItem = null;
+          
+          seriesList.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('series-card')) {
+              draggedItem = e.target;
+              setTimeout(() => {
+                e.target.style.opacity = '0.5';
+              }, 0);
+            }
+          });
+          
+          seriesList.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const afterElement = this.getDragAfterElement(seriesList, e.clientY);
+            const currentElement = draggedItem;
+            if (afterElement == null) {
+              seriesList.appendChild(currentElement);
+            } else {
+              seriesList.insertBefore(currentElement, afterElement);
+            }
+          });
+          
+          seriesList.addEventListener('dragend', (e) => {
+            e.target.style.opacity = '1';
+            draggedItem = null;
+          });
+        }
+        
+        // 产品排序
+        const fileList = document.getElementById('file-list');
+        if (fileList) {
+          let draggedItem = null;
+          
+          fileList.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('file-item')) {
+              draggedItem = e.target;
+              setTimeout(() => {
+                e.target.style.opacity = '0.5';
+              }, 0);
+            }
+          });
+          
+          fileList.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const afterElement = this.getDragAfterElement(fileList, e.clientY);
+            const currentElement = draggedItem;
+            if (afterElement == null) {
+              fileList.appendChild(currentElement);
+            } else {
+              fileList.insertBefore(currentElement, afterElement);
+            }
+          });
+          
+          fileList.addEventListener('dragend', (e) => {
+            e.target.style.opacity = '1';
+            draggedItem = null;
+          });
+        }
+      }
+      
+      // 获取拖拽元素应该插入的位置
+      getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.series-card, .file-item:not(.dragging)')];
+        
+        return draggableElements.reduce((closest, child) => {
+          const box = child.getBoundingClientRect();
+          const offset = y - box.top - box.height / 2;
+          
+          if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+          } else {
+            return closest;
+          }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
       }
       
       setupEventListeners() {
@@ -379,6 +465,10 @@
         document.getElementById('btn-export').addEventListener('click', () => this.exportData());
         document.getElementById('btn-import').addEventListener('click', () => this.importData());
         document.getElementById('btn-set-token').addEventListener('click', () => this.setApiToken());
+        
+        // 保存排序按钮
+        document.getElementById('btn-save-series-order').addEventListener('click', () => this.saveSeriesOrder());
+        document.getElementById('btn-save-product-order').addEventListener('click', () => this.saveProductOrder());
         
         document.getElementById('edit-form').addEventListener('submit', (e) => {
           e.preventDefault();
@@ -578,6 +668,8 @@
           const displayName = this.seriesNameMap[seriesItem.name] || seriesItem.name;
           const card = document.createElement('div');
           card.className = 'series-card';
+          card.draggable = true;
+          card.dataset.seriesName = seriesItem.name;
           card.onclick = () => this.showSeriesProducts(seriesItem.name);
           card.innerHTML = `
             <h3>${displayName}</h3>
@@ -815,6 +907,85 @@
             console.error('Delete product error:', error);
             this.showStatus('删除失败: ' + error.message, 'error');
           }
+        }
+      }
+      
+      // 保存系列排序
+      async saveSeriesOrder() {
+        try {
+          const seriesList = document.getElementById('series-list');
+          const seriesCards = seriesList.querySelectorAll('.series-card');
+          const seriesOrder = Array.from(seriesCards).map(card => card.dataset.seriesName);
+          
+          // 保存系列顺序到配置文件
+          const configFile = {
+            seriesOrder: seriesOrder
+          };
+          
+          const filePath = 'config.json';
+          const jsonContent = JSON.stringify(configFile, null, 2);
+          
+          try {
+            await githubAPI.commitFile(filePath, jsonContent, 'Update series order');
+          } catch (error) {
+            if (error.status === 404) {
+              await githubAPI.commitFile(filePath, jsonContent, 'Create config file for series order');
+            } else {
+              throw error;
+            }
+          }
+          
+          this.showStatus('系列排序保存成功', 'success');
+          this.scanFiles(); // 重新扫描以更新数据
+        } catch (error) {
+          console.error('Save series order error:', error);
+          this.showStatus('保存系列排序失败: ' + error.message, 'error');
+        }
+      }
+      
+      // 保存产品排序
+      async saveProductOrder() {
+        try {
+          if (!this.currentSeries) {
+            this.showStatus('请先选择一个系列', 'error');
+            return;
+          }
+          
+          const fileList = document.getElementById('file-list');
+          const productItems = fileList.querySelectorAll('.file-item');
+          const productOrder = Array.from(productItems).map(item => {
+            // 从产品组中提取主图名称
+            const productName = item.querySelector('div').textContent.trim().replace('产品: ', '');
+            return productName;
+          });
+          
+          // 找到对应的系列
+          const series = this.series.find(s => s.name === this.currentSeries);
+          if (!series) {
+            throw new Error('系列不存在');
+          }
+          
+          // 获取现有的 products.json 文件
+          let productsFile;
+          try {
+            productsFile = await githubAPI.fetchFile(`${series.path}/products.json`);
+          } catch (error) {
+            throw new Error('产品文件不存在');
+          }
+          
+          // 添加排序信息
+          productsFile.order = productOrder;
+          
+          // 保存文件
+          const filePath = `${series.path}/products.json`;
+          const jsonContent = JSON.stringify(productsFile, null, 2);
+          await githubAPI.commitFile(filePath, jsonContent, `Update product order for series: ${this.currentSeries}`);
+          
+          this.showStatus('产品排序保存成功', 'success');
+          this.scanFiles(); // 重新扫描以更新数据
+        } catch (error) {
+          console.error('Save product order error:', error);
+          this.showStatus('保存产品排序失败: ' + error.message, 'error');
         }
       }
       
