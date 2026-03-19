@@ -84,74 +84,71 @@ class Frontend {
       this.state.isLoading = true;
       this._showLoading(true);
 
-      const cachedData = cacheManager.get('products_data');
-      if (cachedData) {
-        console.log('Loading products from cache');
-        this.state.products = cachedData.products || [];
-        this.state.series = cachedData.series || [];
-        
-        // 即使从缓存加载数据，也要尝试加载最新的系列名称映射
-        try {
-          await this.loadSeriesNameMap();
-        } catch (error) {
-          console.error('Failed to load latest series name map:', error);
-          // 如果加载失败，使用缓存中的映射
-          this.state.seriesNameMap = cachedData.seriesNameMap || {};
-        }
-        
-        this.renderProducts();
-        return;
-      }
-
+      // 无论是否有缓存，都重新加载系列名称映射和系列列表
+      await this.loadSeriesNameMap();
+      
       try {
-        console.log('Loading products from GitHub API');
-        
-        // 加载系列名称映射
-        await this.loadSeriesNameMap();
-        
+        // 从GitHub API获取最新的系列列表
         const series = await githubAPI.fetchDirectory(this.config.productsPath);
         this.state.series = series.filter(item => item.type === 'dir');
-
-        // 并行请求所有系列的产品数据
-        const products = [];
-        const productPromises = this.state.series.map(async (seriesItem) => {
-          try {
-            const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
-            if (productsFile && productsFile.products) {
-              const productEntries = Object.entries(productsFile.products);
-              productEntries.forEach(([fileName, productData]) => {
-                const product = {
-                  id: fileName,
-                  seriesId: seriesItem.name,
-                  name: productData.name,
-                  description: productData.description,
-                  price: productData.price,
-                  materials: productData.materials,
-                  specs: productData.materials,
-                  images: [`产品图/${seriesItem.name}/${fileName}`]
-                };
-                products.push(product);
-              });
-            }
-          } catch (error) {
-            if (typeof errorHandler !== 'undefined') {
-              errorHandler.handleApiError(error);
-            } else {
-              console.warn(`Failed to load products for ${seriesItem.name}:`, error);
-            }
-          }
-        });
         
-        // 等待所有请求完成
-        await Promise.all(productPromises);
+        // 检查是否有缓存数据
+        const cachedData = cacheManager.get('products_data');
+        if (cachedData) {
+          console.log('Loading products from cache');
+          this.state.products = cachedData.products || [];
+          
+          // 检查缓存中的产品数据是否仍然有效（系列ID是否存在）
+          const validProducts = this.state.products.filter(product => {
+            return this.state.series.some(seriesItem => seriesItem.name === product.seriesId);
+          });
+          this.state.products = validProducts;
+        } else {
+          // 没有缓存，从API加载产品数据
+          console.log('Loading products from GitHub API');
+          
+          // 并行请求所有系列的产品数据
+          const products = [];
+          const productPromises = this.state.series.map(async (seriesItem) => {
+            try {
+              const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+              if (productsFile && productsFile.products) {
+                const productEntries = Object.entries(productsFile.products);
+                productEntries.forEach(([fileName, productData]) => {
+                  const product = {
+                    id: fileName,
+                    seriesId: seriesItem.name,
+                    name: productData.name,
+                    description: productData.description,
+                    price: productData.price,
+                    materials: productData.materials,
+                    specs: productData.materials,
+                    images: [`产品图/${seriesItem.name}/${fileName}`]
+                  };
+                  products.push(product);
+                });
+              }
+            } catch (error) {
+              if (typeof errorHandler !== 'undefined') {
+                errorHandler.handleApiError(error);
+              } else {
+                console.warn(`Failed to load products for ${seriesItem.name}:`, error);
+              }
+            }
+          });
+          
+          // 等待所有请求完成
+          await Promise.all(productPromises);
 
-        this.state.products = products;
+          this.state.products = products;
 
-        cacheManager.set('products_data', {
-          products: this.state.products,
-          series: this.state.series,
-          seriesNameMap: this.state.seriesNameMap
-        }, this.config.cacheTTL);
+          // 缓存数据
+          cacheManager.set('products_data', {
+            products: this.state.products,
+            series: this.state.series,
+            seriesNameMap: this.state.seriesNameMap
+          }, this.config.cacheTTL);
+        }
       } catch (apiError) {
         if (typeof errorHandler !== 'undefined') {
           errorHandler.handleApiError(apiError);
