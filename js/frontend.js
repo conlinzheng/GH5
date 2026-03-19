@@ -116,7 +116,11 @@ class Frontend {
                 name: productName,
                 description: '',
                 price: '',
-                materials: ''
+                upperMaterial: '',
+                innerMaterial: '',
+                soleMaterial: '',
+                customizable: '',
+                minOrder: ''
               };
               
               // 构建产品对象
@@ -126,8 +130,12 @@ class Frontend {
                 name: productData.name,
                 description: productData.description,
                 price: productData.price,
-                materials: productData.materials,
-                specs: productData.materials,
+                upperMaterial: productData.upperMaterial,
+                innerMaterial: productData.innerMaterial,
+                soleMaterial: productData.soleMaterial,
+                customizable: productData.customizable,
+                minOrder: productData.minOrder,
+                specs: productData.upperMaterial || productData.innerMaterial || productData.soleMaterial || '',
                 images: images.map(img => `产品图/${seriesItem.name}/${img}`)
               };
               
@@ -365,7 +373,11 @@ class Frontend {
         <p class="product-series">${seriesDisplayName}</p>
         <p class="product-description">${product.description || ''}</p>
         <p class="product-price">${product.price || ''}</p>
-        <p class="product-materials">${product.materials || ''}</p>
+        ${product.upperMaterial ? `<p class="product-upper-material">鞋面材质: ${product.upperMaterial}</p>` : ''}
+        ${product.innerMaterial ? `<p class="product-inner-material">内里材质: ${product.innerMaterial}</p>` : ''}
+        ${product.soleMaterial ? `<p class="product-sole-material">鞋底材质: ${product.soleMaterial}</p>` : ''}
+        ${product.customizable ? `<p class="product-customizable">定制: ${product.customizable === 'true' ? '支持' : '不支持'}</p>` : ''}
+        ${product.minOrder ? `<p class="product-min-order">起订量: ${product.minOrder}</p>` : ''}
       </div>
     `;
     
