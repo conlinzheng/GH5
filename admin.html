@@ -294,6 +294,7 @@
         this.series = [];
         this.products = [];
         this.currentEditingProduct = null;
+        this.seriesNameMap = {}; // 系列名称映射
         this.init();
       }
       
@@ -321,6 +322,9 @@
           const startTime = new Date();
           document.getElementById('last-scan').textContent = startTime.toLocaleString();
           
+          // 加载系列名称映射
+          await this.loadSeriesNameMap();
+          
           // 扫描产品图目录
           const series = await githubAPI.fetchDirectory('产品图');
           this.series = series.filter(item => item.type === 'dir');
@@ -329,7 +333,15 @@
           const products = [];
           const productPromises = this.series.map(async (seriesItem) => {
             try {
-              const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+              // 尝试获取 products.json 文件
+              let productsFile;
+              try {
+                productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+              } catch (error) {
+                // 如果文件不存在，创建基于图片的产品数据
+                productsFile = await this.createProductsFromImages(seriesItem);
+              }
+              
               if (productsFile && productsFile.products) {
                 const productEntries = Object.entries(productsFile.products);
                 productEntries.forEach(([fileName, productData]) => {
@@ -340,7 +352,8 @@
                     description: productData.description,
                     price: productData.price,
                     materials: productData.materials,
-                    image: fileName
+                    image: fileName,
+                    isMainImage: this.isMainImage(fileName)
                   };
                   products.push(product);
                 });
@@ -361,6 +374,109 @@
         }
       }
       
+      async loadSeriesNameMap() {
+        try {
+          // 尝试从配置文件加载系列名称映射
+          let configFile;
+          try {
+            configFile = await githubAPI.fetchFile('config.json');
+            if (configFile && configFile.seriesNameMap) {
+              this.seriesNameMap = configFile.seriesNameMap;
+            }
+          } catch (error) {
+            // 如果配置文件不存在，使用默认映射
+            this.seriesNameMap = {
+              '1-PU系列': 'PU超纤',
+              '2-真皮系列': '真皮系列',
+              '3-短靴系列': '短靴系列',
+              '4-乐福系列': '乐福系列',
+              '5-春季': '春季系列',
+              '6-夏季': '夏季系列',
+              '7-秋季': '秋季系列'
+            };
+          }
+        } catch (error) {
+          console.error('Load series name map error:', error);
+          // 使用默认映射
+          this.seriesNameMap = {
+            '1-PU系列': 'PU超纤',
+            '2-真皮系列': '真皮系列',
+            '3-短靴系列': '短靴系列',
+            '4-乐福系列': '乐福系列',
+            '5-春季': '春季系列',
+            '6-夏季': '夏季系列',
+            '7-秋季': '秋季系列'
+          };
+        }
+      }
+      
+      async createProductsFromImages(seriesItem) {
+        try {
+          // 扫描系列目录下的图片文件
+          const files = await githubAPI.fetchDirectory(seriesItem.path);
+          const imageFiles = files.filter(file => {
+            const ext = file.name.split('.').pop().toLowerCase();
+            return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+          });
+          
+          // 按产品分组图片
+          const products = {};
+          const productGroups = {};
+          
+          imageFiles.forEach(file => {
+            // 解析文件名，识别产品名称
+            const productName = this.extractProductName(file.name);
+            if (!productGroups[productName]) {
+              productGroups[productName] = [];
+            }
+            productGroups[productName].push(file.name);
+          });
+          
+          // 为每个产品创建数据
+          Object.entries(productGroups).forEach(([productName, images]) => {
+            // 找到主图（通常是 (1) 或没有数字的图片）
+            const mainImage = images.find(img => this.isMainImage(img)) || images[0];
+            
+            products[mainImage] = {
+              name: this.getProductDisplayName(productName),
+              description: '',
+              price: '',
+              materials: ''
+            };
+          });
+          
+          return { products };
+        } catch (error) {
+          console.error('Create products from images error:', error);
+          return { products: {} };
+        }
+      }
+      
+      extractProductName(fileName) {
+        // 从文件名中提取产品名称
+        // 处理 "产品1 (1).jpg" 这样的格式
+        const match = fileName.match(/^(.+?)\s*\(\d+\)\.\w+$/);
+        if (match) {
+          return match[1].trim();
+        }
+        // 处理 "产品1.jpg" 这样的格式
+        return fileName.replace(/\.\w+$/, '').trim();
+      }
+      
+      getProductDisplayName(rawName) {
+        // 生成产品显示名称
+        if (rawName === '产品1') return 'PU新款';
+        if (rawName === '产品2') return 'PU经典';
+        if (rawName === '产品3') return 'PU时尚';
+        return rawName;
+      }
+      
+      isMainImage(fileName) {
+        // 判断是否为主图
+        // 主图通常是 (1) 或没有数字后缀的图片
+        return fileName.includes('(1)') || !fileName.match(/\s*\(\d+\)\.\w+$/);
+      }
+      
       updateUI() {
         this.updateSeriesList();
         this.updateFileList();
@@ -374,10 +490,11 @@
         
         this.series.forEach(seriesItem => {
           const seriesProducts = this.products.filter(p => p.seriesId === seriesItem.name);
+          const displayName = this.seriesNameMap[seriesItem.name] || seriesItem.name;
           const card = document.createElement('div');
           card.className = 'series-card';
           card.innerHTML = `
-            <h3>${seriesItem.name}</h3>
+            <h3>${displayName}</h3>
             <div class="product-count">产品数量: ${seriesProducts.length}</div>
             <div class="progress-bar">
               <div class="progress-fill" style="width: ${seriesProducts.length > 0 ? '100%' : '0%'}"></div>
@@ -396,11 +513,13 @@
         fileList.innerHTML = '';
         
         this.products.forEach(product => {
+          const seriesDisplayName = this.seriesNameMap[product.seriesId] || product.seriesId;
+          const isMainImage = product.isMainImage ? '<span style="color: green; font-size: 12px; margin-left: 5px;">(主图)</span>' : '';
           const li = document.createElement('li');
           li.className = 'file-item';
           li.innerHTML = `
             <div>
-              <strong>${product.name}</strong> (${product.seriesId})
+              <strong>${product.name}</strong> (${seriesDisplayName})${isMainImage}
               <br>
               <small>图片: ${product.image}</small>
             </div>
@@ -424,9 +543,10 @@
         select.innerHTML = '';
         
         this.series.forEach(seriesItem => {
+          const displayName = this.seriesNameMap[seriesItem.name] || seriesItem.name;
           const option = document.createElement('option');
           option.value = seriesItem.name;
-          option.textContent = seriesItem.name;
+          option.textContent = displayName;
           select.appendChild(option);
         });
       }
