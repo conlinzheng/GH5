@@ -6,22 +6,10 @@
   },
   "products": {
     "中文数字123 (1).png": {
-      "name": {
-        "zh": "中文数字123",
-        "en": "中文数字123",
-        "ko": "中文数字123"
-      },
-      "description": {
-        "zh": "中文数字123 - 高品质产品",
-        "en": "中文数字123 - High quality product",
-        "ko": "中文数字123 - 고품질 제품"
-      },
+      "name": "123",
+      "description": "[object Object]",
       "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+      "materials": "[object Object]"
     },
     "中文数字123 (2).png": {
       "name": {
