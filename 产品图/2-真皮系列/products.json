@@ -7,9 +7,9 @@
   "products": {
     "中文数字123 (1).png": {
       "name": "123",
-      "description": "[object Object]",
+      "description": "321",
       "price": "",
-      "materials": "[object Object]"
+      "materials": "321"
     },
     "中文数字123 (2).png": {
       "name": {
