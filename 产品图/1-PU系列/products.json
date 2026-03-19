@@ -6,22 +6,10 @@
   },
   "products": {
     "中文 (1).png": {
-      "name": {
-        "zh": "1",
-        "en": "中文",
-        "ko": "中文"
-      },
-      "description": {
-        "zh": "2",
-        "en": "中文 - High quality product",
-        "ko": "中文 - 고품질 제품"
-      },
+      "name": "21",
+      "description": "[object Object]",
       "price": "3",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+      "materials": "[object Object]"
     },
     "中文 (2).png": {
       "name": {
