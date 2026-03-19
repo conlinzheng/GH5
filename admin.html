@@ -361,6 +361,7 @@
         this.series = [];
         this.products = [];
         this.currentEditingProduct = null;
+        this.currentSeries = null; // 当前选中的系列
         this.seriesNameMap = {}; // 系列名称映射
         this.init();
       }
@@ -577,6 +578,7 @@
           const displayName = this.seriesNameMap[seriesItem.name] || seriesItem.name;
           const card = document.createElement('div');
           card.className = 'series-card';
+          card.onclick = () => this.showSeriesProducts(seriesItem.name);
           card.innerHTML = `
             <h3>${displayName}</h3>
             <div class="series-folder-name">文件夹: ${seriesItem.name}</div>
@@ -585,33 +587,49 @@
               <div class="progress-fill" style="width: ${seriesProducts.length > 0 ? '100%' : '0%'}"></div>
             </div>
             <div class="file-actions">
-              <button class="btn-edit" onclick="adminPanel.editSeries('${seriesItem.name}')">编辑</button>
-              <button class="btn-view" onclick="adminPanel.viewSeries('${seriesItem.name}')">查看</button>
+              <button class="btn-edit" onclick="event.stopPropagation(); adminPanel.editSeries('${seriesItem.name}')">编辑</button>
+              <button class="btn-view" onclick="event.stopPropagation(); adminPanel.viewSeries('${seriesItem.name}')">查看</button>
             </div>
           `;
           seriesList.appendChild(card);
         });
       }
       
+      showSeriesProducts(seriesName) {
+        this.currentSeries = seriesName;
+        this.updateFileList();
+      }
+      
       updateFileList() {
         const fileList = document.getElementById('file-list');
         fileList.innerHTML = '';
         
-        this.products.forEach(product => {
+        let filteredProducts = this.products;
+        if (this.currentSeries) {
+          filteredProducts = this.products.filter(p => p.seriesId === this.currentSeries);
+        }
+        
+        filteredProducts.forEach(product => {
           const seriesDisplayName = this.seriesNameMap[product.seriesId] || product.seriesId;
           const isMainImage = product.isMainImage ? '<span style="color: green; font-size: 12px; margin-left: 5px;">(主图)</span>' : '';
           const li = document.createElement('li');
           li.className = 'file-item';
+          const imageUrl = `https://raw.githubusercontent.com/conlinzheng/GH5/main/产品图/${product.seriesId}/${product.image}`;
           li.innerHTML = `
-            <div>
-              <strong>${product.name}</strong> (${seriesDisplayName})${isMainImage}
-              <br>
-              <small>图片: ${product.image}</small>
-            </div>
-            <div class="file-actions">
-              <button class="btn-edit" onclick="adminPanel.editProduct('${product.id}', '${product.seriesId}')">编辑</button>
-              <button class="btn-delete" onclick="adminPanel.deleteProduct('${product.id}', '${product.seriesId}')">删除</button>
-              <button class="btn-view" onclick="adminPanel.viewProduct('${product.id}', '${product.seriesId}')">查看</button>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 80px; height: 80px; overflow: hidden; border-radius: 4px;">
+                <img src="${imageUrl}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+              <div style="flex: 1;">
+                <strong>${product.name}</strong> (${seriesDisplayName})${isMainImage}
+                <br>
+                <small>图片: ${product.image}</small>
+              </div>
+              <div class="file-actions">
+                <button class="btn-edit" onclick="adminPanel.editProduct('${product.id}', '${product.seriesId}')">编辑</button>
+                <button class="btn-delete" onclick="adminPanel.deleteProduct('${product.id}', '${product.seriesId}')">删除</button>
+                <button class="btn-view" onclick="adminPanel.viewProduct('${product.id}', '${product.seriesId}')">查看</button>
+              </div>
             </div>
           `;
           fileList.appendChild(li);
