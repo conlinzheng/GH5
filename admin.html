@@ -757,22 +757,42 @@
         this.showStatus('数据导出成功', 'success');
       }
       
-      importData() {
+      async importData() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.json';
-        input.onchange = (e) => {
+        input.onchange = async (e) => {
           const file = e.target.files[0];
           if (file) {
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = async (event) => {
               try {
                 const data = JSON.parse(event.target.result);
-                // 这里需要实现导入数据的逻辑
-                console.log('导入数据:', data);
+                
+                // 导入系列名称映射
+                if (data.seriesNameMap) {
+                  this.seriesNameMap = data.seriesNameMap;
+                  await this.saveSeriesNameMap();
+                }
+                
+                // 导入产品数据
+                if (data.products) {
+                  for (const [seriesId, products] of Object.entries(data.products)) {
+                    const series = this.series.find(s => s.name === seriesId);
+                    if (series) {
+                      const filePath = `${series.path}/products.json`;
+                      const productsFile = { products };
+                      const jsonContent = JSON.stringify(productsFile, null, 2);
+                      
+                      await githubAPI.commitFile(filePath, jsonContent, `Import products for ${seriesId}`);
+                    }
+                  }
+                }
+                
                 this.showStatus('数据导入成功', 'success');
                 this.scanFiles(); // 重新扫描以更新数据
               } catch (error) {
+                console.error('Import data error:', error);
                 this.showStatus('导入失败: ' + error.message, 'error');
               }
             };

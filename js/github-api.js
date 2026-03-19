@@ -83,6 +83,19 @@ class GitHubAPI {
         content: base64Content
       };
 
+      // 尝试获取文件的 SHA 值
+      try {
+        const fileInfo = await this._fetch(url);
+        if (fileInfo && fileInfo.sha) {
+          body.sha = fileInfo.sha;
+        }
+      } catch (error) {
+        // 如果文件不存在，继续执行（创建新文件）
+        if (error.status !== 404) {
+          throw error;
+        }
+      }
+
       const response = await this._fetch(url, {
         method: 'PUT',
         body: JSON.stringify(body)
