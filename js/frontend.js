@@ -89,7 +89,16 @@ class Frontend {
         console.log('Loading products from cache');
         this.state.products = cachedData.products || [];
         this.state.series = cachedData.series || [];
-        this.state.seriesNameMap = cachedData.seriesNameMap || {};
+        
+        // 即使从缓存加载数据，也要尝试加载最新的系列名称映射
+        try {
+          await this.loadSeriesNameMap();
+        } catch (error) {
+          console.error('Failed to load latest series name map:', error);
+          // 如果加载失败，使用缓存中的映射
+          this.state.seriesNameMap = cachedData.seriesNameMap || {};
+        }
+        
         this.renderProducts();
         return;
       }
