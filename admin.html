@@ -548,18 +548,28 @@
       }
       
       setupEventListeners() {
-        document.getElementById('btn-scan').addEventListener('click', () => this.scanFiles());
-        document.getElementById('btn-refresh').addEventListener('click', () => this.refreshData());
-        document.getElementById('btn-clear-cache').addEventListener('click', () => this.clearCache());
-        document.getElementById('btn-export').addEventListener('click', () => this.exportData());
-        document.getElementById('btn-import').addEventListener('click', () => this.importData());
-        document.getElementById('btn-set-token').addEventListener('click', () => this.setApiToken());
+        // 安全地绑定事件监听器，检查元素是否存在
+        const bindEvent = (id, event, handler) => {
+          const element = document.getElementById(id);
+          if (element) {
+            element.addEventListener(event, handler);
+          } else {
+            console.warn(`Element ${id} not found`);
+          }
+        };
+        
+        bindEvent('btn-scan', 'click', () => this.scanFiles());
+        bindEvent('btn-refresh', 'click', () => this.refreshData());
+        bindEvent('btn-clear-cache', 'click', () => this.clearCache());
+        bindEvent('btn-export', 'click', () => this.exportData());
+        bindEvent('btn-import', 'click', () => this.importData());
+        bindEvent('btn-set-token', 'click', () => this.setApiToken());
         
         // 保存排序按钮
-        document.getElementById('btn-save-series-order').addEventListener('click', () => this.saveSeriesOrder());
-        document.getElementById('btn-save-product-order').addEventListener('click', () => this.saveProductOrder());
+        bindEvent('btn-save-series-order', 'click', () => this.saveSeriesOrder());
+        bindEvent('btn-save-product-order', 'click', () => this.saveProductOrder());
         
-        document.getElementById('edit-form').addEventListener('submit', (e) => {
+        bindEvent('edit-form', 'submit', (e) => {
           e.preventDefault();
           this.saveProduct();
         });
@@ -1511,6 +1521,13 @@
       
       showStatus(message, type) {
         const container = document.getElementById('status-container');
+        if (!container) {
+          console.warn('Status container not found');
+          // 作为后备，在控制台显示消息
+          console.log(`${type.toUpperCase()}: ${message}`);
+          return;
+        }
+        
         container.innerHTML = '';
         
         const statusDiv = document.createElement('div');

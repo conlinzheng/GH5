@@ -146,101 +146,129 @@ class Frontend {
         
         console.log('Loading products from GitHub API');
         
-        // 并行请求所有系列的产品数据
+        // 串行请求所有系列的产品数据，避免API限流
         const products = [];
-        const productPromises = this.state.series.map(async (seriesItem) => {
-          try {
-            // 获取系列目录下的所有文件
-            const files = await githubAPI.fetchDirectory(seriesItem.path);
-            const imageFiles = files.filter(file => {
-              const ext = file.name.split('.').pop().toLowerCase();
-              return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
-            });
-            
-            // 按产品名称分组图片
-            const productGroups = {};
-            imageFiles.forEach(file => {
-              const productName = this.extractProductName(file.name);
-              if (!productGroups[productName]) {
-                productGroups[productName] = [];
-              }
-              productGroups[productName].push(file.name);
-            });
-            
-            // 获取产品数据文件
-            let productsFile;
-            try {
-              // 清除该系列 products.json 的缓存
-              cacheManager.clear(`${seriesItem.path}/products.json`);
-              console.log(`Cache cleared for ${seriesItem.path}/products.json`);
-              
-              productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
-            } catch (error) {
-              productsFile = { products: {} };
-            }
-            
-            // 为每个产品创建数据
-            const productsByGroup = {};
-            Object.entries(productGroups).forEach(([productName, images]) => {
-              // 找到主图（通常是 (1) 或没有数字的图片）
-              const mainImage = images.find(img => this.isMainImage(img)) || images[0];
-              
-              // 获取产品数据
-              const productData = productsFile.products[mainImage] || {
-                name: productName,
-                description: '',
-                price: '',
-                upperMaterial: '',
-                innerMaterial: '',
-                soleMaterial: '',
-                customizable: '',
-                minOrder: ''
-              };
-              
-              // 构建产品对象
-              const product = {
-                id: mainImage,
-                seriesId: seriesItem.name,
-                name: productData.name,
-                description: productData.description,
-                price: productData.price,
-                upperMaterial: productData.upperMaterial,
-                innerMaterial: productData.innerMaterial,
-                soleMaterial: productData.soleMaterial,
-                customizable: productData.customizable,
-                minOrder: productData.minOrder,
-                specs: productData.upperMaterial || productData.innerMaterial || productData.soleMaterial || '',
-                images: images.map(img => `产品图/${seriesItem.name}/${img}`)
-              };
-              
-              productsByGroup[productName] = product;
-            });
-            
-            // 按排序顺序添加产品
-            if (productsFile.order) {
-              productsFile.order.forEach(productName => {
-                if (productsByGroup[productName]) {
-                  products.push(productsByGroup[productName]);
-                  delete productsByGroup[productName];
-                }
-              });
-            }
-            
-            // 添加剩余的产品
-            Object.values(productsByGroup).forEach(product => {
-              products.push(product);
-            });
-          } catch (error) {
-            if (typeof errorHandler !== 'undefined') {
-              errorHandler.handleApiError(error);
-            } else {
-              console.warn(`Failed to load products for ${seriesItem.name}:`, error);
-            }
-          }
-        });
         
-        // 等待所有请求完成
-        await Promise.all(productPromises);
+        // 限制并发请求数量
+        const maxConcurrentRequests = 2;
+        const seriesBatches = [];
+        
+        // 将系列分成批次
+        for (let i = 0; i < this.state.series.length; i += maxConcurrentRequests) {
+          seriesBatches.push(this.state.series.slice(i, i + maxConcurrentRequests));
+        }
+        
+        // 按批次处理系列
+        for (const batch of seriesBatches) {
+          const batchPromises = batch.map(async (seriesItem) => {
+            try {
+              // 检查API限流状态
+              const rateLimitInfo = githubAPI.getRateLimitInfo();
+              if (rateLimitInfo.isLimited) {
+                console.log('API rate limit reached, waiting...');
+                await githubAPI.waitForRateLimitReset();
+              }
+              
+              // 获取系列目录下的所有文件
+              const files = await githubAPI.fetchDirectory(seriesItem.path);
+              const imageFiles = files.filter(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+              });
+              
+              // 按产品名称分组图片
+              const productGroups = {};
+              imageFiles.forEach(file => {
+                const productName = this.extractProductName(file.name);
+                if (!productGroups[productName]) {
+                  productGroups[productName] = [];
+                }
+                productGroups[productName].push(file.name);
+              });
+              
+              // 获取产品数据文件
+              let productsFile;
+              try {
+                // 只有在缓存不存在时才请求API
+                const cachedData = cacheManager.get(`${seriesItem.path}/products.json`);
+                if (cachedData) {
+                  productsFile = cachedData;
+                  console.log(`Using cached data for ${seriesItem.path}/products.json`);
+                } else {
+                  productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+                  // 缓存数据
+                  cacheManager.set(`${seriesItem.path}/products.json`, productsFile, this.config.cacheTTL);
+                }
+              } catch (error) {
+                productsFile = { products: {} };
+              }
+              
+              // 为每个产品创建数据
+              const productsByGroup = {};
+              Object.entries(productGroups).forEach(([productName, images]) => {
+                // 找到主图（通常是 (1) 或没有数字的图片）
+                const mainImage = images.find(img => this.isMainImage(img)) || images[0];
+                
+                // 获取产品数据
+                const productData = productsFile.products[mainImage] || {
+                  name: productName,
+                  description: '',
+                  price: '',
+                  upperMaterial: '',
+                  innerMaterial: '',
+                  soleMaterial: '',
+                  customizable: '',
+                  minOrder: ''
+                };
+                
+                // 构建产品对象
+                const product = {
+                  id: mainImage,
+                  seriesId: seriesItem.name,
+                  name: productData.name,
+                  description: productData.description,
+                  price: productData.price,
+                  upperMaterial: productData.upperMaterial,
+                  innerMaterial: productData.innerMaterial,
+                  soleMaterial: productData.soleMaterial,
+                  customizable: productData.customizable,
+                  minOrder: productData.minOrder,
+                  specs: productData.upperMaterial || productData.innerMaterial || productData.soleMaterial || '',
+                  images: images.map(img => `产品图/${seriesItem.name}/${img}`)
+                };
+                
+                productsByGroup[productName] = product;
+              });
+              
+              // 按排序顺序添加产品
+              if (productsFile.order) {
+                productsFile.order.forEach(productName => {
+                  if (productsByGroup[productName]) {
+                    products.push(productsByGroup[productName]);
+                    delete productsByGroup[productName];
+                  }
+                });
+              }
+              
+              // 添加剩余的产品
+              Object.values(productsByGroup).forEach(product => {
+                products.push(product);
+              });
+              
+              // 添加请求间隔，避免API限流
+              await new Promise(resolve => setTimeout(resolve, 500));
+            } catch (error) {
+              if (typeof errorHandler !== 'undefined') {
+                errorHandler.handleApiError(error);
+              } else {
+                console.warn(`Failed to load products for ${seriesItem.name}:`, error);
+              }
+            }
+          });
+          
+          // 等待批次请求完成
+          await Promise.all(batchPromises);
+        }
 
         this.state.products = products;
 
