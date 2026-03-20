@@ -9,6 +9,7 @@ class BrowseHistory {
   init() {
     this.loadFromStorage();
     this.setupEventListeners();
+    this.renderHistoryWidget();
   }
   
   setupEventListeners() {
@@ -19,6 +20,61 @@ class BrowseHistory {
         this.add(product);
       }
     });
+    
+    // 监听浏览历史按钮点击
+    const historyToggle = document.getElementById('history-toggle');
+    if (historyToggle) {
+      historyToggle.addEventListener('click', () => {
+        this.openSidebar();
+      });
+    }
+    
+    // 监听关闭按钮点击
+    const historyCloseBtn = document.getElementById('history-close-btn');
+    if (historyCloseBtn) {
+      historyCloseBtn.addEventListener('click', () => {
+        this.closeSidebar();
+      });
+    }
+    
+    // 监听遮罩层点击
+    const historyOverlay = document.getElementById('history-overlay');
+    if (historyOverlay) {
+      historyOverlay.addEventListener('click', () => {
+        this.closeSidebar();
+      });
+    }
+    
+    // 监听ESC键关闭
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.closeSidebar();
+      }
+    });
+  }
+  
+  openSidebar() {
+    const sidebar = document.getElementById('history-sidebar');
+    const overlay = document.getElementById('history-overlay');
+    if (sidebar) {
+      sidebar.classList.add('active');
+    }
+    if (overlay) {
+      overlay.classList.add('active');
+    }
+    document.body.style.overflow = 'hidden';
+  }
+  
+  closeSidebar() {
+    const sidebar = document.getElementById('history-sidebar');
+    const overlay = document.getElementById('history-overlay');
+    if (sidebar) {
+      sidebar.classList.remove('active');
+    }
+    if (overlay) {
+      overlay.classList.remove('active');
+    }
+    document.body.style.overflow = '';
   }
   
   add(product) {

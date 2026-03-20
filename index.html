@@ -21,6 +21,11 @@
               <path d="M4 10a6 6 0 0 1 6-6h4m0 0l-3-3m3 3l-3 3m3 9a6 6 0 0 1-6 6H6m0 0l3 3m-3-3l3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
+          <button class="nav-btn" id="history-toggle" aria-label="浏览历史" title="浏览历史">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
           <button class="nav-btn" id="language-toggle" aria-label="切换语言">
             <span class="lang-text">EN</span>
           </button>
@@ -65,15 +70,6 @@
           <div class="loading" id="loading">
             <div class="spinner"></div>
             <p>加载中...</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="history-section" id="history-section">
-        <div class="history-container">
-          <h2 class="section-title">浏览历史</h2>
-          <div id="history-widget" class="history-widget">
-            <!-- 浏览历史内容将通过 JavaScript 动态生成 -->
           </div>
         </div>
       </section>
@@ -183,6 +179,20 @@
       <div class="lightbox-counter" id="lightbox-counter"></div>
     </div>
   </div>
+
+  <!-- 浏览历史弹出窗口 -->
+  <div class="history-sidebar" id="history-sidebar">
+    <div class="history-sidebar-header">
+      <h3>浏览历史</h3>
+      <button class="history-close-btn" id="history-close-btn">&times;</button>
+    </div>
+    <div class="history-sidebar-content">
+      <div id="history-widget" class="history-widget">
+        <!-- 浏览历史内容将通过 JavaScript 动态生成 -->
+      </div>
+    </div>
+  </div>
+  <div class="history-overlay" id="history-overlay"></div>
 
   <script src="js/config.js"></script>
   <script src="js/error-handler.js"></script>
