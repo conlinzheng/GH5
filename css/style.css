@@ -898,10 +898,13 @@ body {
 .modal-content {
   background-color: #fff;
   max-width: 1200px;
+  max-height: 90vh;
   margin: 20px auto;
   border-radius: 8px;
   overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-close {
@@ -930,6 +933,8 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 40px;
   padding: 60px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .modal-images {
@@ -1053,6 +1058,7 @@ body {
 .modal-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .modal-series {
