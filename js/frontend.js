@@ -403,6 +403,9 @@ class Frontend {
                   tags: []
                 };
                 
+                console.log('产品数据:', productData);
+                console.log('产品标签:', productData.tags);
+                
                 // 构建产品对象
                 const product = {
                   id: mainImage,
@@ -419,6 +422,8 @@ class Frontend {
                   specs: productData.upperMaterial || productData.innerMaterial || productData.soleMaterial || '',
                   images: images.map(img => `产品图/${seriesItem.name}/${img}`)
                 };
+                
+                console.log('构建的产品对象:', product);
                 
                 productsByGroup[productName] = product;
               });
