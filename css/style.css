@@ -883,9 +883,11 @@ body {
   background-color: rgba(0, 0, 0, 0.8);
   overflow-y: auto;
   padding: 20px;
+  align-items: center;
+  justify-content: center;
 }
 
-.modal-overlay {
+.product-modal .modal-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -893,18 +895,33 @@ body {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.8);
   cursor: pointer;
+  z-index: -1;
 }
 
-.modal-content {
+.product-modal .modal-content {
   background-color: #fff;
   max-width: 1200px;
-  margin: 20px auto;
+  width: 90%;
+  max-height: 90vh;
   border-radius: 8px;
   overflow: hidden;
   position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: modalFadeIn 0.3s ease-out;
 }
 
-.modal-close {
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.product-modal .modal-close {
   position: absolute;
   top: 20px;
   right: 20px;
@@ -919,52 +936,81 @@ body {
   cursor: pointer;
   z-index: 10001;
   transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.modal-close:hover {
+.product-modal .modal-close:hover {
   background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.modal-body {
+.product-modal .modal-body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
   padding: 60px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
-.modal-images {
+.product-modal .modal-images {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.main-image-container {
+.product-modal .main-image-container {
   position: relative;
   border-radius: 8px;
   overflow: hidden;
   background-color: #f5f5f5;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
-.main-image-container img {
+.product-modal .main-image-container:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-modal .main-image-container img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
   cursor: pointer;
   display: block;
   transition: transform 0.3s;
 }
 
-.main-image-container img:hover {
+.product-modal .main-image-container img:hover {
   transform: scale(1.02);
 }
 
-.modal-gallery-container {
+.product-modal .zoom-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  pointer-events: none;
+  transition: background-color 0.3s;
+}
+
+.product-modal .modal-gallery-container {
   position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.gallery-nav {
+.product-modal .gallery-nav {
   position: relative;
   background-color: #f5f5f5;
   color: #333;
@@ -982,12 +1028,13 @@ body {
   transition: all 0.3s ease;
 }
 
-.gallery-nav:hover {
+.product-modal .gallery-nav:hover {
   background-color: #e0e0e0;
   border-color: #999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.modal-gallery {
+.product-modal .modal-gallery {
   flex: 1;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -999,34 +1046,44 @@ body {
   scrollbar-color: #ccc #f5f5f5;
 }
 
-.modal-gallery::-webkit-scrollbar {
+.product-modal .modal-gallery::-webkit-scrollbar {
   height: 6px;
 }
 
-.modal-gallery::-webkit-scrollbar-track {
+.product-modal .modal-gallery::-webkit-scrollbar-track {
   background: #f5f5f5;
   border-radius: 3px;
 }
 
-.modal-gallery::-webkit-scrollbar-thumb {
+.product-modal .modal-gallery::-webkit-scrollbar-thumb {
   background: #ccc;
   border-radius: 3px;
 }
 
-.modal-gallery::-webkit-scrollbar-thumb:hover {
+.product-modal .modal-gallery::-webkit-scrollbar-thumb:hover {
   background: #999;
 }
 
-.modal-gallery-item {
+.product-modal .modal-gallery-item {
   position: relative;
   aspect-ratio: 1;
   border-radius: 4px;
   overflow: hidden;
   cursor: pointer;
   background-color: #f5f5f5;
+  transition: all 0.3s ease;
 }
 
-.gallery-thumb {
+.product-modal .modal-gallery-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-modal .modal-gallery-item.active {
+  border: 2px solid #000;
+}
+
+.product-modal .gallery-thumb {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1034,11 +1091,11 @@ body {
   display: block;
 }
 
-.gallery-thumb:hover {
+.product-modal .gallery-thumb:hover {
   opacity: 0.8;
 }
 
-.gallery-thumb-label {
+.product-modal .gallery-thumb-label {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -1048,14 +1105,16 @@ body {
   padding: 4px;
   text-align: center;
   font-size: 11px;
+  transition: background-color 0.3s;
 }
 
-.modal-info {
+.product-modal .modal-info {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
-.modal-series {
+.product-modal .modal-series {
   display: inline-block;
   background-color: #f5f5f5;
   color: #666;
@@ -1064,57 +1123,67 @@ body {
   font-size: 13px;
   margin-bottom: 15px;
   width: fit-content;
+  transition: all 0.3s ease;
 }
 
-.modal-info h2 {
+.product-modal .modal-info h2 {
   font-size: 32px;
   font-weight: 300;
   margin-bottom: 20px;
   color: #000;
+  line-height: 1.2;
 }
 
-.modal-description {
+.product-modal .modal-description {
   font-size: 16px;
   line-height: 1.8;
   color: #666;
   margin-bottom: 30px;
+  flex: 1;
 }
 
-.product-specs {
+.product-modal .product-specs {
   background-color: #f9f9f9;
   padding: 25px;
   border-radius: 8px;
   margin-bottom: 30px;
+  transition: all 0.3s ease;
 }
 
-.spec-item {
+.product-modal .product-specs:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.product-modal .spec-item {
   display: flex;
   padding: 12px 0;
   border-bottom: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
 }
 
-.spec-item:last-child {
+.product-modal .spec-item:last-child {
   border-bottom: none;
 }
 
-.spec-label {
+.product-modal .spec-label {
   font-weight: 500;
   color: #333;
   min-width: 120px;
+  flex-shrink: 0;
 }
 
-.spec-value {
+.product-modal .spec-value {
   color: #666;
   flex: 1;
 }
 
-.modal-actions {
+.product-modal .modal-actions {
   display: flex;
   gap: 15px;
   margin-top: auto;
 }
 
-.modal-actions .contact-btn {
+.product-modal .modal-actions .contact-btn {
   background-color: #000;
   color: #fff;
   border: none;
@@ -1122,12 +1191,35 @@ body {
   font-size: 16px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
   flex: 1;
+  font-weight: 500;
 }
 
-.modal-actions .contact-btn:hover {
+.product-modal .modal-actions .contact-btn:hover {
   background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.product-modal .modal-actions .back-btn {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 15px 30px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  font-weight: 500;
+}
+
+.product-modal .modal-actions .back-btn:hover {
+  background-color: #e0e0e0;
+  border-color: #999;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* 灯箱样式 */
