@@ -790,8 +790,9 @@
       <p style="color: #666; margin-bottom: 20px;">管理系统中使用的多语言翻译文本</p>
       
       <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-        <p style="margin: 0 0 10px 0; font-weight: 600; color: #444;">快速添加常用翻译：</p>
+        <p style="margin: 0 0 10px 0; font-weight: 600; color: #444;">快速操作：</p>
         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <button class="quick-add-btn" onclick="configManager.scanAllTranslations()">🔍 扫描页面翻译</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('联系我们')">联系我们</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('提交')">提交</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('提交中')">提交中</button>
@@ -803,16 +804,27 @@
         </div>
       </div>
       
-      <div id="translation-list">
+      <div id="translation-scan-results" style="margin-bottom: 20px; display: none;">
+        <div style="padding: 15px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #2196F3;">
+          <p style="margin: 0 0 10px 0; font-weight: 600; color: #1565C0;">📋 扫描到以下需要翻译的文本：</p>
+          <div id="scanned-translations-list"></div>
+          <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <button class="btn-save" onclick="configManager.addScannedTranslations()">✅ 添加到翻译词典</button>
+            <button class="btn-export" onclick="document.getElementById('translation-scan-results').style.display='none'">关闭</button>
+          </div>
+        </div>
       </div>
+      
+      <div id="translation-list"></div>
       
       <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
         <button class="btn-add-translation" onclick="configManager.addTranslation()">+ 添加新翻译</button>
         <button class="btn-save" onclick="configManager.saveTranslations()">保存翻译</button>
-        <button class="btn-export" onclick="configManager.exportTranslations()">📤 导出</button>
-        <button class="btn-import" onclick="configManager.importTranslations()">📥 导入</button>
+        <button class="btn-export" onclick="configManager.exportTranslationsCSV()">📤 导出CSV</button>
+        <button class="btn-import" onclick="configManager.importTranslationsCSV()">📥 导入CSV</button>
+        <button class="btn-export" onclick="configManager.exportTranslations()">📤 导出JSON</button>
       </div>
-      <input type="file" id="translation-import-input" accept=".json" style="display: none;" onchange="configManager.handleImportTranslation(event)">
+      <input type="file" id="translation-import-input" accept=".json,.csv" style="display: none;" onchange="configManager.handleImportTranslation(event)">
     </div>
     
     <div id="page-settings" class="config-section">
@@ -1234,19 +1246,337 @@
           const reader = new FileReader();
           reader.onload = (e) => {
             try {
-              const imported = JSON.parse(e.target.result);
-              const current = this.config.translations || {};
-              const merged = { ...current, ...imported };
-              this.config.translations = merged;
-              this.renderTranslations();
-              this.showStatus('翻译词典导入成功', 'success');
+              if (file.name.endsWith('.csv')) {
+                this.handleCSVImport(e.target.result);
+              } else {
+                const imported = JSON.parse(e.target.result);
+                const current = this.config.translations || {};
+                const merged = { ...current, ...imported };
+                this.config.translations = merged;
+                this.renderTranslations();
+                this.showStatus('翻译词典导入成功', 'success');
+              }
             } catch (error) {
-              this.showStatus('导入失败：无效的 JSON 文件', 'error');
+              this.showStatus('导入失败：无效的文件格式', 'error');
             }
           };
           reader.readAsText(file);
         }
         event.target.value = '';
+      }
+      
+      async scanAllTranslations() {
+        this.showLoading(true);
+        try {
+          const scannedTranslations = {};
+          
+          const pageSettingsFields = [
+            { key: 'footerText', category: '显示文本', label: '版权文本' },
+            { key: 'loadingText', category: '显示文本', label: '加载中文本' },
+            { key: 'searchPlaceholder', category: '显示文本', label: '搜索占位符' },
+            { key: 'noProductsText', category: '显示文本', label: '无产品显示' },
+            { key: 'productDetailsTitle', category: '显示文本', label: '产品详情标题' },
+            { key: 'viewDetailsText', category: '显示文本', label: '查看详情按钮' },
+            { key: 'contactUsText', category: '显示文本', label: '联系我们按钮' },
+            { key: 'carouselWelcome', category: '显示文本', label: '轮播图欢迎标题' },
+            { key: 'carouselDescription', category: '显示文本', label: '轮播图描述' }
+          ];
+          
+          const siteInfoFields = [
+            { key: 'companyName', category: '站点信息', label: '公司名称' },
+            { key: 'companyDescription', category: '站点信息', label: '公司简介' }
+          ];
+          
+          pageSettingsFields.forEach(field => {
+            const value = this.config.pageSettings?.[field.key];
+            if (value?.zh) {
+              scannedTranslations[field.key] = {
+                zh: value.zh,
+                en: value.en || '',
+                ko: value.ko || '',
+                category: field.category,
+                label: field.label
+              };
+            }
+          });
+          
+          siteInfoFields.forEach(field => {
+            const value = this.config.siteInfo?.[field.key];
+            if (value?.zh) {
+              scannedTranslations[field.key] = {
+                zh: value.zh,
+                en: value.en || '',
+                ko: value.ko || '',
+                category: field.category,
+                label: field.label
+              };
+            }
+          });
+          
+          const existingTranslations = this.config.translations || {};
+          for (const [key, value] of Object.entries(existingTranslations)) {
+            if (value.zh && !scannedTranslations[key]) {
+              scannedTranslations[key] = {
+                zh: value.zh,
+                en: value.en || '',
+                ko: value.ko || '',
+                category: '自定义翻译',
+                label: key
+              };
+            }
+          }
+          
+          const allSeries = [
+            { name: '1-PU系列', path: '产品图/1-PU系列/products.json' },
+            { name: '2-真皮系列', path: '产品图/2-真皮系列/products.json' },
+            { name: '3-短靴系列', path: '产品图/3-短靴系列/products.json' },
+            { name: '4-乐福系列', path: '产品图/4-乐福系列/products.json' },
+            { name: '5-春季', path: '产品图/5-春季/products.json' },
+            { name: '6-夏季', path: '产品图/6-夏季/products.json' },
+            { name: '7-秋季', path: '产品图/7-秋季/products.json' }
+          ];
+          
+          for (const series of allSeries) {
+            try {
+              const data = await githubAPI.fetchFile(series.path);
+              if (data.seriesName?.zh) {
+                scannedTranslations[`series_${series.name}`] = {
+                  zh: data.seriesName.zh,
+                  en: data.seriesName.en || '',
+                  ko: data.seriesName.ko || '',
+                  category: '产品分类',
+                  label: `分类名称 - ${series.name}`
+                };
+              }
+              
+              if (data.products) {
+                Object.entries(data.products).forEach(([filename, product], idx) => {
+                  const productName = product.name?.zh || product.name;
+                  const productDesc = product.description?.zh || product.description;
+                  const tags = product.tags || [];
+                  
+                  if (productName && typeof productName === 'string' && productName.trim()) {
+                    const key = `product_${series.name}_${idx}`;
+                    scannedTranslations[key] = {
+                      zh: productName,
+                      en: product.name?.en || '',
+                      ko: product.name?.ko || '',
+                      category: `产品分类 - ${series.name}`,
+                      label: `产品名称`
+                    };
+                  }
+                  
+                  if (productDesc && typeof productDesc === 'string' && productDesc.trim()) {
+                    const key = `product_desc_${series.name}_${idx}`;
+                    scannedTranslations[key] = {
+                      zh: productDesc,
+                      en: product.description?.en || '',
+                      ko: product.description?.ko || '',
+                      category: `产品分类 - ${series.name}`,
+                      label: `产品描述`
+                    };
+                  }
+                  
+                  tags.forEach((tag, tagIdx) => {
+                    if (tag && tag.trim()) {
+                      const key = `tag_${series.name}_${idx}_${tagIdx}`;
+                      scannedTranslations[key] = {
+                        zh: tag,
+                        en: '',
+                        ko: '',
+                        category: `产品标签 - ${series.name}`,
+                        label: `产品标签`
+                      };
+                    }
+                  });
+                });
+              }
+            } catch (err) {
+              console.warn(`Failed to load ${series.name}:`, err);
+            }
+          }
+          
+          this.displayScannedTranslations(scannedTranslations);
+          this.showStatus(`扫描完成，共发现 ${Object.keys(scannedTranslations).length} 个翻译项`, 'success');
+        } catch (error) {
+          console.error('Scan error:', error);
+          this.showStatus('扫描失败: ' + error.message, 'error');
+        } finally {
+          this.showLoading(false);
+        }
+      }
+      
+      displayScannedTranslations(scanned) {
+        const resultsDiv = document.getElementById('translation-scan-results');
+        const listDiv = document.getElementById('scanned-translations-list');
+        
+        const grouped = {};
+        Object.entries(scanned).forEach(([key, value]) => {
+          const category = value.category || '其他';
+          if (!grouped[category]) grouped[category] = [];
+          grouped[category].push({ key, ...value });
+        });
+        
+        let html = '';
+        for (const [category, items] of Object.entries(grouped)) {
+          html += `<div style="margin-bottom: 15px;">
+            <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">📁 ${category}</p>
+            <div style="display: flex; flex-direction: column; gap: 8px;">`;
+          
+          items.forEach(item => {
+            html += `<div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #ddd;">
+              <div style="font-size: 12px; color: #666; margin-bottom: 5px;">${item.label}</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <input type="text" class="scan-zh" data-key="${item.key}" value="${item.zh || ''}" placeholder="中文" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="text" class="scan-en" data-key="${item.key}" value="${item.en || ''}" placeholder="English" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="text" class="scan-ko" data-key="${item.key}" value="${item.ko || ''}" placeholder="한국어" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+              </div>
+            </div>`;
+          });
+          
+          html += '</div></div>';
+        }
+        
+        listDiv.innerHTML = html;
+        resultsDiv.style.display = 'block';
+      }
+      
+      addScannedTranslations() {
+        const scanZhInputs = document.querySelectorAll('.scan-zh');
+        const newTranslations = {};
+        
+        scanZhInputs.forEach(input => {
+          const key = input.dataset.key;
+          const zh = input.value.trim();
+          const en = document.querySelector(`.scan-en[data-key="${key}"]`).value.trim();
+          const ko = document.querySelector(`.scan-ko[data-key="${key}"]`).value.trim();
+          
+          if (zh) {
+            const cleanKey = key.replace(/^product_|^product_desc_|^tag_|^series_/, '');
+            newTranslations[cleanKey] = { zh, en, ko };
+          }
+        });
+        
+        const current = this.config.translations || {};
+        this.config.translations = { ...current, ...newTranslations };
+        
+        document.getElementById('translation-scan-results').style.display = 'none';
+        this.renderTranslations();
+        this.showStatus('已添加扫描的翻译项', 'success');
+      }
+      
+      exportTranslationsCSV() {
+        const translations = this.config.translations || {};
+        const pageSettings = this.config.pageSettings || {};
+        const siteInfo = this.config.siteInfo || {};
+        
+        let csvContent = '\uFEFF键名,分类,位置,中文,英文,韩文\n';
+        
+        const addToCSV = (key, category, label, values) => {
+          const zh = (values.zh || '').replace(/"/g, '""');
+          const en = (values.en || '').replace(/"/g, '""');
+          const ko = (values.ko || '').replace(/"/g, '""');
+          csvContent += `"${key}","${category}","${label}","${zh}","${en}","${ko}"\n`;
+        };
+        
+        if (pageSettings.footerText) addToCSV('footerText', '显示文本', '版权文本', pageSettings.footerText);
+        if (pageSettings.loadingText) addToCSV('loadingText', '显示文本', '加载中文本', pageSettings.loadingText);
+        if (pageSettings.searchPlaceholder) addToCSV('searchPlaceholder', '显示文本', '搜索占位符', pageSettings.searchPlaceholder);
+        if (pageSettings.noProductsText) addToCSV('noProductsText', '显示文本', '无产品显示', pageSettings.noProductsText);
+        if (pageSettings.productDetailsTitle) addToCSV('productDetailsTitle', '显示文本', '产品详情标题', pageSettings.productDetailsTitle);
+        if (pageSettings.viewDetailsText) addToCSV('viewDetailsText', '显示文本', '查看详情按钮', pageSettings.viewDetailsText);
+        if (pageSettings.contactUsText) addToCSV('contactUsText', '显示文本', '联系我们按钮', pageSettings.contactUsText);
+        if (pageSettings.carouselWelcome) addToCSV('carouselWelcome', '显示文本', '轮播图欢迎标题', pageSettings.carouselWelcome);
+        if (pageSettings.carouselDescription) addToCSV('carouselDescription', '显示文本', '轮播图描述', pageSettings.carouselDescription);
+        
+        if (siteInfo.companyName) addToCSV('companyName', '站点信息', '公司名称', siteInfo.companyName);
+        if (siteInfo.companyDescription) addToCSV('companyDescription', '站点信息', '公司简介', siteInfo.companyDescription);
+        
+        for (const [key, value] of Object.entries(translations)) {
+          if (value.zh) {
+            addToCSV(key, '自定义翻译', key, value);
+          }
+        }
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `translations-${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+        this.showStatus('CSV导出成功', 'success');
+      }
+      
+      importTranslationsCSV() {
+        document.getElementById('translation-import-input').click();
+      }
+      
+      handleCSVImport(csvText) {
+        try {
+          const lines = csvText.split('\n').filter(line => line.trim());
+          if (lines.length < 2) {
+            this.showStatus('CSV文件为空', 'error');
+            return;
+          }
+          
+          const parseCSVLine = (line) => {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+              const char = line[i];
+              if (char === '"') {
+                if (inQuotes && line[i + 1] === '"') {
+                  current += '"';
+                  i++;
+                } else {
+                  inQuotes = !inQuotes;
+                }
+              } else if (char === ',' && !inQuotes) {
+                result.push(current.trim());
+                current = '';
+              } else {
+                current += char;
+              }
+            }
+            result.push(current.trim());
+            return result;
+          };
+          
+          const headers = parseCSVLine(lines[0]);
+          const zhIndex = headers.findIndex(h => h.includes('中文'));
+          const enIndex = headers.findIndex(h => h.includes('英文'));
+          const koIndex = headers.findIndex(h => h.includes('韩文'));
+          const keyIndex = headers.findIndex(h => h.includes('键名') || h.includes('key'));
+          
+          if (keyIndex === -1 || zhIndex === -1) {
+            this.showStatus('CSV格式不正确，需要包含"键名"和"中文"列', 'error');
+            return;
+          }
+          
+          const newTranslations = {};
+          for (let i = 1; i < lines.length; i++) {
+            const values = parseCSVLine(lines[i]);
+            const key = values[keyIndex] || '';
+            const zh = values[zhIndex] || '';
+            const en = enIndex !== -1 ? values[enIndex] || '' : '';
+            const ko = koIndex !== -1 ? values[koIndex] || '' : '';
+            
+            if (key && zh) {
+              newTranslations[key] = { zh, en, ko };
+            }
+          }
+          
+          const current = this.config.translations || {};
+          this.config.translations = { ...current, ...newTranslations };
+          this.renderTranslations();
+          this.showStatus(`成功导入 ${Object.keys(newTranslations).length} 个翻译项`, 'success');
+        } catch (error) {
+          console.error('CSV import error:', error);
+          this.showStatus('CSV导入失败: ' + error.message, 'error');
+        }
       }
       
       updatePreview() {
