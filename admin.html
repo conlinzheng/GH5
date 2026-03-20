@@ -1234,6 +1234,9 @@
           
           this.showStatus('产品保存成功，同组图片已自动更新', 'success');
           this.scanFiles(); // 重新扫描以更新数据
+          // 清除首页缓存，确保首页显示最新数据
+          cacheManager.clearAll();
+          console.log('Frontend cache cleared after product update');
         } catch (error) {
           console.error('Save product error:', error);
           this.showStatus('保存失败: ' + error.message, 'error');
