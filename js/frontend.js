@@ -657,11 +657,13 @@ class Frontend {
     }
     
     // 生成标签HTML
+    console.log('产品标签:', product.tags);
     const tagsHtml = product.tags && product.tags.length > 0 ? `
       <div class="product-tags">
         ${product.tags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}
       </div>
     ` : '';
+    console.log('标签HTML:', tagsHtml);
     
     div.innerHTML = `
       <div class="product-image-container" onclick="frontend.showProductDetails(${JSON.stringify(product).replace(/"/g, '&quot;')})">
