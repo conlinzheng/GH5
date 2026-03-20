@@ -112,6 +112,8 @@ class Frontend {
   }
   
   openContactModal() {
+    this.closeProductDetails();
+    
     const modal = document.getElementById('contact-modal');
     if (modal) {
       modal.classList.add('active');
@@ -245,19 +247,20 @@ class Frontend {
     // 联系表单提交
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
-      const formspreeUrl = this.getFormspreeUrl();
-      contactForm.action = formspreeUrl;
-      
       contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        const formspreeUrl = this.getFormspreeUrl();
+        
         if (!formspreeUrl) {
           const formMessage = document.getElementById('form-message');
-          formMessage.textContent = '表单配置错误，请联系管理员';
+          formMessage.textContent = '表单未配置，请先在后台配置 Formspree 表单 ID';
           formMessage.className = 'form-message error';
           formMessage.style.display = 'block';
           return;
         }
+        
+        contactForm.action = formspreeUrl;
         
         const submitBtn = document.getElementById('submit-btn');
         const formMessage = document.getElementById('form-message');
@@ -294,7 +297,8 @@ class Frontend {
             formMessage.style.display = 'block';
           }
         } catch (error) {
-          formMessage.textContent = '网络错误，请检查网络连接后重试。';
+          console.error('Form submission error:', error);
+          formMessage.textContent = '网络错误，请检查 Formspree 表单 ID 是否正确配置';
           formMessage.className = 'form-message error';
           formMessage.style.display = 'block';
         } finally {
