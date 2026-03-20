@@ -85,17 +85,17 @@
     },
     "勃肯1 (1).jpg": {
       "name": "博肯",
-      "description": "[object Object]博肯",
+      "description": "博肯",
       "price": "10",
-      "upperMaterial": "",
-      "innerMaterial": "",
-      "soleMaterial": "",
-      "customizable": "",
-      "minOrder": ""
+      "upperMaterial": "A",
+      "innerMaterial": "B",
+      "soleMaterial": "C",
+      "customizable": "true",
+      "minOrder": "55"
     }
   },
   "order": [
-    "博肯无其他图片",
-    "123展开其他图片 (4)"
+    "勃肯1",
+    "中文数字123"
   ]
 }
