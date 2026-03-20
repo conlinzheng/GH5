@@ -231,6 +231,15 @@ class Frontend {
     }
   }
   
+  // 画廊导航
+  navigateGallery(direction) {
+    const gallery = document.getElementById('modal-gallery');
+    if (!gallery) return;
+    
+    const scrollAmount = 200; // 每次滚动的距离
+    gallery.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
+  }
+  
   // 打开灯箱
   openLightbox(src) {
     const lightbox = document.getElementById('lightbox');
