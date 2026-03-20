@@ -11,5 +11,77 @@
   "seriesNameMap": {
     "1-PU系列": "11",
     "2-真皮系列": "真皮"
+  },
+  "siteInfo": {
+    "companyName": {
+      "zh": "GH5鞋业",
+      "en": "GH5 Shoes",
+      "ko": "GH5 신발"
+    },
+    "companyDescription": {
+      "zh": "专业鞋类制造商",
+      "en": "Professional Shoe Manufacturer",
+      "ko": "전문 신발 제조업체"
+    },
+    "companyAddress": {
+      "zh": "",
+      "en": "",
+      "ko": ""
+    },
+    "companyPhone": {
+      "zh": "",
+      "en": "",
+      "ko": ""
+    },
+    "companyEmail": {
+      "zh": "",
+      "en": "",
+      "ko": ""
+    },
+    "companyWechat": {
+      "zh": "",
+      "en": "",
+      "ko": ""
+    },
+    "workingHours": {
+      "zh": "",
+      "en": "",
+      "ko": ""
+    }
+  },
+  "contactForm": {
+    "formspreeId": "YOUR_FORM_ID",
+    "enable": true
+  },
+  "translations": {
+    "联系我们": {
+      "zh": "联系我们",
+      "en": "Contact Us",
+      "ko": "联系我们"
+    },
+    "提交": {
+      "zh": "提交",
+      "en": "Submit",
+      "ko": "제출"
+    },
+    "提交中": {
+      "zh": "提交中...",
+      "en": "Submitting...",
+      "ko": "제출 중..."
+    },
+    "感谢您的留言": {
+      "zh": "感谢您的留言！我们会尽快与您联系。",
+      "en": "Thank you for your message! We will contact you soon.",
+      "ko": "메시지를 보내주셔서 감사합니다. 곧 연락드리겠습니다."
+    }
+  },
+  "pageSettings": {
+    "defaultLanguage": "zh",
+    "enableI18n": true,
+    "title": {
+      "zh": "GH5 鞋业",
+      "en": "GH5 Shoes",
+      "ko": "GH5 신발"
+    }
   }
 }

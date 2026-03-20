@@ -2,31 +2,137 @@ class Frontend {
   constructor() {
     this.config = {
       productsPath: '产品图',
-      cacheTTL: 3600, // 1小时
+      cacheTTL: 3600,
       itemsPerPage: 12
     };
     
     this.state = {
       products: [],
-      allProducts: [], // 存储所有产品，用于搜索
+      allProducts: [],
       series: [],
       seriesNameMap: {},
       currentPage: 1,
       totalPages: 1,
       isLoading: false,
-      selectedSeries: null
+      selectedSeries: null,
+      siteConfig: null,
+      currentLang: 'zh'
     };
     
-    // 灯箱相关变量
     this.currentLightboxImages = [];
     this.currentLightboxIndex = 0;
     
     this.init();
   }
   
-  init() {
+  async init() {
+    await this.loadSiteConfig();
     this.loadProductsData();
     this.setupEventListeners();
+  }
+  
+  async loadSiteConfig() {
+    try {
+      cacheManager.clear('config.json');
+      const config = await githubAPI.fetchFile('config.json');
+      this.state.siteConfig = config;
+      this.state.currentLang = config.pageSettings?.defaultLanguage || 'zh';
+      this.updateContactModal();
+    } catch (error) {
+      console.error('Load site config error:', error);
+      this.state.siteConfig = {
+        siteInfo: {},
+        contactForm: { formspreeId: '', enable: true },
+        translations: {}
+      };
+    }
+  }
+  
+  updateContactModal() {
+    const config = this.state.siteConfig;
+    const lang = this.state.currentLang;
+    const siteInfo = config.siteInfo || {};
+    
+    const companyName = siteInfo.companyName?.[lang] || siteInfo.companyName?.zh || '关于我们';
+    const companyDesc = siteInfo.companyDescription?.[lang] || siteInfo.companyDescription?.zh || '';
+    
+    const companyNameEl = document.getElementById('contact-company-name');
+    if (companyNameEl) companyNameEl.textContent = companyName;
+    
+    const companyDescEl = document.getElementById('contact-company-description');
+    if (companyDescEl) {
+      companyDescEl.textContent = companyDesc;
+      document.getElementById('contact-description-item').style.display = companyDesc ? 'flex' : 'none';
+    }
+    
+    const fields = [
+      { id: 'contact-company-address', key: 'companyAddress', itemId: 'contact-address-item' },
+      { id: 'contact-company-phone', key: 'companyPhone', itemId: 'contact-phone-item' },
+      { id: 'contact-company-email', key: 'companyEmail', itemId: 'contact-email-item' },
+      { id: 'contact-company-wechat', key: 'companyWechat', itemId: 'contact-wechat-item' },
+      { id: 'contact-working-hours', key: 'workingHours', itemId: 'contact-hours-item' }
+    ];
+    
+    fields.forEach(field => {
+      const value = siteInfo[field.key]?.zh || '';
+      const el = document.getElementById(field.id);
+      const itemEl = document.getElementById(field.itemId);
+      if (el) el.textContent = value;
+      if (itemEl) itemEl.style.display = value ? 'flex' : 'none';
+    });
+    
+    this.updateFormLabels();
+  }
+  
+  updateFormLabels() {
+    const config = this.state.siteConfig;
+    const lang = this.state.currentLang;
+    const translations = config.translations || {};
+    
+    const labels = {
+      'contact-form-title': translations['联系我们']?.[lang] || translations['联系我们']?.zh || '联系我们',
+      'label-name': translations['姓名']?.[lang] || translations['姓名']?.zh || '姓名',
+      'label-email': translations['邮箱']?.[lang] || translations['邮箱']?.zh || '邮箱',
+      'label-message': translations['留言']?.[lang] || translations['留言']?.zh || '留言'
+    };
+    
+    Object.entries(labels).forEach(([id, text]) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    });
+    
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) {
+      const submitText = translations['提交']?.[lang] || translations['提交']?.zh || '提交';
+      const submittingText = translations['提交中']?.[lang] || translations['提交中']?.zh || '提交中...';
+      submitBtn.dataset.textSubmit = submitText;
+      submitBtn.dataset.textSubmitting = submittingText;
+      submitBtn.textContent = submitText;
+    }
+  }
+  
+  openContactModal() {
+    const modal = document.getElementById('contact-modal');
+    if (modal) {
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+  
+  closeContactModal() {
+    const modal = document.getElementById('contact-modal');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+  }
+  
+  getFormspreeUrl() {
+    const config = this.state.siteConfig;
+    const formId = config.contactForm?.formspreeId || '';
+    return formId ? `https://formspree.io/f/${formId}` : '';
   }
   
   setupEventListeners() {
@@ -103,12 +209,31 @@ class Frontend {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         this.closeProductDetails();
+        this.closeContactModal();
       }
     });
     
+    // 联系我们弹窗关闭按钮
+    const contactModalClose = document.getElementById('contact-modal-close');
+    if (contactModalClose) {
+      contactModalClose.addEventListener('click', () => {
+        this.closeContactModal();
+      });
+    }
+    
+    // 联系我们弹窗遮罩层
+    const contactModalOverlay = document.getElementById('contact-modal-overlay');
+    if (contactModalOverlay) {
+      contactModalOverlay.addEventListener('click', () => {
+        this.closeContactModal();
+      });
+    }
+    
     // 语言切换事件
     document.addEventListener('languageChanged', (event) => {
+      this.state.currentLang = event.detail.language;
       this._handleLanguageChange(event.detail.language);
+      this.updateContactModal();
     });
     
     // 浏览历史点击事件
@@ -116,6 +241,73 @@ class Frontend {
       const productId = event.detail.productId;
       this.viewHistoryProduct(productId);
     });
+    
+    // 联系表单提交
+    const contactForm = document.getElementById('contact-form');
+    if (contactForm) {
+      const formspreeUrl = this.getFormspreeUrl();
+      contactForm.action = formspreeUrl;
+      
+      contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if (!formspreeUrl) {
+          const formMessage = document.getElementById('form-message');
+          formMessage.textContent = '表单配置错误，请联系管理员';
+          formMessage.className = 'form-message error';
+          formMessage.style.display = 'block';
+          return;
+        }
+        
+        const submitBtn = document.getElementById('submit-btn');
+        const formMessage = document.getElementById('form-message');
+        const formData = new FormData(contactForm);
+        
+        const submittingText = submitBtn.dataset.textSubmitting || '提交中...';
+        submitBtn.disabled = true;
+        submitBtn.textContent = submittingText;
+        
+        try {
+          const response = await fetch(contactForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          
+          const config = this.state.siteConfig;
+          const lang = this.state.currentLang;
+          const successMsg = config.translations?.['感谢您的留言']?.[lang] || 
+                           config.translations?.['感谢您的留言']?.zh || 
+                           '感谢您的留言！我们会尽快与您联系。';
+          
+          if (response.ok) {
+            formMessage.textContent = successMsg;
+            formMessage.className = 'form-message success';
+            formMessage.style.display = 'block';
+            contactForm.reset();
+          } else {
+            const data = await response.json();
+            formMessage.textContent = data.error || '提交失败，请稍后重试。';
+            formMessage.className = 'form-message error';
+            formMessage.style.display = 'block';
+          }
+        } catch (error) {
+          formMessage.textContent = '网络错误，请检查网络连接后重试。';
+          formMessage.className = 'form-message error';
+          formMessage.style.display = 'block';
+        } finally {
+          submitBtn.disabled = false;
+          const submitText = submitBtn.dataset.textSubmit || '提交';
+          submitBtn.textContent = submitText;
+          
+          setTimeout(() => {
+            formMessage.style.display = 'none';
+          }, 5000);
+        }
+      });
+    }
   }
   
   refreshData() {

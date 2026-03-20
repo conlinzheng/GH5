@@ -73,29 +73,68 @@
           </div>
         </div>
       </section>
+    </div>
+  </main>
 
-      <section class="contact-section" id="contact-section">
-        <div class="contact-container">
-          <h2 class="section-title">联系我们</h2>
+  <!-- 联系我们弹窗 -->
+  <div class="contact-modal" id="contact-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="contact-modal-overlay" id="contact-modal-overlay"></div>
+    <div class="contact-modal-content">
+      <button class="contact-modal-close" id="contact-modal-close" aria-label="关闭">&times;</button>
+      
+      <div class="contact-modal-body">
+        <div class="contact-modal-left">
+          <h2 class="contact-company-name" id="contact-company-name">关于我们</h2>
+          <div class="contact-company-info">
+            <div class="contact-info-item" id="contact-description-item">
+              <span class="contact-info-icon">📝</span>
+              <span class="contact-info-text" id="contact-company-description"></span>
+            </div>
+            <div class="contact-info-item" id="contact-address-item" style="display: none;">
+              <span class="contact-info-icon">📍</span>
+              <span class="contact-info-text" id="contact-company-address"></span>
+            </div>
+            <div class="contact-info-item" id="contact-phone-item" style="display: none;">
+              <span class="contact-info-icon">📞</span>
+              <span class="contact-info-text" id="contact-company-phone"></span>
+            </div>
+            <div class="contact-info-item" id="contact-email-item" style="display: none;">
+              <span class="contact-info-icon">✉️</span>
+              <span class="contact-info-text" id="contact-company-email"></span>
+            </div>
+            <div class="contact-info-item" id="contact-wechat-item" style="display: none;">
+              <span class="contact-info-icon">💬</span>
+              <span class="contact-info-text" id="contact-company-wechat"></span>
+            </div>
+            <div class="contact-info-item" id="contact-hours-item" style="display: none;">
+              <span class="contact-info-icon">🕐</span>
+              <span class="contact-info-text" id="contact-working-hours"></span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="contact-modal-right">
+          <h3 class="contact-form-title" id="contact-form-title">联系我们</h3>
           <form class="contact-form" id="contact-form">
             <div class="form-group">
-              <label for="name" class="form-label">姓名</label>
+              <label for="name" class="form-label" id="label-name">姓名</label>
               <input type="text" id="name" name="name" class="form-input" required>
             </div>
             <div class="form-group">
-              <label for="email" class="form-label">邮箱</label>
+              <label for="email" class="form-label" id="label-email">邮箱</label>
               <input type="email" id="email" name="email" class="form-input" required>
             </div>
             <div class="form-group">
-              <label for="message" class="form-label">留言</label>
+              <label for="message" class="form-label" id="label-message">留言</label>
               <textarea id="message" name="message" class="form-textarea" rows="4" required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">提交</button>
+            <button type="submit" class="btn btn-primary" id="submit-btn" data-text-submit="提交" data-text-submitting="提交中...">提交</button>
           </form>
+          <div id="form-message" class="form-message" style="display: none;"></div>
         </div>
-      </section>
+      </div>
     </div>
-  </main>
+  </div>
 
   <footer class="footer">
     <div class="container">
@@ -160,7 +199,7 @@
           </div>
           
           <div class="modal-actions">
-            <button class="contact-btn" onclick="window.location.href='#contact-section'">
+            <button class="contact-btn" onclick="openContactModal()">
               联系我们
             </button>
           </div>
@@ -201,5 +240,18 @@
   <script src="js/i18n.js"></script>
   <script src="js/frontend.js?v=20260320"></script>
   <script src="js/browse-history.js"></script>
+  <script>
+    function openContactModal() {
+      if (typeof frontend !== 'undefined') {
+        frontend.openContactModal();
+      }
+    }
+    
+    function closeContactModal() {
+      if (typeof frontend !== 'undefined') {
+        frontend.closeContactModal();
+      }
+    }
+  </script>
 </body>
 </html>

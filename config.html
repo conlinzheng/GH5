@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>配置管理 - GH5</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .config-container {
+      max-width: 95vw;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .config-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .config-header h1 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+    }
+    
+    .config-header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+    
+    .config-nav {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .config-nav button {
+      padding: 12px 24px;
+      background: #f8f9fa;
+      color: #333;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .config-nav button:hover {
+      background: #e9ecef;
+    }
+    
+    .config-nav button.active {
+      background: #667eea;
+      color: white;
+    }
+    
+    .config-section {
+      display: none;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    
+    .config-section.active {
+      display: block;
+    }
+    
+    .config-section h2 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 12px;
+      margin-bottom: 25px;
+      font-size: 20px;
+    }
+    
+    .config-section h3 {
+      color: #555;
+      margin: 20px 0 15px 0;
+      font-size: 16px;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #444;
+      font-size: 14px;
+    }
+    
+    .form-group label .lang-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: normal;
+      margin-left: 8px;
+      color: #666;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .form-group input[type="checkbox"] {
+      width: auto;
+      margin-right: 8px;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .btn-save {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-save:active {
+      transform: translateY(0);
+    }
+    
+    .btn-save:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .translation-item {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .translation-item h4 {
+      margin: 0 0 10px 0;
+      color: #333;
+      font-size: 15px;
+    }
+    
+    .translation-fields {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    
+    .translation-fields input {
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    
+    .translation-fields input:focus {
+      border-color: #667eea;
+      outline: none;
+    }
+    
+    .btn-add-translation {
+      background: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    
+    .btn-delete-translation {
+      background: #dc3545;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+    
+    .status-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      max-width: 350px;
+    }
+    
+    .status-message {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+    
+    .status-error {
+      background: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+    }
+    
+    .status-loading {
+      background: #cce5ff;
+      color: #004085;
+      border-left: 4px solid #007bff;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    
+    .loading-overlay.hidden {
+      display: none;
+    }
+    
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .site-info-preview {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    
+    .site-info-preview h4 {
+      margin: 0 0 15px 0;
+      font-size: 16px;
+    }
+    
+    .site-info-preview p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="config-container">
+    <div class="config-header">
+      <h1>⚙️ 配置管理中心</h1>
+      <p>管理站点基本信息、联系表单、翻译词典和页面设置</p>
+    </div>
+    
+    <div class="config-nav">
+      <button class="active" data-section="site-info">🏢 站点信息</button>
+      <button data-section="contact-form">📧 表单配置</button>
+      <button data-section="translations">🌐 翻译词典</button>
+      <button data-section="page-settings">⚡ 页面设置</button>
+      <button data-section="preview">👁️ 预览效果</button>
+    </div>
+    
+    <div id="loading-overlay" class="loading-overlay hidden">
+      <div class="loading-spinner"></div>
+    </div>
+    
+    <div class="status-container" id="status-container"></div>
+    
+    <div id="site-info" class="config-section active">
+      <h2>🏢 站点基本信息</h2>
+      <p style="color: #666; margin-bottom: 20px;">这些信息将显示在联系我们弹窗的左侧</p>
+      
+      <h3>公司名称</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>中文 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="companyName-zh" placeholder="例如：GH5鞋业">
+        </div>
+        <div class="form-group">
+          <label>英文 <span class="lang-badge">EN</span></label>
+          <input type="text" id="companyName-en" placeholder="例如：GH5 Shoes">
+        </div>
+        <div class="form-group">
+          <label>韩文 <span class="lang-badge">KO</span></label>
+          <input type="text" id="companyName-ko" placeholder="例如：GH5 신발">
+        </div>
+      </div>
+      
+      <h3>公司描述</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>中文 <span class="lang-badge">ZH</span></label>
+          <textarea id="companyDescription-zh" placeholder="公司简介描述"></textarea>
+        </div>
+        <div class="form-group">
+          <label>英文 <span class="lang-badge">EN</span></label>
+          <textarea id="companyDescription-en" placeholder="Company description"></textarea>
+        </div>
+        <div class="form-group">
+          <label>韩文 <span class="lang-badge">KO</span></label>
+          <textarea id="companyDescription-ko" placeholder="회사 설명"></textarea>
+        </div>
+      </div>
+      
+      <h3>联系方式</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>地址 <span class="lang-badge">所有语言</span></label>
+          <input type="text" id="companyAddress" placeholder="公司地址">
+        </div>
+        <div class="form-group">
+          <label>电话 <span class="lang-badge">所有语言</span></label>
+          <input type="text" id="companyPhone" placeholder="联系电话">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>邮箱 <span class="lang-badge">所有语言</span></label>
+          <input type="email" id="companyEmail" placeholder="电子邮箱">
+        </div>
+        <div class="form-group">
+          <label>微信 <span class="lang-badge">所有语言</span></label>
+          <input type="text" id="companyWechat" placeholder="微信号">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>工作时间 <span class="lang-badge">所有语言</span></label>
+        <input type="text" id="workingHours" placeholder="例如：周一至周五 9:00-18:00">
+      </div>
+      
+      <button class="btn-save" onclick="configManager.saveSiteInfo()">保存站点信息</button>
+    </div>
+    
+    <div id="contact-form" class="config-section">
+      <h2>📧 表单配置</h2>
+      <p style="color: #666; margin-bottom: 20px;">配置 Formspree 表单以接收用户提交的联系我们信息</p>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Formspree 表单 ID</label>
+          <input type="text" id="formspreeId" placeholder="例如：xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+          <small style="color: #666; display: block; margin-top: 5px;">
+            访问 <a href="https://formspree.io" target="_blank" style="color: #667eea;">formspree.io</a> 创建表单并获取 ID
+          </small>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="contactFormEnable" checked>
+          <label for="contactFormEnable">启用联系表单功能</label>
+        </div>
+      </div>
+      
+      <button class="btn-save" onclick="configManager.saveContactForm()">保存表单配置</button>
+    </div>
+    
+    <div id="translations" class="config-section">
+      <h2>🌐 翻译词典管理</h2>
+      <p style="color: #666; margin-bottom: 20px;">管理系统中使用的多语言翻译文本</p>
+      
+      <div id="translation-list">
+      </div>
+      
+      <button class="btn-add-translation" onclick="configManager.addTranslation()">+ 添加新翻译</button>
+      <button class="btn-save" onclick="configManager.saveTranslations()" style="margin-left: 15px;">保存翻译</button>
+    </div>
+    
+    <div id="page-settings" class="config-section">
+      <h2>⚡ 页面设置</h2>
+      <p style="color: #666; margin-bottom: 20px;">配置页面的基本显示设置</p>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>默认语言</label>
+          <select id="defaultLanguage">
+            <option value="zh">中文 (简体)</option>
+            <option value="en">English</option>
+            <option value="ko">한국어</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>启用多语言</label>
+          <select id="enableI18n">
+            <option value="true">启用</option>
+            <option value="false">禁用</option>
+          </select>
+        </div>
+      </div>
+      
+      <h3>页面标题</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>中文 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="title-zh" placeholder="页面标题">
+        </div>
+        <div class="form-group">
+          <label>英文 <span class="lang-badge">EN</span></label>
+          <input type="text" id="title-en" placeholder="Page Title">
+        </div>
+        <div class="form-group">
+          <label>韩文 <span class="lang-badge">KO</span></label>
+          <input type="text" id="title-ko" placeholder="페이지 제목">
+        </div>
+      </div>
+      
+      <button class="btn-save" onclick="configManager.savePageSettings()">保存页面设置</button>
+    </div>
+    
+    <div id="preview" class="config-section">
+      <h2>👁️ 预览效果</h2>
+      <p style="color: #666; margin-bottom: 20px;">查看当前配置在首页的显示效果</p>
+      
+      <div class="site-info-preview">
+        <h4>📍 联系我们弹窗 - 左侧公司信息预览</h4>
+        <p><strong>公司名称：</strong><span id="preview-companyName">-</span></p>
+        <p><strong>公司简介：</strong><span id="preview-companyDescription">-</span></p>
+        <p><strong>地址：</strong><span id="preview-address">-</span></p>
+        <p><strong>电话：</strong><span id="preview-phone">-</span></p>
+        <p><strong>邮箱：</strong><span id="preview-email">-</span></p>
+        <p><strong>微信：</strong><span id="preview-wechat">-</span></p>
+        <p><strong>工作时间：</strong><span id="preview-workingHours">-</span></p>
+      </div>
+      
+      <div style="margin-top: 20px;">
+        <p><strong>Formspree 表单 ID：</strong><span id="preview-formspreeId">未配置</span></p>
+        <p><strong>表单状态：</strong><span id="preview-formStatus">-</span></p>
+        <p><strong>默认语言：</strong><span id="preview-defaultLanguage">-</span></p>
+      </div>
+      
+      <button class="btn-save" onclick="configManager.loadConfig()" style="margin-top: 20px;">🔄 刷新预览</button>
+    </div>
+  </div>
+  
+  <script src="js/config.js"></script>
+  <script src="js/error-handler.js"></script>
+  <script src="js/cache-manager.js"></script>
+  <script src="js/github-api.js"></script>
+  <script>
+    class ConfigManager {
+      constructor() {
+        this.config = {};
+        this.translations = [];
+        this.init();
+      }
+      
+      async init() {
+        this.setupNav();
+        await this.loadConfig();
+      }
+      
+      setupNav() {
+        const navButtons = document.querySelectorAll('.config-nav button');
+        navButtons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            navButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const sectionId = btn.dataset.section;
+            document.querySelectorAll('.config-section').forEach(section => {
+              section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+          });
+        });
+      }
+      
+      async loadConfig() {
+        this.showLoading(true);
+        try {
+          cacheManager.clear('config.json');
+          this.config = await githubAPI.fetchFile('config.json');
+          
+          this.fillFormData();
+          this.updatePreview();
+          this.showStatus('配置加载成功', 'success');
+        } catch (error) {
+          console.error('Load config error:', error);
+          this.showStatus('加载配置失败，使用默认配置', 'error');
+          this.config = this.getDefaultConfig();
+          this.fillFormData();
+        } finally {
+          this.showLoading(false);
+        }
+      }
+      
+      getDefaultConfig() {
+        return {
+          siteInfo: {
+            companyName: { zh: '', en: '', ko: '' },
+            companyDescription: { zh: '', en: '', ko: '' },
+            companyAddress: { zh: '', en: '', ko: '' },
+            companyPhone: { zh: '', en: '', ko: '' },
+            companyEmail: { zh: '', en: '', ko: '' },
+            companyWechat: { zh: '', en: '', ko: '' },
+            workingHours: { zh: '', en: '', ko: '' }
+          },
+          contactForm: {
+            formspreeId: '',
+            enable: true
+          },
+          translations: {},
+          pageSettings: {
+            defaultLanguage: 'zh',
+            enableI18n: true,
+            title: { zh: '', en: '', ko: '' }
+          }
+        };
+      }
+      
+      fillFormData() {
+        const siteInfo = this.config.siteInfo || {};
+        
+        document.getElementById('companyName-zh').value = siteInfo.companyName?.zh || '';
+        document.getElementById('companyName-en').value = siteInfo.companyName?.en || '';
+        document.getElementById('companyName-ko').value = siteInfo.companyName?.ko || '';
+        
+        document.getElementById('companyDescription-zh').value = siteInfo.companyDescription?.zh || '';
+        document.getElementById('companyDescription-en').value = siteInfo.companyDescription?.en || '';
+        document.getElementById('companyDescription-ko').value = siteInfo.companyDescription?.ko || '';
+        
+        document.getElementById('companyAddress').value = siteInfo.companyAddress?.zh || '';
+        document.getElementById('companyPhone').value = siteInfo.companyPhone?.zh || '';
+        document.getElementById('companyEmail').value = siteInfo.companyEmail?.zh || '';
+        document.getElementById('companyWechat').value = siteInfo.companyWechat?.zh || '';
+        document.getElementById('workingHours').value = siteInfo.workingHours?.zh || '';
+        
+        const contactForm = this.config.contactForm || {};
+        document.getElementById('formspreeId').value = contactForm.formspreeId || '';
+        document.getElementById('contactFormEnable').checked = contactForm.enable !== false;
+        
+        const pageSettings = this.config.pageSettings || {};
+        document.getElementById('defaultLanguage').value = pageSettings.defaultLanguage || 'zh';
+        document.getElementById('enableI18n').value = pageSettings.enableI18n !== false ? 'true' : 'false';
+        
+        document.getElementById('title-zh').value = pageSettings.title?.zh || '';
+        document.getElementById('title-en').value = pageSettings.title?.en || '';
+        document.getElementById('title-ko').value = pageSettings.title?.ko || '';
+        
+        this.renderTranslations();
+      }
+      
+      renderTranslations() {
+        const translations = this.config.translations || {};
+        const container = document.getElementById('translation-list');
+        container.innerHTML = '';
+        
+        this.translations = Object.entries(translations).map(([key, values]) => ({
+          key,
+          zh: values.zh || '',
+          en: values.en || '',
+          ko: values.ko || ''
+        }));
+        
+        if (this.translations.length === 0) {
+          this.translations = [{ key: '', zh: '', en: '', ko: '' }];
+        }
+        
+        this.translations.forEach((trans, index) => {
+          const item = document.createElement('div');
+          item.className = 'translation-item';
+          item.innerHTML = `
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+              <input type="text" 
+                     class="trans-key" 
+                     value="${trans.key}" 
+                     placeholder="翻译键名"
+                     style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+              <button class="btn-delete-translation" onclick="configManager.removeTranslation(${index})">删除</button>
+            </div>
+            <div class="translation-fields">
+              <input type="text" class="trans-zh" value="${trans.zh}" placeholder="中文">
+              <input type="text" class="trans-en" value="${trans.en}" placeholder="English">
+              <input type="text" class="trans-ko" value="${trans.ko}" placeholder="한국어">
+            </div>
+          `;
+          container.appendChild(item);
+        });
+      }
+      
+      addTranslation() {
+        this.translations.push({ key: '', zh: '', en: '', ko: '' });
+        this.renderTranslations();
+      }
+      
+      removeTranslation(index) {
+        if (this.translations.length > 1) {
+          this.translations.splice(index, 1);
+          this.renderTranslations();
+        }
+      }
+      
+      updatePreview() {
+        const siteInfo = this.config.siteInfo || {};
+        const contactForm = this.config.contactForm || {};
+        const pageSettings = this.config.pageSettings || {};
+        const currentLang = pageSettings.defaultLanguage || 'zh';
+        
+        document.getElementById('preview-companyName').textContent = siteInfo.companyName?.[currentLang] || '-';
+        document.getElementById('preview-companyDescription').textContent = siteInfo.companyDescription?.[currentLang] || '-';
+        document.getElementById('preview-address').textContent = siteInfo.companyAddress?.zh || '-';
+        document.getElementById('preview-phone').textContent = siteInfo.companyPhone?.zh || '-';
+        document.getElementById('preview-email').textContent = siteInfo.companyEmail?.zh || '-';
+        document.getElementById('preview-wechat').textContent = siteInfo.companyWechat?.zh || '-';
+        document.getElementById('preview-workingHours').textContent = siteInfo.workingHours?.zh || '-';
+        
+        document.getElementById('preview-formspreeId').textContent = contactForm.formspreeId || '未配置';
+        document.getElementById('preview-formStatus').textContent = contactForm.enable !== false ? '已启用' : '已禁用';
+        document.getElementById('preview-defaultLanguage').textContent = 
+          currentLang === 'zh' ? '中文' : currentLang === 'en' ? 'English' : '한국어';
+      }
+      
+      async saveSiteInfo() {
+        const siteInfo = {
+          companyName: {
+            zh: document.getElementById('companyName-zh').value,
+            en: document.getElementById('companyName-en').value,
+            ko: document.getElementById('companyName-ko').value
+          },
+          companyDescription: {
+            zh: document.getElementById('companyDescription-zh').value,
+            en: document.getElementById('companyDescription-en').value,
+            ko: document.getElementById('companyDescription-ko').value
+          },
+          companyAddress: { zh: document.getElementById('companyAddress').value },
+          companyPhone: { zh: document.getElementById('companyPhone').value },
+          companyEmail: { zh: document.getElementById('companyEmail').value },
+          companyWechat: { zh: document.getElementById('companyWechat').value },
+          workingHours: { zh: document.getElementById('workingHours').value }
+        };
+        
+        this.config.siteInfo = siteInfo;
+        await this.saveConfig();
+        this.updatePreview();
+      }
+      
+      async saveContactForm() {
+        this.config.contactForm = {
+          formspreeId: document.getElementById('formspreeId').value,
+          enable: document.getElementById('contactFormEnable').checked
+        };
+        
+        await this.saveConfig();
+        this.updatePreview();
+      }
+      
+      async saveTranslations() {
+        const translationItems = document.querySelectorAll('.translation-item');
+        const translations = {};
+        
+        translationItems.forEach(item => {
+          const key = item.querySelector('.trans-key').value.trim();
+          if (key) {
+            translations[key] = {
+              zh: item.querySelector('.trans-zh').value,
+              en: item.querySelector('.trans-en').value,
+              ko: item.querySelector('.trans-ko').value
+            };
+          }
+        });
+        
+        this.config.translations = translations;
+        await this.saveConfig();
+      }
+      
+      async savePageSettings() {
+        this.config.pageSettings = {
+          defaultLanguage: document.getElementById('defaultLanguage').value,
+          enableI18n: document.getElementById('enableI18n').value === 'true',
+          title: {
+            zh: document.getElementById('title-zh').value,
+            en: document.getElementById('title-en').value,
+            ko: document.getElementById('title-ko').value
+          }
+        };
+        
+        await this.saveConfig();
+        this.updatePreview();
+      }
+      
+      async saveConfig() {
+        this.showLoading(true);
+        try {
+          const jsonContent = JSON.stringify(this.config, null, 2);
+          await githubAPI.commitFile('config.json', jsonContent, 'Update site configuration');
+          cacheManager.clearAll();
+          this.showStatus('保存成功！', 'success');
+        } catch (error) {
+          console.error('Save config error:', error);
+          this.showStatus('保存失败: ' + error.message, 'error');
+        } finally {
+          this.showLoading(false);
+        }
+      }
+      
+      showLoading(show) {
+        const overlay = document.getElementById('loading-overlay');
+        if (show) {
+          overlay.classList.remove('hidden');
+        } else {
+          overlay.classList.add('hidden');
+        }
+      }
+      
+      showStatus(message, type) {
+        const container = document.getElementById('status-container');
+        const statusDiv = document.createElement('div');
+        statusDiv.className = `status-message status-${type}`;
+        statusDiv.textContent = message;
+        
+        container.innerHTML = '';
+        container.appendChild(statusDiv);
+        
+        setTimeout(() => {
+          statusDiv.remove();
+        }, 3000);
+      }
+    }
+    
+    const configManager = new ConfigManager();
+  </script>
+</body>
+</html>

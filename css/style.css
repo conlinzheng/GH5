@@ -802,6 +802,26 @@ body {
   min-height: 100px;
 }
 
+.form-message {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-weight: 500;
+}
+
+.form-message.success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+
+.form-message.error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
 .btn {
   display: inline-block;
   padding: var(--spacing-md) var(--spacing-xl);
@@ -1552,5 +1572,224 @@ body {
   .modal-content {
     padding: 1.5rem;
     max-width: 95%;
+  }
+}
+
+.contact-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+}
+
+.contact-modal.active {
+  display: block;
+}
+
+.contact-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.contact-modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.contact-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #666;
+  cursor: pointer;
+  z-index: 10;
+  transition: color 0.3s;
+  line-height: 1;
+}
+
+.contact-modal-close:hover {
+  color: #333;
+}
+
+.contact-modal-body {
+  display: flex;
+  min-height: 400px;
+}
+
+.contact-modal-left {
+  flex: 1;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 30px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.contact-modal-left .contact-company-name {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 30px 0;
+}
+
+.contact-company-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.contact-info-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.contact-info-text {
+  font-size: 15px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.contact-modal-right {
+  flex: 1.2;
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.contact-form-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 25px 0;
+  color: #333;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-form .form-group {
+  margin: 0;
+}
+
+.contact-form .form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #444;
+  font-size: 14px;
+}
+
+.contact-form .form-input,
+.contact-form .form-textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  font-family: inherit;
+}
+
+.contact-form .form-input:focus,
+.contact-form .form-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.contact-form .form-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.contact-form .btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.contact-form .btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.contact-form .btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.form-message {
+  margin-top: 15px;
+  padding: 12px 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-message.success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+
+.form-message.error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+@media (max-width: 768px) {
+  .contact-modal-body {
+    flex-direction: column;
+  }
+  
+  .contact-modal-left {
+    padding: 30px 20px;
+  }
+  
+  .contact-modal-right {
+    padding: 30px 20px;
+  }
+  
+  .contact-modal-content {
+    width: 95%;
+    max-height: 95vh;
   }
 }
