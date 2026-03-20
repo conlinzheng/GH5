@@ -1051,6 +1051,10 @@
             throw new Error('系列不存在');
           }
           
+          // 清除该系列 products.json 的缓存
+          cacheManager.clear(`${series.path}/products.json`);
+          console.log(`Cache cleared for ${series.path}/products.json`);
+          
           // 获取现有的 products.json 文件
           let productsFile;
           try {

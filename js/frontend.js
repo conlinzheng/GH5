@@ -170,6 +170,10 @@ class Frontend {
             // 获取产品数据文件
             let productsFile;
             try {
+              // 清除该系列 products.json 的缓存
+              cacheManager.clear(`${seriesItem.path}/products.json`);
+              console.log(`Cache cleared for ${seriesItem.path}/products.json`);
+              
               productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
             } catch (error) {
               productsFile = { products: {} };
