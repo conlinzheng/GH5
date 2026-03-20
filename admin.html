@@ -631,7 +631,7 @@
                   productsFile.order.forEach(productName => {
                     // 找到对应的产品数据（查找匹配的文件名）
                     const productEntry = Object.entries(productsFile.products).find(([fileName, productData]) => {
-                      return productData.name === productName || this.extractProductName(fileName) === productName;
+                      return this.extractProductName(fileName) === productName;
                     });
                     
                     if (productEntry) {
@@ -652,7 +652,7 @@
                   
                   // 添加未在排序中的产品
                   Object.entries(productsFile.products).forEach(([fileName, productData]) => {
-                    const productName = productData.name || this.extractProductName(fileName);
+                    const productName = this.extractProductName(fileName);
                     if (!productsFile.order.includes(productName)) {
                       const product = {
                         id: fileName,
@@ -899,7 +899,7 @@
           // 按排序顺序渲染
           productOrder.forEach(orderName => {
             const productGroup = productGroups.find(([groupName, group]) => {
-              return group[0].name === orderName || groupName === orderName;
+              return groupName === orderName;
             });
             if (productGroup) {
               this.renderProductGroup(productGroup[0], productGroup[1], fileList);
@@ -908,8 +908,7 @@
           
           // 渲染未在排序中的产品组
           productGroups.forEach(([productName, productGroup]) => {
-            const groupName = productGroup[0].name || productName;
-            if (!productOrder.includes(groupName)) {
+            if (!productOrder.includes(productName)) {
               this.renderProductGroup(productName, productGroup, fileList);
             }
           });
