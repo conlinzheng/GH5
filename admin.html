@@ -7,22 +7,32 @@
   <link rel="stylesheet" href="css/style.css">
   <style>
     .admin-container {
-      max-width: 85vw;
+      max-width: 98vw;
       margin: 0 auto;
-      padding: 20px;
+      padding: 15px;
     }
     
     .admin-header {
-      background: #f8f9fa;
-      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 15px 20px;
       border-radius: 8px;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
     .admin-header h1 {
       margin: 0;
-      color: #333;
+      color: white;
+      font-size: 20px;
+      display: inline-block;
+    }
+    
+    .admin-header .subtitle {
+      margin: 0;
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+      display: inline-block;
+      margin-left: 15px;
     }
     
     .admin-nav {
@@ -328,7 +338,7 @@
   <div class="admin-container">
     <div class="admin-header">
       <h1>GH5 后台管理</h1>
-      <p>扫描、管理、更新和编辑首页显示所需的文件</p>
+      <span class="subtitle">扫描、管理、更新和编辑首页显示所需的文件</span>
     </div>
     
     <div class="admin-nav">
@@ -343,18 +353,23 @@
     <div class="admin-content">
       <div class="admin-left">
         <div class="admin-section">
-          <h2>系列管理</h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">
+            <h2 style="margin: 0; color: #333;">系列管理</h2>
+            <button id="btn-save-series-order" class="btn-save">💾 保存系列顺序</button>
+          </div>
           <p style="color: #666; font-size: 14px; margin-bottom: 15px;">拖拽系列卡片可以调整显示顺序</p>
           <div id="series-list" class="series-list" style="min-height: 200px;">
             <!-- 系列卡片将通过 JavaScript 动态生成 -->
           </div>
-          <button id="btn-save-series-order" class="btn-save" style="margin-top: 15px;">保存系列顺序</button>
         </div>
       </div>
       
       <div class="admin-center">
         <div class="admin-section">
-          <h2>文件管理</h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">
+            <h2 style="margin: 0; color: #333;">文件管理</h2>
+            <button id="btn-save-product-order" class="btn-save">💾 保存产品顺序</button>
+          </div>
           <p style="color: #666; font-size: 14px; margin-bottom: 15px;">拖拽产品可以调整系列内显示顺序</p>
           <div style="margin-bottom: 15px;">
             <button id="btn-toggle-all-images" class="btn-toggle" onclick="adminPanel.toggleAllImages()">一键折叠/展开所有图片</button>
@@ -364,66 +379,77 @@
               <!-- 文件列表将通过 JavaScript 动态生成 -->
             </ul>
           </div>
-          <button id="btn-save-product-order" class="btn-save" style="margin-top: 15px;">保存产品顺序</button>
         </div>
       </div>
       
       <div class="admin-right">
         <div class="admin-section">
-          <h2>编辑产品数据</h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">
+            <h2 style="margin: 0; color: #333;">编辑产品数据</h2>
+          </div>
           <div id="edit-form-container">
             <form id="edit-form">
-              <div class="form-group">
-                <label for="product-name">产品名称</label>
-                <input type="text" id="product-name" name="name" required>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                  <label for="product-name">产品名称</label>
+                  <input type="text" id="product-name" name="name" required>
+                </div>
+                <div class="form-group">
+                  <label for="product-price">价格</label>
+                  <input type="text" id="product-price" name="price">
+                </div>
               </div>
               <div class="form-group">
                 <label for="product-description">产品描述</label>
-                <textarea id="product-description" name="description"></textarea>
+                <textarea id="product-description" name="description" rows="2"></textarea>
               </div>
-              <div class="form-group">
-                <label for="product-price">价格</label>
-                <input type="text" id="product-price" name="price">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                  <label for="product-upper-material">鞋面材质</label>
+                  <input type="text" id="product-upper-material" name="upperMaterial">
+                </div>
+                <div class="form-group">
+                  <label for="product-inner-material">内里材质</label>
+                  <input type="text" id="product-inner-material" name="innerMaterial">
+                </div>
               </div>
-              <div class="form-group">
-                <label for="product-upper-material">鞋面材质</label>
-                <input type="text" id="product-upper-material" name="upperMaterial">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                  <label for="product-sole-material">鞋底材质</label>
+                  <input type="text" id="product-sole-material" name="soleMaterial">
+                </div>
+                <div class="form-group">
+                  <label for="product-customizable">是否支持定制</label>
+                  <select id="product-customizable" name="customizable">
+                    <option value="">请选择</option>
+                    <option value="true">是</option>
+                    <option value="false">否</option>
+                  </select>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="product-inner-material">内里材质</label>
-                <input type="text" id="product-inner-material" name="innerMaterial">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                  <label for="product-min-order">起订量</label>
+                  <input type="number" id="product-min-order" name="minOrder" min="1">
+                </div>
+                <div class="form-group">
+                  <label for="product-tags">标签 (用逗号分隔)</label>
+                  <input type="text" id="product-tags" name="tags" placeholder="例如: 新品,热销">
+                </div>
               </div>
-              <div class="form-group">
-                <label for="product-sole-material">鞋底材质</label>
-                <input type="text" id="product-sole-material" name="soleMaterial">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                  <label for="product-series">所属系列</label>
+                  <select id="product-series" name="series" required>
+                    <!-- 系列选项将通过 JavaScript 动态生成 -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="product-image">图片文件名</label>
+                  <input type="text" id="product-image" name="image" required>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="product-customizable">是否支持定制</label>
-                <select id="product-customizable" name="customizable">
-                  <option value="">请选择</option>
-                  <option value="true">是</option>
-                  <option value="false">否</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="product-min-order">起订量</label>
-                <input type="number" id="product-min-order" name="minOrder" min="1">
-              </div>
-              <div class="form-group">
-                <label for="product-tags">标签 (用逗号分隔)</label>
-                <input type="text" id="product-tags" name="tags" placeholder="例如: 新品,热销,推荐">
-              </div>
-              <div class="form-group">
-                <label for="product-series">所属系列</label>
-                <select id="product-series" name="series" required>
-                  <!-- 系列选项将通过 JavaScript 动态生成 -->
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="product-image">图片文件名</label>
-                <input type="text" id="product-image" name="image" required>
-              </div>
-              <button type="submit" class="btn-save">保存</button>
+              <button type="button" class="btn-save" style="width: 100%; margin-top: 15px;" onclick="adminPanel.saveProduct()">💾 保存产品数据</button>
             </form>
           </div>
         </div>
