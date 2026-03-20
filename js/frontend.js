@@ -250,12 +250,21 @@ class Frontend {
     const searchTerm = trimmedQuery.toLowerCase();
     const filteredProducts = this.state.allProducts.filter(product => {
       const name = product.name;
-      if (name && typeof name === 'string' && name.toLowerCase().includes(searchTerm)) {
-        return true;
+      if (name) {
+        if (typeof name === 'string') {
+          if (name.toLowerCase().includes(searchTerm)) return true;
+        } else if (typeof name === 'object') {
+          const nameValues = Object.values(name).filter(v => typeof v === 'string');
+          if (nameValues.some(v => v.toLowerCase().includes(searchTerm))) return true;
+        }
       }
       
-      if (product.tags && Array.isArray(product.tags) && product.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(searchTerm))) {
-        return true;
+      if (product.tags) {
+        let tags = product.tags;
+        if (typeof tags === 'string') tags = [tags];
+        if (Array.isArray(tags)) {
+          if (tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(searchTerm))) return true;
+        }
       }
       
       if (product.upperMaterial && typeof product.upperMaterial === 'string' && product.upperMaterial.toLowerCase().includes(searchTerm)) {
