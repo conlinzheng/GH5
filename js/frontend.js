@@ -80,39 +80,36 @@ class Frontend {
     this.loadProductsData();
   }
   
+  // 全局变量用于灯箱
+  currentLightboxImages = [];
+  currentLightboxIndex = 0;
+  
   showProductDetails(product) {
     const modal = document.getElementById('product-modal');
-    const modalBody = document.getElementById('modal-body');
     
-    if (!modal || !modalBody) return;
+    if (!modal) return;
     
     const seriesDisplayName = this.state.seriesNameMap[product.seriesId] || product.seriesId;
     
-    // 构建产品详情HTML
-    const productDetailsHTML = `
-      <div class="product-details">
-        <div class="product-details-images">
-          ${product.images.map((image, index) => `
-            <div class="detail-image-item">
-              <img src="${image}" alt="${product.name} ${index + 1}">
-            </div>
-          `).join('')}
-        </div>
-        <div class="product-details-info">
-          <h2>${product.name}</h2>
-          <p class="series">系列: ${seriesDisplayName}</p>
-          <p class="description">${product.description || '无描述'}</p>
-          <p class="price">价格: ${product.price || '未设置'}</p>
-          ${product.upperMaterial ? `<p class="upper-material">鞋面材质: ${product.upperMaterial}</p>` : ''}
-          ${product.innerMaterial ? `<p class="inner-material">内里材质: ${product.innerMaterial}</p>` : ''}
-          ${product.soleMaterial ? `<p class="sole-material">鞋底材质: ${product.soleMaterial}</p>` : ''}
-          ${product.customizable ? `<p class="customizable">定制: ${product.customizable === 'true' ? '支持' : '不支持'}</p>` : ''}
-          ${product.minOrder ? `<p class="min-order">起订量: ${product.minOrder}</p>` : ''}
-        </div>
-      </div>
-    `;
+    // 更新弹窗内容
+    document.getElementById('modal-main-image').src = product.images[0];
+    document.getElementById('modal-main-image').alt = product.name;
+    document.getElementById('modal-series').textContent = seriesDisplayName;
+    document.getElementById('modal-product-name').textContent = product.name;
+    document.getElementById('modal-description').textContent = product.description || '无描述';
     
-    modalBody.innerHTML = productDetailsHTML;
+    // 更新产品规格
+    document.getElementById('spec-upper').textContent = product.upperMaterial || '-';
+    document.getElementById('spec-inner').textContent = product.innerMaterial || '-';
+    document.getElementById('spec-sole').textContent = product.soleMaterial || '-';
+    document.getElementById('spec-customizable').textContent = product.customizable ? (product.customizable === 'true' ? '支持' : '不支持') : '-';
+    document.getElementById('spec-min-order').textContent = product.minOrder || '-';
+    document.getElementById('spec-price').textContent = product.price || '-';
+    
+    // 加载相关图片
+    this.loadRelatedImages(product.images);
+    
+    // 显示弹窗
     modal.style.display = 'block';
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -124,6 +121,105 @@ class Frontend {
       modal.style.display = 'none';
       modal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
+    }
+  }
+  
+  // 加载相关图片到弹窗
+  loadRelatedImages(images) {
+    const gallery = document.getElementById('modal-gallery');
+    if (!gallery) return;
+    
+    // 保存相关图片到全局变量，供灯箱使用
+    this.currentLightboxImages = images;
+    
+    let html = '';
+    images.forEach((img, index) => {
+      html += `
+        <div class="modal-gallery-item">
+          <img src="${img}" 
+               alt="${index + 1}" 
+               class="gallery-thumb"
+               onclick="changeMainImage('${img}')">
+          <div class="gallery-thumb-label">图片 ${index + 1}</div>
+        </div>
+      `;
+    });
+    
+    gallery.innerHTML = html;
+  }
+  
+  // 切换主图
+  changeMainImage(src) {
+    const mainImage = document.getElementById('modal-main-image');
+    if (mainImage) {
+      mainImage.src = src;
+    }
+  }
+  
+  // 打开灯箱
+  openLightbox(src) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    if (lightbox && lightboxImage) {
+      lightboxImage.src = src;
+      lightbox.style.display = 'flex';
+      
+      // 设置灯箱图片列表
+      this.currentLightboxIndex = this.currentLightboxImages.indexOf(src);
+      this.updateLightboxCounter();
+    }
+  }
+  
+  // 关闭灯箱
+  closeLightbox(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+      lightbox.style.display = 'none';
+    }
+  }
+  
+  // 灯箱导航
+  navigateLightbox(direction) {
+    if (this.currentLightboxImages.length === 0) return;
+
+    this.currentLightboxIndex += direction;
+
+    // 循环切换
+    if (this.currentLightboxIndex < 0) {
+      this.currentLightboxIndex = this.currentLightboxImages.length - 1;
+    } else if (this.currentLightboxIndex >= this.currentLightboxImages.length) {
+      this.currentLightboxIndex = 0;
+    }
+
+    const lightboxImage = document.getElementById('lightbox-image');
+    if (lightboxImage) {
+      lightboxImage.src = this.currentLightboxImages[this.currentLightboxIndex];
+      this.updateLightboxCounter();
+    }
+  }
+  
+  // 更新灯箱计数器
+  updateLightboxCounter() {
+    const counter = document.getElementById('lightbox-counter');
+    const prevBtn = document.querySelector('.lightbox-prev');
+    const nextBtn = document.querySelector('.lightbox-next');
+
+    // 如果只有一张图片，隐藏计数器和导航按钮
+    if (this.currentLightboxImages.length <= 1) {
+      if (counter) counter.textContent = '';
+      if (prevBtn) prevBtn.style.display = 'none';
+      if (nextBtn) nextBtn.style.display = 'none';
+    } else {
+      // 多张图片，显示计数器和导航按钮
+      if (counter) {
+        counter.textContent = `${this.currentLightboxIndex + 1} / ${this.currentLightboxImages.length}`;
+      }
+      if (prevBtn) prevBtn.style.display = 'block';
+      if (nextBtn) nextBtn.style.display = 'block';
     }
   }
   
@@ -618,3 +714,24 @@ class Frontend {
 
 // 初始化前端
 const frontend = new Frontend();
+
+// 全局函数，用于产品详情框
+function changeMainImage(src) {
+  frontend.changeMainImage(src);
+}
+
+function openLightbox(src) {
+  frontend.openLightbox(src);
+}
+
+function closeLightbox(event) {
+  frontend.closeLightbox(event);
+}
+
+function navigateLightbox(direction) {
+  frontend.navigateLightbox(direction);
+}
+
+function closeModal() {
+  frontend.closeProductDetails();
+}
