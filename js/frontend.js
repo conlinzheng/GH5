@@ -25,14 +25,11 @@ class Frontend {
   }
   
   init() {
-    console.log('Frontend init called');
     this.loadProductsData();
     this.setupEventListeners();
   }
   
   setupEventListeners() {
-    console.log('setupEventListeners called');
-    
     // 系列筛选
     document.querySelectorAll('.series-filter').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -58,28 +55,26 @@ class Frontend {
     }
 
     // 搜索功能 - 直接绑定事件
-    const searchBtn = document.getElementById('search-btn');
-    if (searchBtn) {
-      searchBtn.addEventListener('click', () => {
-        console.log('Search button clicked directly');
-        const searchInput = document.getElementById('search-input');
-        if (searchInput) {
-          console.log('Calling searchProducts with:', searchInput.value);
-          this.searchProducts(searchInput.value);
-        }
-      });
-    }
+     const searchBtn = document.getElementById('search-btn');
+     if (searchBtn) {
+       searchBtn.addEventListener('click', () => {
+         const searchInput = document.getElementById('search-input');
+         if (searchInput) {
+           this.searchProducts(searchInput.value);
+         }
+       });
+     }
 
-    const resetBtn = document.getElementById('reset-search');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        const searchInput = document.getElementById('search-input');
-        if (searchInput) {
-          searchInput.value = '';
-        }
-        this.resetSearch();
-      });
-    }
+     const resetBtn = document.getElementById('reset-search');
+     if (resetBtn) {
+       resetBtn.addEventListener('click', () => {
+         const searchInput = document.getElementById('search-input');
+         if (searchInput) {
+           searchInput.value = '';
+         }
+         this.resetSearch();
+       });
+     }
 
     // 回车键搜索
     document.addEventListener('keydown', (e) => {
@@ -241,9 +236,6 @@ class Frontend {
   
   // 搜索产品
   searchProducts(query) {
-    console.log('searchProducts called with:', query);
-    console.log('allProducts:', this.state.allProducts.length);
-    
     if (!query || typeof query !== 'string') {
       this.resetSearch();
       return;
@@ -257,21 +249,22 @@ class Frontend {
 
     const searchTerm = trimmedQuery.toLowerCase();
     const filteredProducts = this.state.allProducts.filter(product => {
-      if (product.name.toLowerCase().includes(searchTerm)) {
+      const name = product.name;
+      if (name && typeof name === 'string' && name.toLowerCase().includes(searchTerm)) {
         return true;
       }
       
-      if (product.tags && product.tags.some(tag => tag.toLowerCase().includes(searchTerm))) {
+      if (product.tags && Array.isArray(product.tags) && product.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(searchTerm))) {
         return true;
       }
       
-      if (product.upperMaterial && product.upperMaterial.toLowerCase().includes(searchTerm)) {
+      if (product.upperMaterial && typeof product.upperMaterial === 'string' && product.upperMaterial.toLowerCase().includes(searchTerm)) {
         return true;
       }
-      if (product.innerMaterial && product.innerMaterial.toLowerCase().includes(searchTerm)) {
+      if (product.innerMaterial && typeof product.innerMaterial === 'string' && product.innerMaterial.toLowerCase().includes(searchTerm)) {
         return true;
       }
-      if (product.soleMaterial && product.soleMaterial.toLowerCase().includes(searchTerm)) {
+      if (product.soleMaterial && typeof product.soleMaterial === 'string' && product.soleMaterial.toLowerCase().includes(searchTerm)) {
         return true;
       }
       
