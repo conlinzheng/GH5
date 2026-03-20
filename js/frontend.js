@@ -25,11 +25,14 @@ class Frontend {
   }
   
   init() {
+    console.log('Frontend init called');
     this.loadProductsData();
     this.setupEventListeners();
   }
   
   setupEventListeners() {
+    console.log('setupEventListeners called');
+    
     // 系列筛选
     document.querySelectorAll('.series-filter').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -54,24 +57,32 @@ class Frontend {
       });
     }
 
-    // 搜索功能 - 使用事件委托
-    document.addEventListener('click', (e) => {
-      if (e.target.id === 'search-btn') {
+    // 搜索功能 - 直接绑定事件
+    const searchBtn = document.getElementById('search-btn');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', () => {
+        console.log('Search button clicked directly');
         const searchInput = document.getElementById('search-input');
         if (searchInput) {
+          console.log('Calling searchProducts with:', searchInput.value);
           this.searchProducts(searchInput.value);
         }
-      } else if (e.target.id === 'reset-search') {
+      });
+    }
+
+    const resetBtn = document.getElementById('reset-search');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
         const searchInput = document.getElementById('search-input');
         if (searchInput) {
           searchInput.value = '';
         }
         this.resetSearch();
-      }
-    });
+      });
+    }
 
     // 回车键搜索
-    document.addEventListener('keypress', (e) => {
+    document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && e.target.id === 'search-input') {
         this.searchProducts(e.target.value);
       }
@@ -230,6 +241,9 @@ class Frontend {
   
   // 搜索产品
   searchProducts(query) {
+    console.log('searchProducts called with:', query);
+    console.log('allProducts:', this.state.allProducts.length);
+    
     if (!query || typeof query !== 'string') {
       this.resetSearch();
       return;

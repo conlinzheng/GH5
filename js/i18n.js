@@ -143,6 +143,15 @@ class I18n {
       this.isReady = true;
       this.updateLanguage();
       this._dispatchLanguageChanged();
+      
+      const langBtn = document.getElementById('language-toggle');
+      if (langBtn) {
+        langBtn.addEventListener('click', () => {
+          const currentIndex = this.supportedLangs.indexOf(this.currentLang);
+          const nextIndex = (currentIndex + 1) % this.supportedLangs.length;
+          this.switchLanguage(this.supportedLangs[nextIndex]);
+        });
+      }
     } catch (error) {
       console.error('I18n init error:', error);
       this.currentLang = this.defaultLang;
