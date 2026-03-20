@@ -6,22 +6,14 @@
   },
   "products": {
     "00A (1).jpg": {
-      "name": {
-        "zh": "00A (1)",
-        "en": "00A (1)",
-        "ko": "00A (1)"
-      },
-      "description": {
-        "zh": "00A (1) - 高品质产品",
-        "en": "00A (1) - High quality product",
-        "ko": "00A (1) - 고품질 제품"
-      },
-      "price": "90",
-      "materials": {
-        "upper": "牛皮",
-        "lining": "猪皮",
-        "sole": "橡胶"
-      }
+      "name": "短靴",
+      "description": "超纤短靴",
+      "price": "85",
+      "upperMaterial": "超纤",
+      "innerMaterial": "PU",
+      "soleMaterial": "EVA发泡",
+      "customizable": "true",
+      "minOrder": "100"
     },
     "中文+ (1).png": {
       "name": {
@@ -115,7 +107,7 @@
     }
   },
   "order": [
-    "中文+",
-    "00A"
+    "00A",
+    "中文+"
   ]
 }
