@@ -17,6 +17,10 @@ class Frontend {
       selectedSeries: null
     };
     
+    // 灯箱相关变量
+    this.currentLightboxImages = [];
+    this.currentLightboxIndex = 0;
+    
     this.init();
   }
   
@@ -107,9 +111,7 @@ class Frontend {
     this.loadProductsData();
   }
   
-  // 全局变量用于灯箱
-  currentLightboxImages = [];
-  currentLightboxIndex = 0;
+
   
   showProductDetails(product) {
     const modal = document.getElementById('product-modal');
