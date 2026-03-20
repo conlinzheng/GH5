@@ -8,6 +8,7 @@ class Frontend {
     
     this.state = {
       products: [],
+      allProducts: [], // 存储所有产品，用于搜索
       series: [],
       seriesNameMap: {},
       currentPage: 1,
@@ -46,6 +47,32 @@ class Frontend {
     if (refreshBtn) {
       refreshBtn.addEventListener('click', () => {
         this.refreshData();
+      });
+    }
+
+    // 搜索功能
+    const searchInput = document.getElementById('search-input');
+    const searchBtn = document.getElementById('search-btn');
+    const resetBtn = document.getElementById('reset-search');
+
+    if (searchInput && searchBtn) {
+      searchBtn.addEventListener('click', () => {
+        this.searchProducts(searchInput.value);
+      });
+
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          this.searchProducts(searchInput.value);
+        }
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (searchInput) {
+          searchInput.value = '';
+        }
+        this.resetSearch();
       });
     }
     
@@ -202,6 +229,38 @@ class Frontend {
     }
   }
   
+  // 搜索产品
+  searchProducts(query) {
+    if (!query.trim()) {
+      this.resetSearch();
+      return;
+    }
+
+    const searchTerm = query.toLowerCase().trim();
+    const filteredProducts = this.state.allProducts.filter(product => {
+      // 搜索产品名称
+      if (product.name.toLowerCase().includes(searchTerm)) {
+        return true;
+      }
+      
+      // 搜索标签
+      if (product.tags && product.tags.some(tag => tag.toLowerCase().includes(searchTerm))) {
+        return true;
+      }
+      
+      return false;
+    });
+
+    this.state.products = filteredProducts;
+    this.renderProducts();
+  }
+
+  // 重置搜索
+  resetSearch() {
+    this.state.products = this.state.allProducts;
+    this.renderProducts();
+  }
+  
   // 更新灯箱计数器
   updateLightboxCounter() {
     const counter = document.getElementById('lightbox-counter');
@@ -314,7 +373,8 @@ class Frontend {
                   innerMaterial: '',
                   soleMaterial: '',
                   customizable: '',
-                  minOrder: ''
+                  minOrder: '',
+                  tags: []
                 };
                 
                 // 构建产品对象
@@ -329,6 +389,7 @@ class Frontend {
                   soleMaterial: productData.soleMaterial,
                   customizable: productData.customizable,
                   minOrder: productData.minOrder,
+                  tags: productData.tags || [],
                   specs: productData.upperMaterial || productData.innerMaterial || productData.soleMaterial || '',
                   images: images.map(img => `产品图/${seriesItem.name}/${img}`)
                 };
@@ -367,6 +428,7 @@ class Frontend {
         }
 
         this.state.products = products;
+        this.state.allProducts = products; // 保存所有产品，用于搜索
 
         // 缓存数据
         cacheManager.set('products_data', {
@@ -568,20 +630,21 @@ class Frontend {
       `;
     }
     
+    // 生成标签HTML
+    const tagsHtml = product.tags && product.tags.length > 0 ? `
+      <div class="product-tags">
+        ${product.tags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}
+      </div>
+    ` : '';
+    
     div.innerHTML = `
       <div class="product-image-container" onclick="frontend.showProductDetails(${JSON.stringify(product).replace(/"/g, '&quot;')})">
         ${imageCarousel}
       </div>
       <div class="product-info">
         <h3 class="product-name">${product.name}</h3>
-        <p class="product-series">${seriesDisplayName}</p>
-        <p class="product-description">${product.description || ''}</p>
         <p class="product-price">${product.price || ''}</p>
-        ${product.upperMaterial ? `<p class="product-upper-material">鞋面材质: ${product.upperMaterial}</p>` : ''}
-        ${product.innerMaterial ? `<p class="product-inner-material">内里材质: ${product.innerMaterial}</p>` : ''}
-        ${product.soleMaterial ? `<p class="product-sole-material">鞋底材质: ${product.soleMaterial}</p>` : ''}
-        ${product.customizable ? `<p class="product-customizable">定制: ${product.customizable === 'true' ? '支持' : '不支持'}</p>` : ''}
-        ${product.minOrder ? `<p class="product-min-order">起订量: ${product.minOrder}</p>` : ''}
+        ${tagsHtml}
       </div>
     `;
     
