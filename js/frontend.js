@@ -112,8 +112,6 @@ class Frontend {
   }
   
   openContactModal() {
-    this.closeProductDetails();
-    
     const modal = document.getElementById('contact-modal');
     if (modal) {
       modal.classList.add('active');
