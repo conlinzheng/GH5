@@ -16,7 +16,8 @@ class Frontend {
       isLoading: false,
       selectedSeries: null,
       siteConfig: null,
-      currentLang: 'zh'
+      currentLang: 'zh',
+      translations: {}
     };
     
     this.currentLightboxImages = [];
@@ -37,6 +38,7 @@ class Frontend {
       const config = await githubAPI.fetchFile('config.json');
       this.state.siteConfig = config;
       this.state.currentLang = config.pageSettings?.defaultLanguage || 'zh';
+      this.state.translations = config.translations || {};
       this.updateContactModal();
       this.updatePageTitle();
       this.updateCarousel();
@@ -49,6 +51,7 @@ class Frontend {
         pageSettings: {},
         pageAssets: {}
       };
+      this.state.translations = {};
     }
   }
   
@@ -444,12 +447,14 @@ class Frontend {
     if (!modal) return;
     
     const seriesDisplayName = this.state.seriesNameMap[product.seriesId] || product.seriesId;
+    const translatedName = this.getProductTranslation(product.name, 'name');
+    const translatedDesc = product.description ? this.getProductTranslation(product.description, 'desc') : '';
     
     // 更新弹窗内容 - 添加空值检查
     const mainImage = document.getElementById('modal-main-image');
     if (mainImage && product.images && product.images.length > 0) {
       mainImage.src = product.images[0];
-      mainImage.alt = product.name || '';
+      mainImage.alt = translatedName || '';
     }
     
     const modalSeries = document.getElementById('modal-series');
@@ -459,12 +464,12 @@ class Frontend {
     
     const productName = document.getElementById('modal-product-name');
     if (productName) {
-      productName.textContent = product.name || '';
+      productName.textContent = translatedName || '';
     }
     
     const description = document.getElementById('modal-description');
     if (description) {
-      description.textContent = product.description || '无描述';
+      description.textContent = translatedDesc || '无描述';
     }
     
     // 更新产品规格 - 添加空值检查
@@ -1021,6 +1026,9 @@ class Frontend {
     
     const seriesDisplayName = this.state.seriesNameMap[product.seriesId] || product.seriesId;
     
+    const translatedName = this.getProductTranslation(product.name, 'name');
+    const translatedDesc = product.description ? this.getProductTranslation(product.description, 'desc') : '';
+    
     // 构建图片轮播
     let imageCarousel = '';
     if (product.images.length > 1) {
@@ -1028,7 +1036,7 @@ class Frontend {
         <div class="product-image-carousel">
           ${product.images.map((image, index) => `
             <div class="carousel-item ${index === 0 ? 'active' : ''}">
-              <img src="${image}" alt="${product.name} ${index + 1}" loading="lazy">
+              <img src="${image}" alt="${translatedName} ${index + 1}" loading="lazy">
             </div>
           `).join('')}
           <div class="carousel-controls">
@@ -1041,16 +1049,17 @@ class Frontend {
     } else {
       imageCarousel = `
         <div class="product-image">
-          <img src="${product.images[0]}" alt="${product.name}" loading="lazy">
+          <img src="${product.images[0]}" alt="${translatedName}" loading="lazy">
         </div>
       `;
     }
     
-    // 生成标签HTML
-    console.log('产品标签:', product.tags);
-    const tagsHtml = product.tags && product.tags.length > 0 ? `
+    // 生成标签HTML - 翻译标签
+    const translatedTags = product.tags ? product.tags.map(tag => this.getProductTranslation(tag, 'tag')) : [];
+    console.log('产品标签:', translatedTags);
+    const tagsHtml = translatedTags && translatedTags.length > 0 ? `
       <div class="product-tags">
-        ${product.tags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}
+        ${translatedTags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}
       </div>
     ` : '';
     console.log('标签HTML:', tagsHtml);
@@ -1060,7 +1069,7 @@ class Frontend {
         ${imageCarousel}
       </div>
       <div class="product-info">
-        <h3 class="product-name">${product.name}</h3>
+        <h3 class="product-name">${translatedName}</h3>
         <p class="product-price">${product.price || ''}</p>
         ${tagsHtml}
       </div>
@@ -1162,8 +1171,27 @@ class Frontend {
   _handleLanguageChange(lang) {
     // 重新加载系列名称映射
     this.state.seriesNameMap = this._getDefaultSeriesNameMap();
-    // 重新渲染产品以更新系列名称
+    // 重新渲染产品以更新系列名称和产品翻译
     this.renderProducts();
+  }
+  
+  getProductTranslation(zhText, fieldType = 'name') {
+    if (!zhText || this.state.currentLang === 'zh') {
+      return zhText;
+    }
+    
+    const translations = this.state.translations;
+    if (!translations || Object.keys(translations).length === 0) {
+      return zhText;
+    }
+    
+    for (const [key, value] of Object.entries(translations)) {
+      if (value.zh === zhText) {
+        return value[this.state.currentLang] || zhText;
+      }
+    }
+    
+    return zhText;
   }
   
   _showLoading(show) {

@@ -1452,16 +1452,21 @@
           const ko = document.querySelector(`.scan-ko[data-key="${key}"]`).value.trim();
           
           if (zh) {
-            let cleanKey = key;
+            let cleanKey = zh;
             const prefixMatch = key.match(/^(product_|product_desc_|tag_|series_)/);
             if (prefixMatch) {
               const prefix = prefixMatch[1];
-              const suffix = key.replace(prefix, '');
-              const cleanedSuffix = suffix.replace(/^\d+[-系列春夏秋冬短靴真皮PU乐福]*_/, '');
-              cleanKey = prefix + cleanedSuffix;
-              if (cleanKey === prefix) {
-                cleanKey = suffix;
+              if (prefix === 'product_') {
+                cleanKey = '产品_' + zh;
+              } else if (prefix === 'product_desc_') {
+                cleanKey = '产品描述_' + zh.substring(0, 20);
+              } else if (prefix === 'tag_') {
+                cleanKey = '标签_' + zh;
+              } else if (prefix === 'series_') {
+                cleanKey = '分类_' + zh;
               }
+            } else {
+              cleanKey = zh;
             }
             newTranslations[cleanKey] = { zh, en, ko };
           }
