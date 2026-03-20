@@ -248,6 +248,17 @@ class Frontend {
         return true;
       }
       
+      // 搜索产品材质信息
+      if (product.upperMaterial && product.upperMaterial.toLowerCase().includes(searchTerm)) {
+        return true;
+      }
+      if (product.innerMaterial && product.innerMaterial.toLowerCase().includes(searchTerm)) {
+        return true;
+      }
+      if (product.soleMaterial && product.soleMaterial.toLowerCase().includes(searchTerm)) {
+        return true;
+      }
+      
       return false;
     });
 
