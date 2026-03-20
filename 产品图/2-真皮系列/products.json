@@ -90,7 +90,7 @@
       "upperMaterial": "皮",
       "innerMaterial": "皮",
       "soleMaterial": "发泡",
-      "customizable": "true",
+      "customizable": "",
       "minOrder": "80"
     }
   },
