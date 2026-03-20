@@ -105,6 +105,11 @@ class Frontend {
         this.closeProductDetails();
       }
     });
+    
+    // 语言切换事件
+    document.addEventListener('languageChanged', (event) => {
+      this._handleLanguageChange(event.detail.language);
+    });
   }
   
   refreshData() {
@@ -123,20 +128,58 @@ class Frontend {
     
     const seriesDisplayName = this.state.seriesNameMap[product.seriesId] || product.seriesId;
     
-    // 更新弹窗内容
-    document.getElementById('modal-main-image').src = product.images[0];
-    document.getElementById('modal-main-image').alt = product.name;
-    document.getElementById('modal-series').textContent = seriesDisplayName;
-    document.getElementById('modal-product-name').textContent = product.name;
-    document.getElementById('modal-description').textContent = product.description || '无描述';
+    // 更新弹窗内容 - 添加空值检查
+    const mainImage = document.getElementById('modal-main-image');
+    if (mainImage && product.images && product.images.length > 0) {
+      mainImage.src = product.images[0];
+      mainImage.alt = product.name || '';
+    }
     
-    // 更新产品规格
-    document.getElementById('spec-upper').textContent = product.upperMaterial || '-';
-    document.getElementById('spec-inner').textContent = product.innerMaterial || '-';
-    document.getElementById('spec-sole').textContent = product.soleMaterial || '-';
-    document.getElementById('spec-customizable').textContent = product.customizable ? (product.customizable === 'true' ? '支持' : '不支持') : '-';
-    document.getElementById('spec-min-order').textContent = product.minOrder || '-';
-    document.getElementById('spec-price').textContent = product.price || '-';
+    const modalSeries = document.getElementById('modal-series');
+    if (modalSeries) {
+      modalSeries.textContent = seriesDisplayName || '';
+    }
+    
+    const productName = document.getElementById('modal-product-name');
+    if (productName) {
+      productName.textContent = product.name || '';
+    }
+    
+    const description = document.getElementById('modal-description');
+    if (description) {
+      description.textContent = product.description || '无描述';
+    }
+    
+    // 更新产品规格 - 添加空值检查
+    const specUpper = document.getElementById('spec-upper');
+    if (specUpper) {
+      specUpper.textContent = product.upperMaterial || '-';
+    }
+    
+    const specInner = document.getElementById('spec-inner');
+    if (specInner) {
+      specInner.textContent = product.innerMaterial || '-';
+    }
+    
+    const specSole = document.getElementById('spec-sole');
+    if (specSole) {
+      specSole.textContent = product.soleMaterial || '-';
+    }
+    
+    const specCustomizable = document.getElementById('spec-customizable');
+    if (specCustomizable) {
+      specCustomizable.textContent = product.customizable ? (product.customizable === 'true' ? '支持' : '不支持') : '-';
+    }
+    
+    const specMinOrder = document.getElementById('spec-min-order');
+    if (specMinOrder) {
+      specMinOrder.textContent = product.minOrder || '-';
+    }
+    
+    const specPrice = document.getElementById('spec-price');
+    if (specPrice) {
+      specPrice.textContent = product.price || '-';
+    }
     
     // 加载相关图片
     this.loadRelatedImages(product.images);
@@ -249,32 +292,35 @@ class Frontend {
 
     const searchTerm = trimmedQuery.toLowerCase();
     const filteredProducts = this.state.allProducts.filter(product => {
+      // 添加空值检查
+      if (!product) return false;
+      
       const name = product.name;
       if (name) {
         if (typeof name === 'string') {
           if (name.toLowerCase().includes(searchTerm)) return true;
-        } else if (typeof name === 'object') {
+        } else if (typeof name === 'object' && name !== null) {
           const nameValues = Object.values(name).filter(v => typeof v === 'string');
           if (nameValues.some(v => v.toLowerCase().includes(searchTerm))) return true;
         }
       }
       
-      if (product.tags) {
-        let tags = product.tags;
-        if (typeof tags === 'string') tags = [tags];
-        if (Array.isArray(tags)) {
-          if (tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(searchTerm))) return true;
-        }
+      // 添加标签搜索的空值检查
+      if (product.tags && Array.isArray(product.tags)) {
+        if (product.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(searchTerm))) return true;
+      } else if (product.tags && typeof product.tags === 'string') {
+        if (product.tags.toLowerCase().includes(searchTerm)) return true;
       }
       
-      if (product.upperMaterial && typeof product.upperMaterial === 'string' && product.upperMaterial.toLowerCase().includes(searchTerm)) {
-        return true;
+      // 添加材质搜索的空值检查
+      if (product.upperMaterial && typeof product.upperMaterial === 'string') {
+        if (product.upperMaterial.toLowerCase().includes(searchTerm)) return true;
       }
-      if (product.innerMaterial && typeof product.innerMaterial === 'string' && product.innerMaterial.toLowerCase().includes(searchTerm)) {
-        return true;
+      if (product.innerMaterial && typeof product.innerMaterial === 'string') {
+        if (product.innerMaterial.toLowerCase().includes(searchTerm)) return true;
       }
-      if (product.soleMaterial && typeof product.soleMaterial === 'string' && product.soleMaterial.toLowerCase().includes(searchTerm)) {
-        return true;
+      if (product.soleMaterial && typeof product.soleMaterial === 'string') {
+        if (product.soleMaterial.toLowerCase().includes(searchTerm)) return true;
       }
       
       return false;
@@ -349,8 +395,23 @@ class Frontend {
               // 检查API限流状态
               const rateLimitInfo = githubAPI.getRateLimitInfo();
               if (rateLimitInfo.isLimited) {
-                console.log('API rate limit reached, waiting...');
+                const waitTime = rateLimitInfo.resetInMinutes;
+                console.log(`API rate limit reached, waiting ${waitTime} minutes...`);
+                
+                // 显示用户友好的提示
+                const message = typeof i18n !== 'undefined' 
+                  ? `API请求过于频繁，请${waitTime}分钟后重试` 
+                  : `API rate limit reached. Please try again in ${waitTime} minutes.`;
+                
+                this._showError(message);
+                
                 await githubAPI.waitForRateLimitReset();
+                
+                // 清除错误提示
+                const errorElement = document.getElementById('error-message');
+                if (errorElement) {
+                  errorElement.style.display = 'none';
+                }
               }
               
               // 获取系列目录下的所有文件
@@ -500,7 +561,9 @@ class Frontend {
   async loadSeriesNameMap() {
     try {
       // 清除 config.json 的缓存以确保获取最新数据
-      cacheManager.clear('config.json');
+      // 使用正确的缓存键名格式
+      const configCacheKey = cacheManager.prefix + 'config.json';
+      localStorage.removeItem(configCacheKey);
       console.log('Config.json cache cleared in loadSeriesNameMap');
       
       // 尝试从配置文件加载系列名称映射和排序信息
@@ -519,27 +582,11 @@ class Frontend {
       }
       
       // 使用默认映射
-      this.state.seriesNameMap = {
-        '1-PU系列': 'PU超纤',
-        '2-真皮系列': '真皮系列',
-        '3-短靴系列': '短靴系列',
-        '4-乐福系列': '乐福系列',
-        '5-春季': '春季系列',
-        '6-夏季': '夏季系列',
-        '7-秋季': '秋季系列'
-      };
+      this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     } catch (error) {
       console.error('Load series name map error:', error);
       // 使用默认映射
-      this.state.seriesNameMap = {
-        '1-PU系列': 'PU超纤',
-        '2-真皮系列': '真皮系列',
-        '3-短靴系列': '短靴系列',
-        '4-乐福系列': '乐福系列',
-        '5-春季': '春季系列',
-        '6-夏季': '夏季系列',
-        '7-秋季': '秋季系列'
-      };
+      this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     }
   }
   
@@ -771,6 +818,13 @@ class Frontend {
     this.renderProducts();
   }
   
+  _handleLanguageChange(lang) {
+    // 重新加载系列名称映射
+    this.state.seriesNameMap = this._getDefaultSeriesNameMap();
+    // 重新渲染产品以更新系列名称
+    this.renderProducts();
+  }
+  
   _showLoading(show) {
     const loadingElement = document.getElementById('loading');
     if (loadingElement) {
@@ -794,6 +848,42 @@ class Frontend {
     this.state.products = [];
     this.state.series = [];
     this.renderProducts();
+  }
+  
+  _getDefaultSeriesNameMap() {
+    const currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : 'zh';
+    
+    const seriesNameMaps = {
+      zh: {
+        '1-PU系列': 'PU超纤',
+        '2-真皮系列': '真皮系列',
+        '3-短靴系列': '短靴系列',
+        '4-乐福系列': '乐福系列',
+        '5-春季': '春季系列',
+        '6-夏季': '夏季系列',
+        '7-秋季': '秋季系列'
+      },
+      en: {
+        '1-PU系列': 'PU Collection',
+        '2-真皮系列': 'Leather Collection',
+        '3-短靴系列': 'Boots Collection',
+        '4-乐福系列': 'Loafers Collection',
+        '5-春季': 'Spring Collection',
+        '6-夏季': 'Summer Collection',
+        '7-秋季': 'Autumn Collection'
+      },
+      ko: {
+        '1-PU系列': 'PU 컬렉션',
+        '2-真皮系列': '가죽 컬렉션',
+        '3-短靴系列': '부츠 컬렉션',
+        '4-乐福系列': '로퍼 컬렉션',
+        '5-春季': '봄 컬렉션',
+        '6-夏季': '여름 컬렉션',
+        '7-秋季': '가을 컬렉션'
+      }
+    };
+    
+    return seriesNameMaps[currentLang] || seriesNameMaps.zh;
   }
   
   extractProductName(fileName) {
