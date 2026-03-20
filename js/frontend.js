@@ -450,18 +450,21 @@ class Frontend {
           });
           
           // 等待批次请求完成
-          await Promise.all(batchPromises);
-        }
+        await Promise.all(batchPromises);
+      }
 
-        this.state.products = products;
-        this.state.allProducts = products; // 保存所有产品，用于搜索
+      console.log('产品数据加载完成，产品数量:', products.length);
+      console.log('产品数据示例:', products[0]);
+      
+      this.state.products = products;
+      this.state.allProducts = products; // 保存所有产品，用于搜索
 
-        // 缓存数据
-        cacheManager.set('products_data', {
-          products: this.state.products,
-          series: this.state.series,
-          seriesNameMap: this.state.seriesNameMap
-        }, this.config.cacheTTL);
+      // 缓存数据
+      cacheManager.set('products_data', {
+        products: this.state.products,
+        series: this.state.series,
+        seriesNameMap: this.state.seriesNameMap
+      }, this.config.cacheTTL);
       } catch (apiError) {
         if (typeof errorHandler !== 'undefined') {
           errorHandler.handleApiError(apiError);
