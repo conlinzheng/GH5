@@ -50,31 +50,31 @@ class Frontend {
       });
     }
 
-    // 搜索功能
-    const searchInput = document.getElementById('search-input');
-    const searchBtn = document.getElementById('search-btn');
-    const resetBtn = document.getElementById('reset-search');
-
-    if (searchInput && searchBtn) {
-      searchBtn.addEventListener('click', () => {
-        this.searchProducts(searchInput.value);
-      });
-
-      searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
+    // 搜索功能 - 使用事件委托确保在DOM元素加载后绑定
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'search-btn') {
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+          console.log('搜索按钮点击，搜索词:', searchInput.value);
           this.searchProducts(searchInput.value);
         }
-      });
-    }
-
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
+      } else if (e.target.id === 'reset-search') {
+        const searchInput = document.getElementById('search-input');
         if (searchInput) {
           searchInput.value = '';
         }
+        console.log('重置搜索');
         this.resetSearch();
-      });
-    }
+      }
+    });
+
+    // 回车键搜索
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && e.target.id === 'search-input') {
+        console.log('回车键搜索，搜索词:', e.target.value);
+        this.searchProducts(e.target.value);
+      }
+    });
     
     // 模态框关闭按钮
     const modalClose = document.getElementById('modal-close');
@@ -231,37 +231,52 @@ class Frontend {
   
   // 搜索产品
   searchProducts(query) {
+    console.log('搜索方法被调用，搜索词:', query);
+    
     if (!query.trim()) {
+      console.log('搜索词为空，重置搜索');
       this.resetSearch();
       return;
     }
+
+    console.log('所有产品数量:', this.state.allProducts.length);
+    console.log('产品数据示例:', this.state.allProducts[0]);
 
     const searchTerm = query.toLowerCase().trim();
     const filteredProducts = this.state.allProducts.filter(product => {
       // 搜索产品名称
       if (product.name.toLowerCase().includes(searchTerm)) {
+        console.log('匹配产品名称:', product.name);
         return true;
       }
       
       // 搜索标签
-      if (product.tags && product.tags.some(tag => tag.toLowerCase().includes(searchTerm))) {
+      if (product.tags && product.tags.some(tag => {
+        const match = tag.toLowerCase().includes(searchTerm);
+        if (match) console.log('匹配标签:', tag);
+        return match;
+      })) {
         return true;
       }
       
       // 搜索产品材质信息
       if (product.upperMaterial && product.upperMaterial.toLowerCase().includes(searchTerm)) {
+        console.log('匹配鞋面材质:', product.upperMaterial);
         return true;
       }
       if (product.innerMaterial && product.innerMaterial.toLowerCase().includes(searchTerm)) {
+        console.log('匹配内里材质:', product.innerMaterial);
         return true;
       }
       if (product.soleMaterial && product.soleMaterial.toLowerCase().includes(searchTerm)) {
+        console.log('匹配鞋底材质:', product.soleMaterial);
         return true;
       }
       
       return false;
     });
 
+    console.log('过滤后的产品数量:', filteredProducts.length);
     this.state.products = filteredProducts;
     this.renderProducts();
   }
