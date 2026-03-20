@@ -913,6 +913,11 @@
               this.renderProductGroup(productName, productGroup, fileList);
             }
           });
+        } else {
+          // 没有排序信息，直接渲染所有产品组
+          productGroups.forEach(([productName, productGroup]) => {
+            this.renderProductGroup(productName, productGroup, fileList);
+          });
         }
       }
       
