@@ -14,23 +14,23 @@
   },
   "siteInfo": {
     "companyName": {
-      "zh": "GH5鞋业22",
+      "zh": "GH5鞋业",
       "en": "GH5 Shoes",
       "ko": "GH5 신발"
     },
     "companyDescription": {
-      "zh": "专业鞋类制造商11",
+      "zh": "专业鞋类制造商",
       "en": "Professional Shoe Manufacturer",
       "ko": "전문 신발 제조업체"
     },
     "companyAddress": {
-      "zh": "广州"
+      "zh": ""
     },
     "companyPhone": {
-      "zh": "15625613141"
+      "zh": ""
     },
     "companyEmail": {
-      "zh": "1329502822@qq.com"
+      "zh": ""
     },
     "companyWechat": {
       "zh": ""
@@ -42,6 +42,26 @@
   "contactForm": {
     "formspreeId": "mqeyjaqk",
     "enable": true
+  },
+  "socialLinks": {
+    "facebook": "",
+    "instagram": "",
+    "twitter": "",
+    "youtube": "",
+    "tiktok": "",
+    "telegram": "",
+    "whatsapp": "",
+    "linkedin": "",
+    "pinterest": "",
+    "weibo": "",
+    "customLinks": []
+  },
+  "pageAssets": {
+    "favicon": "",
+    "logo": "",
+    "defaultProductImage": "",
+    "defaultCoverImage": "",
+    "ogImage": ""
   },
   "translations": {
     "联系我们": {
@@ -63,6 +83,26 @@
       "zh": "感谢您的留言！我们会尽快与您联系。",
       "en": "Thank you for your message! We will contact you soon.",
       "ko": "메시지를 보내주셔서 감사합니다. 곧 연락드리겠습니다."
+    },
+    "关于我们": {
+      "zh": "关于我们",
+      "en": "About Us",
+      "ko": "회사 소개"
+    },
+    "姓名": {
+      "zh": "姓名",
+      "en": "Name",
+      "ko": "이름"
+    },
+    "邮箱": {
+      "zh": "邮箱",
+      "en": "Email",
+      "ko": "이메일"
+    },
+    "留言": {
+      "zh": "留言",
+      "en": "Message",
+      "ko": "메시지"
     }
   },
   "pageSettings": {
@@ -72,6 +112,36 @@
       "zh": "GH5 鞋业",
       "en": "GH5 Shoes",
       "ko": "GH5 신발"
+    },
+    "footerText": {
+      "zh": "© 2026 GH5. All rights reserved.",
+      "en": "© 2026 GH5. All rights reserved.",
+      "ko": "© 2026 GH5. All rights reserved."
+    },
+    "loadingText": {
+      "zh": "加载中...",
+      "en": "Loading...",
+      "ko": "로딩 중..."
+    },
+    "searchPlaceholder": {
+      "zh": "搜索产品...",
+      "en": "Search products...",
+      "ko": "제품 검색..."
+    },
+    "noProductsText": {
+      "zh": "暂无产品",
+      "en": "No products",
+      "ko": "제품 없음"
+    },
+    "productDetailsTitle": {
+      "zh": "产品详情",
+      "en": "Product Details",
+      "ko": "제품 상세"
+    },
+    "viewDetailsText": {
+      "zh": "查看详情",
+      "en": "View Details",
+      "ko": "상세 보기"
     }
   }
 }
