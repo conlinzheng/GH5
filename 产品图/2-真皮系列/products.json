@@ -85,13 +85,13 @@
     },
     "勃肯1 (1).jpg": {
       "name": "博肯",
-      "description": "博肯",
-      "price": "10",
-      "upperMaterial": "A",
-      "innerMaterial": "B",
-      "soleMaterial": "C",
+      "description": "博肯鞋",
+      "price": "90",
+      "upperMaterial": "皮",
+      "innerMaterial": "皮",
+      "soleMaterial": "发泡",
       "customizable": "true",
-      "minOrder": "55"
+      "minOrder": "80"
     }
   },
   "order": [
