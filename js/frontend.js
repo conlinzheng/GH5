@@ -110,6 +110,12 @@ class Frontend {
     document.addEventListener('languageChanged', (event) => {
       this._handleLanguageChange(event.detail.language);
     });
+    
+    // 浏览历史点击事件
+    document.addEventListener('viewHistoryItem', (event) => {
+      const productId = event.detail.productId;
+      this.viewHistoryProduct(productId);
+    });
   }
   
   refreshData() {
@@ -188,6 +194,12 @@ class Frontend {
     modal.style.display = 'block';
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    
+    // 触发产品查看事件，用于浏览历史
+    const event = new CustomEvent('productViewed', {
+      detail: { product }
+    });
+    document.dispatchEvent(event);
   }
   
   closeProductDetails() {
@@ -825,6 +837,15 @@ class Frontend {
     if (page < 1 || page > this.state.totalPages) return;
     this.state.currentPage = page;
     this.renderProducts();
+  }
+  
+  viewHistoryProduct(productId) {
+    // 查找产品
+    const product = this.state.allProducts.find(p => p.id === productId);
+    if (product) {
+      // 显示产品详情
+      this.showProductDetails(product);
+    }
   }
   
   _handleLanguageChange(lang) {
