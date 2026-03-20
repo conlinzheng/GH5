@@ -44,7 +44,7 @@
     "enable": true
   },
   "socialLinks": {
-    "facebook": "",
+    "facebook": "https://chat.deepseek.com/a/chat/s/6ab389aa-b85a-4ea6-a9ba-635a5accfacb",
     "instagram": "",
     "twitter": "",
     "youtube": "",
@@ -54,7 +54,8 @@
     "linkedin": "",
     "pinterest": "",
     "weibo": "",
-    "customLinks": []
+    "customLinks": [],
+    "display": true
   },
   "pageAssets": {
     "favicon": "",
