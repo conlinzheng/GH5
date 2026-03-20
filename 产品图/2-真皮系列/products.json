@@ -6,82 +6,59 @@
   },
   "products": {
     "中文数字123 (1).png": {
-      "name": "123",
-      "description": "3211",
-      "price": "",
-      "materials": "321"
+      "name": "26",
+      "description": "27",
+      "price": "50",
+      "tags": [],
+      "upperMaterial": "28",
+      "innerMaterial": "29",
+      "soleMaterial": "30",
+      "customizable": "true",
+      "minOrder": "50"
     },
     "中文数字123 (2).png": {
-      "name": {
-        "zh": "中文数字123",
-        "en": "中文数字123",
-        "ko": "中文数字123"
-      },
-      "description": {
-        "zh": "中文数字123 - 高品质产品",
-        "en": "中文数字123 - High quality product",
-        "ko": "中文数字123 - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+      "name": "26",
+      "description": "27",
+      "price": "50",
+      "tags": [],
+      "upperMaterial": "28",
+      "innerMaterial": "29",
+      "soleMaterial": "30",
+      "customizable": "true",
+      "minOrder": "50"
     },
     "中文数字123 (3).png": {
-      "name": {
-        "zh": "中文数字123",
-        "en": "中文数字123",
-        "ko": "中文数字123"
-      },
-      "description": {
-        "zh": "中文数字123 - 高品质产品",
-        "en": "中文数字123 - High quality product",
-        "ko": "中文数字123 - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+      "name": "26",
+      "description": "27",
+      "price": "50",
+      "tags": [],
+      "upperMaterial": "28",
+      "innerMaterial": "29",
+      "soleMaterial": "30",
+      "customizable": "true",
+      "minOrder": "50"
     },
     "中文数字123 (4).png": {
-      "name": {
-        "zh": "中文数字123",
-        "en": "中文数字123",
-        "ko": "中文数字123"
-      },
-      "description": {
-        "zh": "中文数字123 - 高品质产品",
-        "en": "中文数字123 - High quality product",
-        "ko": "中文数字123 - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+      "name": "26",
+      "description": "27",
+      "price": "50",
+      "tags": [],
+      "upperMaterial": "28",
+      "innerMaterial": "29",
+      "soleMaterial": "30",
+      "customizable": "true",
+      "minOrder": "50"
     },
     "中文数字123 (5).png": {
-      "name": {
-        "zh": "中文数字123",
-        "en": "中文数字123",
-        "ko": "中文数字123"
-      },
-      "description": {
-        "zh": "中文数字123 - 高品质产品",
-        "en": "中文数字123 - High quality product",
-        "ko": "中文数字123 - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+      "name": "26",
+      "description": "27",
+      "price": "50",
+      "tags": [],
+      "upperMaterial": "28",
+      "innerMaterial": "29",
+      "soleMaterial": "30",
+      "customizable": "true",
+      "minOrder": "50"
     },
     "勃肯1 (1).jpg": {
       "name": "博肯",
@@ -95,7 +72,7 @@
     }
   },
   "order": [
-    "勃肯1",
-    "中文数字123"
+    "中文数字123",
+    "勃肯1"
   ]
 }

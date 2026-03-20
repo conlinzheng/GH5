@@ -4,20 +4,26 @@
       "name": "牌子的",
       "description": "客户版",
       "price": "99",
-      "upperMaterial": "绒布",
-      "innerMaterial": "pu",
-      "soleMaterial": "x橡胶",
-      "customizable": "true",
+      "tags": [
+        "11，22，88"
+      ],
+      "upperMaterial": "28",
+      "innerMaterial": "29",
+      "soleMaterial": "30",
+      "customizable": "",
       "minOrder": "50"
     },
     "产品1 (2).jpg": {
       "name": "牌子的",
       "description": "客户版",
       "price": "99",
-      "upperMaterial": "绒布",
-      "innerMaterial": "pu",
-      "soleMaterial": "x橡胶",
-      "customizable": "true",
+      "tags": [
+        "11，22，88"
+      ],
+      "upperMaterial": "28",
+      "innerMaterial": "29",
+      "soleMaterial": "30",
+      "customizable": "",
       "minOrder": "50"
     }
   },
