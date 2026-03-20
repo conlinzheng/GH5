@@ -1318,9 +1318,8 @@
           const fileList = document.getElementById('file-list');
           const productItems = fileList.querySelectorAll('.file-item');
           const productOrder = Array.from(productItems).map(item => {
-            // 从产品组中提取主图名称
-            const productName = item.querySelector('div').textContent.trim().replace('产品: ', '');
-            return productName;
+            // 从产品组中提取产品名称（使用data属性）
+            return item.dataset.productName;
           });
           
           // 找到对应的系列
