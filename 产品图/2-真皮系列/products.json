@@ -88,10 +88,10 @@
       "description": "博肯",
       "price": "10",
       "upperMaterial": "A",
-      "innerMaterial": "",
-      "soleMaterial": "",
-      "customizable": "",
-      "minOrder": ""
+      "innerMaterial": "B",
+      "soleMaterial": "C",
+      "customizable": "true",
+      "minOrder": "55"
     }
   },
   "order": [
