@@ -144,6 +144,18 @@ class I18n {
       this.updateLanguage();
       this._dispatchLanguageChanged();
       
+      if (typeof frontend !== 'undefined' && frontend.state && frontend.state.siteConfig) {
+        const configLang = frontend.state.siteConfig.pageSettings?.defaultLanguage;
+        if (configLang && this.supportedLangs.includes(configLang)) {
+          this.currentLang = configLang;
+          this.updateLanguage();
+        }
+        frontend.state.currentLang = this.currentLang;
+        frontend.updateFooter();
+        frontend.updateCarousel();
+        frontend.updateFormLabels();
+      }
+      
       const langBtn = document.getElementById('language-toggle');
       if (langBtn) {
         langBtn.addEventListener('click', () => {
@@ -170,6 +182,14 @@ class I18n {
       localStorage.setItem('gh5_language', lang);
       this.updateLanguage();
       this._dispatchLanguageChanged();
+      
+      if (typeof frontend !== 'undefined' && frontend.state) {
+        frontend.state.currentLang = lang;
+        frontend.updateFooter();
+        frontend.updateCarousel();
+        frontend.updateFormLabels();
+      }
+      
       return true;
     } catch (error) {
       console.error('Switch language error:', error);

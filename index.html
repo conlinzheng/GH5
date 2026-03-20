@@ -41,8 +41,8 @@
           <div class="carousel-track" id="carousel-track">
             <div class="carousel-slide">
               <div class="carousel-content">
-                <h2 class="carousel-title">欢迎来到 GH5</h2>
-                <p class="carousel-description">探索我们的优质产品</p>
+                <h2 class="carousel-title" id="carousel-title">欢迎来到 GH5</h2>
+                <p class="carousel-description" id="carousel-description">探索我们的优质产品</p>
               </div>
             </div>
           </div>
@@ -139,10 +139,11 @@
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
-        <button class="footer-contact-btn" onclick="openContactModal()">
+        <div class="footer-social-links" id="footer-social-links"></div>
+        <button class="footer-contact-btn" id="footer-contact-btn" onclick="openContactModal()">
           联系我们
         </button>
-        <p class="footer-text">&copy; 2026 GH5. All rights reserved.</p>
+        <p class="footer-text" id="footer-text">&copy; 2026 GH5. All rights reserved.</p>
       </div>
     </div>
   </footer>

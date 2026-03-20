@@ -115,9 +115,31 @@ body {
   overflow: hidden;
   border-radius: var(--radius-lg);
   background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+  background-size: cover;
+  background-position: center;
   color: white;
   padding: var(--spacing-2xl);
   text-align: center;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.85), rgba(59, 130, 246, 0.85));
+  z-index: 1;
+}
+
+.carousel-content {
+  position: relative;
+  z-index: 2;
 }
 
 .carousel-title {
@@ -878,6 +900,52 @@ body {
 .footer-text {
   color: var(--text-light);
   font-size: var(--font-size-sm);
+}
+
+.footer-social-links {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--background-secondary);
+  color: var(--text-color);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 18px;
+}
+
+.social-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.social-link.facebook:hover { background: #1877f2; color: white; }
+.social-link.instagram:hover { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; }
+.social-link.twitter:hover { background: #000000; color: white; }
+.social-link.youtube:hover { background: #ff0000; color: white; }
+.social-link.tiktok:hover { background: #000000; color: white; }
+.social-link.telegram:hover { background: #0088cc; color: white; }
+.social-link.whatsapp:hover { background: #25d366; color: white; }
+.social-link.linkedin:hover { background: #0077b5; color: white; }
+.social-link.pinterest:hover { background: #e60023; color: white; }
+.social-link.weibo:hover { background: #e6162d; color: white; }
+
+.social-link.custom:hover { background: #667eea; color: white; }
+
+.social-link svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
 
 .modal {
