@@ -54,12 +54,11 @@ class Frontend {
       });
     }
 
-    // 搜索功能 - 使用事件委托确保在DOM元素加载后绑定
+    // 搜索功能 - 使用事件委托
     document.addEventListener('click', (e) => {
       if (e.target.id === 'search-btn') {
         const searchInput = document.getElementById('search-input');
         if (searchInput) {
-          console.log('搜索按钮点击，搜索词:', searchInput.value);
           this.searchProducts(searchInput.value);
         }
       } else if (e.target.id === 'reset-search') {
@@ -67,7 +66,6 @@ class Frontend {
         if (searchInput) {
           searchInput.value = '';
         }
-        console.log('重置搜索');
         this.resetSearch();
       }
     });
@@ -75,7 +73,6 @@ class Frontend {
     // 回车键搜索
     document.addEventListener('keypress', (e) => {
       if (e.key === 'Enter' && e.target.id === 'search-input') {
-        console.log('回车键搜索，搜索词:', e.target.value);
         this.searchProducts(e.target.value);
       }
     });
@@ -233,52 +230,40 @@ class Frontend {
   
   // 搜索产品
   searchProducts(query) {
-    console.log('搜索方法被调用，搜索词:', query);
+    if (!query || typeof query !== 'string') {
+      this.resetSearch();
+      return;
+    }
     
-    if (!query.trim()) {
-      console.log('搜索词为空，重置搜索');
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
       this.resetSearch();
       return;
     }
 
-    console.log('所有产品数量:', this.state.allProducts.length);
-    console.log('产品数据示例:', this.state.allProducts[0]);
-
-    const searchTerm = query.toLowerCase().trim();
+    const searchTerm = trimmedQuery.toLowerCase();
     const filteredProducts = this.state.allProducts.filter(product => {
-      // 搜索产品名称
       if (product.name.toLowerCase().includes(searchTerm)) {
-        console.log('匹配产品名称:', product.name);
         return true;
       }
       
-      // 搜索标签
-      if (product.tags && product.tags.some(tag => {
-        const match = tag.toLowerCase().includes(searchTerm);
-        if (match) console.log('匹配标签:', tag);
-        return match;
-      })) {
+      if (product.tags && product.tags.some(tag => tag.toLowerCase().includes(searchTerm))) {
         return true;
       }
       
-      // 搜索产品材质信息
       if (product.upperMaterial && product.upperMaterial.toLowerCase().includes(searchTerm)) {
-        console.log('匹配鞋面材质:', product.upperMaterial);
         return true;
       }
       if (product.innerMaterial && product.innerMaterial.toLowerCase().includes(searchTerm)) {
-        console.log('匹配内里材质:', product.innerMaterial);
         return true;
       }
       if (product.soleMaterial && product.soleMaterial.toLowerCase().includes(searchTerm)) {
-        console.log('匹配鞋底材质:', product.soleMaterial);
         return true;
       }
       
       return false;
     });
 
-    console.log('过滤后的产品数量:', filteredProducts.length);
     this.state.products = filteredProducts;
     this.renderProducts();
   }
