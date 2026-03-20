@@ -410,6 +410,10 @@
                 <input type="number" id="product-min-order" name="minOrder" min="1">
               </div>
               <div class="form-group">
+                <label for="product-tags">标签 (用逗号分隔)</label>
+                <input type="text" id="product-tags" name="tags" placeholder="例如: 新品,热销,推荐">
+              </div>
+              <div class="form-group">
                 <label for="product-series">所属系列</label>
                 <select id="product-series" name="series" required>
                   <!-- 系列选项将通过 JavaScript 动态生成 -->
@@ -1138,6 +1142,7 @@
           document.getElementById('product-sole-material').value = product.soleMaterial || '';
           document.getElementById('product-customizable').value = product.customizable || '';
           document.getElementById('product-min-order').value = product.minOrder || '';
+          document.getElementById('product-tags').value = product.tags ? product.tags.join(', ') : '';
           document.getElementById('product-series').value = product.seriesId;
           document.getElementById('product-image').value = product.image;
         }
@@ -1145,10 +1150,14 @@
       
       async saveProduct() {
         try {
+          const tagsInput = document.getElementById('product-tags').value;
+          const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+          
           const formData = {
             name: document.getElementById('product-name').value,
             description: document.getElementById('product-description').value,
             price: document.getElementById('product-price').value,
+            tags: tags,
             upperMaterial: document.getElementById('product-upper-material').value,
             innerMaterial: document.getElementById('product-inner-material').value,
             soleMaterial: document.getElementById('product-sole-material').value,
