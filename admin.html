@@ -454,6 +454,8 @@
         this.currentEditingProduct = null;
         this.currentSeries = null; // 当前选中的系列
         this.seriesNameMap = {}; // 系列名称映射
+        this.seriesOrder = []; // 系列顺序
+        this.productOrders = {}; // 产品顺序，按系列存储
         this.init();
       }
       
@@ -609,20 +611,69 @@
               }
               
               if (productsFile && productsFile.products) {
-                const productEntries = Object.entries(productsFile.products);
-                productEntries.forEach(([fileName, productData]) => {
-                  const product = {
-                    id: fileName,
-                    seriesId: seriesItem.name,
-                    name: productData.name,
-                    description: productData.description,
-                    price: productData.price,
-                    materials: productData.materials,
-                    image: fileName,
-                    isMainImage: this.isMainImage(fileName)
-                  };
-                  products.push(product);
-                });
+                // 存储产品顺序
+                if (productsFile.order) {
+                  this.productOrders[seriesItem.name] = productsFile.order;
+                }
+                
+                if (productsFile.order) {
+                  // 按排序顺序加载产品
+                  productsFile.order.forEach(productName => {
+                    // 找到对应的产品数据（查找匹配的文件名）
+                    const productEntry = Object.entries(productsFile.products).find(([fileName, productData]) => {
+                      return productData.name === productName || this.extractProductName(fileName) === productName;
+                    });
+                    
+                    if (productEntry) {
+                      const [fileName, productData] = productEntry;
+                      const product = {
+                        id: fileName,
+                        seriesId: seriesItem.name,
+                        name: productData.name,
+                        description: productData.description,
+                        price: productData.price,
+                        materials: productData.materials,
+                        image: fileName,
+                        isMainImage: this.isMainImage(fileName)
+                      };
+                      products.push(product);
+                    }
+                  });
+                  
+                  // 添加未在排序中的产品
+                  Object.entries(productsFile.products).forEach(([fileName, productData]) => {
+                    const productName = productData.name || this.extractProductName(fileName);
+                    if (!productsFile.order.includes(productName)) {
+                      const product = {
+                        id: fileName,
+                        seriesId: seriesItem.name,
+                        name: productData.name,
+                        description: productData.description,
+                        price: productData.price,
+                        materials: productData.materials,
+                        image: fileName,
+                        isMainImage: this.isMainImage(fileName)
+                      };
+                      products.push(product);
+                    }
+                  });
+                } else {
+                  // 没有排序信息，直接加载
+                  const productEntries = Object.entries(productsFile.products);
+                  productEntries.forEach(([fileName, productData]) => {
+                    const product = {
+                      id: fileName,
+                      seriesId: seriesItem.name,
+                      name: productData.name,
+                      description: productData.description,
+                      price: productData.price,
+                      materials: productData.materials,
+                      image: fileName,
+                      isMainImage: this.isMainImage(fileName)
+                    };
+                    products.push(product);
+                  });
+                }
               }
             } catch (error) {
               console.warn(`Failed to load products for ${seriesItem.name}:`, error);
@@ -646,12 +697,17 @@
           cacheManager.clear('config.json');
           console.log('Config.json cache cleared in admin loadSeriesNameMap');
           
-          // 尝试从配置文件加载系列名称映射
+          // 尝试从配置文件加载系列名称映射和顺序
           let configFile;
           try {
             configFile = await githubAPI.fetchFile('config.json');
-            if (configFile && configFile.seriesNameMap) {
-              this.seriesNameMap = configFile.seriesNameMap;
+            if (configFile) {
+              if (configFile.seriesNameMap) {
+                this.seriesNameMap = configFile.seriesNameMap;
+              }
+              if (configFile.seriesOrder) {
+                this.seriesOrder = configFile.seriesOrder;
+              }
             }
           } catch (error) {
             // 如果配置文件不存在，使用默认映射
@@ -758,7 +814,22 @@
         const seriesList = document.getElementById('series-list');
         seriesList.innerHTML = '';
         
-        this.series.forEach(seriesItem => {
+        // 按系列顺序排序
+        let sortedSeries = [...this.series];
+        if (this.seriesOrder) {
+          sortedSeries = this.seriesOrder.map(seriesName => 
+            this.series.find(s => s.name === seriesName)
+          ).filter(Boolean);
+          
+          // 添加未在排序中的系列
+          this.series.forEach(seriesItem => {
+            if (!this.seriesOrder.includes(seriesItem.name)) {
+              sortedSeries.push(seriesItem);
+            }
+          });
+        }
+        
+        sortedSeries.forEach(seriesItem => {
           const seriesProducts = this.products.filter(p => p.seriesId === seriesItem.name);
           const displayName = this.seriesNameMap[seriesItem.name] || seriesItem.name;
           const card = document.createElement('div');
@@ -806,8 +877,37 @@
           productsByGroup[productName].push(product);
         });
         
-        // 渲染每个产品组
-        Object.entries(productsByGroup).forEach(([productName, productGroup]) => {
+        // 获取产品顺序
+        let productOrder = [];
+        if (this.currentSeries && this.productOrders[this.currentSeries]) {
+          productOrder = this.productOrders[this.currentSeries];
+        }
+        
+        // 按顺序渲染产品组
+        const productGroups = Object.entries(productsByGroup);
+        if (productOrder.length > 0) {
+          // 按排序顺序渲染
+          productOrder.forEach(orderName => {
+            const productGroup = productGroups.find(([groupName, group]) => {
+              return group[0].name === orderName || groupName === orderName;
+            });
+            if (productGroup) {
+              this.renderProductGroup(productGroup[0], productGroup[1], fileList);
+            }
+          });
+          
+          // 渲染未在排序中的产品组
+          productGroups.forEach(([productName, productGroup]) => {
+            const groupName = productGroup[0].name || productName;
+            if (!productOrder.includes(groupName)) {
+              this.renderProductGroup(productName, productGroup, fileList);
+            }
+          });
+        }
+      }
+      
+      // 渲染产品组
+      renderProductGroup(productName, productGroup, fileList) {
           // 分离主图和其他图片
           const mainImage = productGroup.find(p => p.isMainImage);
           const otherImages = productGroup.filter(p => !p.isMainImage);
