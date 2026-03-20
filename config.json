@@ -44,7 +44,7 @@
     "enable": true
   },
   "socialLinks": {
-    "facebook": "",
+    "facebook": "https://chat.deepseek.com/a/chat/s/6ab389aa-b85a-4ea6-a9ba-635a5accfacb",
     "instagram": "",
     "twitter": "",
     "youtube": "",
@@ -54,7 +54,8 @@
     "linkedin": "",
     "pinterest": "",
     "weibo": "",
-    "customLinks": []
+    "customLinks": [],
+    "display": true
   },
   "pageAssets": {
     "favicon": "",
@@ -119,7 +120,7 @@
       "ko": "© 2026 GH5. All rights reserved."
     },
     "loadingText": {
-      "zh": "加载中...",
+      "zh": "稍等，加载中...",
       "en": "Loading...",
       "ko": "로딩 중..."
     },
@@ -142,6 +143,21 @@
       "zh": "查看详情",
       "en": "View Details",
       "ko": "상세 보기"
+    },
+    "contactUsText": {
+      "zh": "联系我们",
+      "en": "Contact Us",
+      "ko": "联系我们"
+    },
+    "carouselWelcome": {
+      "zh": "欢迎来到 GH5",
+      "en": "Welcome to GH5",
+      "ko": "GH5에 오신 것을 환영합니다"
+    },
+    "carouselDescription": {
+      "zh": "探索我们的优质产品",
+      "en": "Explore our quality products",
+      "ko": "저희 품질 제품을 탐색하세요"
     }
   }
 }
