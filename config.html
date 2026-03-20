@@ -226,6 +226,38 @@
       margin-top: 10px;
     }
     
+    .quick-add-btn {
+      background: #e9ecef;
+      color: #495057;
+      padding: 6px 14px;
+      border: 1px solid #ced4da;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    
+    .quick-add-btn:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+    
+    .btn-export, .btn-import {
+      background: #6c757d;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    
+    .btn-export:hover, .btn-import:hover {
+      background: #5a6268;
+    }
+    
     .btn-delete-translation {
       background: #dc3545;
       color: white;
@@ -448,11 +480,30 @@
       <h2>🌐 翻译词典管理</h2>
       <p style="color: #666; margin-bottom: 20px;">管理系统中使用的多语言翻译文本</p>
       
+      <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+        <p style="margin: 0 0 10px 0; font-weight: 600; color: #444;">快速添加常用翻译：</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <button class="quick-add-btn" onclick="configManager.addPresetTranslation('联系我们')">联系我们</button>
+          <button class="quick-add-btn" onclick="configManager.addPresetTranslation('提交')">提交</button>
+          <button class="quick-add-btn" onclick="configManager.addPresetTranslation('提交中')">提交中</button>
+          <button class="quick-add-btn" onclick="configManager.addPresetTranslation('感谢您的留言')">感谢您的留言</button>
+          <button class="quick-add-btn" onclick="configManager.addPresetTranslation('姓名')">姓名</button>
+          <button class="quick-add-btn" onclick="configManager.addPresetTranslation('邮箱')">邮箱</button>
+          <button class="quick-add-btn" onclick="configManager.addPresetTranslation('留言')">留言</button>
+          <button class="quick-add-btn" onclick="configManager.addPresetTranslation('关于我们')">关于我们</button>
+        </div>
+      </div>
+      
       <div id="translation-list">
       </div>
       
-      <button class="btn-add-translation" onclick="configManager.addTranslation()">+ 添加新翻译</button>
-      <button class="btn-save" onclick="configManager.saveTranslations()" style="margin-left: 15px;">保存翻译</button>
+      <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn-add-translation" onclick="configManager.addTranslation()">+ 添加新翻译</button>
+        <button class="btn-save" onclick="configManager.saveTranslations()">保存翻译</button>
+        <button class="btn-export" onclick="configManager.exportTranslations()">📤 导出</button>
+        <button class="btn-import" onclick="configManager.importTranslations()">📥 导入</button>
+      </div>
+      <input type="file" id="translation-import-input" accept=".json" style="display: none;" onchange="configManager.handleImportTranslation(event)">
     </div>
     
     <div id="page-settings" class="config-section">
@@ -677,6 +728,70 @@
           this.translations.splice(index, 1);
           this.renderTranslations();
         }
+      }
+      
+      addPresetTranslation(key) {
+        const exists = this.translations.find(t => t.key === key);
+        if (!exists) {
+          const presetValues = {
+            '联系我们': { zh: '联系我们', en: 'Contact Us', ko: '联系我们' },
+            '提交': { zh: '提交', en: 'Submit', ko: '제출' },
+            '提交中': { zh: '提交中...', en: 'Submitting...', ko: '제출 중...' },
+            '感谢您的留言': { zh: '感谢您的留言！我们会尽快与您联系。', en: 'Thank you for your message! We will contact you soon.', ko: '메시지를 보내주셔서 감사합니다. 곧 연락드리겠습니다.' },
+            '姓名': { zh: '姓名', en: 'Name', ko: '이름' },
+            '邮箱': { zh: '邮箱', en: 'Email', ko: '이메일' },
+            '留言': { zh: '留言', en: 'Message', ko: '메시지' },
+            '关于我们': { zh: '关于我们', en: 'About Us', ko: '회사 소개' }
+          };
+          this.translations.push({
+            key: key,
+            zh: presetValues[key]?.zh || '',
+            en: presetValues[key]?.en || '',
+            ko: presetValues[key]?.ko || ''
+          });
+          this.renderTranslations();
+          this.showStatus(`已添加 "${key}"`, 'success');
+        } else {
+          this.showStatus(`"${key}" 已存在`, 'error');
+        }
+      }
+      
+      exportTranslations() {
+        const translations = this.config.translations || {};
+        const dataStr = JSON.stringify(translations, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `translations-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        this.showStatus('翻译词典导出成功', 'success');
+      }
+      
+      importTranslations() {
+        document.getElementById('translation-import-input').click();
+      }
+      
+      handleImportTranslation(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const imported = JSON.parse(e.target.result);
+              const current = this.config.translations || {};
+              const merged = { ...current, ...imported };
+              this.config.translations = merged;
+              this.renderTranslations();
+              this.showStatus('翻译词典导入成功', 'success');
+            } catch (error) {
+              this.showStatus('导入失败：无效的 JSON 文件', 'error');
+            }
+          };
+          reader.readAsText(file);
+        }
+        event.target.value = '';
       }
       
       updatePreview() {
