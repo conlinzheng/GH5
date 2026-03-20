@@ -9,11 +9,11 @@
       "name": "短靴",
       "description": "超纤短靴",
       "price": "85",
-      "upperMaterial": "",
-      "innerMaterial": "",
-      "soleMaterial": "",
-      "customizable": "",
-      "minOrder": ""
+      "upperMaterial": "超纤",
+      "innerMaterial": "PU",
+      "soleMaterial": "EVA发泡",
+      "customizable": "true",
+      "minOrder": "100"
     },
     "中文+ (1).png": {
       "name": {
