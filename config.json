@@ -50,7 +50,7 @@
     }
   },
   "contactForm": {
-    "formspreeId": "YOUR_FORM_ID",
+    "formspreeId": "https://formspree.io/f/mqeyjaqk",
     "enable": true
   },
   "translations": {
