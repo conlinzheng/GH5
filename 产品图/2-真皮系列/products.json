@@ -85,9 +85,9 @@
     },
     "勃肯1 (1).jpg": {
       "name": "博肯",
-      "description": "[object Object]博肯",
+      "description": "博肯",
       "price": "10",
-      "upperMaterial": "",
+      "upperMaterial": "A",
       "innerMaterial": "",
       "soleMaterial": "",
       "customizable": "",
