@@ -845,7 +845,8 @@ class Frontend {
               
               // 按排序顺序添加产品
               if (productsFile.order) {
-                productsFile.order.forEach(productName => {
+                const orderNames = productsFile.order;
+                orderNames.forEach(productName => {
                   if (productsByGroup[productName]) {
                     products.push(productsByGroup[productName]);
                     delete productsByGroup[productName];
@@ -853,7 +854,7 @@ class Frontend {
                 });
               }
               
-              // 添加剩余的产品
+              // 添加剩余的产品（确保所有产品都被加载，即使 order 字段有问题）
               Object.values(productsByGroup).forEach(product => {
                 products.push(product);
               });

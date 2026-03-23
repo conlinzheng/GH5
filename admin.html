@@ -657,14 +657,18 @@
                 }
                 
                 if (productsFile.order) {
+                  const orderNames = productsFile.order;
+                  const validOrderNames = [];
+                  
                   // 按排序顺序加载产品
-                  productsFile.order.forEach(productName => {
+                  orderNames.forEach(productName => {
                     // 找到对应的产品数据（查找匹配的文件名）
                     const productEntry = Object.entries(productsFile.products).find(([fileName, productData]) => {
                       return this.extractProductName(fileName) === productName;
                     });
                     
                     if (productEntry) {
+                      validOrderNames.push(productName);
                       const [fileName, productData] = productEntry;
                       const product = {
                         id: fileName,
@@ -680,10 +684,10 @@
                     }
                   });
                   
-                  // 添加未在排序中的产品
+                  // 添加未在排序中的产品（包括 order 中找不到匹配的）
                   Object.entries(productsFile.products).forEach(([fileName, productData]) => {
                     const productName = this.extractProductName(fileName);
-                    if (!productsFile.order.includes(productName)) {
+                    if (!validOrderNames.includes(productName)) {
                       const product = {
                         id: fileName,
                         seriesId: seriesItem.name,
