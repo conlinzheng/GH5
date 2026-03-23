@@ -7,21 +7,24 @@
   "products": {
     "33 (1).png": {
       "name": {
-        "zh": "33",
-        "en": "33",
-        "ko": "33"
+        "zh": "55",
+        "en": "55",
+        "ko": "55"
       },
       "description": {
         "zh": "33 - 高品质产品",
-        "en": "33 - High quality product",
-        "ko": "33 - 고품질 제품"
+        "en": "33 - 高品质产品",
+        "ko": "33 - 高品质产品"
       },
-      "price": "",
+      "price": "55",
+      "tags": [],
       "materials": {
-        "upper": "",
+        "upper": "5",
         "lining": "",
         "sole": ""
-      }
+      },
+      "customizable": "",
+      "minOrder": ""
     },
     "中文数字123 (1).png": {
       "name": {
@@ -58,6 +61,27 @@
         "lining": "",
         "sole": ""
       }
+    },
+    "33 (2).png": {
+      "name": {
+        "zh": "55",
+        "en": "55",
+        "ko": "55"
+      },
+      "description": {
+        "zh": "33 - 高品质产品",
+        "en": "33 - 高品质产品",
+        "ko": "33 - 高品质产品"
+      },
+      "price": "55",
+      "tags": [],
+      "materials": {
+        "upper": "5",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
     }
   },
   "order": [
