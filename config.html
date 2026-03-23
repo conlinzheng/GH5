@@ -185,34 +185,143 @@
     
     .translation-item {
       background: #f8f9fa;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 15px;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
       border-left: 4px solid #667eea;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .translation-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     }
     
     .translation-item h4 {
-      margin: 0 0 10px 0;
+      margin: 0 0 15px 0;
       color: #333;
-      font-size: 15px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .translation-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      gap: 15px;
+    }
+    
+    .translation-header input.trans-key {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      background: white;
+    }
+    
+    .translation-header input.trans-key:focus {
+      border-color: #667eea;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
     }
     
     .translation-fields {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+      margin-top: 10px;
     }
     
-    .translation-fields input {
-      padding: 8px 10px;
+    .translation-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .translation-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .translation-field input {
+      padding: 10px 12px;
       border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 13px;
+      border-radius: 6px;
+      font-size: 14px;
+      background: white;
+      transition: border-color 0.3s, box-shadow 0.3s;
     }
     
-    .translation-fields input:focus {
+    .translation-field input:focus {
       border-color: #667eea;
       outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    }
+    
+    .translation-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .btn-translate {
+      background: #17a2b8;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+    
+    .btn-translate:hover {
+      background: #138496;
+    }
+    
+    .translation-search {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .translation-search input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .translation-search input:focus {
+      border-color: #667eea;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    }
+    
+    .translation-stats {
+      margin-bottom: 15px;
+      padding: 10px 15px;
+      background: #e7f3ff;
+      border-radius: 6px;
+      border-left: 4px solid #2196F3;
+      font-size: 14px;
+      color: #1565C0;
+    }
+    
+    .translation-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
     
     .btn-add-translation {
@@ -815,15 +924,24 @@
         </div>
       </div>
       
-      <div id="translation-list"></div>
+      <div class="translation-stats">
+        <span id="translation-count">0</span> 个翻译项 | <span id="translation-complete">0</span> 个已完成
+      </div>
       
-      <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <div class="translation-search">
+        <input type="text" id="translation-search" placeholder="搜索翻译键名或内容..." onkeyup="configManager.searchTranslations(this.value)">
+      </div>
+      
+      <div class="translation-controls">
         <button class="btn-add-translation" onclick="configManager.addTranslation()">+ 添加新翻译</button>
         <button class="btn-save" onclick="configManager.saveTranslations()">保存翻译</button>
         <button class="btn-export" onclick="configManager.exportTranslationsCSV()">📤 导出CSV</button>
         <button class="btn-import" onclick="configManager.importTranslationsCSV()">📥 导入CSV</button>
         <button class="btn-export" onclick="configManager.exportTranslations()">📤 导出JSON</button>
       </div>
+      
+      <div id="translation-list"></div>
+      
       <input type="file" id="translation-import-input" accept=".json,.csv" style="display: none;" onchange="configManager.handleImportTranslation(event)">
     </div>
     
@@ -1163,26 +1281,100 @@
           this.translations = [{ key: '', zh: '', en: '', ko: '' }];
         }
         
+        // 更新统计信息
+        this.updateTranslationStats();
+        
         this.translations.forEach((trans, index) => {
           const item = document.createElement('div');
           item.className = 'translation-item';
           item.innerHTML = `
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <div class="translation-header">
               <input type="text" 
                      class="trans-key" 
                      value="${trans.key}" 
-                     placeholder="翻译键名"
-                     style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-              <button class="btn-delete-translation" onclick="configManager.removeTranslation(${index})">删除</button>
+                     placeholder="翻译键名">
+              <button class="btn-delete-translation" onclick="configManager.removeTranslation(${index})")">删除</button>
             </div>
             <div class="translation-fields">
-              <input type="text" class="trans-zh" value="${trans.zh}" placeholder="中文">
-              <input type="text" class="trans-en" value="${trans.en}" placeholder="English">
-              <input type="text" class="trans-ko" value="${trans.ko}" placeholder="한국어">
+              <div class="translation-field">
+                <label>中文 (ZH)</label>
+                <input type="text" class="trans-zh" value="${trans.zh}" placeholder="请输入中文翻译">
+              </div>
+              <div class="translation-field">
+                <label>英文 (EN)</label>
+                <input type="text" class="trans-en" value="${trans.en}" placeholder="Please enter English translation">
+              </div>
+              <div class="translation-field">
+                <label>韩文 (KO)</label>
+                <input type="text" class="trans-ko" value="${trans.ko}" placeholder="한국어 번역을 입력하세요">
+              </div>
+            </div>
+            <div class="translation-actions">
+              <button class="btn-translate" onclick="configManager.translateItem(${index})")">🔄 自动翻译</button>
             </div>
           `;
           container.appendChild(item);
         });
+      }
+      
+      updateTranslationStats() {
+        const count = this.translations.length;
+        const complete = this.translations.filter(t => t.zh && t.en && t.ko).length;
+        document.getElementById('translation-count').textContent = count;
+        document.getElementById('translation-complete').textContent = complete;
+      }
+      
+      searchTranslations(query) {
+        const items = document.querySelectorAll('.translation-item');
+        query = query.toLowerCase();
+        
+        items.forEach(item => {
+          const key = item.querySelector('.trans-key').value.toLowerCase();
+          const zh = item.querySelector('.trans-zh').value.toLowerCase();
+          const en = item.querySelector('.trans-en').value.toLowerCase();
+          const ko = item.querySelector('.trans-ko').value.toLowerCase();
+          
+          if (key.includes(query) || zh.includes(query) || en.includes(query) || ko.includes(query)) {
+            item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      }
+      
+      async translateItem(index) {
+        const item = this.translations[index];
+        if (!item.zh) {
+          this.showStatus('请先填写中文内容', 'error');
+          return;
+        }
+        
+        try {
+          // 翻译英文
+          const enTranslation = await this.translateText(item.zh, 'zh', 'en');
+          item.en = enTranslation;
+          
+          // 翻译韩文
+          const koTranslation = await this.translateText(item.zh, 'zh', 'ko');
+          item.ko = koTranslation;
+          
+          this.renderTranslations();
+          this.showStatus('翻译完成', 'success');
+        } catch (error) {
+          console.error('翻译失败:', error);
+          this.showStatus('翻译失败，请稍后重试', 'error');
+        }
+      }
+      
+      async translateText(text, from, to) {
+        // 这里使用一个简单的模拟翻译
+        // 实际项目中应该使用真实的翻译 API
+        if (from === 'zh' && to === 'en') {
+          return 'Translated: ' + text;
+        } else if (from === 'zh' && to === 'ko') {
+          return '번역: ' + text;
+        }
+        return text;
       }
       
       addTranslation() {
