@@ -821,20 +821,29 @@ class Frontend {
                 console.log('产品数据:', productData);
                 console.log('产品标签:', productData.tags);
                 
+                // 处理多语言字段
+                const name = productData.name?.zh || productData.name || productName;
+                const description = productData.description?.zh || productData.description || '';
+                
+                // 处理材质字段（兼容两种格式：materials 对象 或 单独字段）
+                const upperMaterial = productData.materials?.upper || productData.upperMaterial || '';
+                const innerMaterial = productData.materials?.lining || productData.innerMaterial || '';
+                const soleMaterial = productData.materials?.sole || productData.soleMaterial || '';
+                
                 // 构建产品对象
                 const product = {
                   id: mainImage,
                   seriesId: seriesItem.name,
-                  name: productData.name,
-                  description: productData.description,
-                  price: productData.price,
-                  upperMaterial: productData.upperMaterial,
-                  innerMaterial: productData.innerMaterial,
-                  soleMaterial: productData.soleMaterial,
-                  customizable: productData.customizable,
-                  minOrder: productData.minOrder,
+                  name: name,
+                  description: description,
+                  price: productData.price || '',
+                  upperMaterial: upperMaterial,
+                  innerMaterial: innerMaterial,
+                  soleMaterial: soleMaterial,
+                  customizable: productData.customizable || '',
+                  minOrder: productData.minOrder || '',
                   tags: productData.tags || [],
-                  specs: productData.upperMaterial || productData.innerMaterial || productData.soleMaterial || '',
+                  specs: upperMaterial || innerMaterial || soleMaterial || '',
                   images: images.map(img => `产品图/${seriesItem.name}/${img}`)
                 };
                 

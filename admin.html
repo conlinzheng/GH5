@@ -678,13 +678,17 @@
                     if (productEntry) {
                       validOrderNames.push(productName);
                       const [fileName, productData] = productEntry;
+                      const materials = productData.materials || productData;
                       const product = {
                         id: fileName,
                         seriesId: seriesItem.name,
-                        name: productData.name,
-                        description: productData.description,
-                        price: productData.price,
-                        materials: productData.materials,
+                        name: productData.name?.zh || productData.name || productName,
+                        description: productData.description?.zh || productData.description || '',
+                        price: productData.price || '',
+                        materials: materials,
+                        upperMaterial: materials?.upper || '',
+                        innerMaterial: materials?.lining || '',
+                        soleMaterial: materials?.sole || '',
                         image: fileName,
                         isMainImage: this.isMainImage(fileName)
                       };
@@ -696,13 +700,17 @@
                   Object.entries(productsFile.products).forEach(([fileName, productData]) => {
                     const productName = this.extractProductName(fileName);
                     if (!validOrderNames.includes(productName)) {
+                      const materials = productData.materials || productData;
                       const product = {
                         id: fileName,
                         seriesId: seriesItem.name,
-                        name: productData.name,
-                        description: productData.description,
-                        price: productData.price,
-                        materials: productData.materials,
+                        name: productData.name?.zh || productData.name || productName,
+                        description: productData.description?.zh || productData.description || '',
+                        price: productData.price || '',
+                        materials: materials,
+                        upperMaterial: materials?.upper || '',
+                        innerMaterial: materials?.lining || '',
+                        soleMaterial: materials?.sole || '',
                         image: fileName,
                         isMainImage: this.isMainImage(fileName)
                       };
@@ -713,13 +721,18 @@
                   // 没有排序信息，直接加载
                   const productEntries = Object.entries(productsFile.products);
                   productEntries.forEach(([fileName, productData]) => {
+                    const productName = this.extractProductName(fileName);
+                    const materials = productData.materials || productData;
                     const product = {
                       id: fileName,
                       seriesId: seriesItem.name,
-                      name: productData.name,
-                      description: productData.description,
-                      price: productData.price,
-                      materials: productData.materials,
+                      name: productData.name?.zh || productData.name || productName,
+                      description: productData.description?.zh || productData.description || '',
+                      price: productData.price || '',
+                      materials: materials,
+                      upperMaterial: materials?.upper || '',
+                      innerMaterial: materials?.lining || '',
+                      soleMaterial: materials?.sole || '',
                       image: fileName,
                       isMainImage: this.isMainImage(fileName)
                     };
@@ -1347,13 +1360,23 @@
           // 更新同组的所有图片产品数据
           sameGroupImages.forEach(file => {
             productsFile.products[file.name] = {
-              name: formData.name,
-              description: formData.description,
+              name: {
+                zh: formData.name,
+                en: formData.name,
+                ko: formData.name
+              },
+              description: {
+                zh: formData.description,
+                en: formData.description,
+                ko: formData.description
+              },
               price: formData.price,
               tags: formData.tags,
-              upperMaterial: formData.upperMaterial,
-              innerMaterial: formData.innerMaterial,
-              soleMaterial: formData.soleMaterial,
+              materials: {
+                upper: formData.upperMaterial,
+                lining: formData.innerMaterial,
+                sole: formData.soleMaterial
+              },
               customizable: formData.customizable,
               minOrder: formData.minOrder
             };
