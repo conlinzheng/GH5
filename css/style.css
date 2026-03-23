@@ -81,6 +81,7 @@ body {
 
 .nav {
   display: flex;
+  align-items: center;
   gap: var(--spacing-md);
 }
 
@@ -98,6 +99,13 @@ body {
   justify-content: center;
   overflow: hidden;
   line-height: 1;
+}
+
+.nav-btn svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .nav-btn:hover {
@@ -223,6 +231,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  line-height: 1;
+}
+
+.search-btn svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .search-btn:hover {
@@ -300,6 +317,15 @@ body {
   color: var(--primary-color);
   z-index: 10;
   transition: all var(--transition-fast);
+  overflow: hidden;
+  line-height: 1;
+}
+
+.series-nav-btn svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .series-nav-btn:hover {
@@ -1042,6 +1068,17 @@ body {
   color: var(--text-light);
   transition: color var(--transition-fast);
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.modal-close svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }
 
 .modal-close:hover {
@@ -1594,6 +1631,18 @@ body {
   transition: all 0.3s;
   z-index: 20001;
   user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  line-height: 1;
+}
+
+.lightbox-nav svg {
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
 }
 
 .lightbox-nav:hover {

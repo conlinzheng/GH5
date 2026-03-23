@@ -44,6 +44,8 @@
   }
   
   .nav {
+    display: flex;
+    align-items: center;
     gap: var(--spacing-sm);
   }
   
@@ -158,6 +160,7 @@
   
   .search-btn svg,
   .reset-btn svg {
+    display: block;
     width: 18px;
     height: 18px;
     flex-shrink: 0;
@@ -257,6 +260,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    line-height: 1;
+  }
+  
+  .series-nav-btn svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
   }
   
   .series-nav-btn.left {
@@ -347,6 +359,15 @@
     justify-content: center;
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    line-height: 1;
+  }
+  
+  .modal-close svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
   }
   
   .modal-body {
@@ -431,6 +452,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    line-height: 1;
+  }
+  
+  .lightbox-nav svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
   }
   
   .lightbox-prev {
