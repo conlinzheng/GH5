@@ -158,11 +158,22 @@ class I18n {
       
       const langBtn = document.getElementById('language-toggle');
       if (langBtn) {
-        langBtn.addEventListener('click', () => {
+        // 移除可能存在的旧监听器（需要先检查是否存在）
+        if (this._languageToggleHandler) {
+          langBtn.removeEventListener('click', this._languageToggleHandler);
+        }
+        
+        // 创建并绑定新的事件处理函数
+        this._languageToggleHandler = () => {
           const currentIndex = this.supportedLangs.indexOf(this.currentLang);
           const nextIndex = (currentIndex + 1) % this.supportedLangs.length;
           this.switchLanguage(this.supportedLangs[nextIndex]);
-        });
+        };
+        
+        langBtn.addEventListener('click', this._languageToggleHandler);
+        console.log('Language toggle button event listener added');
+      } else {
+        console.warn('Language toggle button not found');
       }
     } catch (error) {
       console.error('I18n init error:', error);

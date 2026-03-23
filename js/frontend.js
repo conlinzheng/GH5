@@ -35,6 +35,23 @@ class Frontend {
     await this.loadSiteConfig();
     this.loadProductsData();
     this.setupEventListeners();
+    
+    // 确保i18n初始化
+    if (typeof i18n !== 'undefined' && !i18n.isReady) {
+      i18n.init();
+    }
+    
+    // 监听语言变化事件
+    document.addEventListener('languageChanged', (event) => {
+      const newLang = event.detail.language;
+      this.state.currentLang = newLang;
+      this.updatePageTitle();
+      this.updateCarousel();
+      this.updateContactModal();
+      this.updateFooter();
+      this.updateFormLabels();
+      console.log('Language changed to:', newLang);
+    });
   }
   
   getImageUrl(seriesId, imageName) {
@@ -46,7 +63,8 @@ class Frontend {
       cacheManager.clear('config.json');
       const config = await githubAPI.fetchFile('config.json');
       this.state.siteConfig = config;
-      this.state.currentLang = config.pageSettings?.defaultLanguage || 'zh';
+      // 使用i18n的当前语言设置
+      this.state.currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : config.pageSettings?.defaultLanguage || 'zh';
       this.state.translations = config.translations || {};
       this.updateContactModal();
       this.updatePageTitle();
