@@ -497,6 +497,13 @@
         this.init();
       }
       
+      getImageUrl(seriesId, imageName) {
+        const owner = typeof config !== 'undefined' ? config.get('github.owner', 'conlinzheng') : 'conlinzheng';
+        const repo = typeof config !== 'undefined' ? config.get('github.repo', 'GH5') : 'GH5';
+        const productsPath = typeof config !== 'undefined' ? config.get('github.productsPath', '产品图') : '产品图';
+        return `https://${owner}.github.io/${repo}/${productsPath}/${seriesId}/${imageName}`;
+      }
+      
       init() {
         this.setupEventListeners();
         this.loadCacheStatus();
@@ -632,13 +639,20 @@
       }
       
       async scanFiles() {
+        const scanBtn = document.getElementById('btn-scan');
+        const scanNewBtn = document.getElementById('btn-scan-new');
+        
+        if (scanBtn) scanBtn.disabled = true;
+        if (scanNewBtn) scanNewBtn.disabled = true;
+        
         try {
           const startTime = new Date();
           document.getElementById('last-scan').textContent = startTime.toLocaleString();
           
+          this.showStatus('正在扫描...', 'info');
+          
           // 清除缓存以确保获取最新数据
           cacheManager.clearAll();
-          console.log('Cache cleared in admin scanFiles');
           
           // 加载系列名称映射
           await this.loadSeriesNameMap();
@@ -755,10 +769,21 @@
         } catch (error) {
           console.error('Scan files error:', error);
           this.showStatus('扫描失败: ' + error.message, 'error');
+        } finally {
+          const scanBtn = document.getElementById('btn-scan');
+          const scanNewBtn = document.getElementById('btn-scan-new');
+          if (scanBtn) scanBtn.disabled = false;
+          if (scanNewBtn) scanNewBtn.disabled = false;
         }
       }
       
       async scanNewProducts() {
+        const scanBtn = document.getElementById('btn-scan');
+        const scanNewBtn = document.getElementById('btn-scan-new');
+        
+        if (scanBtn) scanBtn.disabled = true;
+        if (scanNewBtn) scanNewBtn.disabled = true;
+        
         try {
           this.showStatus('正在扫描新增产品...', 'info');
           
@@ -806,36 +831,41 @@
           
           if (newProductsFound === 0) {
             this.showStatus('没有发现新增产品', 'info');
-            return;
-          }
-          
-          this.showStatus(`发现 ${newProductsFound} 个新增产品`, 'success');
-          
-          let message = `发现 ${newProductsFound} 个新增产品：\n\n`;
-          newProducts.forEach((p, i) => {
-            message += `${i + 1}. ${p.name} (${p.seriesName})\n`;
-          });
-          message += '\n点击"确定"跳转到产品管理页面进行编辑';
-          
-          if (confirm(message)) {
-            const firstNewProduct = newProducts[0];
-            this.currentSeries = firstNewProduct.seriesId;
-            await this.loadProductsForSeries(firstNewProduct.seriesId);
+          } else {
+            this.showStatus(`发现 ${newProductsFound} 个新增产品`, 'success');
             
-            const productItem = this.products.find(p => p.image === firstNewProduct.image);
-            if (productItem) {
-              this.editProduct(productItem);
+            let message = `发现 ${newProductsFound} 个新增产品：\n\n`;
+            newProducts.forEach((p, i) => {
+              message += `${i + 1}. ${p.name} (${p.seriesName})\n`;
+            });
+            message += '\n点击"确定"跳转到产品管理页面进行编辑';
+            
+            if (confirm(message)) {
+              const firstNewProduct = newProducts[0];
+              this.currentSeries = firstNewProduct.seriesId;
+              await this.loadProductsForSeries(firstNewProduct.seriesId);
+              
+              const productItem = this.products.find(p => p.image === firstNewProduct.image);
+              if (productItem) {
+                this.editProduct(productItem);
+              }
             }
           }
           
         } catch (error) {
           console.error('Scan new products error:', error);
           this.showStatus('扫描新增产品失败: ' + error.message, 'error');
+        } finally {
+          const scanBtn = document.getElementById('btn-scan');
+          const scanNewBtn = document.getElementById('btn-scan-new');
+          if (scanBtn) scanBtn.disabled = false;
+          if (scanNewBtn) scanNewBtn.disabled = false;
         }
       }
       
-      async saveProductHistory(seriesId, imageFileName) {
+      async saveProductHistory(seriesId, imageFileName, newData) {
         try {
+          const HISTORY_MAX_ENTRIES = 100;
           const historyPath = '产品图/.history';
           const timestamp = new Date().toISOString();
           
@@ -846,23 +876,32 @@
             historyFile = { history: [] };
           }
           
-          let currentProductData = null;
-          try {
-            const series = this.series.find(s => s.name === seriesId);
-            if (series) {
-              const productsFile = await githubAPI.fetchFile(`${series.path}/products.json`);
-              currentProductData = productsFile.products ? productsFile.products[imageFileName] : null;
-            }
-          } catch (error) {
-            console.warn('无法获取当前产品数据:', error);
-          }
-          
-          if (currentProductData) {
+          if (newData) {
             const historyEntry = {
               timestamp: timestamp,
               seriesId: seriesId,
               imageFileName: imageFileName,
-              data: currentProductData
+              data: {
+                name: {
+                  zh: newData.name,
+                  en: newData.name,
+                  ko: newData.name
+                },
+                description: {
+                  zh: newData.description,
+                  en: newData.description,
+                  ko: newData.description
+                },
+                price: newData.price,
+                tags: newData.tags,
+                materials: {
+                  upper: newData.upperMaterial,
+                  lining: newData.innerMaterial,
+                  sole: newData.soleMaterial
+                },
+                customizable: newData.customizable,
+                minOrder: newData.minOrder
+              }
             };
             
             if (!historyFile.history) {
@@ -871,14 +910,12 @@
             
             historyFile.history.unshift(historyEntry);
             
-            if (historyFile.history.length > 100) {
-              historyFile.history = historyFile.history.slice(0, 100);
+            if (historyFile.history.length > HISTORY_MAX_ENTRIES) {
+              historyFile.history = historyFile.history.slice(0, HISTORY_MAX_ENTRIES);
             }
             
             const jsonContent = JSON.stringify(historyFile, null, 2);
             await githubAPI.commitFile(`${historyPath}/products-history.json`, jsonContent, `Save product history: ${imageFileName}`);
-            
-            console.log('产品历史记录已保存');
           }
         } catch (error) {
           console.warn('保存产品历史记录失败:', error);
@@ -1313,7 +1350,7 @@
             imageItem.style.minWidth = '300px';
             imageItem.style.border = '2px solid #4caf50';
             
-            const imageUrl = `https://conlinzheng.github.io/GH5/产品图/${mainImage.seriesId}/${mainImage.image}`;
+            const imageUrl = this.getImageUrl(mainImage.seriesId, mainImage.image);
             
             imageItem.innerHTML = `
               <div style="width: 60px; height: 60px; overflow: hidden; border-radius: 4px;">
@@ -1372,7 +1409,7 @@
                 imageItem.style.boxShadow = 'none';
               };
               
-              const imageUrl = `https://conlinzheng.github.io/GH5/产品图/${product.seriesId}/${product.image}`;
+              const imageUrl = this.getImageUrl(product.seriesId, product.image);
               
               imageItem.innerHTML = `
                 <div style="width: 45px; height: 45px; overflow: hidden; border-radius: 4px; flex-shrink: 0;">
@@ -1479,13 +1516,46 @@
       
       async saveProduct() {
         try {
-          const tagsInput = document.getElementById('product-tags').value;
-          const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+          const nameInput = document.getElementById('product-name');
+          const descriptionInput = document.getElementById('product-description');
+          const priceInput = document.getElementById('product-price');
+          const tagsInput = document.getElementById('product-tags');
+          
+          const name = nameInput ? nameInput.value.trim() : '';
+          const description = descriptionInput ? descriptionInput.value.trim() : '';
+          const price = priceInput ? priceInput.value.trim() : '';
+          
+          if (!name) {
+            this.showStatus('产品名称不能为空', 'error');
+            return;
+          }
+          
+          if (name.length > 200) {
+            this.showStatus('产品名称不能超过 200 个字符', 'error');
+            return;
+          }
+          
+          if (description.length > 1000) {
+            this.showStatus('产品描述不能超过 1000 个字符', 'error');
+            return;
+          }
+          
+          if (price && !/^\d+(\.\d{1,2})?$/.test(price)) {
+            this.showStatus('价格格式不正确，请输入有效的数字', 'error');
+            return;
+          }
+          
+          const tags = tagsInput ? tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+          
+          if (tags.length > 10) {
+            this.showStatus('标签数量不能超过 10 个', 'error');
+            return;
+          }
           
           const formData = {
-            name: document.getElementById('product-name').value,
-            description: document.getElementById('product-description').value,
-            price: document.getElementById('product-price').value,
+            name: name,
+            description: description,
+            price: price,
             tags: tags,
             upperMaterial: document.getElementById('product-upper-material').value,
             innerMaterial: document.getElementById('product-inner-material').value,
@@ -1502,12 +1572,8 @@
             throw new Error('系列不存在');
           }
           
-          // 保存历史记录
-          await this.saveProductHistory(formData.seriesId, formData.image);
-          
           // 清除该系列 products.json 的缓存
           cacheManager.clear(`${series.path}/products.json`);
-          console.log(`Cache cleared for ${series.path}/products.json`);
           
           // 获取现有的 products.json 文件
           let productsFile;
@@ -1574,14 +1640,40 @@
             }
           }
           
+          // 产品保存成功后，保存历史记录
+          await this.saveProductHistory(formData.seriesId, formData.image, formData);
+          
           this.showStatus('产品保存成功，同组图片已自动更新', 'success');
           this.scanFiles(); // 重新扫描以更新数据
           // 清除首页缓存，确保首页显示最新数据
           cacheManager.clearAll();
-          console.log('Frontend cache cleared after product update');
         } catch (error) {
           console.error('Save product error:', error);
-          this.showStatus('保存失败: ' + error.message, 'error');
+          let errorMessage = '保存失败';
+          let suggestion = '';
+          
+          if (!error) {
+            errorMessage = '未知错误';
+          } else if (error.status === 401 || error.status === 403) {
+            errorMessage = 'API 密钥无效或已过期';
+            suggestion = '请点击"设置 API 密钥"按钮重新设置';
+          } else if (error.status === 404) {
+            errorMessage = '文件或目录不存在';
+            suggestion = '请检查产品图目录结构是否正确';
+          } else if (error.status === 422) {
+            errorMessage = '数据格式错误';
+            suggestion = '请检查输入内容是否包含特殊字符';
+          } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
+            errorMessage = 'API 请求频率超限';
+            suggestion = '请稍后再试，或检查 API 配额';
+          } else if (error.message && (error.message.includes('network') || error.message.includes('Network'))) {
+            errorMessage = '网络连接失败';
+            suggestion = '请检查网络连接后重试';
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+          
+          this.showStatus(`${errorMessage}${suggestion ? ' - ' + suggestion : ''}`, 'error');
         }
       }
       
