@@ -291,14 +291,19 @@ class Frontend {
        });
      }
 
-     const resetBtn = document.getElementById('reset-search');
-     if (resetBtn) {
-       resetBtn.addEventListener('click', () => {
-         const searchInput = document.getElementById('search-input');
-         if (searchInput) {
-           searchInput.value = '';
-         }
+     const clearBtn = document.getElementById('search-clear');
+     const searchInputEl = document.getElementById('search-input');
+     
+     if (clearBtn && searchInputEl) {
+       clearBtn.addEventListener('click', () => {
+         searchInputEl.value = '';
          this.resetSearch();
+         this._updateClearButtonVisibility('');
+         searchInputEl.focus();
+       });
+       
+       searchInputEl.addEventListener('input', (e) => {
+         this._updateClearButtonVisibility(e.target.value);
        });
      }
 
@@ -671,6 +676,15 @@ class Frontend {
   resetSearch() {
     this.state.products = this.state.allProducts;
     this.renderProducts();
+    this._updateClearButtonVisibility('');
+  }
+  
+  // 更新清除按钮显示状态
+  _updateClearButtonVisibility(value) {
+    const clearBtn = document.getElementById('search-clear');
+    if (clearBtn) {
+      clearBtn.style.display = value && value.length > 0 ? 'flex' : 'none';
+    }
   }
   
   // 更新灯箱计数器
