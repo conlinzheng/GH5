@@ -40,6 +40,111 @@
         "lining": "",
         "sole": ""
       }
+    },
+    "中文 (2).png": {
+      "name": {
+        "zh": "中文",
+        "en": "中文",
+        "ko": "中文"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
+    },
+    "中文 (3).png": {
+      "name": {
+        "zh": "中文",
+        "en": "中文",
+        "ko": "中文"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
+    },
+    "中文 (4).png": {
+      "name": {
+        "zh": "中文",
+        "en": "中文",
+        "ko": "中文"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
+    },
+    "中文 (5).png": {
+      "name": {
+        "zh": "中文",
+        "en": "中文",
+        "ko": "中文"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
+    },
+    "产品1 (2).jpg": {
+      "name": {
+        "zh": "产品1",
+        "en": "产品1",
+        "ko": "产品1"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
     }
   },
   "order": [
