@@ -324,6 +324,62 @@
       flex-wrap: wrap;
     }
     
+    .translation-categories {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .translation-categories h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #444;
+    }
+    
+    .category-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .category-tab {
+      padding: 6px 14px;
+      background: #f8f9fa;
+      color: #495057;
+      border: 1px solid #dee2e6;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    
+    .category-tab:hover {
+      background: #e9ecef;
+    }
+    
+    .category-tab.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+    
+    .category-select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      background: white;
+    }
+    
+    .category-select:focus {
+      border-color: #667eea;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    }
+    
     .btn-add-translation {
       background: #28a745;
       color: white;
@@ -932,6 +988,19 @@
         <input type="text" id="translation-search" placeholder="搜索翻译键名或内容..." onkeyup="configManager.searchTranslations(this.value)">
       </div>
       
+      <div class="translation-categories">
+        <h3>📁 按位置分类</h3>
+        <div class="category-tabs">
+          <button class="category-tab active" data-category="all">全部</button>
+          <button class="category-tab" data-category="home">首页</button>
+          <button class="category-tab" data-category="series">系列页面</button>
+          <button class="category-tab" data-category="product">产品页面</button>
+          <button class="category-tab" data-category="contact">联系我们</button>
+          <button class="category-tab" data-category="admin">管理后台</button>
+          <button class="category-tab" data-category="common">通用文本</button>
+        </div>
+      </div>
+      
       <div class="translation-controls">
         <button class="btn-add-translation" onclick="configManager.addTranslation()">+ 添加新翻译</button>
         <button class="btn-save" onclick="configManager.saveTranslations()">保存翻译</button>
@@ -1026,6 +1095,7 @@
       async init() {
         this.setupNav();
         await this.loadConfig();
+        this.initCategoryManagement();
       }
       
       setupNav() {
@@ -1274,11 +1344,12 @@
           key,
           zh: values.zh || '',
           en: values.en || '',
-          ko: values.ko || ''
+          ko: values.ko || '',
+          category: values.category || 'common'
         }));
         
         if (this.translations.length === 0) {
-          this.translations = [{ key: '', zh: '', en: '', ko: '' }];
+          this.translations = [{ key: '', zh: '', en: '', ko: '', category: 'common' }];
         }
         
         // 更新统计信息
@@ -1293,6 +1364,14 @@
                      class="trans-key" 
                      value="${trans.key}" 
                      placeholder="翻译键名">
+              <select class="category-select" data-index="${index}">
+                <option value="home" ${trans.category === 'home' ? 'selected' : ''}>首页</option>
+                <option value="series" ${trans.category === 'series' ? 'selected' : ''}>系列页面</option>
+                <option value="product" ${trans.category === 'product' ? 'selected' : ''}>产品页面</option>
+                <option value="contact" ${trans.category === 'contact' ? 'selected' : ''}>联系我们</option>
+                <option value="admin" ${trans.category === 'admin' ? 'selected' : ''}>管理后台</option>
+                <option value="common" ${trans.category === 'common' ? 'selected' : ''}>通用文本</option>
+              </select>
               <button class="btn-delete-translation" onclick="configManager.removeTranslation(${index})")">删除</button>
             </div>
             <div class="translation-fields">
@@ -1377,8 +1456,81 @@
         return text;
       }
       
+      // 初始化分类管理
+      initCategoryManagement() {
+        // 绑定分类标签点击事件
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        categoryTabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            // 更新标签状态
+            categoryTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            // 筛选翻译项
+            const category = tab.dataset.category;
+            this.filterTranslationsByCategory(category);
+          });
+        });
+        
+        // 绑定分类选择变更事件
+        document.addEventListener('change', (e) => {
+          if (e.target.classList.contains('category-select')) {
+            const index = parseInt(e.target.dataset.index);
+            const category = e.target.value;
+            this.translations[index].category = category;
+          }
+        });
+      }
+      
+      // 按分类筛选翻译项
+      filterTranslationsByCategory(category) {
+        const items = document.querySelectorAll('.translation-item');
+        items.forEach((item, index) => {
+          if (category === 'all' || this.translations[index].category === category) {
+            item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      }
+      
+      // 添加新翻译时设置默认分类
       addTranslation() {
-        this.translations.push({ key: '', zh: '', en: '', ko: '' });
+        this.translations.push({ 
+          key: '', 
+          zh: '', 
+          en: '', 
+          ko: '',
+          category: 'common' // 默认分类
+        });
+        this.renderTranslations();
+      }
+      
+      // 保存翻译时包含分类信息
+      saveTranslations() {
+        const translationItems = document.querySelectorAll('.translation-item');
+        const translations = {};
+        
+        translationItems.forEach((item, index) => {
+          const key = item.querySelector('.trans-key').value.trim();
+          if (key) {
+            const zh = item.querySelector('.trans-zh').value.trim();
+            const en = item.querySelector('.trans-en').value.trim();
+            const ko = item.querySelector('.trans-ko').value.trim();
+            const category = this.translations[index].category || 'common';
+            
+            translations[key] = {
+              zh: zh,
+              en: en,
+              ko: ko,
+              category: category
+            };
+          }
+        });
+        
+        this.config.translations = translations;
+        this.saveConfig();
+        this.showStatus('翻译词典已保存', 'success');
         this.renderTranslations();
       }
       
