@@ -844,6 +844,9 @@
               const firstNewProduct = newProducts[0];
               this.currentSeries = firstNewProduct.seriesId;
               
+              // 先将新增产品保存到 products.json
+              await this.saveNewProducts(newProducts);
+              
               // 更新系列选择器
               const seriesSelect = document.getElementById('series-select');
               if (seriesSelect) {
@@ -869,6 +872,90 @@
           const scanNewBtn = document.getElementById('btn-scan-new');
           if (scanBtn) scanBtn.disabled = false;
           if (scanNewBtn) scanNewBtn.disabled = false;
+        }
+      }
+      
+      async saveNewProducts(newProducts) {
+        try {
+          this.showStatus('正在保存新增产品...', 'info');
+          
+          // 按系列分组
+          const productsBySeries = {};
+          newProducts.forEach(product => {
+            if (!productsBySeries[product.seriesId]) {
+              productsBySeries[product.seriesId] = [];
+            }
+            productsBySeries[product.seriesId].push(product);
+          });
+          
+          // 对每个系列保存产品
+          for (const [seriesId, products] of Object.entries(productsBySeries)) {
+            const series = this.series.find(s => s.name === seriesId);
+            if (!series) {
+              console.warn(`系列 ${seriesId} 不存在`);
+              continue;
+            }
+            
+            // 获取现有的 products.json 文件
+            let productsFile;
+            try {
+              productsFile = await githubAPI.fetchFile(`${series.path}/products.json`);
+            } catch (error) {
+              productsFile = { products: {} };
+            }
+            
+            // 添加新增产品
+            products.forEach(product => {
+              if (!productsFile.products) {
+                productsFile.products = {};
+              }
+              
+              productsFile.products[product.image] = {
+                name: {
+                  zh: product.name,
+                  en: product.name,
+                  ko: product.name
+                },
+                description: {
+                  zh: '',
+                  en: '',
+                  ko: ''
+                },
+                price: '',
+                tags: [],
+                materials: {
+                  upper: '',
+                  lining: '',
+                  sole: ''
+                },
+                customizable: '',
+                minOrder: ''
+              };
+            });
+            
+            // 保存文件
+            const filePath = `${series.path}/products.json`;
+            const jsonContent = JSON.stringify(productsFile, null, 2);
+            
+            try {
+              await githubAPI.commitFile(filePath, jsonContent, `Add new products to ${seriesId}`);
+            } catch (error) {
+              if (error.status === 404) {
+                await githubAPI.commitFile(filePath, jsonContent, `Create products.json for ${seriesId}`);
+              } else {
+                throw error;
+              }
+            }
+          }
+          
+          // 清除缓存
+          cacheManager.clearAll();
+          
+          this.showStatus(`成功保存 ${newProducts.length} 个新增产品`, 'success');
+        } catch (error) {
+          console.error('Save new products error:', error);
+          this.showStatus('保存新增产品失败: ' + error.message, 'error');
+          throw error;
         }
       }
       
