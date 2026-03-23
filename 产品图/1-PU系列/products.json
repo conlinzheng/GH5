@@ -1,33 +1,49 @@
 {
+  "seriesName": {
+    "zh": "1-PU系列",
+    "en": "1-PU系列",
+    "ko": "1-PU系列"
+  },
   "products": {
-    "产品1 (1).jpg": {
-      "name": "牌子的",
-      "description": "客户版",
-      "price": "99",
-      "tags": [
-        "11，22，88"
-      ],
-      "upperMaterial": "28",
-      "innerMaterial": "29",
-      "soleMaterial": "30",
-      "customizable": "",
-      "minOrder": "50"
+    "中文 (1).png": {
+      "name": {
+        "zh": "中文",
+        "en": "中文",
+        "ko": "中文"
+      },
+      "description": {
+        "zh": "中文 - 高品质产品",
+        "en": "中文 - High quality product",
+        "ko": "中文 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
     },
-    "产品1 (2).jpg": {
-      "name": "牌子的",
-      "description": "客户版",
-      "price": "99",
-      "tags": [
-        "11，22，88"
-      ],
-      "upperMaterial": "28",
-      "innerMaterial": "29",
-      "soleMaterial": "30",
-      "customizable": "",
-      "minOrder": "50"
+    "产品1 (1).jpg": {
+      "name": {
+        "zh": "产品1",
+        "en": "产品1",
+        "ko": "产品1"
+      },
+      "description": {
+        "zh": "产品1 - 高品质产品",
+        "en": "产品1 - High quality product",
+        "ko": "产品1 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
     }
   },
   "order": [
+    "中文",
     "产品1"
   ]
 }
