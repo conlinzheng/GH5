@@ -843,11 +843,20 @@
             if (confirm(message)) {
               const firstNewProduct = newProducts[0];
               this.currentSeries = firstNewProduct.seriesId;
-              await this.loadProductsForSeries(firstNewProduct.seriesId);
               
-              const productItem = this.products.find(p => p.image === firstNewProduct.image);
+              // 更新系列选择器
+              const seriesSelect = document.getElementById('series-select');
+              if (seriesSelect) {
+                seriesSelect.value = firstNewProduct.seriesId;
+              }
+              
+              // 重新扫描文件以加载最新数据
+              await this.scanFiles();
+              
+              // 找到并编辑新增产品
+              const productItem = this.products.find(p => p.image === firstNewProduct.image && p.seriesId === firstNewProduct.seriesId);
               if (productItem) {
-                this.editProduct(productItem);
+                this.editProduct(productItem.id, productItem.seriesId);
               }
             }
           }
