@@ -876,11 +876,7 @@ class Frontend {
               // 添加请求间隔，避免API限流
               await new Promise(resolve => setTimeout(resolve, 500));
             } catch (error) {
-              if (typeof errorHandler !== 'undefined') {
-                errorHandler.handleApiError(error);
-              } else {
-                console.warn(`Failed to load products for ${seriesItem.name}:`, error);
-              }
+              console.warn(`Failed to load products for ${seriesItem.name}:`, error);
             }
           });
           
@@ -901,11 +897,7 @@ class Frontend {
         seriesNameMap: this.state.seriesNameMap
       }, this.config.cacheTTL);
       } catch (apiError) {
-        if (typeof errorHandler !== 'undefined') {
-          errorHandler.handleApiError(apiError);
-        } else {
-          console.error('GitHub API error:', apiError);
-        }
+        console.error('GitHub API error:', apiError);
         console.log('Using fallback local data');
         this._loadLocalFallbackData();
       }

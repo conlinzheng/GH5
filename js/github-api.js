@@ -241,11 +241,7 @@ class GitHubAPI {
 
       return await response.json();
     } catch (error) {
-      if (typeof errorHandler !== 'undefined') {
-        errorHandler.handleApiError(error);
-      } else {
-        console.error('Fetch error:', error);
-      }
+      console.error('Fetch error:', error);
       throw error;
     }
   }
