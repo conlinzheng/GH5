@@ -1,105 +1,38 @@
 {
   "seriesName": {
-    "zh": "短靴系列",
-    "en": "短靴系列",
-    "ko": "短靴系列"
+    "zh": "3-短靴系列",
+    "en": "3-短靴系列",
+    "ko": "3-短靴系列"
   },
   "products": {
     "00A (1).jpg": {
-      "name": "短靴",
-      "description": "超纤短靴",
-      "price": "85",
-      "tags": [
-        "新品"
-      ],
-      "upperMaterial": "皮",
-      "innerMaterial": "皮",
-      "soleMaterial": "发泡",
-      "customizable": "true",
-      "minOrder": "80"
+      "name": {
+        "zh": "00A",
+        "en": "00A",
+        "ko": "00A"
+      },
+      "description": {
+        "zh": "00A - 高品质产品",
+        "en": "00A - High quality product",
+        "ko": "00A - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
     },
     "中文+ (1).png": {
       "name": {
-        "zh": "中文+ (1)",
-        "en": "中文+ (1)",
-        "ko": "中文+ (1)"
+        "zh": "中文+",
+        "en": "中文+",
+        "ko": "中文+"
       },
       "description": {
-        "zh": "中文+ (1) - 高品质产品",
-        "en": "中文+ (1) - High quality product",
-        "ko": "中文+ (1) - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
-    },
-    "中文+ (2).png": {
-      "name": {
-        "zh": "中文+ (2)",
-        "en": "中文+ (2)",
-        "ko": "中文+ (2)"
-      },
-      "description": {
-        "zh": "中文+ (2) - 高品质产品",
-        "en": "中文+ (2) - High quality product",
-        "ko": "中文+ (2) - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
-    },
-    "中文+ (3).png": {
-      "name": {
-        "zh": "中文+ (3)",
-        "en": "中文+ (3)",
-        "ko": "中文+ (3)"
-      },
-      "description": {
-        "zh": "中文+ (3) - 高品质产品",
-        "en": "中文+ (3) - High quality product",
-        "ko": "中文+ (3) - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
-    },
-    "中文+ (4).png": {
-      "name": {
-        "zh": "中文+ (4)",
-        "en": "中文+ (4)",
-        "ko": "中文+ (4)"
-      },
-      "description": {
-        "zh": "中文+ (4) - 高品质产品",
-        "en": "中文+ (4) - High quality product",
-        "ko": "中文+ (4) - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
-    },
-    "中文+ (5).png": {
-      "name": {
-        "zh": "中文+ (5)",
-        "en": "中文+ (5)",
-        "ko": "中文+ (5)"
-      },
-      "description": {
-        "zh": "中文+ (5) - 高品质产品",
-        "en": "中文+ (5) - High quality product",
-        "ko": "中文+ (5) - 고품질 제품"
+        "zh": "中文+ - 高品质产品",
+        "en": "中文+ - High quality product",
+        "ko": "中文+ - 고품질 제품"
       },
       "price": "",
       "materials": {
@@ -110,7 +43,7 @@
     }
   },
   "order": [
-    "中文+",
-    "00A"
+    "00A",
+    "中文+"
   ]
 }
