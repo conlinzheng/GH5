@@ -22,6 +22,73 @@
         "lining": "",
         "sole": ""
       }
+    },
+    "99 (1).png": {
+      "name": {
+        "zh": "44",
+        "en": "44",
+        "ko": "44"
+      },
+      "description": {
+        "zh": "44",
+        "en": "44",
+        "ko": "44"
+      },
+      "price": "44",
+      "tags": [
+        "45"
+      ],
+      "materials": {
+        "upper": "44",
+        "lining": "44",
+        "sole": "44"
+      },
+      "customizable": "true",
+      "minOrder": "44"
+    },
+    "99 (2).png": {
+      "name": {
+        "zh": "44",
+        "en": "44",
+        "ko": "44"
+      },
+      "description": {
+        "zh": "44",
+        "en": "44",
+        "ko": "44"
+      },
+      "price": "44",
+      "tags": [
+        "45"
+      ],
+      "materials": {
+        "upper": "44",
+        "lining": "44",
+        "sole": "44"
+      },
+      "customizable": "true",
+      "minOrder": "44"
+    },
+    "新款1 (2).jpg": {
+      "name": {
+        "zh": "新款1",
+        "en": "新款1",
+        "ko": "新款1"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
     }
   },
   "order": [
