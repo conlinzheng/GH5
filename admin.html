@@ -349,6 +349,7 @@
     
     <div class="admin-nav">
     <button id="btn-scan">扫描文件</button>
+    <button id="btn-scan-new" style="background-color: #28a745; color: white;">🔍 扫描新增产品</button>
     <button id="btn-refresh">刷新数据</button>
     <button id="btn-clear-cache">清除缓存</button>
     <button id="btn-regenerate-json" style="background-color: #ff9800; color: white;">🔄 重新生成JSON</button>
@@ -596,6 +597,7 @@
         };
         
         bindEvent('btn-scan', 'click', () => this.scanFiles());
+        bindEvent('btn-scan-new', 'click', () => this.scanNewProducts());
         bindEvent('btn-refresh', 'click', () => this.refreshData());
         bindEvent('btn-clear-cache', 'click', () => this.clearCache());
         bindEvent('btn-regenerate-json', 'click', () => this.regenerateAllJson());
@@ -753,6 +755,177 @@
         } catch (error) {
           console.error('Scan files error:', error);
           this.showStatus('扫描失败: ' + error.message, 'error');
+        }
+      }
+      
+      async scanNewProducts() {
+        try {
+          this.showStatus('正在扫描新增产品...', 'info');
+          
+          await this.loadSeriesNameMap();
+          
+          const series = await githubAPI.fetchDirectory('产品图');
+          this.series = series.filter(item => item.type === 'dir');
+          
+          let newProductsFound = 0;
+          const newProducts = [];
+          
+          for (const seriesItem of this.series) {
+            try {
+              let productsFile;
+              try {
+                productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+              } catch (error) {
+                productsFile = { products: {} };
+              }
+              
+              const files = await githubAPI.fetchDirectory(seriesItem.path);
+              const imageFiles = files.filter(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+              });
+              
+              const existingProductImages = new Set(Object.keys(productsFile.products || {}));
+              
+              for (const file of imageFiles) {
+                if (!existingProductImages.has(file.name)) {
+                  const productName = this.extractProductName(file.name);
+                  newProducts.push({
+                    seriesId: seriesItem.name,
+                    image: file.name,
+                    name: productName,
+                    seriesName: this.seriesNameMap[seriesItem.name] || seriesItem.name
+                  });
+                  newProductsFound++;
+                }
+              }
+            } catch (error) {
+              console.warn(`扫描系列 ${seriesItem.name} 失败:`, error);
+            }
+          }
+          
+          if (newProductsFound === 0) {
+            this.showStatus('没有发现新增产品', 'info');
+            return;
+          }
+          
+          this.showStatus(`发现 ${newProductsFound} 个新增产品`, 'success');
+          
+          let message = `发现 ${newProductsFound} 个新增产品：\n\n`;
+          newProducts.forEach((p, i) => {
+            message += `${i + 1}. ${p.name} (${p.seriesName})\n`;
+          });
+          message += '\n点击"确定"跳转到产品管理页面进行编辑';
+          
+          if (confirm(message)) {
+            const firstNewProduct = newProducts[0];
+            this.currentSeries = firstNewProduct.seriesId;
+            await this.loadProductsForSeries(firstNewProduct.seriesId);
+            
+            const productItem = this.products.find(p => p.image === firstNewProduct.image);
+            if (productItem) {
+              this.editProduct(productItem);
+            }
+          }
+          
+        } catch (error) {
+          console.error('Scan new products error:', error);
+          this.showStatus('扫描新增产品失败: ' + error.message, 'error');
+        }
+      }
+      
+      async saveProductHistory(seriesId, imageFileName) {
+        try {
+          const historyPath = '产品图/.history';
+          const timestamp = new Date().toISOString();
+          
+          let historyFile;
+          try {
+            historyFile = await githubAPI.fetchFile(`${historyPath}/products-history.json`);
+          } catch (error) {
+            historyFile = { history: [] };
+          }
+          
+          let currentProductData = null;
+          try {
+            const series = this.series.find(s => s.name === seriesId);
+            if (series) {
+              const productsFile = await githubAPI.fetchFile(`${series.path}/products.json`);
+              currentProductData = productsFile.products ? productsFile.products[imageFileName] : null;
+            }
+          } catch (error) {
+            console.warn('无法获取当前产品数据:', error);
+          }
+          
+          if (currentProductData) {
+            const historyEntry = {
+              timestamp: timestamp,
+              seriesId: seriesId,
+              imageFileName: imageFileName,
+              data: currentProductData
+            };
+            
+            if (!historyFile.history) {
+              historyFile.history = [];
+            }
+            
+            historyFile.history.unshift(historyEntry);
+            
+            if (historyFile.history.length > 100) {
+              historyFile.history = historyFile.history.slice(0, 100);
+            }
+            
+            const jsonContent = JSON.stringify(historyFile, null, 2);
+            await githubAPI.commitFile(`${historyPath}/products-history.json`, jsonContent, `Save product history: ${imageFileName}`);
+            
+            console.log('产品历史记录已保存');
+          }
+        } catch (error) {
+          console.warn('保存产品历史记录失败:', error);
+        }
+      }
+      
+      async viewProductHistory(seriesId, imageFileName) {
+        try {
+          const historyPath = '产品图/.history';
+          let historyFile;
+          try {
+            historyFile = await githubAPI.fetchFile(`${historyPath}/products-history.json`);
+          } catch (error) {
+            alert('暂无历史记录');
+            return;
+          }
+          
+          if (!historyFile.history || historyFile.history.length === 0) {
+            alert('暂无历史记录');
+            return;
+          }
+          
+          const productHistory = historyFile.history.filter(h => 
+            h.seriesId === seriesId && h.imageFileName === imageFileName
+          );
+          
+          if (productHistory.length === 0) {
+            alert('暂无该产品的历史记录');
+            return;
+          }
+          
+          let message = `产品 "${imageFileName}" 的历史记录：\n\n`;
+          productHistory.forEach((entry, index) => {
+            const date = new Date(entry.timestamp).toLocaleString();
+            message += `--- 第 ${index + 1} 次修改 (${date}) ---\n`;
+            if (entry.data) {
+              message += `名称: ${entry.data.name?.zh || entry.data.name || '无'}\n`;
+              message += `价格: ${entry.data.price || '无'}\n`;
+              message += `描述: ${entry.data.description?.zh || entry.data.description || '无'}\n`;
+            }
+            message += '\n';
+          });
+          
+          alert(message);
+        } catch (error) {
+          console.error('查看历史记录失败:', error);
+          alert('查看历史记录失败: ' + error.message);
         }
       }
       
@@ -1328,6 +1501,9 @@
           if (!series) {
             throw new Error('系列不存在');
           }
+          
+          // 保存历史记录
+          await this.saveProductHistory(formData.seriesId, formData.image);
           
           // 清除该系列 products.json 的缓存
           cacheManager.clear(`${series.path}/products.json`);
