@@ -25,45 +25,49 @@
     },
     "99 (1).png": {
       "name": {
-        "zh": "99",
-        "en": "99",
-        "ko": "99"
+        "zh": "44",
+        "en": "44",
+        "ko": "44"
       },
       "description": {
-        "zh": "",
-        "en": "",
-        "ko": ""
+        "zh": "44",
+        "en": "44",
+        "ko": "44"
       },
-      "price": "",
-      "tags": [],
+      "price": "44",
+      "tags": [
+        "45"
+      ],
       "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
+        "upper": "44",
+        "lining": "44",
+        "sole": "44"
       },
-      "customizable": "",
-      "minOrder": ""
+      "customizable": "true",
+      "minOrder": "44"
     },
     "99 (2).png": {
       "name": {
-        "zh": "99",
-        "en": "99",
-        "ko": "99"
+        "zh": "44",
+        "en": "44",
+        "ko": "44"
       },
       "description": {
-        "zh": "",
-        "en": "",
-        "ko": ""
+        "zh": "44",
+        "en": "44",
+        "ko": "44"
       },
-      "price": "",
-      "tags": [],
+      "price": "44",
+      "tags": [
+        "45"
+      ],
       "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
+        "upper": "44",
+        "lining": "44",
+        "sole": "44"
       },
-      "customizable": "",
-      "minOrder": ""
+      "customizable": "true",
+      "minOrder": "44"
     },
     "新款1 (2).jpg": {
       "name": {
