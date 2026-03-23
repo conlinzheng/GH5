@@ -1,110 +1,38 @@
 {
   "seriesName": {
-    "zh": "乐福系列",
-    "en": "乐福系列",
-    "ko": "乐福系列"
+    "zh": "4-乐福系列",
+    "en": "4-乐福系列",
+    "ko": "4-乐福系列"
   },
   "products": {
     "B5 (1).jpg": {
       "name": {
-        "zh": "B5 (1)",
-        "en": "B5 (1)",
-        "ko": "B5 (1)"
+        "zh": "B5",
+        "en": "B5",
+        "ko": "B5"
       },
       "description": {
-        "zh": "B5 (1) - 高品质产品",
-        "en": "B5 (1) - High quality product",
-        "ko": "B5 (1) - 고품질 제품"
+        "zh": "B5 - 高品质产品",
+        "en": "B5 - High quality product",
+        "ko": "B5 - 고품질 제품"
       },
       "price": "",
       "materials": {
-        "upper": "PU",
-        "lining": "PU",
-        "sole": "tpr"
+        "upper": "",
+        "lining": "",
+        "sole": ""
       }
     },
     "中文-ABC (1).png": {
       "name": {
-        "zh": "中文-ABC (1)",
-        "en": "中文-ABC (1)",
-        "ko": "中文-ABC (1)"
+        "zh": "中文-ABC",
+        "en": "中文-ABC",
+        "ko": "中文-ABC"
       },
       "description": {
-        "zh": "中文-ABC (1) - 高品质产品",
-        "en": "中文-ABC (1) - High quality product",
-        "ko": "中文-ABC (1) - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
-    },
-    "中文-ABC (2).png": {
-      "name": {
-        "zh": "中文-ABC (2)",
-        "en": "中文-ABC (2)",
-        "ko": "中文-ABC (2)"
-      },
-      "description": {
-        "zh": "中文-ABC (2) - 高品质产品",
-        "en": "中文-ABC (2) - High quality product",
-        "ko": "中文-ABC (2) - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
-    },
-    "中文-ABC (3).png": {
-      "name": {
-        "zh": "中文-ABC (3)",
-        "en": "中文-ABC (3)",
-        "ko": "中文-ABC (3)"
-      },
-      "description": {
-        "zh": "中文-ABC (3) - 高品质产品",
-        "en": "中文-ABC (3) - High quality product",
-        "ko": "中文-ABC (3) - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
-    },
-    "中文-ABC (4).png": {
-      "name": {
-        "zh": "中文-ABC (4)",
-        "en": "中文-ABC (4)",
-        "ko": "中文-ABC (4)"
-      },
-      "description": {
-        "zh": "中文-ABC (4) - 高品质产品",
-        "en": "中文-ABC (4) - High quality product",
-        "ko": "中文-ABC (4) - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
-    },
-    "中文-ABC (5).png": {
-      "name": {
-        "zh": "中文-ABC (5)",
-        "en": "中文-ABC (5)",
-        "ko": "中文-ABC (5)"
-      },
-      "description": {
-        "zh": "中文-ABC (5) - 高品质产品",
-        "en": "中文-ABC (5) - High quality product",
-        "ko": "中文-ABC (5) - 고품질 제품"
+        "zh": "中文-ABC - 高品质产品",
+        "en": "中文-ABC - High quality product",
+        "ko": "中文-ABC - 고품질 제품"
       },
       "price": "",
       "materials": {
@@ -113,5 +41,9 @@
         "sole": ""
       }
     }
-  }
+  },
+  "order": [
+    "B5",
+    "中文-ABC"
+  ]
 }
