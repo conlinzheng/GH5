@@ -2043,10 +2043,30 @@
       
       exportData() {
         const data = {
-          series: this.series,
-          products: this.products,
+          seriesNameMap: this.seriesNameMap,
+          products: {},
           exportTime: new Date().toISOString()
         };
+        
+        // 按系列分组产品
+        this.products.forEach(product => {
+          if (!data.products[product.seriesId]) {
+            data.products[product.seriesId] = {};
+          }
+          data.products[product.seriesId][product.image] = {
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            tags: product.tags,
+            materials: {
+              upper: product.upperMaterial,
+              lining: product.innerMaterial,
+              sole: product.soleMaterial
+            },
+            customizable: product.customizable,
+            minOrder: product.minOrder
+          };
+        });
         
         const dataStr = JSON.stringify(data, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -2068,10 +2088,20 @@
         input.onchange = async (e) => {
           const file = e.target.files[0];
           if (file) {
+            // 显示确认对话框
+            if (!confirm('导入将覆盖现有数据，确定要继续吗？')) {
+              return;
+            }
+            
             const reader = new FileReader();
             reader.onload = async (event) => {
               try {
                 const data = JSON.parse(event.target.result);
+                
+                // 数据验证
+                if (!data || typeof data !== 'object') {
+                  throw new Error('导入数据格式错误');
+                }
                 
                 // 导入系列名称映射
                 if (data.seriesNameMap) {
@@ -2080,24 +2110,63 @@
                 }
                 
                 // 导入产品数据
-                if (data.products) {
-                  for (const [seriesId, products] of Object.entries(data.products)) {
-                    const series = this.series.find(s => s.name === seriesId);
-                    if (series) {
-                      const filePath = `${series.path}/products.json`;
-                      const productsFile = { products };
-                      const jsonContent = JSON.stringify(productsFile, null, 2);
-                      
-                      await githubAPI.commitFile(filePath, jsonContent, `Import products for ${seriesId}`);
+                if (data.products && typeof data.products === 'object') {
+                  const seriesCount = Object.keys(data.products).length;
+                  if (seriesCount > 0) {
+                    this.showStatus(`正在导入 ${seriesCount} 个系列的产品...`, 'info');
+                    
+                    let importedCount = 0;
+                    for (const [seriesId, products] of Object.entries(data.products)) {
+                      const series = this.series.find(s => s.name === seriesId);
+                      if (series) {
+                        try {
+                          const filePath = `${series.path}/products.json`;
+                          const productsFile = { products };
+                          const jsonContent = JSON.stringify(productsFile, null, 2);
+                          
+                          try {
+                            await githubAPI.commitFile(filePath, jsonContent, `Import products for ${seriesId}`);
+                          } catch (error) {
+                            if (error.status === 404) {
+                              await githubAPI.commitFile(filePath, jsonContent, `Create products.json for ${seriesId}`);
+                            } else if (error.status === 401 || error.status === 403) {
+                              throw new Error('API 密钥无效或已过期，请重新设置');
+                            } else {
+                              throw error;
+                            }
+                          }
+                          importedCount++;
+                        } catch (error) {
+                          console.warn(`导入系列 ${seriesId} 失败:`, error);
+                        }
+                      }
                     }
+                    
+                    this.showStatus(`成功导入 ${importedCount} 个系列的产品`, 'success');
+                  } else {
+                    this.showStatus('导入数据中没有产品信息', 'info');
                   }
+                } else {
+                  this.showStatus('导入数据中没有产品信息', 'info');
                 }
                 
-                this.showStatus('数据导入成功', 'success');
                 this.scanFiles(); // 重新扫描以更新数据
               } catch (error) {
                 console.error('Import data error:', error);
-                this.showStatus('导入失败: ' + error.message, 'error');
+                let errorMessage = '导入失败: ' + error.message;
+                if (error.status === 401 || error.status === 403) {
+                  errorMessage = 'API 密钥无效或已过期，请重新设置';
+                  if (confirm('API 密钥无效，请设置 GitHub API 密钥以继续操作。')) {
+                    this.setApiToken();
+                  }
+                } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
+                  errorMessage = 'API 请求频率超限，请稍后再试';
+                } else if (error.status === 404) {
+                  errorMessage = '文件路径不存在';
+                } else if (error.status === 422) {
+                  errorMessage = '数据格式错误，请检查输入';
+                }
+                this.showStatus(errorMessage, 'error');
               }
             };
             reader.readAsText(file);
