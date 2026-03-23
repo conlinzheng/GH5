@@ -3,7 +3,12 @@ class Frontend {
     this.config = {
       productsPath: '产品图',
       cacheTTL: 3600,
-      itemsPerPage: 12
+      itemsPerPage: 12,
+      github: {
+        owner: 'conlinzheng',
+        repo: 'GH5',
+        branch: 'main'
+      }
     };
     
     this.state = {
@@ -844,7 +849,7 @@ class Frontend {
                   minOrder: productData.minOrder || '',
                   tags: productData.tags || [],
                   specs: upperMaterial || innerMaterial || soleMaterial || '',
-                  images: images.map(img => `产品图/${seriesItem.name}/${img}`)
+                  images: images.map(img => `https://${this.config.github.owner}.github.io/${this.config.github.repo}/${this.config.productsPath}/${seriesItem.name}/${img}`)
                 };
                 
                 console.log('构建的产品对象:', product);
