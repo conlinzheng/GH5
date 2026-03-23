@@ -1,38 +1,20 @@
 {
   "seriesName": {
-    "zh": "春季",
-    "en": "春季",
-    "ko": "春季"
+    "zh": "5-春季",
+    "en": "5-春季",
+    "ko": "5-春季"
   },
   "products": {
     "新款1 (1).jpg": {
       "name": {
-        "zh": "新款1 (1)",
-        "en": "新款1 (1)",
-        "ko": "新款1 (1)"
+        "zh": "新款1",
+        "en": "新款1",
+        "ko": "新款1"
       },
       "description": {
-        "zh": "新款1 (1) - 高品质产品",
-        "en": "新款1 (1) - High quality product",
-        "ko": "新款1 (1) - 고품질 제품"
-      },
-      "price": "",
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
-    },
-    "新款1 (2).jpg": {
-      "name": {
-        "zh": "新款1 (2)",
-        "en": "新款1 (2)",
-        "ko": "新款1 (2)"
-      },
-      "description": {
-        "zh": "新款1 (2) - 高品质产品",
-        "en": "新款1 (2) - High quality product",
-        "ko": "新款1 (2) - 고품질 제품"
+        "zh": "新款1 - 高品质产品",
+        "en": "新款1 - High quality product",
+        "ko": "新款1 - 고품질 제품"
       },
       "price": "",
       "materials": {
@@ -41,5 +23,8 @@
         "sole": ""
       }
     }
-  }
+  },
+  "order": [
+    "新款1"
+  ]
 }
