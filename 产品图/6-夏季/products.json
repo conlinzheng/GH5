@@ -1,8 +1,8 @@
 {
   "seriesName": {
-    "zh": "夏季",
-    "en": "夏季",
-    "ko": "夏季"
+    "zh": "6-夏季",
+    "en": "6-夏季",
+    "ko": "6-夏季"
   },
   "products": {
     "41.png": {
@@ -97,10 +97,10 @@
     }
   },
   "order": [
-    "[object Object]无其他图片",
-    "[object Object]无其他图片",
-    "[object Object]无其他图片",
-    "[object Object]无其他图片",
-    "[object Object]无其他图片"
+    "41",
+    "42",
+    "43",
+    "44",
+    "45"
   ]
 }
