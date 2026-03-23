@@ -239,6 +239,12 @@
       border: 1px solid #f5c6cb;
     }
     
+    .status-info {
+      background: #cce5ff;
+      color: #004085;
+      border: 1px solid #b8daff;
+    }
+    
     .series-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -345,6 +351,7 @@
     <button id="btn-scan">扫描文件</button>
     <button id="btn-refresh">刷新数据</button>
     <button id="btn-clear-cache">清除缓存</button>
+    <button id="btn-regenerate-json" style="background-color: #ff9800; color: white;">🔄 重新生成JSON</button>
     <button id="btn-export">导出数据</button>
     <button id="btn-import">导入数据</button>
     <button id="btn-set-token">设置 API 密钥</button>
@@ -591,6 +598,7 @@
         bindEvent('btn-scan', 'click', () => this.scanFiles());
         bindEvent('btn-refresh', 'click', () => this.refreshData());
         bindEvent('btn-clear-cache', 'click', () => this.clearCache());
+        bindEvent('btn-regenerate-json', 'click', () => this.regenerateAllJson());
         bindEvent('btn-export', 'click', () => this.exportData());
         bindEvent('btn-import', 'click', () => this.importData());
         bindEvent('btn-set-token', 'click', () => this.setApiToken());
@@ -733,6 +741,111 @@
           console.error('Scan files error:', error);
           this.showStatus('扫描失败: ' + error.message, 'error');
         }
+      }
+      
+      async regenerateAllJson() {
+        const confirmed = confirm('确定要重新生成所有 products.json 文件吗？\n\n此操作将：\n1. 扫描每个系列目录下的所有图片\n2. 自动根据图片文件名生成产品数据\n3. 覆盖现有的 products.json 文件\n\n建议：此操作前请备份现有数据！');
+        
+        if (!confirmed) return;
+        
+        try {
+          this.showStatus('开始重新生成 JSON 文件...', 'info');
+          
+          // 加载系列名称映射
+          await this.loadSeriesNameMap();
+          
+          // 获取所有系列
+          const series = await githubAPI.fetchDirectory('产品图');
+          this.series = series.filter(item => item.type === 'dir');
+          
+          let successCount = 0;
+          let errorCount = 0;
+          
+          for (const seriesItem of this.series) {
+            try {
+              await this.regenerateSeriesJson(seriesItem);
+              successCount++;
+              this.showStatus(`正在处理: ${seriesItem.name} (${successCount}/${this.series.length})`, 'info');
+            } catch (error) {
+              console.error(`Failed to regenerate JSON for ${seriesItem.name}:`, error);
+              errorCount++;
+            }
+          }
+          
+          this.showStatus(`JSON 重新生成完成！成功: ${successCount}, 失败: ${errorCount}`, 'success');
+          
+          // 重新扫描以更新数据
+          await this.scanFiles();
+        } catch (error) {
+          console.error('Regenerate all JSON error:', error);
+          this.showStatus('重新生成 JSON 失败: ' + error.message, 'error');
+        }
+      }
+      
+      async regenerateSeriesJson(seriesItem) {
+        // 扫描系列目录下的图片文件
+        const files = await githubAPI.fetchDirectory(seriesItem.path);
+        const imageFiles = files.filter(file => {
+          const ext = file.name.split('.').pop().toLowerCase();
+          return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+        });
+        
+        // 按产品分组图片
+        const productGroups = {};
+        
+        imageFiles.forEach(file => {
+          const productName = this.extractProductName(file.name);
+          if (!productGroups[productName]) {
+            productGroups[productName] = [];
+          }
+          productGroups[productName].push(file.name);
+        });
+        
+        // 生成产品数据
+        const products = {};
+        const order = [];
+        
+        Object.entries(productGroups).forEach(([productName, images]) => {
+          const mainImage = images.find(img => this.isMainImage(img)) || images[0];
+          order.push(productName);
+          
+          products[mainImage] = {
+            name: {
+              zh: productName,
+              en: productName,
+              ko: productName
+            },
+            description: {
+              zh: `${productName} - 高品质产品`,
+              en: `${productName} - High quality product`,
+              ko: `${productName} - 고품질 제품`
+            },
+            price: '',
+            materials: {
+              upper: '',
+              lining: '',
+              sole: ''
+            }
+          };
+        });
+        
+        // 构建 JSON 文件内容
+        const seriesJson = {
+          seriesName: {
+            zh: seriesItem.name,
+            en: seriesItem.name,
+            ko: seriesItem.name
+          },
+          products: products,
+          order: order
+        };
+        
+        // 保存到 GitHub
+        const filePath = `${seriesItem.path}/products.json`;
+        const jsonContent = JSON.stringify(seriesJson, null, 2);
+        await githubAPI.commitFile(filePath, jsonContent, `Regenerate products.json for ${seriesItem.name}`);
+        
+        return seriesJson;
       }
       
       async loadSeriesNameMap() {
