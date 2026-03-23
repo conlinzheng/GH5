@@ -1,0 +1,32 @@
+{
+  "history": [
+    {
+      "timestamp": "2026-03-23T05:19:26.310Z",
+      "seriesId": "5-春季",
+      "imageFileName": "99 (1).png",
+      "data": {
+        "name": {
+          "zh": "44",
+          "en": "44",
+          "ko": "44"
+        },
+        "description": {
+          "zh": "44",
+          "en": "44",
+          "ko": "44"
+        },
+        "price": "44",
+        "tags": [
+          "45"
+        ],
+        "materials": {
+          "upper": "44",
+          "lining": "44",
+          "sole": "44"
+        },
+        "customizable": "true",
+        "minOrder": "44"
+      }
+    }
+  ]
+}
