@@ -6,6 +6,75 @@
   <title>后台管理 - GH5</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
+    .lang-tab {
+      padding: 8px 16px;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      background-color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .lang-tab:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .lang-tab.active {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: #0069d9;
+    }
+    
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+    
+    .btn-success {
+      background-color: #28a745;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background-color: #218838;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .form-control:focus {
+      border-color: #80bdff;
+      outline: 0;
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
     .admin-container {
       max-width: 98vw;
       margin: 0 auto;
@@ -396,20 +465,88 @@
             <h2 style="margin: 0; color: #333;">编辑产品数据</h2>
           </div>
           <div id="edit-form-container">
-            <form id="edit-form">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <!-- 语言切换标签 -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+              <button type="button" class="lang-tab active" data-lang="zh">中文</button>
+              <button type="button" class="lang-tab" data-lang="en">英文</button>
+              <button type="button" class="lang-tab" data-lang="ko">韩文</button>
+              <button type="button" class="btn btn-secondary" id="btn-batch-edit" style="margin-left: auto;">批量编辑</button>
+              <button type="button" class="btn btn-primary" id="btn-translate" style="margin-left: 10px;">自动翻译</button>
+            </div>
+            
+            <!-- 批量编辑模式 -->
+            <div id="batch-edit-panel" style="display: none; margin-bottom: 15px; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px; background-color: #f8f9fa;">
+              <h4 style="margin-top: 0; margin-bottom: 10px;">批量编辑</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                 <div class="form-group">
-                  <label for="product-name">产品名称</label>
-                  <input type="text" id="product-name" name="name" required>
+                  <label>所有语言 - 产品名称</label>
+                  <input type="text" id="batch-name" class="form-control">
                 </div>
                 <div class="form-group">
-                  <label for="product-price">价格</label>
-                  <input type="text" id="product-price" name="price">
+                  <label>所有语言 - 描述</label>
+                  <textarea id="batch-description" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>所有语言 - 价格</label>
+                  <input type="text" id="batch-price" class="form-control">
                 </div>
               </div>
-              <div class="form-group">
-                <label for="product-description">产品描述</label>
-                <textarea id="product-description" name="description" rows="2"></textarea>
+              <button type="button" id="btn-apply-batch" class="btn btn-success" style="margin-top: 10px;">应用批量编辑</button>
+            </div>
+            
+            <form id="edit-form">
+              <!-- 中文输入 -->
+              <div class="lang-panel" data-lang="zh" style="display: block;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group">
+                    <label for="product-name-zh">产品名称 (中文)</label>
+                    <input type="text" id="product-name-zh" name="name-zh" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="product-price">价格</label>
+                    <input type="text" id="product-price" name="price">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="product-description-zh">产品描述 (中文)</label>
+                  <textarea id="product-description-zh" name="description-zh" rows="2"></textarea>
+                </div>
+              </div>
+              
+              <!-- 英文输入 -->
+              <div class="lang-panel" data-lang="en" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group">
+                    <label for="product-name-en">产品名称 (英文)</label>
+                    <input type="text" id="product-name-en" name="name-en">
+                  </div>
+                  <div class="form-group">
+                    <label for="product-price">价格</label>
+                    <input type="text" id="product-price" name="price">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="product-description-en">产品描述 (英文)</label>
+                  <textarea id="product-description-en" name="description-en" rows="2"></textarea>
+                </div>
+              </div>
+              
+              <!-- 韩文输入 -->
+              <div class="lang-panel" data-lang="ko" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group">
+                    <label for="product-name-ko">产品名称 (韩文)</label>
+                    <input type="text" id="product-name-ko" name="name-ko">
+                  </div>
+                  <div class="form-group">
+                    <label for="product-price">价格</label>
+                    <input type="text" id="product-price" name="price">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="product-description-ko">产品描述 (韩文)</label>
+                  <textarea id="product-description-ko" name="description-ko" rows="2"></textarea>
+                </div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
@@ -485,6 +622,119 @@
   <script src="js/github-api.js"></script>
   <script src="js/i18n.js"></script>
   <script>
+    // 语言切换和翻译功能
+    document.addEventListener('DOMContentLoaded', function() {
+      // 语言标签切换
+      const langTabs = document.querySelectorAll('.lang-tab');
+      langTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          const lang = this.dataset.lang;
+          
+          // 更新标签状态
+          langTabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          
+          // 显示对应语言面板
+          const langPanels = document.querySelectorAll('.lang-panel');
+          langPanels.forEach(panel => {
+            panel.style.display = panel.dataset.lang === lang ? 'block' : 'none';
+          });
+        });
+      });
+      
+      // 批量编辑切换
+      const btnBatchEdit = document.getElementById('btn-batch-edit');
+      const batchEditPanel = document.getElementById('batch-edit-panel');
+      if (btnBatchEdit && batchEditPanel) {
+        btnBatchEdit.addEventListener('click', function() {
+          batchEditPanel.style.display = batchEditPanel.style.display === 'none' ? 'block' : 'none';
+        });
+      }
+      
+      // 应用批量编辑
+      const btnApplyBatch = document.getElementById('btn-apply-batch');
+      if (btnApplyBatch) {
+        btnApplyBatch.addEventListener('click', function() {
+          const batchName = document.getElementById('batch-name').value;
+          const batchDescription = document.getElementById('batch-description').value;
+          const batchPrice = document.getElementById('batch-price').value;
+          
+          if (batchName) {
+            document.getElementById('product-name-zh').value = batchName;
+            document.getElementById('product-name-en').value = batchName;
+            document.getElementById('product-name-ko').value = batchName;
+          }
+          
+          if (batchDescription) {
+            document.getElementById('product-description-zh').value = batchDescription;
+            document.getElementById('product-description-en').value = batchDescription;
+            document.getElementById('product-description-ko').value = batchDescription;
+          }
+          
+          if (batchPrice) {
+            document.getElementById('product-price').value = batchPrice;
+          }
+          
+          alert('批量编辑已应用');
+        });
+      }
+      
+      // 自动翻译功能
+      const btnTranslate = document.getElementById('btn-translate');
+      if (btnTranslate) {
+        btnTranslate.addEventListener('click', async function() {
+          const zhName = document.getElementById('product-name-zh').value;
+          const zhDesc = document.getElementById('product-description-zh').value;
+          
+          if (!zhName && !zhDesc) {
+            alert('请先填写中文内容');
+            return;
+          }
+          
+          btnTranslate.disabled = true;
+          btnTranslate.textContent = '翻译中...';
+          
+          try {
+            // 翻译产品名称
+            if (zhName) {
+              const enName = await translateText(zhName, 'zh', 'en');
+              const koName = await translateText(zhName, 'zh', 'ko');
+              document.getElementById('product-name-en').value = enName;
+              document.getElementById('product-name-ko').value = koName;
+            }
+            
+            // 翻译产品描述
+            if (zhDesc) {
+              const enDesc = await translateText(zhDesc, 'zh', 'en');
+              const koDesc = await translateText(zhDesc, 'zh', 'ko');
+              document.getElementById('product-description-en').value = enDesc;
+              document.getElementById('product-description-ko').value = koDesc;
+            }
+            
+            alert('翻译完成');
+          } catch (error) {
+            console.error('翻译失败:', error);
+            alert('翻译失败，请稍后重试');
+          } finally {
+            btnTranslate.disabled = false;
+            btnTranslate.textContent = '自动翻译';
+          }
+        });
+      }
+    });
+    
+    // 翻译函数（使用模拟翻译）
+    async function translateText(text, from, to) {
+      // 这里使用一个简单的模拟翻译
+      // 实际项目中应该使用真实的翻译 API
+      if (from === 'zh' && to === 'en') {
+        return 'Translated: ' + text;
+      } else if (from === 'zh' && to === 'ko') {
+        return '번역: ' + text;
+      }
+      return text;
+    }
+    
     class AdminPanel {
       constructor() {
         this.series = [];
@@ -1638,8 +1888,29 @@
         const product = this.products.find(p => p.id === productId && p.seriesId === seriesId);
         if (product) {
           this.currentEditingProduct = product;
-          document.getElementById('product-name').value = product.name;
-          document.getElementById('product-description').value = product.description || '';
+          
+          // 处理多语言名称
+          if (product.name && typeof product.name === 'object') {
+            document.getElementById('product-name-zh').value = product.name.zh || '';
+            document.getElementById('product-name-en').value = product.name.en || '';
+            document.getElementById('product-name-ko').value = product.name.ko || '';
+          } else {
+            document.getElementById('product-name-zh').value = product.name || '';
+            document.getElementById('product-name-en').value = product.name || '';
+            document.getElementById('product-name-ko').value = product.name || '';
+          }
+          
+          // 处理多语言描述
+          if (product.description && typeof product.description === 'object') {
+            document.getElementById('product-description-zh').value = product.description.zh || '';
+            document.getElementById('product-description-en').value = product.description.en || '';
+            document.getElementById('product-description-ko').value = product.description.ko || '';
+          } else {
+            document.getElementById('product-description-zh').value = product.description || '';
+            document.getElementById('product-description-en').value = product.description || '';
+            document.getElementById('product-description-ko').value = product.description || '';
+          }
+          
           document.getElementById('product-price').value = product.price || '';
           document.getElementById('product-upper-material').value = product.upperMaterial || '';
           document.getElementById('product-inner-material').value = product.innerMaterial || '';
@@ -1654,26 +1925,29 @@
       
       async saveProduct() {
         try {
-          const nameInput = document.getElementById('product-name');
-          const descriptionInput = document.getElementById('product-description');
+          // 获取多语言输入
+          const nameZh = document.getElementById('product-name-zh').value.trim();
+          const nameEn = document.getElementById('product-name-en').value.trim();
+          const nameKo = document.getElementById('product-name-ko').value.trim();
+          const descZh = document.getElementById('product-description-zh').value.trim();
+          const descEn = document.getElementById('product-description-en').value.trim();
+          const descKo = document.getElementById('product-description-ko').value.trim();
           const priceInput = document.getElementById('product-price');
           const tagsInput = document.getElementById('product-tags');
           
-          const name = nameInput ? nameInput.value.trim() : '';
-          const description = descriptionInput ? descriptionInput.value.trim() : '';
           const price = priceInput ? priceInput.value.trim() : '';
           
-          if (!name) {
-            this.showStatus('产品名称不能为空', 'error');
+          if (!nameZh) {
+            this.showStatus('产品名称（中文）不能为空', 'error');
             return;
           }
           
-          if (name.length > 200) {
+          if (nameZh.length > 200 || nameEn.length > 200 || nameKo.length > 200) {
             this.showStatus('产品名称不能超过 200 个字符', 'error');
             return;
           }
           
-          if (description.length > 1000) {
+          if (descZh.length > 1000 || descEn.length > 1000 || descKo.length > 1000) {
             this.showStatus('产品描述不能超过 1000 个字符', 'error');
             return;
           }
@@ -1691,8 +1965,16 @@
           }
           
           const formData = {
-            name: name,
-            description: description,
+            name: {
+              zh: nameZh,
+              en: nameEn || nameZh,
+              ko: nameKo || nameZh
+            },
+            description: {
+              zh: descZh,
+              en: descEn || descZh,
+              ko: descKo || descZh
+            },
             price: price,
             tags: tags,
             upperMaterial: document.getElementById('product-upper-material').value,
