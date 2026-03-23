@@ -768,7 +768,21 @@
           this.showStatus('扫描完成', 'success');
         } catch (error) {
           console.error('Scan files error:', error);
-          this.showStatus('扫描失败: ' + error.message, 'error');
+          let errorMessage = '扫描失败: ' + error.message;
+          if (error.status === 401 || error.status === 403) {
+            errorMessage = 'API 密钥无效或已过期，请重新设置';
+            // 提示用户设置 API 密钥
+            if (confirm('API 密钥无效，请设置 GitHub API 密钥以继续操作。')) {
+              this.setApiToken();
+            }
+          } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
+            errorMessage = 'API 请求频率超限，请稍后再试';
+          } else if (error.status === 404) {
+            errorMessage = '文件路径不存在';
+          } else if (error.status === 422) {
+            errorMessage = '数据格式错误，请检查输入';
+          }
+          this.showStatus(errorMessage, 'error');
         } finally {
           const scanBtn = document.getElementById('btn-scan');
           const scanNewBtn = document.getElementById('btn-scan-new');
@@ -866,7 +880,21 @@
           
         } catch (error) {
           console.error('Scan new products error:', error);
-          this.showStatus('扫描新增产品失败: ' + error.message, 'error');
+          let errorMessage = '扫描新增产品失败: ' + error.message;
+          if (error.status === 401 || error.status === 403) {
+            errorMessage = 'API 密钥无效或已过期，请重新设置';
+            // 提示用户设置 API 密钥
+            if (confirm('API 密钥无效，请设置 GitHub API 密钥以继续操作。')) {
+              this.setApiToken();
+            }
+          } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
+            errorMessage = 'API 请求频率超限，请稍后再试';
+          } else if (error.status === 404) {
+            errorMessage = '文件路径不存在';
+          } else if (error.status === 422) {
+            errorMessage = '数据格式错误，请检查输入';
+          }
+          this.showStatus(errorMessage, 'error');
         } finally {
           const scanBtn = document.getElementById('btn-scan');
           const scanNewBtn = document.getElementById('btn-scan-new');
@@ -954,7 +982,21 @@
           this.showStatus(`成功保存 ${newProducts.length} 个新增产品`, 'success');
         } catch (error) {
           console.error('Save new products error:', error);
-          this.showStatus('保存新增产品失败: ' + error.message, 'error');
+          let errorMessage = '保存新增产品失败: ' + error.message;
+          if (error.status === 401 || error.status === 403) {
+            errorMessage = 'API 密钥无效或已过期，请重新设置';
+            // 提示用户设置 API 密钥
+            if (confirm('API 密钥无效，请设置 GitHub API 密钥以继续操作。')) {
+              this.setApiToken();
+            }
+          } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
+            errorMessage = 'API 请求频率超限，请稍后再试';
+          } else if (error.status === 404) {
+            errorMessage = '文件路径不存在';
+          } else if (error.status === 422) {
+            errorMessage = '数据格式错误，请检查输入';
+          }
+          this.showStatus(errorMessage, 'error');
           throw error;
         }
       }
