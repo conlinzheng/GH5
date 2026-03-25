@@ -1021,6 +1021,41 @@
       <h2>🛍️ 产品数据翻译</h2>
       <p style="color: #666; margin-bottom: 20px;">管理产品数据的多语言翻译，包括产品名称、描述等</p>
       
+      <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h4 style="margin: 0 0 10px 0;">🔑 翻译 API 配置</h4>
+        <p style="color: #666; font-size: 14px; margin-bottom: 10px;">配置真实的翻译 API 密钥以启用自动翻译功能</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div class="form-group">
+            <label>翻译服务提供商</label>
+            <select id="translation-provider">
+              <option value="baidu">百度翻译</option>
+              <option value="google">Google Translate</option>
+              <option value="azure">Azure Translator</option>
+              <option value="mock">模拟翻译（测试用）</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>API 密钥</label>
+            <input type="password" id="translation-api-key" placeholder="输入 API 密钥">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div class="form-group">
+            <label>App ID / 密钥 ID（如需要）</label>
+            <input type="text" id="translation-app-id" placeholder="输入 App ID（可选）">
+          </div>
+          <div class="form-group">
+            <label>API 区域/端点（如需要）</label>
+            <input type="text" id="translation-region" placeholder="如：global、eastasia（可选）">
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-save" onclick="configManager.saveTranslationApiConfig()">💾 保存 API 配置</button>
+          <button class="btn-test" onclick="configManager.testTranslationApi()" style="background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">🧪 测试连接</button>
+        </div>
+        <div id="translation-api-status" style="margin-top: 10px; font-size: 14px;"></div>
+      </div>
+      
       <div style="margin-bottom: 20px;">
         <button class="btn-save" onclick="configManager.loadProductData()">📥 加载产品数据</button>
         <button class="btn-save" onclick="configManager.saveProductTranslations()" style="margin-left: 10px;">💾 保存产品翻译</button>
@@ -1114,6 +1149,7 @@
         await this.loadConfig();
         this.initCategoryManagement();
         this.initI18n();
+        this.loadTranslationApiConfig();
       }
       
       initI18n() {
@@ -1493,15 +1529,200 @@
         }
       }
       
-      async translateText(text, from, to) {
-        // 这里使用一个简单的模拟翻译
-        // 实际项目中应该使用真实的翻译 API
-        if (from === 'zh' && to === 'en') {
-          return 'Translated: ' + text;
-        } else if (from === 'zh' && to === 'ko') {
-          return '번역: ' + text;
+      // 获取翻译 API 配置
+      getTranslationApiConfig() {
+        const config = localStorage.getItem('translationApiConfig');
+        return config ? JSON.parse(config) : {
+          provider: 'mock',
+          apiKey: '',
+          appId: '',
+          region: ''
+        };
+      }
+
+      // 保存翻译 API 配置
+      saveTranslationApiConfig() {
+        const config = {
+          provider: document.getElementById('translation-provider').value,
+          apiKey: document.getElementById('translation-api-key').value,
+          appId: document.getElementById('translation-app-id').value,
+          region: document.getElementById('translation-region').value
+        };
+        localStorage.setItem('translationApiConfig', JSON.stringify(config));
+        this.showStatus('API 配置已保存', 'success');
+        this.updateTranslationApiStatus('已配置', 'success');
+      }
+
+      // 加载翻译 API 配置到表单
+      loadTranslationApiConfig() {
+        const config = this.getTranslationApiConfig();
+        document.getElementById('translation-provider').value = config.provider || 'mock';
+        document.getElementById('translation-api-key').value = config.apiKey || '';
+        document.getElementById('translation-app-id').value = config.appId || '';
+        document.getElementById('translation-region').value = config.region || '';
+        
+        if (config.apiKey) {
+          this.updateTranslationApiStatus('已配置', 'success');
         }
+      }
+
+      // 更新 API 状态显示
+      updateTranslationApiStatus(message, type) {
+        const statusDiv = document.getElementById('translation-api-status');
+        const colors = {
+          success: '#28a745',
+          error: '#dc3545',
+          info: '#17a2b8'
+        };
+        statusDiv.innerHTML = `<span style="color: ${colors[type] || colors.info};">${message}</span>`;
+      }
+
+      // 测试翻译 API 连接
+      async testTranslationApi() {
+        this.updateTranslationApiStatus('正在测试连接...', 'info');
+        
+        try {
+          const config = this.getTranslationApiConfig();
+          const testText = '测试';
+          const result = await this.callTranslationApi(testText, 'zh', 'en', config);
+          
+          if (result && result !== testText) {
+            this.updateTranslationApiStatus('✅ 连接成功！翻译结果: ' + result, 'success');
+          } else {
+            this.updateTranslationApiStatus('⚠️ 连接成功但返回结果异常', 'error');
+          }
+        } catch (error) {
+          console.error('API 测试失败:', error);
+          this.updateTranslationApiStatus('❌ 连接失败: ' + error.message, 'error');
+        }
+      }
+
+      // 调用翻译 API
+      async callTranslationApi(text, from, to, config) {
+        if (!config) {
+          config = this.getTranslationApiConfig();
+        }
+        
+        // 使用模拟翻译
+        if (config.provider === 'mock' || !config.apiKey) {
+          if (from === 'zh' && to === 'en') {
+            return 'Translated: ' + text;
+          } else if (from === 'zh' && to === 'ko') {
+            return '번역: ' + text;
+          }
+          return text;
+        }
+        
+        // 百度翻译 API
+        if (config.provider === 'baidu') {
+          return await this.callBaiduTranslate(text, from, to, config);
+        }
+        
+        // Google Translate API
+        if (config.provider === 'google') {
+          return await this.callGoogleTranslate(text, from, to, config);
+        }
+        
+        // Azure Translator API
+        if (config.provider === 'azure') {
+          return await this.callAzureTranslate(text, from, to, config);
+        }
+        
         return text;
+      }
+
+      // 百度翻译 API
+      async callBaiduTranslate(text, from, to, config) {
+        const salt = Date.now();
+        const str = config.appId + text + salt + config.apiKey;
+        const sign = await this.md5(str);
+        
+        const langMap = { 'zh': 'zh', 'en': 'en', 'ko': 'kor' };
+        const fromLang = langMap[from] || from;
+        const toLang = langMap[to] || to;
+        
+        const url = `https://fanyi-api.baidu.com/api/trans/vip/translate?q=${encodeURIComponent(text)}&from=${fromLang}&to=${toLang}&appid=${config.appId}&salt=${salt}&sign=${sign}`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.error_code) {
+          throw new Error(`百度翻译错误: ${data.error_msg}`);
+        }
+        
+        return data.trans_result[0].dst;
+      }
+
+      // Google Translate API
+      async callGoogleTranslate(text, from, to, config) {
+        const langMap = { 'zh': 'zh-CN', 'en': 'en', 'ko': 'ko' };
+        const targetLang = langMap[to] || to;
+        
+        const url = `https://translation.googleapis.com/language/translate/v2?key=${config.apiKey}`;
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            q: text,
+            source: from,
+            target: targetLang,
+            format: 'text'
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(`Google 翻译错误: ${data.error.message}`);
+        }
+        
+        return data.data.translations[0].translatedText;
+      }
+
+      // Azure Translator API
+      async callAzureTranslate(text, from, to, config) {
+        const langMap = { 'zh': 'zh-Hans', 'en': 'en', 'ko': 'ko' };
+        const fromLang = langMap[from] || from;
+        const toLang = langMap[to] || to;
+        
+        const endpoint = config.region 
+          ? `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=${fromLang}&to=${toLang}`
+          : `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=${fromLang}&to=${toLang}`;
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Ocp-Apim-Subscription-Key': config.apiKey,
+            'Ocp-Apim-Subscription-Region': config.region || 'global',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify([{ Text: text }])
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(`Azure 翻译错误: ${data.error.message}`);
+        }
+        
+        return data[0].translations[0].text;
+      }
+
+      // MD5 哈希函数（用于百度翻译签名）
+      async md5(string) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(string);
+        const hashBuffer = await crypto.subtle.digest('MD5', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      // 主翻译方法
+      async translateText(text, from, to) {
+        return await this.callTranslationApi(text, from, to);
       }
       
       // 初始化分类管理
@@ -1950,11 +2171,39 @@
               
               if (data.products) {
                 Object.entries(data.products).forEach(([fileName, productData]) => {
+                  // 处理产品名称 - 兼容字符串和对象格式
+                  let nameObj = { zh: '', en: '', ko: '' };
+                  if (productData.name) {
+                    if (typeof productData.name === 'object') {
+                      nameObj = {
+                        zh: productData.name.zh || '',
+                        en: productData.name.en || '',
+                        ko: productData.name.ko || ''
+                      };
+                    } else if (typeof productData.name === 'string') {
+                      nameObj.zh = productData.name;
+                    }
+                  }
+                  
+                  // 处理产品描述 - 兼容字符串和对象格式
+                  let descObj = { zh: '', en: '', ko: '' };
+                  if (productData.description) {
+                    if (typeof productData.description === 'object') {
+                      descObj = {
+                        zh: productData.description.zh || '',
+                        en: productData.description.en || '',
+                        ko: productData.description.ko || ''
+                      };
+                    } else if (typeof productData.description === 'string') {
+                      descObj.zh = productData.description;
+                    }
+                  }
+                  
                   productList.push({
                     series: series.name,
                     fileName: fileName,
-                    name: productData.name || {},
-                    description: productData.description || {},
+                    name: nameObj,
+                    description: descObj,
                     seriesName: data.seriesName || {}
                   });
                 });
