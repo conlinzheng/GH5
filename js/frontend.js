@@ -999,10 +999,29 @@ class Frontend {
   
   async loadSeriesNameMap() {
     try {
-      // 初始化系列名称映射 - 现在存储多语言对象
+      // 清除 config.json 的缓存以确保获取最新数据
+      // 使用正确的缓存键名格式
+      const configCacheKey = cacheManager.prefix + 'config.json';
+      localStorage.removeItem(configCacheKey);
+      console.log('Config.json cache cleared in loadSeriesNameMap');
+      
+      // 初始化系列名称映射
       let seriesNameMap = {};
       
-      // 从各个系列的 products.json 文件中加载 seriesName 字段
+      // 1. 尝试从配置文件加载系列名称映射和排序信息
+      try {
+        const configFile = await githubAPI.fetchFile('config.json');
+        if (configFile && configFile.seriesNameMap) {
+          seriesNameMap = { ...seriesNameMap, ...configFile.seriesNameMap };
+        }
+        if (configFile && configFile.seriesOrder) {
+          this.state.seriesOrder = configFile.seriesOrder;
+        }
+      } catch (error) {
+        console.log('Config file not found, using default series name map');
+      }
+      
+      // 2. 从各个系列的 products.json 文件中加载 seriesName 字段
       try {
         const seriesList = await githubAPI.fetchDirectory('产品图');
         const allSeries = seriesList.filter(item => item.type === 'dir');
@@ -1010,9 +1029,8 @@ class Frontend {
         for (const series of allSeries) {
           try {
             const data = await githubAPI.fetchFile(`${series.path}/products.json`);
-            if (data && data.seriesName) {
-              // 存储完整的 seriesName 对象（包含 zh, en, ko）
-              seriesNameMap[series.name] = data.seriesName;
+            if (data && data.seriesName && data.seriesName.zh) {
+              seriesNameMap[series.name] = data.seriesName.zh;
             }
           } catch (err) {
             console.warn(`Failed to load ${series.name}/products.json:`, err);
@@ -1022,17 +1040,9 @@ class Frontend {
         console.warn('Failed to fetch series list:', error);
       }
       
-      // 如果没有任何映射，使用默认映射
+      // 3. 如果没有任何映射，使用默认映射
       if (Object.keys(seriesNameMap).length === 0) {
-        const defaultMap = this._getDefaultSeriesNameMap();
-        // 将默认映射转换为多语言格式
-        Object.entries(defaultMap).forEach(([key, value]) => {
-          seriesNameMap[key] = {
-            zh: value,
-            en: value,
-            ko: value
-          };
-        });
+        seriesNameMap = this._getDefaultSeriesNameMap();
       }
       
       this.state.seriesNameMap = seriesNameMap;
@@ -1040,27 +1050,8 @@ class Frontend {
     } catch (error) {
       console.error('Load series name map error:', error);
       // 使用默认映射
-      const defaultMap = this._getDefaultSeriesNameMap();
-      this.state.seriesNameMap = {};
-      Object.entries(defaultMap).forEach(([key, value]) => {
-        this.state.seriesNameMap[key] = {
-          zh: value,
-          en: value,
-          ko: value
-        };
-      });
+      this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     }
-  }
-  
-  // 获取系列显示名称（支持多语言）
-  getSeriesDisplayName(seriesId) {
-    const seriesNameObj = this.state.seriesNameMap[seriesId];
-    if (seriesNameObj) {
-      const currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : 'zh';
-      // 优先返回当前语言的名称，如果不存在则返回中文
-      return seriesNameObj[currentLang] || seriesNameObj.zh || seriesId;
-    }
-    return seriesId;
   }
   
   renderProducts() {
@@ -1098,7 +1089,7 @@ class Frontend {
       const seriesProducts = productsBySeries[seriesId];
       if (!seriesProducts) return;
       
-      const seriesDisplayName = this.getSeriesDisplayName(seriesId);
+      const seriesDisplayName = this.state.seriesNameMap[seriesId] || seriesId;
       
       // 创建系列容器
       const seriesContainer = document.createElement('div');
@@ -1306,7 +1297,7 @@ class Frontend {
   
   _handleLanguageChange(lang) {
     // 重新加载系列名称映射
-    this.loadSeriesNameMap();
+    this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     // 重新渲染产品以更新系列名称和产品翻译
     this.renderProducts();
     // 更新搜索框placeholder
@@ -1321,11 +1312,6 @@ class Frontend {
   }
   
   getProductTranslation(zhText, fieldType = 'name') {
-    // 处理对象格式的输入（包含 zh, en, ko 字段）
-    if (typeof zhText === 'object' && zhText !== null) {
-      return zhText[this.state.currentLang] || zhText.zh || zhText;
-    }
-    
     if (!zhText || this.state.currentLang === 'zh') {
       return zhText;
     }
@@ -1382,7 +1368,23 @@ class Frontend {
     };
   }
 
-
+  // 获取系列的显示名称（支持多语言）
+  getSeriesDisplayName(seriesId) {
+    // 1. 首先从 seriesNameMap 中获取中文显示名称
+    const chineseName = this.state.seriesNameMap[seriesId] || this._getDefaultSeriesNameMap()[seriesId] || seriesId;
+    
+    // 2. 尝试使用翻译词典获取当前语言的译文
+    if (typeof i18n !== 'undefined') {
+      const translatedName = i18n.t(chineseName);
+      // 如果翻译存在且不是默认值，使用翻译
+      if (translatedName && translatedName !== chineseName) {
+        return translatedName;
+      }
+    }
+    
+    // 3. 如果没有翻译，返回中文名称
+    return chineseName;
+  }
   
   extractProductName(fileName) {
     // 从文件名中提取产品名称
