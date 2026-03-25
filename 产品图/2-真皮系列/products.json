@@ -6,38 +6,40 @@
   },
   "products": {
     "33 (1).png": {
-      "name": "牛皮",
-      "description": "牛皮- 高品质产品",
-      "price": "55",
-      "tags": [],
-      "materials": {
-        "upper": "牛皮",
-        "lining": "猪",
-        "sole": "橡胶"
-      },
-      "customizable": "",
-      "minOrder": ""
-    },
-    "中文数字123 (1).png": {
       "name": {
-        "zh": "中文数字",
-        "en": "中文数字",
-        "ko": "中文数字"
+        "zh": "33",
+        "en": "33",
+        "ko": "33"
       },
       "description": {
-        "zh": "中文数字123 - 高品质产品",
-        "en": "中文数字123 - 高品质产品",
-        "ko": "中文数字123 - 高品质产品"
+        "zh": "33 - 高品质产品",
+        "en": "33 - High quality product",
+        "ko": "33 - 고품질 제품"
       },
       "price": "",
-      "tags": [],
       "materials": {
         "upper": "",
         "lining": "",
         "sole": ""
+      }
+    },
+    "中文数字123 (1).png": {
+      "name": {
+        "zh": "中文数字123",
+        "en": "中文数字123",
+        "ko": "中文数字123"
       },
-      "customizable": "",
-      "minOrder": ""
+      "description": {
+        "zh": "中文数字123 - 高品质产品",
+        "en": "中文数字123 - High quality product",
+        "ko": "中文数字123 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
     },
     "勃肯1 (1).jpg": {
       "name": {
@@ -56,108 +58,11 @@
         "lining": "",
         "sole": ""
       }
-    },
-    "33 (2).png": {
-      "name": "牛皮",
-      "description": "牛皮- 高品质产品",
-      "price": "55",
-      "tags": [],
-      "materials": {
-        "upper": "牛皮",
-        "lining": "猪",
-        "sole": "橡胶"
-      },
-      "customizable": "",
-      "minOrder": ""
-    },
-    "中文数字123 (2).png": {
-      "name": {
-        "zh": "中文数字",
-        "en": "中文数字",
-        "ko": "中文数字"
-      },
-      "description": {
-        "zh": "中文数字123 - 高品质产品",
-        "en": "中文数字123 - 高品质产品",
-        "ko": "中文数字123 - 高品质产品"
-      },
-      "price": "",
-      "tags": [],
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      },
-      "customizable": "",
-      "minOrder": ""
-    },
-    "中文数字123 (3).png": {
-      "name": {
-        "zh": "中文数字",
-        "en": "中文数字",
-        "ko": "中文数字"
-      },
-      "description": {
-        "zh": "中文数字123 - 高品质产品",
-        "en": "中文数字123 - 高品质产品",
-        "ko": "中文数字123 - 高品质产品"
-      },
-      "price": "",
-      "tags": [],
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      },
-      "customizable": "",
-      "minOrder": ""
-    },
-    "中文数字123 (4).png": {
-      "name": {
-        "zh": "中文数字",
-        "en": "中文数字",
-        "ko": "中文数字"
-      },
-      "description": {
-        "zh": "中文数字123 - 高品质产品",
-        "en": "中文数字123 - 高品质产品",
-        "ko": "中文数字123 - 高品质产品"
-      },
-      "price": "",
-      "tags": [],
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      },
-      "customizable": "",
-      "minOrder": ""
-    },
-    "中文数字123 (5).png": {
-      "name": {
-        "zh": "中文数字",
-        "en": "中文数字",
-        "ko": "中文数字"
-      },
-      "description": {
-        "zh": "中文数字123 - 高品质产品",
-        "en": "中文数字123 - 高品质产品",
-        "ko": "中文数字123 - 高品质产品"
-      },
-      "price": "",
-      "tags": [],
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      },
-      "customizable": "",
-      "minOrder": ""
     }
   },
   "order": [
-    "中文数字123",
     "33",
+    "中文数字123",
     "勃肯1"
   ]
 }
