@@ -41,9 +41,6 @@ class Frontend {
       i18n.init();
     }
     
-    // 更新搜索框placeholder
-    this.updateSearchPlaceholder();
-    
     // 监听语言变化事件
     document.addEventListener('languageChanged', (event) => {
       const newLang = event.detail.language;
@@ -53,8 +50,6 @@ class Frontend {
       this.updateContactModal();
       this.updateFooter();
       this.updateFormLabels();
-      // 更新搜索框placeholder
-      this.updateSearchPlaceholder();
       console.log('Language changed to:', newLang);
     });
   }
@@ -483,7 +478,7 @@ class Frontend {
     
     if (!modal) return;
     
-    const seriesDisplayName = this.getSeriesDisplayName(product.seriesId);
+    const seriesDisplayName = this.state.seriesNameMap[product.seriesId] || product.seriesId;
     const translatedName = this.getProductTranslation(product.name, 'name');
     const translatedDesc = product.description ? this.getProductTranslation(product.description, 'desc') : '';
     
@@ -753,16 +748,176 @@ class Frontend {
       await this.loadSeriesNameMap();
       
       try {
-        const products = await this.fetchAllProducts();
+        // 从GitHub API获取最新的系列列表
+        const series = await githubAPI.fetchDirectory(this.config.github.productsPath);
+        this.state.series = series.filter(item => item.type === 'dir');
         
-        console.log('产品数据加载完成，产品数量:', products.length);
-        console.log('产品数据示例:', products[0]);
+        console.log('Loading products from GitHub API');
         
-        this.state.products = products;
-        this.state.allProducts = products; // 保存所有产品，用于搜索
+        // 串行请求所有系列的产品数据，避免API限流
+        const products = [];
+        
+        // 限制并发请求数量
+        const maxConcurrentRequests = 2;
+        const seriesBatches = [];
+        
+        // 将系列分成批次
+        for (let i = 0; i < this.state.series.length; i += maxConcurrentRequests) {
+          seriesBatches.push(this.state.series.slice(i, i + maxConcurrentRequests));
+        }
+        
+        // 按批次处理系列
+        for (const batch of seriesBatches) {
+          const batchPromises = batch.map(async (seriesItem) => {
+            try {
+              // 检查API限流状态
+              const rateLimitInfo = githubAPI.getRateLimitInfo();
+              if (rateLimitInfo.isLimited) {
+                const waitTime = rateLimitInfo.resetInMinutes;
+                console.log(`API rate limit reached, waiting ${waitTime} minutes...`);
+                
+                // 显示用户友好的提示
+                const message = typeof i18n !== 'undefined' 
+                  ? `API请求过于频繁，请${waitTime}分钟后重试` 
+                  : `API rate limit reached. Please try again in ${waitTime} minutes.`;
+                
+                this._showError(message);
+                
+                await githubAPI.waitForRateLimitReset();
+                
+                // 清除错误提示
+                const errorElement = document.getElementById('error-message');
+                if (errorElement) {
+                  errorElement.style.display = 'none';
+                }
+              }
+              
+              // 获取系列目录下的所有文件
+              const files = await githubAPI.fetchDirectory(seriesItem.path);
+              const imageFiles = files.filter(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+              });
+              
+              // 按产品名称分组图片
+              const productGroups = {};
+              imageFiles.forEach(file => {
+                const productName = this.extractProductName(file.name);
+                if (!productGroups[productName]) {
+                  productGroups[productName] = [];
+                }
+                productGroups[productName].push(file.name);
+              });
+              
+              // 获取产品数据文件
+              let productsFile;
+              try {
+                // 只有在缓存不存在时才请求API
+                const cachedData = cacheManager.get(`${seriesItem.path}/products.json`);
+                if (cachedData) {
+                  productsFile = cachedData;
+                  console.log(`Using cached data for ${seriesItem.path}/products.json`);
+                } else {
+                  productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+                  // 缓存数据
+                  cacheManager.set(`${seriesItem.path}/products.json`, productsFile, this.config.cacheTTL);
+                }
+              } catch (error) {
+                productsFile = { products: {} };
+              }
+              
+              // 为每个产品创建数据
+              const productsByGroup = {};
+              Object.entries(productGroups).forEach(([productName, images]) => {
+                // 找到主图（通常是 (1) 或没有数字的图片）
+                const mainImage = images.find(img => this.isMainImage(img)) || images[0];
+                
+                // 获取产品数据
+                const productData = productsFile.products[mainImage] || {
+                  name: productName,
+                  description: '',
+                  price: '',
+                  upperMaterial: '',
+                  innerMaterial: '',
+                  soleMaterial: '',
+                  customizable: '',
+                  minOrder: '',
+                  tags: []
+                };
+                
+                console.log('产品数据:', productData);
+                console.log('产品标签:', productData.tags);
+                
+                // 处理多语言字段
+                const name = productData.name?.zh || productData.name || productName;
+                const description = productData.description?.zh || productData.description || '';
+                
+                // 处理材质字段（兼容两种格式：materials 对象 或 单独字段）
+                const upperMaterial = productData.materials?.upper || productData.upperMaterial || '';
+                const innerMaterial = productData.materials?.lining || productData.innerMaterial || '';
+                const soleMaterial = productData.materials?.sole || productData.soleMaterial || '';
+                
+                // 构建产品对象
+                const product = {
+                  id: mainImage,
+                  seriesId: seriesItem.name,
+                  name: name,
+                  description: description,
+                  price: productData.price || '',
+                  upperMaterial: upperMaterial,
+                  innerMaterial: innerMaterial,
+                  soleMaterial: soleMaterial,
+                  customizable: productData.customizable || '',
+                  minOrder: productData.minOrder || '',
+                  tags: productData.tags || [],
+                  specs: upperMaterial || innerMaterial || soleMaterial || '',
+                  images: images.map(img => this.getImageUrl(seriesItem.name, img))
+                };
+                
+                console.log('构建的产品对象:', product);
+                
+                productsByGroup[productName] = product;
+              });
+              
+              // 按排序顺序添加产品
+              if (productsFile.order) {
+                const orderNames = productsFile.order;
+                orderNames.forEach(productName => {
+                  if (productsByGroup[productName]) {
+                    products.push(productsByGroup[productName]);
+                    delete productsByGroup[productName];
+                  }
+                });
+              }
+              
+              // 添加剩余的产品（确保所有产品都被加载，即使 order 字段有问题）
+              Object.values(productsByGroup).forEach(product => {
+                products.push(product);
+              });
+              
+              // 添加请求间隔，避免API限流
+              await new Promise(resolve => setTimeout(resolve, 500));
+            } catch (error) {
+              console.warn(`Failed to load products for ${seriesItem.name}:`, error);
+            }
+          });
+          
+          // 等待批次请求完成
+        await Promise.all(batchPromises);
+      }
 
-        // 缓存数据
-        this.cacheProductsData(products);
+      console.log('产品数据加载完成，产品数量:', products.length);
+      console.log('产品数据示例:', products[0]);
+      
+      this.state.products = products;
+      this.state.allProducts = products; // 保存所有产品，用于搜索
+
+      // 缓存数据
+      cacheManager.set('products_data', {
+        products: this.state.products,
+        series: this.state.series,
+        seriesNameMap: this.state.seriesNameMap
+      }, this.config.cacheTTL);
       } catch (apiError) {
         console.error('GitHub API error:', apiError);
         console.log('Using fallback local data');
@@ -771,229 +926,15 @@ class Frontend {
 
       this.renderProducts();
     } catch (error) {
-      this.handleError(error, '加载产品数据失败，请稍后重试');
+      if (typeof errorHandler !== 'undefined') {
+        errorHandler.handleError(error);
+      } else {
+        console.error('Load products data error:', error);
+      }
+      this._showError('加载产品数据失败，请稍后重试');
     } finally {
       this.state.isLoading = false;
       this._showLoading(false);
-    }
-  }
-
-  async fetchAllProducts() {
-    // 从GitHub API获取最新的系列列表
-    const series = await githubAPI.fetchDirectory(this.config.github.productsPath);
-    this.state.series = series.filter(item => item.type === 'dir');
-    
-    console.log('Loading products from GitHub API');
-    
-    // 限制并发请求数量
-    const maxConcurrentRequests = 2;
-    const seriesBatches = this.createSeriesBatches(this.state.series, maxConcurrentRequests);
-    
-    const products = [];
-    
-    // 按批次处理系列
-    for (const batch of seriesBatches) {
-      const batchPromises = batch.map(async (seriesItem) => {
-        try {
-          await this.handleAPIRateLimit();
-          const seriesProducts = await this.fetchSeriesProducts(seriesItem);
-          seriesProducts.forEach(product => products.push(product));
-        } catch (error) {
-          console.warn(`Failed to load products for ${seriesItem.name}:`, error);
-        }
-      });
-      
-      // 等待批次请求完成
-      await Promise.all(batchPromises);
-    }
-    
-    return products;
-  }
-
-  createSeriesBatches(series, batchSize) {
-    const batches = [];
-    for (let i = 0; i < series.length; i += batchSize) {
-      batches.push(series.slice(i, i + batchSize));
-    }
-    return batches;
-  }
-
-  async handleAPIRateLimit() {
-    const rateLimitInfo = githubAPI.getRateLimitInfo();
-    if (rateLimitInfo.isLimited) {
-      const waitTime = rateLimitInfo.resetInMinutes;
-      console.log(`API rate limit reached, waiting ${waitTime} minutes...`);
-      
-      // 显示用户友好的提示
-      const message = typeof i18n !== 'undefined' 
-        ? `API请求过于频繁，请${waitTime}分钟后重试` 
-        : `API rate limit reached. Please try again in ${waitTime} minutes.`;
-      
-      this._showError(message);
-      
-      await githubAPI.waitForRateLimitReset();
-      
-      // 清除错误提示
-      const errorElement = document.getElementById('error-message');
-      if (errorElement) {
-        errorElement.style.display = 'none';
-      }
-    }
-  }
-
-  async fetchSeriesProducts(seriesItem) {
-    // 获取系列目录下的所有文件
-    const files = await githubAPI.fetchDirectory(seriesItem.path);
-    const imageFiles = this.filterImageFiles(files);
-    
-    // 按产品名称分组图片
-    const productGroups = this.groupImagesByProduct(imageFiles);
-    
-    // 获取产品数据文件
-    const productsFile = await this.fetchProductsFile(seriesItem.path);
-    
-    // 为每个产品创建数据
-    const productsByGroup = this.createProductsByGroup(productGroups, productsFile, seriesItem.name);
-    
-    // 按排序顺序添加产品
-    return this.sortAndCollectProducts(productsByGroup, productsFile);
-  }
-
-  filterImageFiles(files) {
-    return files.filter(file => {
-      const ext = file.name.split('.').pop().toLowerCase();
-      return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
-    });
-  }
-
-  groupImagesByProduct(imageFiles) {
-    const productGroups = {};
-    imageFiles.forEach(file => {
-      const productName = this.extractProductName(file.name);
-      if (!productGroups[productName]) {
-        productGroups[productName] = [];
-      }
-      productGroups[productName].push(file.name);
-    });
-    return productGroups;
-  }
-
-  async fetchProductsFile(seriesPath) {
-    try {
-      // 只有在缓存不存在时才请求API
-      const cachedData = cacheManager.get(`${seriesPath}/products.json`);
-      if (cachedData) {
-        console.log(`Using cached data for ${seriesPath}/products.json`);
-        return cachedData;
-      }
-      
-      const productsFile = await githubAPI.fetchFile(`${seriesPath}/products.json`);
-      // 缓存数据
-      cacheManager.set(`${seriesPath}/products.json`, productsFile, this.config.cacheTTL);
-      return productsFile;
-    } catch (error) {
-      return { products: {} };
-    }
-  }
-
-  createProductsByGroup(productGroups, productsFile, seriesId) {
-    const productsByGroup = {};
-    
-    Object.entries(productGroups).forEach(([productName, images]) => {
-      // 找到主图（通常是 (1) 或没有数字的图片）
-      const mainImage = images.find(img => this.isMainImage(img)) || images[0];
-      
-      // 获取产品数据
-      const productData = productsFile.products[mainImage] || {
-        name: productName,
-        description: '',
-        price: '',
-        upperMaterial: '',
-        innerMaterial: '',
-        soleMaterial: '',
-        customizable: '',
-        minOrder: '',
-        tags: []
-      };
-      
-      console.log('产品数据:', productData);
-      console.log('产品标签:', productData.tags);
-      
-      // 处理多语言字段
-      const name = productData.name?.zh || productData.name || productName;
-      const description = productData.description?.zh || productData.description || '';
-      
-      // 处理材质字段（兼容两种格式：materials 对象 或 单独字段）
-      const upperMaterial = productData.materials?.upper || productData.upperMaterial || '';
-      const innerMaterial = productData.materials?.lining || productData.innerMaterial || '';
-      const soleMaterial = productData.materials?.sole || productData.soleMaterial || '';
-      
-      // 构建产品对象
-      const product = {
-        id: mainImage,
-        seriesId: seriesId,
-        name: name,
-        description: description,
-        price: productData.price || '',
-        upperMaterial: upperMaterial,
-        innerMaterial: innerMaterial,
-        soleMaterial: soleMaterial,
-        customizable: productData.customizable || '',
-        minOrder: productData.minOrder || '',
-        tags: productData.tags || [],
-        specs: upperMaterial || innerMaterial || soleMaterial || '',
-        images: images.map(img => this.getImageUrl(seriesId, img))
-      };
-      
-      console.log('构建的产品对象:', product);
-      
-      productsByGroup[productName] = product;
-    });
-    
-    return productsByGroup;
-  }
-
-  sortAndCollectProducts(productsByGroup, productsFile) {
-    const products = [];
-    
-    // 按排序顺序添加产品
-    if (productsFile.order) {
-      const orderNames = productsFile.order;
-      orderNames.forEach(productName => {
-        if (productsByGroup[productName]) {
-          products.push(productsByGroup[productName]);
-          delete productsByGroup[productName];
-        }
-      });
-    }
-    
-    // 添加剩余的产品（确保所有产品都被加载，即使 order 字段有问题）
-    Object.values(productsByGroup).forEach(product => {
-      products.push(product);
-    });
-    
-    // 添加请求间隔，避免API限流
-    return new Promise(resolve => {
-      setTimeout(() => resolve(products), 500);
-    });
-  }
-
-  cacheProductsData(products) {
-    cacheManager.set('products_data', {
-      products: products,
-      series: this.state.series,
-      seriesNameMap: this.state.seriesNameMap
-    }, this.config.cacheTTL);
-  }
-
-  handleError(error, customMessage = null) {
-    if (typeof errorHandler !== 'undefined') {
-      errorHandler.handleError(error);
-    } else {
-      console.error('Error:', error);
-    }
-    if (customMessage) {
-      this._showError(customMessage);
     }
   }
   
@@ -1005,48 +946,23 @@ class Frontend {
       localStorage.removeItem(configCacheKey);
       console.log('Config.json cache cleared in loadSeriesNameMap');
       
-      // 初始化系列名称映射
-      let seriesNameMap = {};
-      
-      // 1. 尝试从配置文件加载系列名称映射和排序信息
+      // 尝试从配置文件加载系列名称映射和排序信息
+      let configFile;
       try {
-        const configFile = await githubAPI.fetchFile('config.json');
+        configFile = await githubAPI.fetchFile('config.json');
         if (configFile && configFile.seriesNameMap) {
-          seriesNameMap = { ...seriesNameMap, ...configFile.seriesNameMap };
+          this.state.seriesNameMap = configFile.seriesNameMap;
         }
         if (configFile && configFile.seriesOrder) {
           this.state.seriesOrder = configFile.seriesOrder;
         }
+        return;
       } catch (error) {
         console.log('Config file not found, using default series name map');
       }
       
-      // 2. 从各个系列的 products.json 文件中加载 seriesName 字段
-      try {
-        const seriesList = await githubAPI.fetchDirectory('产品图');
-        const allSeries = seriesList.filter(item => item.type === 'dir');
-        
-        for (const series of allSeries) {
-          try {
-            const data = await githubAPI.fetchFile(`${series.path}/products.json`);
-            if (data && data.seriesName && data.seriesName.zh) {
-              seriesNameMap[series.name] = data.seriesName.zh;
-            }
-          } catch (err) {
-            console.warn(`Failed to load ${series.name}/products.json:`, err);
-          }
-        }
-      } catch (error) {
-        console.warn('Failed to fetch series list:', error);
-      }
-      
-      // 3. 如果没有任何映射，使用默认映射
-      if (Object.keys(seriesNameMap).length === 0) {
-        seriesNameMap = this._getDefaultSeriesNameMap();
-      }
-      
-      this.state.seriesNameMap = seriesNameMap;
-      console.log('Series name map loaded:', seriesNameMap);
+      // 使用默认映射
+      this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     } catch (error) {
       console.error('Load series name map error:', error);
       // 使用默认映射
@@ -1059,20 +975,6 @@ class Frontend {
     if (!container) return;
     
     container.innerHTML = '';
-    
-    // 如果没有产品，显示提示信息
-    if (this.state.products.length === 0) {
-      const emptyMessage = document.createElement('div');
-      emptyMessage.className = 'empty-message';
-      emptyMessage.innerHTML = `
-        <div class="empty-icon">📦</div>
-        <h3>暂无产品数据</h3>
-        <p>请检查网络连接或稍后重试</p>
-        <button class="btn btn-primary" onclick="frontend.refreshData()">刷新数据</button>
-      `;
-      container.appendChild(emptyMessage);
-      return;
-    }
     
     // 按系列分组产品
     const productsBySeries = {};
@@ -1165,7 +1067,7 @@ class Frontend {
     const div = document.createElement('div');
     div.className = 'product-card';
     
-    const seriesDisplayName = this.getSeriesDisplayName(product.seriesId);
+    const seriesDisplayName = this.state.seriesNameMap[product.seriesId] || product.seriesId;
     
     const translatedName = this.getProductTranslation(product.name, 'name');
     const translatedDesc = product.description ? this.getProductTranslation(product.description, 'desc') : '';
@@ -1279,7 +1181,7 @@ class Frontend {
     
     // 添加系列按钮
     this.state.series.forEach(seriesItem => {
-      const displayName = this.getSeriesDisplayName(seriesItem.name);
+      const displayName = this.state.seriesNameMap[seriesItem.name] || seriesItem.name;
       const btn = document.createElement('button');
       btn.className = `series-filter ${this.state.selectedSeries === seriesItem.name ? 'active' : ''}`;
       btn.textContent = displayName;
@@ -1314,15 +1216,6 @@ class Frontend {
     this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     // 重新渲染产品以更新系列名称和产品翻译
     this.renderProducts();
-    // 更新搜索框placeholder
-    this.updateSearchPlaceholder();
-  }
-  
-  updateSearchPlaceholder() {
-    const searchInput = document.getElementById('search-input');
-    if (searchInput && typeof i18n !== 'undefined') {
-      searchInput.placeholder = i18n.t('search.placeholder');
-    }
   }
   
   getProductTranslation(zhText, fieldType = 'name') {
@@ -1364,73 +1257,45 @@ class Frontend {
   
   _loadLocalFallbackData() {
     // 加载本地备用数据
-    console.log('Loading fallback data');
-    
-    // 提供默认系列数据
-    this.state.series = [
-      { name: '1-PU系列', type: 'dir', path: '产品图/1-PU系列' },
-      { name: '2-真皮系列', type: 'dir', path: '产品图/2-真皮系列' }
-    ];
-    
-    // 提供默认产品数据
-    this.state.products = [
-      {
-        id: '产品1.jpg',
-        seriesId: '1-PU系列',
-        name: '产品1',
-        description: '这是一个示例产品',
-        price: '¥199',
-        upperMaterial: '超纤',
-        innerMaterial: '透气网布',
-        soleMaterial: '橡胶底',
-        customizable: '是',
-        minOrder: '100双',
-        tags: ['新品', '热销'],
-        specs: '超纤/透气网布/橡胶底',
-        images: [`https://${this.config.github.owner}.github.io/${this.config.github.repo}/产品图/1-PU系列/产品1.jpg`]
-      }
-    ];
-    
-    // 确保系列名称映射存在
-    if (Object.keys(this.state.seriesNameMap).length === 0) {
-      this.state.seriesNameMap = this._getDefaultSeriesNameMap();
-    }
-    
-    // 显示错误提示
-    this._showError('无法连接到服务器，显示备用数据');
-    
+    this.state.products = [];
+    this.state.series = [];
     this.renderProducts();
   }
   
   _getDefaultSeriesNameMap() {
-    // 默认的系列名称映射，仅作为 fallback
-    return {
-      '1-PU系列': '超纤',
-      '2-真皮系列': '真皮系列',
-      '3-短靴系列': '短靴系列',
-      '4-乐福系列': '乐福系列',
-      '5-春季': '春季系列',
-      '6-夏季': '夏季系列',
-      '7-秋季': '秋季系列'
-    };
-  }
-
-  // 获取系列的显示名称（支持多语言）
-  getSeriesDisplayName(seriesId) {
-    // 1. 首先从 seriesNameMap 中获取中文显示名称
-    const chineseName = this.state.seriesNameMap[seriesId] || this._getDefaultSeriesNameMap()[seriesId] || seriesId;
+    const currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : 'zh';
     
-    // 2. 尝试使用翻译词典获取当前语言的译文
-    if (typeof i18n !== 'undefined') {
-      const translatedName = i18n.t(chineseName);
-      // 如果翻译存在且不是默认值，使用翻译
-      if (translatedName && translatedName !== chineseName) {
-        return translatedName;
+    const seriesNameMaps = {
+      zh: {
+        '1-PU系列': 'PU超纤',
+        '2-真皮系列': '真皮系列',
+        '3-短靴系列': '短靴系列',
+        '4-乐福系列': '乐福系列',
+        '5-春季': '春季系列',
+        '6-夏季': '夏季系列',
+        '7-秋季': '秋季系列'
+      },
+      en: {
+        '1-PU系列': 'PU Collection',
+        '2-真皮系列': 'Leather Collection',
+        '3-短靴系列': 'Boots Collection',
+        '4-乐福系列': 'Loafers Collection',
+        '5-春季': 'Spring Collection',
+        '6-夏季': 'Summer Collection',
+        '7-秋季': 'Autumn Collection'
+      },
+      ko: {
+        '1-PU系列': 'PU 컬렉션',
+        '2-真皮系列': '가죽 컬렉션',
+        '3-短靴系列': '부츠 컬렉션',
+        '4-乐福系列': '로퍼 컬렉션',
+        '5-春季': '봄 컬렉션',
+        '6-夏季': '여름 컬렉션',
+        '7-秋季': '가을 컬렉션'
       }
-    }
+    };
     
-    // 3. 如果没有翻译，返回中文名称
-    return chineseName;
+    return seriesNameMaps[currentLang] || seriesNameMaps.zh;
   }
   
   extractProductName(fileName) {

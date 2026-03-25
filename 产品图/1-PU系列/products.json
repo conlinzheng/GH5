@@ -1,33 +1,20 @@
 {
   "seriesName": {
-    "zh": "超纤",
-    "en": "Microfiber",
-    "ko": "마이크로파이버"
+    "zh": "1-PU系列",
+    "en": "1-PU系列",
+    "ko": "1-PU系列"
   },
   "products": {
-    "产品1 (1).jpg": {
-      "name": "产品1",
-      "description": "产品1 - 高品质超纤产品",
-      "price": "55",
-      "tags": [],
-      "materials": {
-        "upper": "牛皮",
-        "lining": "猪",
-        "sole": "橡胶"
-      },
-      "customizable": "",
-      "minOrder": "111"
-    },
-    "产品2 (1).jpg": {
+    "中文 (1).png": {
       "name": {
-        "zh": "产品2",
-        "en": "Product 2",
-        "ko": "제품 2"
+        "zh": "中文",
+        "en": "中文",
+        "ko": "中文"
       },
       "description": {
-        "zh": "产品2 - 高品质超纤产品",
-        "en": "Product 2 - High quality microfiber product",
-        "ko": "제품 2 - 고품질 마이크로파이버 제품"
+        "zh": "中文 - 高品质产品",
+        "en": "中文 - High quality product",
+        "ko": "中文 - 고품질 제품"
       },
       "price": "",
       "materials": {
@@ -36,22 +23,132 @@
         "sole": ""
       }
     },
-    "产品1 (2).jpg": {
-      "name": "产品1",
-      "description": "产品1 - 高品质超纤产品",
-      "price": "55",
+    "产品1 (1).jpg": {
+      "name": {
+        "zh": "产品1",
+        "en": "产品1",
+        "ko": "产品1"
+      },
+      "description": {
+        "zh": "产品1 - 高品质产品",
+        "en": "产品1 - High quality product",
+        "ko": "产品1 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
+    "中文 (2).png": {
+      "name": {
+        "zh": "中文",
+        "en": "中文",
+        "ko": "中文"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
       "tags": [],
       "materials": {
-        "upper": "牛皮",
-        "lining": "猪",
-        "sole": "橡胶"
+        "upper": "",
+        "lining": "",
+        "sole": ""
       },
       "customizable": "",
-      "minOrder": "111"
+      "minOrder": ""
+    },
+    "中文 (3).png": {
+      "name": {
+        "zh": "中文",
+        "en": "中文",
+        "ko": "中文"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
+    },
+    "中文 (4).png": {
+      "name": {
+        "zh": "中文",
+        "en": "中文",
+        "ko": "中文"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
+    },
+    "中文 (5).png": {
+      "name": {
+        "zh": "中文",
+        "en": "中文",
+        "ko": "中文"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
+    },
+    "产品1 (2).jpg": {
+      "name": {
+        "zh": "产品1",
+        "en": "产品1",
+        "ko": "产品1"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
     }
   },
   "order": [
-    "产品1",
-    "产品2"
+    "中文",
+    "产品1"
   ]
 }

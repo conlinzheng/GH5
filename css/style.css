@@ -1158,28 +1158,6 @@ body {
   border-left: 4px solid #22c55e;
 }
 
-/* 空消息提示 */
-.empty-message {
-  text-align: center;
-  padding: var(--spacing-2xl);
-  color: var(--text-light);
-}
-
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: var(--spacing-md);
-}
-
-.empty-message h3 {
-  font-size: var(--font-size-xl);
-  margin-bottom: var(--spacing-sm);
-  color: var(--text-color);
-}
-
-.empty-message p {
-  margin-bottom: var(--spacing-md);
-}
-
 .error-message,
 .success-message {
   flex: 1;

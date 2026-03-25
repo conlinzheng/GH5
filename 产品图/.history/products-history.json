@@ -1,58 +1,6 @@
 {
   "history": [
     {
-      "timestamp": "2026-03-25T11:36:46.214Z",
-      "seriesId": "1-PU系列",
-      "imageFileName": "产品1 (1).jpg",
-      "data": {
-        "name": {
-          "zh": "产品1",
-          "en": "产品1",
-          "ko": "产品1"
-        },
-        "description": {
-          "zh": "产品1 - 高品质超纤产品",
-          "en": "产品1 - 高品质超纤产品",
-          "ko": "产品1 - 高品质超纤产品"
-        },
-        "price": "55",
-        "tags": [],
-        "materials": {
-          "upper": "牛皮",
-          "lining": "猪",
-          "sole": "橡胶"
-        },
-        "customizable": "",
-        "minOrder": "111"
-      }
-    },
-    {
-      "timestamp": "2026-03-25T09:24:20.345Z",
-      "seriesId": "2-真皮系列",
-      "imageFileName": "33 (1).png",
-      "data": {
-        "name": {
-          "zh": "牛皮",
-          "en": "牛皮",
-          "ko": "牛皮"
-        },
-        "description": {
-          "zh": "牛皮- 高品质产品",
-          "en": "牛皮- 高品质产品",
-          "ko": "牛皮- 高品质产品"
-        },
-        "price": "55",
-        "tags": [],
-        "materials": {
-          "upper": "牛皮",
-          "lining": "猪",
-          "sole": "橡胶"
-        },
-        "customizable": "",
-        "minOrder": ""
-      }
-    },
-    {
       "timestamp": "2026-03-23T05:25:04.259Z",
       "seriesId": "1-PU系列",
       "imageFileName": "99 (1).png",

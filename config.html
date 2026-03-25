@@ -3,62 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="admin.title">配置管理 - GH5</title>
+  <title>配置管理 - GH5</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
     .config-container {
-      max-width: 98vw;
+      max-width: 95vw;
       margin: 0 auto;
-      padding: 15px;
+      padding: 20px;
     }
     
     .config-header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 15px 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    
-    .header-right {
-      display: flex;
-      align-items: center;
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
     
     .config-header h1 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+    }
+    
+    .config-header p {
       margin: 0;
-      color: white;
-      font-size: 20px;
-    }
-    
-    .config-header .subtitle {
-      margin: 0;
-      color: rgba(255,255,255,0.9);
-      font-size: 13px;
-    }
-    
-    .language-selector select {
-      padding: 6px 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 14px;
-      background: white;
-      cursor: pointer;
-    }
-    
-    .language-selector select:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+      opacity: 0.9;
     }
     
     .config-nav {
@@ -492,7 +462,7 @@
       border-left: 4px solid #dc3545;
     }
     
-    .status-info {
+    .status-loading {
       background: #cce5ff;
       color: #004085;
       border-left: 4px solid #007bff;
@@ -562,28 +532,17 @@
 <body>
   <div class="config-container">
     <div class="config-header">
-      <div class="header-left">
-        <h1>⚙️ 配置管理中心</h1>
-        <span class="subtitle">管理站点基本信息、联系表单、翻译词典和页面设置</span>
-      </div>
-      <div class="header-right">
-        <div class="language-selector">
-          <select id="language-select" onchange="i18n.setLanguage(this.value)">
-            <option value="zh">中文</option>
-            <option value="en">English</option>
-            <option value="ko">한국어</option>
-          </select>
-        </div>
-      </div>
+      <h1>⚙️ 配置管理中心</h1>
+      <p>管理站点基本信息、联系表单、翻译词典和页面设置</p>
     </div>
     
     <div class="config-nav">
+      <button class="active" data-section="site-info">🏢 站点信息</button>
       <button data-section="social-media">📱 社交媒体</button>
       <button data-section="page-assets">🖼️ 页面资源</button>
       <button data-section="display-text">📝 显示文本</button>
       <button data-section="contact-form">📧 表单配置</button>
       <button data-section="translations">🌐 翻译词典</button>
-      <button data-section="product-translations">🛍️ 产品数据翻译</button>
       <button data-section="page-settings">⚡ 页面设置</button>
       <button data-section="preview">👁️ 预览效果</button>
     </div>
@@ -594,9 +553,74 @@
     
     <div class="status-container" id="status-container"></div>
     
-
+    <div id="site-info" class="config-section active">
+      <h2>🏢 站点基本信息</h2>
+      <p style="color: #666; margin-bottom: 20px;">这些信息将显示在联系我们弹窗的左侧</p>
+      
+      <h3>公司名称</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>中文 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="companyName-zh" placeholder="例如：GH5鞋业">
+        </div>
+        <div class="form-group">
+          <label>英文 <span class="lang-badge">EN</span></label>
+          <input type="text" id="companyName-en" placeholder="例如：GH5 Shoes">
+        </div>
+        <div class="form-group">
+          <label>韩文 <span class="lang-badge">KO</span></label>
+          <input type="text" id="companyName-ko" placeholder="例如：GH5 신발">
+        </div>
+      </div>
+      
+      <h3>公司描述</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>中文 <span class="lang-badge">ZH</span></label>
+          <textarea id="companyDescription-zh" placeholder="公司简介描述"></textarea>
+        </div>
+        <div class="form-group">
+          <label>英文 <span class="lang-badge">EN</span></label>
+          <textarea id="companyDescription-en" placeholder="Company description"></textarea>
+        </div>
+        <div class="form-group">
+          <label>韩文 <span class="lang-badge">KO</span></label>
+          <textarea id="companyDescription-ko" placeholder="회사 설명"></textarea>
+        </div>
+      </div>
+      
+      <h3>联系方式</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>地址 <span class="lang-badge">所有语言</span></label>
+          <input type="text" id="companyAddress" placeholder="公司地址">
+        </div>
+        <div class="form-group">
+          <label>电话 <span class="lang-badge">所有语言</span></label>
+          <input type="text" id="companyPhone" placeholder="联系电话">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>邮箱 <span class="lang-badge">所有语言</span></label>
+          <input type="email" id="companyEmail" placeholder="电子邮箱">
+        </div>
+        <div class="form-group">
+          <label>微信 <span class="lang-badge">所有语言</span></label>
+          <input type="text" id="companyWechat" placeholder="微信号">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>工作时间 <span class="lang-badge">所有语言</span></label>
+        <input type="text" id="workingHours" placeholder="例如：周一至周五 9:00-18:00">
+      </div>
+      
+      <button class="btn-save" onclick="configManager.saveSiteInfo()">保存站点信息</button>
+    </div>
     
-    <div id="social-media" class="config-section active">
+    <div id="social-media" class="config-section">
       <h2>📱 社交媒体链接</h2>
       <p style="color: #666; margin-bottom: 20px;">配置首页页脚显示的社交媒体快速链接</p>
       
@@ -757,165 +781,145 @@
       <h2>📝 显示文本配置</h2>
       <p style="color: #666; margin-bottom: 20px;">配置首页各处的显示文本内容</p>
       
-      <div class="form-group">
-        <label>页脚文本 - 版权信息</label>
-        <div class="form-row">
-          <div class="form-group">
-            <label>中文 <span class="lang-badge">ZH</span></label>
-            <input type="text" id="text-footer-zh" placeholder="© 2026 GH5. All rights reserved.">
-          </div>
-          <div class="form-group">
-            <label>英文 <span class="lang-badge">EN</span></label>
-            <input type="text" id="text-footer-en" placeholder="© 2026 GH5. All rights reserved.">
-          </div>
-          <div class="form-group">
-            <label>韩文 <span class="lang-badge">KO</span></label>
-            <input type="text" id="text-footer-ko" placeholder="© 2026 GH5. All rights reserved.">
-          </div>
+      <h3>页脚文本</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>版权文本 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-footer-zh" placeholder="© 2026 GH5. All rights reserved.">
+        </div>
+        <div class="form-group">
+          <label>版权文本 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-footer-en" placeholder="© 2026 GH5. All rights reserved.">
+        </div>
+        <div class="form-group">
+          <label>版权文本 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-footer-ko" placeholder="© 2026 GH5. All rights reserved.">
         </div>
       </div>
       
-      <div class="form-group">
-        <label>加载提示</label>
-        <div class="form-row">
-          <div class="form-group">
-            <label>中文 <span class="lang-badge">ZH</span></label>
-            <input type="text" id="text-loading-zh" placeholder="加载中...">
-          </div>
-          <div class="form-group">
-            <label>英文 <span class="lang-badge">EN</span></label>
-            <input type="text" id="text-loading-en" placeholder="Loading...">
-          </div>
-          <div class="form-group">
-            <label>韩文 <span class="lang-badge">KO</span></label>
-            <input type="text" id="text-loading-ko" placeholder="로딩 중...">
-          </div>
+      <h3>加载提示</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>加载中文本 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-loading-zh" placeholder="加载中...">
+        </div>
+        <div class="form-group">
+          <label>加载中文本 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-loading-en" placeholder="Loading...">
+        </div>
+        <div class="form-group">
+          <label>加载中文本 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-loading-ko" placeholder="로딩 중...">
         </div>
       </div>
       
-      <div class="form-group">
-        <label>搜索框</label>
-        <div class="form-row">
-          <div class="form-group">
-            <label>中文 <span class="lang-badge">ZH</span></label>
-            <input type="text" id="text-search-zh" placeholder="搜索产品名称、标签...">
-          </div>
-          <div class="form-group">
-            <label>英文 <span class="lang-badge">EN</span></label>
-            <input type="text" id="text-search-en" placeholder="Search products...">
-          </div>
-          <div class="form-group">
-            <label>韩文 <span class="lang-badge">KO</span></label>
-            <input type="text" id="text-search-ko" placeholder="제품 검색...">
-          </div>
+      <h3>搜索框</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>搜索占位符 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-search-zh" placeholder="搜索产品名称、标签...">
+        </div>
+        <div class="form-group">
+          <label>搜索占位符 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-search-en" placeholder="Search products...">
+        </div>
+        <div class="form-group">
+          <label>搜索占位符 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-search-ko" placeholder="제품 검색...">
         </div>
       </div>
       
-      <div class="form-group">
-        <label>空状态文本</label>
-        <div class="form-row">
-          <div class="form-group">
-            <label>中文 <span class="lang-badge">ZH</span></label>
-            <input type="text" id="text-no-products-zh" placeholder="暂无产品">
-          </div>
-          <div class="form-group">
-            <label>英文 <span class="lang-badge">EN</span></label>
-            <input type="text" id="text-no-products-en" placeholder="No products">
-          </div>
-          <div class="form-group">
-            <label>韩文 <span class="lang-badge">KO</span></label>
-            <input type="text" id="text-no-products-ko" placeholder="제품 없음">
-          </div>
+      <h3>空状态文本</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>无产品显示 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-no-products-zh" placeholder="暂无产品">
+        </div>
+        <div class="form-group">
+          <label>无产品显示 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-no-products-en" placeholder="No products">
+        </div>
+        <div class="form-group">
+          <label>无产品显示 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-no-products-ko" placeholder="제품 없음">
         </div>
       </div>
       
-      <div class="form-group">
-        <label>产品详情标题</label>
-        <div class="form-row">
-          <div class="form-group">
-            <label>中文 <span class="lang-badge">ZH</span></label>
-            <input type="text" id="text-product-details-zh" placeholder="产品详情">
-          </div>
-          <div class="form-group">
-            <label>英文 <span class="lang-badge">EN</span></label>
-            <input type="text" id="text-product-details-en" placeholder="Product Details">
-          </div>
-          <div class="form-group">
-            <label>韩文 <span class="lang-badge">KO</span></label>
-            <input type="text" id="text-product-details-ko" placeholder="제품 상세">
-          </div>
+      <h3>产品相关</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>产品详情标题 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-product-details-zh" placeholder="产品详情">
+        </div>
+        <div class="form-group">
+          <label>产品详情标题 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-product-details-en" placeholder="Product Details">
+        </div>
+        <div class="form-group">
+          <label>产品详情标题 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-product-details-ko" placeholder="제품 상세">
         </div>
       </div>
       
-      <div class="form-group">
-        <label>查看详情按钮</label>
-        <div class="form-row">
-          <div class="form-group">
-            <label>中文 <span class="lang-badge">ZH</span></label>
-            <input type="text" id="text-view-details-zh" placeholder="查看详情">
-          </div>
-          <div class="form-group">
-            <label>英文 <span class="lang-badge">EN</span></label>
-            <input type="text" id="text-view-details-en" placeholder="View Details">
-          </div>
-          <div class="form-group">
-            <label>韩文 <span class="lang-badge">KO</span></label>
-            <input type="text" id="text-view-details-ko" placeholder="상세 보기">
-          </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>查看详情按钮 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-view-details-zh" placeholder="查看详情">
+        </div>
+        <div class="form-group">
+          <label>查看详情按钮 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-view-details-en" placeholder="View Details">
+        </div>
+        <div class="form-group">
+          <label>查看详情按钮 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-view-details-ko" placeholder="상세 보기">
         </div>
       </div>
       
-      <div class="form-group">
-        <label>联系我们按钮</label>
-        <div class="form-row">
-          <div class="form-group">
-            <label>中文 <span class="lang-badge">ZH</span></label>
-            <input type="text" id="text-contact-us-zh" placeholder="联系我们">
-          </div>
-          <div class="form-group">
-            <label>英文 <span class="lang-badge">EN</span></label>
-            <input type="text" id="text-contact-us-en" placeholder="Contact Us">
-          </div>
-          <div class="form-group">
-            <label>韩文 <span class="lang-badge">KO</span></label>
-            <input type="text" id="text-contact-us-ko" placeholder="联系我们">
-          </div>
+      <h3>联系我们</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>联系我们按钮 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-contact-us-zh" placeholder="联系我们">
+        </div>
+        <div class="form-group">
+          <label>联系我们按钮 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-contact-us-en" placeholder="Contact Us">
+        </div>
+        <div class="form-group">
+          <label>联系我们按钮 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-contact-us-ko" placeholder="联系我们">
         </div>
       </div>
       
-      <div class="form-group">
-        <label>轮播图欢迎标题</label>
-        <div class="form-row">
-          <div class="form-group">
-            <label>中文 <span class="lang-badge">ZH</span></label>
-            <input type="text" id="text-carousel-welcome-zh" placeholder="欢迎来到 GH5">
-          </div>
-          <div class="form-group">
-            <label>英文 <span class="lang-badge">EN</span></label>
-            <input type="text" id="text-carousel-welcome-en" placeholder="Welcome to GH5">
-          </div>
-          <div class="form-group">
-            <label>韩文 <span class="lang-badge">KO</span></label>
-            <input type="text" id="text-carousel-welcome-ko" placeholder="GH5에 오신 것을 환영합니다">
-          </div>
+      <h3>轮播图文本</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>轮播图欢迎标题 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-carousel-welcome-zh" placeholder="欢迎来到 GH5">
+        </div>
+        <div class="form-group">
+          <label>轮播图欢迎标题 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-carousel-welcome-en" placeholder="Welcome to GH5">
+        </div>
+        <div class="form-group">
+          <label>轮播图欢迎标题 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-carousel-welcome-ko" placeholder="GH5에 오신 것을 환영합니다">
         </div>
       </div>
       
-      <div class="form-group">
-        <label>轮播图描述</label>
-        <div class="form-row">
-          <div class="form-group">
-            <label>中文 <span class="lang-badge">ZH</span></label>
-            <input type="text" id="text-carousel-desc-zh" placeholder="探索我们的优质产品">
-          </div>
-          <div class="form-group">
-            <label>英文 <span class="lang-badge">EN</span></label>
-            <input type="text" id="text-carousel-desc-en" placeholder="Explore our quality products">
-          </div>
-          <div class="form-group">
-            <label>韩文 <span class="lang-badge">KO</span></label>
-            <input type="text" id="text-carousel-desc-ko" placeholder="저희 품질 제품을 탐색하세요">
-          </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>轮播图描述 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-carousel-desc-zh" placeholder="探索我们的优质产品">
+        </div>
+        <div class="form-group">
+          <label>轮播图描述 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-carousel-desc-en" placeholder="Explore our quality products">
+        </div>
+        <div class="form-group">
+          <label>轮播图描述 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-carousel-desc-ko" placeholder="저희 품질 제품을 탐색하세요">
         </div>
       </div>
       
@@ -985,22 +989,15 @@
       </div>
       
       <div class="translation-categories">
-        <h3>📁 按首页位置分类</h3>
+        <h3>📁 按位置分类</h3>
         <div class="category-tabs">
           <button class="category-tab active" data-category="all">全部</button>
-          <button class="category-tab" data-category="网站标题">网站标题</button>
-          <button class="category-tab" data-category="页面标题">页面标题</button>
-          <button class="category-tab" data-category="轮播图">轮播图</button>
-          <button class="category-tab" data-category="搜索框">搜索框</button>
-          <button class="category-tab" data-category="产品列表">产品列表</button>
-          <button class="category-tab" data-category="产品详情框">产品详情框</button>
-          <button class="category-tab" data-category="联系我们弹窗">联系我们弹窗</button>
-          <button class="category-tab" data-category="页脚">页脚</button>
-          <button class="category-tab" data-category="站点信息">站点信息</button>
-          <button class="category-tab" data-category="系列名称">系列名称</button>
-          <button class="category-tab" data-category="产品名称">产品名称</button>
-          <button class="category-tab" data-category="产品描述">产品描述</button>
-          <button class="category-tab" data-category="产品标签">产品标签</button>
+          <button class="category-tab" data-category="home">首页</button>
+          <button class="category-tab" data-category="series">系列页面</button>
+          <button class="category-tab" data-category="product">产品页面</button>
+          <button class="category-tab" data-category="contact">联系我们</button>
+          <button class="category-tab" data-category="admin">管理后台</button>
+          <button class="category-tab" data-category="common">通用文本</button>
         </div>
       </div>
       
@@ -1015,54 +1012,6 @@
       <div id="translation-list"></div>
       
       <input type="file" id="translation-import-input" accept=".json,.csv" style="display: none;" onchange="configManager.handleImportTranslation(event)">
-    </div>
-    
-    <div id="product-translations" class="config-section">
-      <h2>🛍️ 产品数据翻译</h2>
-      <p style="color: #666; margin-bottom: 20px;">管理产品数据的多语言翻译，包括产品名称、描述等</p>
-      
-      <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="margin: 0 0 10px 0;">🔑 翻译 API 配置</h4>
-        <p style="color: #666; font-size: 14px; margin-bottom: 10px;">配置真实的翻译 API 密钥以启用自动翻译功能</p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div class="form-group">
-            <label>翻译服务提供商</label>
-            <select id="translation-provider">
-              <option value="baidu">百度翻译</option>
-              <option value="google">Google Translate</option>
-              <option value="azure">Azure Translator</option>
-              <option value="mock">模拟翻译（测试用）</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>API 密钥</label>
-            <input type="password" id="translation-api-key" placeholder="输入 API 密钥">
-          </div>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div class="form-group">
-            <label>App ID / 密钥 ID（如需要）</label>
-            <input type="text" id="translation-app-id" placeholder="输入 App ID（可选）">
-          </div>
-          <div class="form-group">
-            <label>API 区域/端点（如需要）</label>
-            <input type="text" id="translation-region" placeholder="如：global、eastasia（可选）">
-          </div>
-        </div>
-        <div style="display: flex; gap: 10px;">
-          <button class="btn-save" onclick="configManager.saveTranslationApiConfig()">💾 保存 API 配置</button>
-          <button class="btn-test" onclick="configManager.testTranslationApi()" style="background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">🧪 测试连接</button>
-        </div>
-        <div id="translation-api-status" style="margin-top: 10px; font-size: 14px;"></div>
-      </div>
-      
-      <div style="margin-bottom: 20px;">
-        <button class="btn-save" onclick="configManager.loadProductData()">📥 加载产品数据</button>
-        <button class="btn-save" onclick="configManager.saveProductTranslations()" style="margin-left: 10px;">💾 保存产品翻译</button>
-        <button class="btn-translate" onclick="configManager.translateAllProducts()" style="margin-left: 10px;">🔄 自动翻译所有产品</button>
-      </div>
-      
-      <div id="product-list" style="max-height: 600px; overflow-y: auto;"></div>
     </div>
     
     <div id="page-settings" class="config-section">
@@ -1135,7 +1084,6 @@
   <script src="js/error-handler.js"></script>
   <script src="js/cache-manager.js"></script>
   <script src="js/github-api.js"></script>
-  <script src="js/i18n.js"></script>
   <script>
     class ConfigManager {
       constructor() {
@@ -1148,17 +1096,6 @@
         this.setupNav();
         await this.loadConfig();
         this.initCategoryManagement();
-        this.initI18n();
-        this.loadTranslationApiConfig();
-      }
-      
-      initI18n() {
-        // 初始化i18n模块
-        if (typeof i18n !== 'undefined') {
-          const savedLanguage = localStorage.getItem('language') || 'zh';
-          document.getElementById('language-select').value = savedLanguage;
-          i18n.setLanguage(savedLanguage);
-        }
       }
       
       setupNav() {
@@ -1180,64 +1117,19 @@
       async loadConfig() {
         this.showLoading(true);
         try {
-          // 1. 首先尝试从 GitHub API 加载最新配置
-          try {
-            cacheManager.clear('config.json');
-            this.config = await githubAPI.fetchFile('config.json');
-            
-            // 保存到本地存储
-            localStorage.setItem('gh5_config', JSON.stringify(this.config));
-            
-            this.fillFormData();
-            this.updatePreview();
-            this.showStatus('配置加载成功', 'success');
-          } catch (apiError) {
-            console.error('GitHub API config error:', apiError);
-            
-            // 2. 如果 GitHub 加载失败，尝试从本地存储加载配置
-            const localConfig = localStorage.getItem('gh5_config');
-            if (localConfig) {
-              try {
-                this.config = JSON.parse(localConfig);
-                this.fillFormData();
-                this.updatePreview();
-                this.showStatus('从本地存储加载配置（GitHub 加载失败）', 'info');
-                return;
-              } catch (parseError) {
-                console.warn('Local config parse error:', parseError);
-              }
-            }
-            
-            // 3. 使用默认配置
-            this.config = this.getDefaultConfig();
-            this.fillFormData();
-            this.updatePreview();
-            this.showStatus('使用默认配置', 'info');
-          }
-        } catch (error) {
-          console.error('Load config error:', error);
-          this.config = this.getDefaultConfig();
+          cacheManager.clear('config.json');
+          this.config = await githubAPI.fetchFile('config.json');
+          
           this.fillFormData();
           this.updatePreview();
+          this.showStatus('配置加载成功', 'success');
+        } catch (error) {
+          console.error('Load config error:', error);
           this.showStatus('加载配置失败，使用默认配置', 'error');
+          this.config = this.getDefaultConfig();
+          this.fillFormData();
         } finally {
           this.showLoading(false);
-        }
-      }
-
-      async updateConfigFromGitHub() {
-        try {
-          const remoteConfig = await githubAPI.fetchFile('config.json');
-          if (remoteConfig) {
-            this.config = remoteConfig;
-            localStorage.setItem('gh5_config', JSON.stringify(this.config));
-            this.fillFormData();
-            this.updatePreview();
-            this.showStatus('配置已从 GitHub 更新', 'success');
-          }
-        } catch (error) {
-          console.warn('Update config from GitHub failed:', error);
-          // 静默失败，不影响用户体验
         }
       }
       
@@ -1290,30 +1182,20 @@
       
       fillFormData() {
         const siteInfo = this.config.siteInfo || {};
-        const translations = this.config.translations || {};
         
-        // 从翻译词典中加载站点信息
-        const companyName = translations['companyName'] || siteInfo.companyName || {};
-        const companyDescription = translations['companyDescription'] || siteInfo.companyDescription || {};
-        const companyAddress = translations['companyAddress'] || siteInfo.companyAddress || {};
-        const companyPhone = translations['companyPhone'] || siteInfo.companyPhone || {};
-        const companyEmail = translations['companyEmail'] || siteInfo.companyEmail || {};
-        const companyWechat = translations['companyWechat'] || siteInfo.companyWechat || {};
-        const workingHours = translations['workingHours'] || siteInfo.workingHours || {};
+        document.getElementById('companyName-zh').value = siteInfo.companyName?.zh || '';
+        document.getElementById('companyName-en').value = siteInfo.companyName?.en || '';
+        document.getElementById('companyName-ko').value = siteInfo.companyName?.ko || '';
         
-        document.getElementById('companyName-zh').value = companyName.zh || '';
-        document.getElementById('companyName-en').value = companyName.en || '';
-        document.getElementById('companyName-ko').value = companyName.ko || '';
+        document.getElementById('companyDescription-zh').value = siteInfo.companyDescription?.zh || '';
+        document.getElementById('companyDescription-en').value = siteInfo.companyDescription?.en || '';
+        document.getElementById('companyDescription-ko').value = siteInfo.companyDescription?.ko || '';
         
-        document.getElementById('companyDescription-zh').value = companyDescription.zh || '';
-        document.getElementById('companyDescription-en').value = companyDescription.en || '';
-        document.getElementById('companyDescription-ko').value = companyDescription.ko || '';
-        
-        document.getElementById('companyAddress').value = companyAddress.zh || '';
-        document.getElementById('companyPhone').value = companyPhone.zh || '';
-        document.getElementById('companyEmail').value = companyEmail.zh || '';
-        document.getElementById('companyWechat').value = companyWechat.zh || '';
-        document.getElementById('workingHours').value = workingHours.zh || '';
+        document.getElementById('companyAddress').value = siteInfo.companyAddress?.zh || '';
+        document.getElementById('companyPhone').value = siteInfo.companyPhone?.zh || '';
+        document.getElementById('companyEmail').value = siteInfo.companyEmail?.zh || '';
+        document.getElementById('companyWechat').value = siteInfo.companyWechat?.zh || '';
+        document.getElementById('workingHours').value = siteInfo.workingHours?.zh || '';
         
         this.fillSocialMediaForm();
         this.fillPageAssetsForm();
@@ -1463,11 +1345,11 @@
           zh: values.zh || '',
           en: values.en || '',
           ko: values.ko || '',
-          category: values.category || '网站标题'
+          category: values.category || 'common'
         }));
         
         if (this.translations.length === 0) {
-          this.translations = [{ key: '', zh: '', en: '', ko: '', category: '网站标题' }];
+          this.translations = [{ key: '', zh: '', en: '', ko: '', category: 'common' }];
         }
         
         // 更新统计信息
@@ -1483,20 +1365,12 @@
                      value="${trans.key}" 
                      placeholder="翻译键名">
               <select class="category-select" data-index="${index}">
-                <option value="网站标题" ${trans.category === '网站标题' ? 'selected' : ''}>网站标题</option>
-                <option value="页面标题" ${trans.category === '页面标题' ? 'selected' : ''}>页面标题</option>
-                <option value="轮播图" ${trans.category === '轮播图' ? 'selected' : ''}>轮播图</option>
-                <option value="搜索框" ${trans.category === '搜索框' ? 'selected' : ''}>搜索框</option>
-                <option value="产品列表" ${trans.category === '产品列表' ? 'selected' : ''}>产品列表</option>
-                <option value="产品详情框" ${trans.category === '产品详情框' ? 'selected' : ''}>产品详情框</option>
-                <option value="联系我们弹窗" ${trans.category === '联系我们弹窗' ? 'selected' : ''}>联系我们弹窗</option>
-                <option value="页脚" ${trans.category === '页脚' ? 'selected' : ''}>页脚</option>
-                <option value="站点信息" ${trans.category === '站点信息' ? 'selected' : ''}>站点信息</option>
-                <option value="系列名称" ${trans.category === '系列名称' ? 'selected' : ''}>系列名称</option>
-                <option value="产品名称" ${trans.category === '产品名称' ? 'selected' : ''}>产品名称</option>
-                <option value="产品描述" ${trans.category === '产品描述' ? 'selected' : ''}>产品描述</option>
-                <option value="产品标签" ${trans.category === '产品标签' ? 'selected' : ''}>产品标签</option>
-                <option value="自定义翻译" ${trans.category === '自定义翻译' ? 'selected' : ''}>自定义翻译</option>
+                <option value="home" ${trans.category === 'home' ? 'selected' : ''}>首页</option>
+                <option value="series" ${trans.category === 'series' ? 'selected' : ''}>系列页面</option>
+                <option value="product" ${trans.category === 'product' ? 'selected' : ''}>产品页面</option>
+                <option value="contact" ${trans.category === 'contact' ? 'selected' : ''}>联系我们</option>
+                <option value="admin" ${trans.category === 'admin' ? 'selected' : ''}>管理后台</option>
+                <option value="common" ${trans.category === 'common' ? 'selected' : ''}>通用文本</option>
               </select>
               <button class="btn-delete-translation" onclick="configManager.removeTranslation(${index})")">删除</button>
             </div>
@@ -1520,22 +1394,13 @@
           `;
           container.appendChild(item);
         });
-        
-        // 更新分类选择器选项
-        this.updateCategorySelectors();
       }
       
       updateTranslationStats() {
         const count = this.translations.length;
         const complete = this.translations.filter(t => t.zh && t.en && t.ko).length;
-        const countElement = document.getElementById('translation-count');
-        if (countElement) {
-          countElement.textContent = count;
-        }
-        const completeElement = document.getElementById('translation-complete');
-        if (completeElement) {
-          completeElement.textContent = complete;
-        }
+        document.getElementById('translation-count').textContent = count;
+        document.getElementById('translation-complete').textContent = complete;
       }
       
       searchTranslations(query) {
@@ -1580,200 +1445,15 @@
         }
       }
       
-      // 获取翻译 API 配置
-      getTranslationApiConfig() {
-        const config = localStorage.getItem('translationApiConfig');
-        return config ? JSON.parse(config) : {
-          provider: 'mock',
-          apiKey: '',
-          appId: '',
-          region: ''
-        };
-      }
-
-      // 保存翻译 API 配置
-      saveTranslationApiConfig() {
-        const config = {
-          provider: document.getElementById('translation-provider').value,
-          apiKey: document.getElementById('translation-api-key').value,
-          appId: document.getElementById('translation-app-id').value,
-          region: document.getElementById('translation-region').value
-        };
-        localStorage.setItem('translationApiConfig', JSON.stringify(config));
-        this.showStatus('API 配置已保存', 'success');
-        this.updateTranslationApiStatus('已配置', 'success');
-      }
-
-      // 加载翻译 API 配置到表单
-      loadTranslationApiConfig() {
-        const config = this.getTranslationApiConfig();
-        document.getElementById('translation-provider').value = config.provider || 'mock';
-        document.getElementById('translation-api-key').value = config.apiKey || '';
-        document.getElementById('translation-app-id').value = config.appId || '';
-        document.getElementById('translation-region').value = config.region || '';
-        
-        if (config.apiKey) {
-          this.updateTranslationApiStatus('已配置', 'success');
-        }
-      }
-
-      // 更新 API 状态显示
-      updateTranslationApiStatus(message, type) {
-        const statusDiv = document.getElementById('translation-api-status');
-        const colors = {
-          success: '#28a745',
-          error: '#dc3545',
-          info: '#17a2b8'
-        };
-        statusDiv.innerHTML = `<span style="color: ${colors[type] || colors.info};">${message}</span>`;
-      }
-
-      // 测试翻译 API 连接
-      async testTranslationApi() {
-        this.updateTranslationApiStatus('正在测试连接...', 'info');
-        
-        try {
-          const config = this.getTranslationApiConfig();
-          const testText = '测试';
-          const result = await this.callTranslationApi(testText, 'zh', 'en', config);
-          
-          if (result && result !== testText) {
-            this.updateTranslationApiStatus('✅ 连接成功！翻译结果: ' + result, 'success');
-          } else {
-            this.updateTranslationApiStatus('⚠️ 连接成功但返回结果异常', 'error');
-          }
-        } catch (error) {
-          console.error('API 测试失败:', error);
-          this.updateTranslationApiStatus('❌ 连接失败: ' + error.message, 'error');
-        }
-      }
-
-      // 调用翻译 API
-      async callTranslationApi(text, from, to, config) {
-        if (!config) {
-          config = this.getTranslationApiConfig();
-        }
-        
-        // 使用模拟翻译
-        if (config.provider === 'mock' || !config.apiKey) {
-          if (from === 'zh' && to === 'en') {
-            return 'Translated: ' + text;
-          } else if (from === 'zh' && to === 'ko') {
-            return '번역: ' + text;
-          }
-          return text;
-        }
-        
-        // 百度翻译 API
-        if (config.provider === 'baidu') {
-          return await this.callBaiduTranslate(text, from, to, config);
-        }
-        
-        // Google Translate API
-        if (config.provider === 'google') {
-          return await this.callGoogleTranslate(text, from, to, config);
-        }
-        
-        // Azure Translator API
-        if (config.provider === 'azure') {
-          return await this.callAzureTranslate(text, from, to, config);
-        }
-        
-        return text;
-      }
-
-      // 百度翻译 API
-      async callBaiduTranslate(text, from, to, config) {
-        const salt = Date.now();
-        const str = config.appId + text + salt + config.apiKey;
-        const sign = await this.md5(str);
-        
-        const langMap = { 'zh': 'zh', 'en': 'en', 'ko': 'kor' };
-        const fromLang = langMap[from] || from;
-        const toLang = langMap[to] || to;
-        
-        const url = `https://fanyi-api.baidu.com/api/trans/vip/translate?q=${encodeURIComponent(text)}&from=${fromLang}&to=${toLang}&appid=${config.appId}&salt=${salt}&sign=${sign}`;
-        
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        if (data.error_code) {
-          throw new Error(`百度翻译错误: ${data.error_msg}`);
-        }
-        
-        return data.trans_result[0].dst;
-      }
-
-      // Google Translate API
-      async callGoogleTranslate(text, from, to, config) {
-        const langMap = { 'zh': 'zh-CN', 'en': 'en', 'ko': 'ko' };
-        const targetLang = langMap[to] || to;
-        
-        const url = `https://translation.googleapis.com/language/translate/v2?key=${config.apiKey}`;
-        
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            q: text,
-            source: from,
-            target: targetLang,
-            format: 'text'
-          })
-        });
-        
-        const data = await response.json();
-        
-        if (data.error) {
-          throw new Error(`Google 翻译错误: ${data.error.message}`);
-        }
-        
-        return data.data.translations[0].translatedText;
-      }
-
-      // Azure Translator API
-      async callAzureTranslate(text, from, to, config) {
-        const langMap = { 'zh': 'zh-Hans', 'en': 'en', 'ko': 'ko' };
-        const fromLang = langMap[from] || from;
-        const toLang = langMap[to] || to;
-        
-        const endpoint = config.region 
-          ? `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=${fromLang}&to=${toLang}`
-          : `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=${fromLang}&to=${toLang}`;
-        
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Ocp-Apim-Subscription-Key': config.apiKey,
-            'Ocp-Apim-Subscription-Region': config.region || 'global',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify([{ Text: text }])
-        });
-        
-        const data = await response.json();
-        
-        if (data.error) {
-          throw new Error(`Azure 翻译错误: ${data.error.message}`);
-        }
-        
-        return data[0].translations[0].text;
-      }
-
-      // MD5 哈希函数（用于百度翻译签名）
-      async md5(string) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(string);
-        const hashBuffer = await crypto.subtle.digest('MD5', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      }
-
-      // 主翻译方法
       async translateText(text, from, to) {
-        return await this.callTranslationApi(text, from, to);
+        // 这里使用一个简单的模拟翻译
+        // 实际项目中应该使用真实的翻译 API
+        if (from === 'zh' && to === 'en') {
+          return 'Translated: ' + text;
+        } else if (from === 'zh' && to === 'ko') {
+          return '번역: ' + text;
+        }
+        return text;
       }
       
       // 初始化分类管理
@@ -1805,37 +1485,12 @@
       // 按分类筛选翻译项
       filterTranslationsByCategory(category) {
         const items = document.querySelectorAll('.translation-item');
-        items.forEach((item) => {
-          const categorySelect = item.querySelector('.category-select');
-          if (categorySelect) {
-            const itemCategory = categorySelect.value;
-            if (category === 'all' || itemCategory === category) {
-              item.style.display = 'block';
-            } else {
-              item.style.display = 'none';
-            }
-          } else {
-            // 对于没有分类选择器的项（如扫描结果），始终显示
+        items.forEach((item, index) => {
+          if (category === 'all' || this.translations[index].category === category) {
             item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
           }
-        });
-      }
-      
-      // 更新分类选择器选项
-      updateCategorySelectors() {
-        const categorySelects = document.querySelectorAll('.category-select');
-        categorySelects.forEach(select => {
-          // 清空现有选项
-          select.innerHTML = '';
-          
-          // 添加新的选项
-          const categories = ['网站标题', '页面标题', '轮播图', '搜索框', '产品列表', '产品详情框', '联系我们弹窗', '页脚', '站点信息', '系列名称', '产品名称', '产品描述', '产品标签', '自定义翻译'];
-          categories.forEach(cat => {
-            const option = document.createElement('option');
-            option.value = cat;
-            option.textContent = cat;
-            select.appendChild(option);
-          });
         });
       }
       
@@ -1870,53 +1525,12 @@
               ko: ko,
               category: category
             };
-            
-            // 同时更新站点信息和页面设置
-            if (key.startsWith('company')) {
-              if (!this.config.siteInfo) {
-                this.config.siteInfo = {};
-              }
-              this.config.siteInfo[key] = {
-                zh: zh,
-                en: en,
-                ko: ko
-              };
-            } else if (key === 'siteTitle') {
-              // 网站标题
-              if (!this.config.pageSettings) {
-                this.config.pageSettings = {};
-              }
-              this.config.pageSettings.siteTitle = {
-                zh: zh,
-                en: en,
-                ko: ko
-              };
-            } else if (key === 'pageTitle') {
-              // 页面标题
-              if (!this.config.pageSettings) {
-                this.config.pageSettings = {};
-              }
-              this.config.pageSettings.title = {
-                zh: zh,
-                en: en,
-                ko: ko
-              };
-            } else if (['footerText', 'loadingText', 'searchPlaceholder', 'noProductsText', 'productDetailsTitle', 'viewDetailsText', 'contactUsText', 'carouselWelcome', 'carouselDescription'].includes(key)) {
-              if (!this.config.pageSettings) {
-                this.config.pageSettings = {};
-              }
-              this.config.pageSettings[key] = {
-                zh: zh,
-                en: en,
-                ko: ko
-              };
-            }
           }
         });
         
         this.config.translations = translations;
         this.saveConfig();
-        this.showStatus('翻译词典已保存，站点信息和页面设置已同步更新', 'success');
+        this.showStatus('翻译词典已保存', 'success');
         this.renderTranslations();
       }
       
@@ -2000,72 +1614,25 @@
         try {
           const scannedTranslations = {};
           
-          // 按照首页位置分类的字段
-          const homePageFields = [
-            // 网站标题和页面标题
-            { key: 'siteTitle', category: '网站标题', label: '网站标题' },
-            { key: 'pageTitle', category: '页面标题', label: '页面标题' },
-            
-            // 轮播图文本
-            { key: 'carouselWelcome', category: '轮播图', label: '轮播图欢迎标题' },
-            { key: 'carouselDescription', category: '轮播图', label: '轮播图描述' },
-            
-            // 搜索框
-            { key: 'searchPlaceholder', category: '搜索框', label: '搜索占位符' },
-            
-            // 产品相关
-            { key: 'loadingText', category: '产品列表', label: '加载中文本' },
-            { key: 'noProductsText', category: '产品列表', label: '无产品显示' },
-            { key: 'viewDetailsText', category: '产品列表', label: '查看详情按钮' },
-            
-            // 产品详情框
-            { key: 'productDetailsTitle', category: '产品详情框', label: '产品详情标题' },
-            { key: 'specUpper', category: '产品详情框', label: '鞋面材质标签' },
-            { key: 'specInner', category: '产品详情框', label: '内里材质标签' },
-            { key: 'specSole', category: '产品详情框', label: '鞋底材质标签' },
-            { key: 'specCustomizable', category: '产品详情框', label: '是否支持定制标签' },
-            { key: 'specMinOrder', category: '产品详情框', label: '起订量标签' },
-            { key: 'specPrice', category: '产品详情框', label: '价格标签' },
-            
-            // 联系我们弹窗
-            { key: 'contactFormTitle', category: '联系我们弹窗', label: '联系表单标题' },
-            { key: 'labelName', category: '联系我们弹窗', label: '姓名标签' },
-            { key: 'labelEmail', category: '联系我们弹窗', label: '邮箱标签' },
-            { key: 'labelMessage', category: '联系我们弹窗', label: '留言标签' },
-            { key: 'submitButton', category: '联系我们弹窗', label: '提交按钮' },
-            { key: 'submittingText', category: '联系我们弹窗', label: '提交中文本' },
-            { key: 'submitSuccess', category: '联系我们弹窗', label: '提交成功提示' },
-            { key: 'submitError', category: '联系我们弹窗', label: '提交失败提示' },
-            
-            // 页脚
-            { key: 'footerText', category: '页脚', label: '版权文本' },
-            { key: 'contactUsText', category: '页脚', label: '联系我们按钮' },
-            
-            // 站点信息（合并到翻译词典）
-            { key: 'companyName', category: '站点信息', label: '公司名称' },
-            { key: 'companyDescription', category: '站点信息', label: '公司简介' },
-            { key: 'companyAddress', category: '站点信息', label: '公司地址' },
-            { key: 'companyPhone', category: '站点信息', label: '公司电话' },
-            { key: 'companyEmail', category: '站点信息', label: '公司邮箱' },
-            { key: 'companyWechat', category: '站点信息', label: '公司微信' },
-            { key: 'workingHours', category: '站点信息', label: '工作时间' }
+          const pageSettingsFields = [
+            { key: 'footerText', category: '显示文本', label: '版权文本' },
+            { key: 'loadingText', category: '显示文本', label: '加载中文本' },
+            { key: 'searchPlaceholder', category: '显示文本', label: '搜索占位符' },
+            { key: 'noProductsText', category: '显示文本', label: '无产品显示' },
+            { key: 'productDetailsTitle', category: '显示文本', label: '产品详情标题' },
+            { key: 'viewDetailsText', category: '显示文本', label: '查看详情按钮' },
+            { key: 'contactUsText', category: '显示文本', label: '联系我们按钮' },
+            { key: 'carouselWelcome', category: '显示文本', label: '轮播图欢迎标题' },
+            { key: 'carouselDescription', category: '显示文本', label: '轮播图描述' }
           ];
           
-          // 扫描首页文本
-          homePageFields.forEach(field => {
-            let value;
-            
-            // 从不同位置获取值
-            if (field.key.startsWith('company')) {
-              value = this.config.siteInfo?.[field.key];
-            } else if (field.key === 'siteTitle') {
-              value = this.config.pageSettings?.siteTitle;
-            } else if (field.key === 'pageTitle') {
-              value = this.config.pageSettings?.title;
-            } else {
-              value = this.config.pageSettings?.[field.key];
-            }
-            
+          const siteInfoFields = [
+            { key: 'companyName', category: '站点信息', label: '公司名称' },
+            { key: 'companyDescription', category: '站点信息', label: '公司简介' }
+          ];
+          
+          pageSettingsFields.forEach(field => {
+            const value = this.config.pageSettings?.[field.key];
             if (value?.zh) {
               scannedTranslations[field.key] = {
                 zh: value.zh,
@@ -2077,35 +1644,15 @@
             }
           });
           
-          // 添加默认值
-          const defaultValues = {
-            'siteTitle': { zh: 'GH5', en: 'GH5', ko: 'GH5' },
-            'pageTitle': { zh: 'GH5 - 产品展示', en: 'GH5 - Product Showcase', ko: 'GH5 - 제품 전시' },
-            'specUpper': { zh: '鞋面材质：', en: 'Upper Material: ', ko: '윗부분 재질: ' },
-            'specInner': { zh: '内里材质：', en: 'Inner Material: ', ko: '안쪽 재질: ' },
-            'specSole': { zh: '鞋底材质：', en: 'Sole Material: ', ko: '솔 재질: ' },
-            'specCustomizable': { zh: '是否支持定制：', en: 'Customizable: ', ko: '맞춤 제작 지원: ' },
-            'specMinOrder': { zh: '起订量：', en: 'Minimum Order: ', ko: '최소 주문량: ' },
-            'specPrice': { zh: '价格：', en: 'Price: ', ko: '가격: ' },
-            'contactFormTitle': { zh: '联系我们', en: 'Contact Us', ko: '문의하기' },
-            'labelName': { zh: '姓名', en: 'Name', ko: '이름' },
-            'labelEmail': { zh: '邮箱', en: 'Email', ko: '이메일' },
-            'labelMessage': { zh: '留言', en: 'Message', ko: '메시지' },
-            'submitButton': { zh: '提交', en: 'Submit', ko: '제출' },
-            'submittingText': { zh: '提交中...', en: 'Submitting...', ko: '제출 중...' },
-            'submitSuccess': { zh: '提交成功！', en: 'Submitted successfully!', ko: '성공적으로 제출되었습니다!' },
-            'submitError': { zh: '提交失败，请重试', en: 'Submission failed, please try again', ko: '제출 실패, 다시 시도하세요' }
-          };
-          
-          // 添加默认值到扫描结果
-          Object.entries(defaultValues).forEach(([key, value]) => {
-            if (!scannedTranslations[key]) {
-              scannedTranslations[key] = {
+          siteInfoFields.forEach(field => {
+            const value = this.config.siteInfo?.[field.key];
+            if (value?.zh) {
+              scannedTranslations[field.key] = {
                 zh: value.zh,
-                en: value.en,
-                ko: value.ko,
-                category: homePageFields.find(f => f.key === key)?.category || '其他',
-                label: homePageFields.find(f => f.key === key)?.label || key
+                en: value.en || '',
+                ko: value.ko || '',
+                category: field.category,
+                label: field.label
               };
             }
           });
@@ -2123,75 +1670,68 @@
             }
           }
           
-          // 注意：系列名称和产品信息的翻译现在由后台页面管理
-          // 配置管理页面只管理通用文本翻译
-          // 系列名称存储在 products.json 的 seriesName 字段中
-          // 产品信息（名称、描述、标签）存储在 products.json 的 products 字段中
-          
-          this.displayScannedTranslations(scannedTranslations);
-          this.showStatus(`扫描完成，共发现 ${Object.keys(scannedTranslations).length} 个翻译项`, 'success');
-        } catch (error) {
-          console.error('Scan error:', error);
-          this.showStatus('扫描失败: ' + error.message, 'error');
-        } finally {
-          this.showLoading(false);
-        }
-      }
-      
-      // 产品数据翻译相关方法
-      async loadProductData() {
-        this.showLoading(true);
-        try {
-          const seriesList = await githubAPI.fetchDirectory('产品图');
-          const allSeries = seriesList
-            .filter(item => item.type === 'dir')
-            .map(item => ({
-              name: item.name,
-              path: `${item.path}/products.json`
-            }));
-          
-          const productList = [];
+          const allSeries = [
+            { name: '1-PU系列', path: '产品图/1-PU系列/products.json' },
+            { name: '2-真皮系列', path: '产品图/2-真皮系列/products.json' },
+            { name: '3-短靴系列', path: '产品图/3-短靴系列/products.json' },
+            { name: '4-乐福系列', path: '产品图/4-乐福系列/products.json' },
+            { name: '5-春季', path: '产品图/5-春季/products.json' },
+            { name: '6-夏季', path: '产品图/6-夏季/products.json' },
+            { name: '7-秋季', path: '产品图/7-秋季/products.json' }
+          ];
           
           for (const series of allSeries) {
             try {
               const data = await githubAPI.fetchFile(series.path);
+              if (data.seriesName?.zh) {
+                scannedTranslations[`series_${series.name}`] = {
+                  zh: data.seriesName.zh,
+                  en: data.seriesName.en || '',
+                  ko: data.seriesName.ko || '',
+                  category: '产品分类',
+                  label: `分类名称 - ${series.name}`
+                };
+              }
               
               if (data.products) {
-                Object.entries(data.products).forEach(([fileName, productData]) => {
-                  // 处理产品名称 - 兼容字符串和对象格式
-                  let nameObj = { zh: '', en: '', ko: '' };
-                  if (productData.name) {
-                    if (typeof productData.name === 'object') {
-                      nameObj = {
-                        zh: productData.name.zh || '',
-                        en: productData.name.en || '',
-                        ko: productData.name.ko || ''
-                      };
-                    } else if (typeof productData.name === 'string') {
-                      nameObj.zh = productData.name;
-                    }
+                Object.entries(data.products).forEach(([filename, product], idx) => {
+                  const productName = product.name?.zh || product.name;
+                  const productDesc = product.description?.zh || product.description;
+                  const tags = product.tags || [];
+                  
+                  if (productName && typeof productName === 'string' && productName.trim()) {
+                    const key = `product_${series.name}_${idx}`;
+                    scannedTranslations[key] = {
+                      zh: productName,
+                      en: product.name?.en || '',
+                      ko: product.name?.ko || '',
+                      category: `产品分类 - ${series.name}`,
+                      label: `产品名称`
+                    };
                   }
                   
-                  // 处理产品描述 - 兼容字符串和对象格式
-                  let descObj = { zh: '', en: '', ko: '' };
-                  if (productData.description) {
-                    if (typeof productData.description === 'object') {
-                      descObj = {
-                        zh: productData.description.zh || '',
-                        en: productData.description.en || '',
-                        ko: productData.description.ko || ''
-                      };
-                    } else if (typeof productData.description === 'string') {
-                      descObj.zh = productData.description;
-                    }
+                  if (productDesc && typeof productDesc === 'string' && productDesc.trim()) {
+                    const key = `product_desc_${series.name}_${idx}`;
+                    scannedTranslations[key] = {
+                      zh: productDesc,
+                      en: product.description?.en || '',
+                      ko: product.description?.ko || '',
+                      category: `产品分类 - ${series.name}`,
+                      label: `产品描述`
+                    };
                   }
                   
-                  productList.push({
-                    series: series.name,
-                    fileName: fileName,
-                    name: nameObj,
-                    description: descObj,
-                    seriesName: data.seriesName || {}
+                  tags.forEach((tag, tagIdx) => {
+                    if (tag && tag.trim()) {
+                      const key = `tag_${series.name}_${idx}_${tagIdx}`;
+                      scannedTranslations[key] = {
+                        zh: tag,
+                        en: '',
+                        ko: '',
+                        category: `产品标签 - ${series.name}`,
+                        label: `产品标签`
+                      };
+                    }
                   });
                 });
               }
@@ -2200,228 +1740,11 @@
             }
           }
           
-          this.renderProductList(productList);
-          this.showStatus('产品数据加载成功，共 ' + productList.length + ' 个产品', 'success');
+          this.displayScannedTranslations(scannedTranslations);
+          this.showStatus(`扫描完成，共发现 ${Object.keys(scannedTranslations).length} 个翻译项`, 'success');
         } catch (error) {
-          console.error('Load product data error:', error);
-          this.showStatus('加载产品数据失败: ' + error.message, 'error');
-        } finally {
-          this.showLoading(false);
-        }
-      }
-      
-      renderProductList(products) {
-        const container = document.getElementById('product-list');
-        container.innerHTML = '';
-        
-        if (products.length === 0) {
-          container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">暂无产品数据</p>';
-          return;
-        }
-        
-        products.forEach((product, index) => {
-          const item = document.createElement('div');
-          item.className = 'translation-item';
-          item.innerHTML = `
-            <div class="translation-header">
-              <h4 style="margin: 0 0 10px 0;">${product.fileName} (${product.series})</h4>
-            </div>
-            <div style="margin-bottom: 15px;">
-              <label style="font-weight: 600; margin-bottom: 5px; display: block;">系列名称</label>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>中文 <span class="lang-badge">ZH</span></label>
-                  <input type="text" class="series-zh" value="${product.seriesName.zh || ''}" placeholder="系列名称（中文）">
-                </div>
-                <div class="form-group">
-                  <label>英文 <span class="lang-badge">EN</span></label>
-                  <input type="text" class="series-en" value="${product.seriesName.en || ''}" placeholder="Series Name (English)">
-                </div>
-                <div class="form-group">
-                  <label>韩文 <span class="lang-badge">KO</span></label>
-                  <input type="text" class="series-ko" value="${product.seriesName.ko || ''}" placeholder="시리즈 이름 (한국어)">
-                </div>
-              </div>
-            </div>
-            <div style="margin-bottom: 15px;">
-              <label style="font-weight: 600; margin-bottom: 5px; display: block;">产品名称</label>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>中文 <span class="lang-badge">ZH</span></label>
-                  <input type="text" class="name-zh" value="${product.name.zh || ''}" placeholder="产品名称（中文）">
-                </div>
-                <div class="form-group">
-                  <label>英文 <span class="lang-badge">EN</span></label>
-                  <input type="text" class="name-en" value="${product.name.en || ''}" placeholder="Product Name (English)">
-                </div>
-                <div class="form-group">
-                  <label>韩文 <span class="lang-badge">KO</span></label>
-                  <input type="text" class="name-ko" value="${product.name.ko || ''}" placeholder="제품 이름 (한국어)">
-                </div>
-              </div>
-            </div>
-            <div style="margin-bottom: 15px;">
-              <label style="font-weight: 600; margin-bottom: 5px; display: block;">产品描述</label>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>中文 <span class="lang-badge">ZH</span></label>
-                  <textarea class="desc-zh" rows="2" placeholder="产品描述（中文）">${product.description.zh || ''}</textarea>
-                </div>
-                <div class="form-group">
-                  <label>英文 <span class="lang-badge">EN</span></label>
-                  <textarea class="desc-en" rows="2" placeholder="Product Description (English)">${product.description.en || ''}</textarea>
-                </div>
-                <div class="form-group">
-                  <label>韩文 <span class="lang-badge">KO</span></label>
-                  <textarea class="desc-ko" rows="2" placeholder="제품 설명 (한국어)">${product.description.ko || ''}</textarea>
-                </div>
-              </div>
-            </div>
-            <div class="translation-actions">
-              <button class="btn-translate" onclick="configManager.translateProduct(${index})">🔄 自动翻译</button>
-            </div>
-            <input type="hidden" class="product-series" value="${product.series}">
-            <input type="hidden" class="product-file" value="${product.fileName}">
-          `;
-          container.appendChild(item);
-        });
-      }
-      
-      async saveProductTranslations() {
-        this.showLoading(true);
-        try {
-          const productItems = document.querySelectorAll('#product-list .translation-item');
-          const productsBySeries = {};
-          
-          // 收集所有产品数据
-          productItems.forEach(item => {
-            const series = item.querySelector('.product-series').value;
-            const fileName = item.querySelector('.product-file').value;
-            
-            if (!productsBySeries[series]) {
-              productsBySeries[series] = {
-                seriesName: {
-                  zh: item.querySelector('.series-zh').value,
-                  en: item.querySelector('.series-en').value,
-                  ko: item.querySelector('.series-ko').value
-                },
-                products: {}
-              };
-            }
-            
-            productsBySeries[series].products[fileName] = {
-              name: {
-                zh: item.querySelector('.name-zh').value,
-                en: item.querySelector('.name-en').value,
-                ko: item.querySelector('.name-ko').value
-              },
-              description: {
-                zh: item.querySelector('.desc-zh').value,
-                en: item.querySelector('.desc-en').value,
-                ko: item.querySelector('.desc-ko').value
-              }
-            };
-          });
-          
-          // 保存每个系列的产品数据
-          for (const [series, data] of Object.entries(productsBySeries)) {
-            try {
-              await githubAPI.commitFile(
-                `产品图/${series}/products.json`,
-                JSON.stringify(data, null, 2),
-                `更新 ${series} 系列产品翻译`
-              );
-            } catch (err) {
-              console.warn(`Failed to save ${series}:`, err);
-            }
-          }
-          
-          this.showStatus('产品翻译保存成功', 'success');
-        } catch (error) {
-          console.error('Save product translations error:', error);
-          this.showStatus('保存产品翻译失败: ' + error.message, 'error');
-        } finally {
-          this.showLoading(false);
-        }
-      }
-      
-      async translateProduct(index) {
-        const productItems = document.querySelectorAll('#product-list .translation-item');
-        const item = productItems[index];
-        
-        const zhName = item.querySelector('.name-zh').value;
-        const zhDesc = item.querySelector('.desc-zh').value;
-        
-        if (!zhName && !zhDesc) {
-          this.showStatus('请先填写中文内容', 'error');
-          return;
-        }
-        
-        try {
-          // 翻译产品名称
-          if (zhName) {
-            const enName = await this.translateText(zhName, 'zh', 'en');
-            const koName = await this.translateText(zhName, 'zh', 'ko');
-            item.querySelector('.name-en').value = enName;
-            item.querySelector('.name-ko').value = koName;
-          }
-          
-          // 翻译产品描述
-          if (zhDesc) {
-            const enDesc = await this.translateText(zhDesc, 'zh', 'en');
-            const koDesc = await this.translateText(zhDesc, 'zh', 'ko');
-            item.querySelector('.desc-en').value = enDesc;
-            item.querySelector('.desc-ko').value = koDesc;
-          }
-          
-          this.showStatus('翻译完成', 'success');
-        } catch (error) {
-          console.error('翻译失败:', error);
-          this.showStatus('翻译失败，请稍后重试', 'error');
-        }
-      }
-      
-      async translateAllProducts() {
-        this.showLoading(true);
-        try {
-          const productItems = document.querySelectorAll('#product-list .translation-item');
-          let completed = 0;
-          
-          for (let i = 0; i < productItems.length; i++) {
-            const item = productItems[i];
-            const zhName = item.querySelector('.name-zh').value;
-            const zhDesc = item.querySelector('.desc-zh').value;
-            
-            if (zhName) {
-              try {
-                const enName = await this.translateText(zhName, 'zh', 'en');
-                const koName = await this.translateText(zhName, 'zh', 'ko');
-                item.querySelector('.name-en').value = enName;
-                item.querySelector('.name-ko').value = koName;
-              } catch (err) {
-                console.warn(`Translation failed for product ${i}:`, err);
-              }
-            }
-            
-            if (zhDesc) {
-              try {
-                const enDesc = await this.translateText(zhDesc, 'zh', 'en');
-                const koDesc = await this.translateText(zhDesc, 'zh', 'ko');
-                item.querySelector('.desc-en').value = enDesc;
-                item.querySelector('.desc-ko').value = koDesc;
-              } catch (err) {
-                console.warn(`Translation failed for product ${i}:`, err);
-              }
-            }
-            
-            completed++;
-            this.showStatus(`正在翻译... ${completed}/${productItems.length}`, 'info');
-          }
-          
-          this.showStatus('所有产品翻译完成', 'success');
-        } catch (error) {
-          console.error('翻译所有产品失败:', error);
-          this.showStatus('翻译所有产品失败: ' + error.message, 'error');
+          console.error('Scan error:', error);
+          this.showStatus('扫描失败: ' + error.message, 'error');
         } finally {
           this.showLoading(false);
         }
@@ -2472,14 +1795,24 @@
           const en = document.querySelector(`.scan-en[data-key="${key}"]`).value.trim();
           const ko = document.querySelector(`.scan-ko[data-key="${key}"]`).value.trim();
           
-          // 找到对应的扫描项，获取分类信息
-          const scanItem = Array.from(document.querySelectorAll('.scan-zh')).find(i => i.dataset.key === key);
-          const itemContainer = scanItem.closest('.translation-item');
-          const category = itemContainer?.parentElement?.parentElement?.querySelector('p')?.textContent?.replace('📁 ', '') || '自定义翻译';
-          
           if (zh) {
-            // 直接使用原始键名，确保与后台页面自定义显示的名称一致
-            newTranslations[key] = { zh, en, ko, category };
+            let cleanKey = zh;
+            const prefixMatch = key.match(/^(product_|product_desc_|tag_|series_)/);
+            if (prefixMatch) {
+              const prefix = prefixMatch[1];
+              if (prefix === 'product_') {
+                cleanKey = '产品_' + zh;
+              } else if (prefix === 'product_desc_') {
+                cleanKey = '产品描述_' + zh.substring(0, 20);
+              } else if (prefix === 'tag_') {
+                cleanKey = '标签_' + zh;
+              } else if (prefix === 'series_') {
+                cleanKey = '分类_' + zh;
+              }
+            } else {
+              cleanKey = zh;
+            }
+            newTranslations[cleanKey] = { zh, en, ko };
           }
         });
         
@@ -2611,30 +1944,42 @@
         const pageSettings = this.config.pageSettings || {};
         const currentLang = pageSettings.defaultLanguage || 'zh';
         
-        const previewElements = [
-          { id: 'preview-companyName', value: siteInfo.companyName?.[currentLang] || '-' },
-          { id: 'preview-companyDescription', value: siteInfo.companyDescription?.[currentLang] || '-' },
-          { id: 'preview-address', value: siteInfo.companyAddress?.zh || '-' },
-          { id: 'preview-phone', value: siteInfo.companyPhone?.zh || '-' },
-          { id: 'preview-email', value: siteInfo.companyEmail?.zh || '-' },
-          { id: 'preview-wechat', value: siteInfo.companyWechat?.zh || '-' },
-          { id: 'preview-workingHours', value: siteInfo.workingHours?.zh || '-' },
-          { id: 'preview-formspreeId', value: contactForm.formspreeId || '未配置' },
-          { id: 'preview-formStatus', value: contactForm.enable !== false ? '已启用' : '已禁用' },
-          { id: 'preview-defaultLanguage', value: currentLang === 'zh' ? '中文' : currentLang === 'en' ? 'English' : '한국어' }
-        ];
+        document.getElementById('preview-companyName').textContent = siteInfo.companyName?.[currentLang] || '-';
+        document.getElementById('preview-companyDescription').textContent = siteInfo.companyDescription?.[currentLang] || '-';
+        document.getElementById('preview-address').textContent = siteInfo.companyAddress?.zh || '-';
+        document.getElementById('preview-phone').textContent = siteInfo.companyPhone?.zh || '-';
+        document.getElementById('preview-email').textContent = siteInfo.companyEmail?.zh || '-';
+        document.getElementById('preview-wechat').textContent = siteInfo.companyWechat?.zh || '-';
+        document.getElementById('preview-workingHours').textContent = siteInfo.workingHours?.zh || '-';
         
-        previewElements.forEach(({ id, value }) => {
-          const element = document.getElementById(id);
-          if (element) {
-            element.textContent = value;
-          }
-        });
+        document.getElementById('preview-formspreeId').textContent = contactForm.formspreeId || '未配置';
+        document.getElementById('preview-formStatus').textContent = contactForm.enable !== false ? '已启用' : '已禁用';
+        document.getElementById('preview-defaultLanguage').textContent = 
+          currentLang === 'zh' ? '中文' : currentLang === 'en' ? 'English' : '한국어';
       }
       
       async saveSiteInfo() {
-        // 站点信息已合并到翻译词典，此方法已废弃
-        this.showStatus('站点信息已合并到翻译词典，请通过翻译词典管理', 'info');
+        const siteInfo = {
+          companyName: {
+            zh: document.getElementById('companyName-zh').value,
+            en: document.getElementById('companyName-en').value,
+            ko: document.getElementById('companyName-ko').value
+          },
+          companyDescription: {
+            zh: document.getElementById('companyDescription-zh').value,
+            en: document.getElementById('companyDescription-en').value,
+            ko: document.getElementById('companyDescription-ko').value
+          },
+          companyAddress: { zh: document.getElementById('companyAddress').value },
+          companyPhone: { zh: document.getElementById('companyPhone').value },
+          companyEmail: { zh: document.getElementById('companyEmail').value },
+          companyWechat: { zh: document.getElementById('companyWechat').value },
+          workingHours: { zh: document.getElementById('workingHours').value }
+        };
+        
+        this.config.siteInfo = siteInfo;
+        await this.saveConfig();
+        this.updatePreview();
       }
       
       async saveSocialMedia() {
@@ -2768,68 +2113,19 @@
         const translationItems = document.querySelectorAll('.translation-item');
         const translations = {};
         
-        translationItems.forEach((item, index) => {
+        translationItems.forEach(item => {
           const key = item.querySelector('.trans-key').value.trim();
           if (key) {
-            const zh = item.querySelector('.trans-zh').value.trim();
-            const en = item.querySelector('.trans-en').value.trim();
-            const ko = item.querySelector('.trans-ko').value.trim();
-            const category = this.translations[index].category || 'common';
-            
             translations[key] = {
-              zh: zh,
-              en: en,
-              ko: ko,
-              category: category
+              zh: item.querySelector('.trans-zh').value,
+              en: item.querySelector('.trans-en').value,
+              ko: item.querySelector('.trans-ko').value
             };
-            
-            // 同时更新站点信息和页面设置
-            if (key.startsWith('company')) {
-              if (!this.config.siteInfo) {
-                this.config.siteInfo = {};
-              }
-              this.config.siteInfo[key] = {
-                zh: zh,
-                en: en,
-                ko: ko
-              };
-            } else if (key === 'siteTitle') {
-              // 网站标题
-              if (!this.config.pageSettings) {
-                this.config.pageSettings = {};
-              }
-              this.config.pageSettings.siteTitle = {
-                zh: zh,
-                en: en,
-                ko: ko
-              };
-            } else if (key === 'pageTitle') {
-              // 页面标题
-              if (!this.config.pageSettings) {
-                this.config.pageSettings = {};
-              }
-              this.config.pageSettings.title = {
-                zh: zh,
-                en: en,
-                ko: ko
-              };
-            } else if (['footerText', 'loadingText', 'searchPlaceholder', 'noProductsText', 'productDetailsTitle', 'viewDetailsText', 'contactUsText', 'carouselWelcome', 'carouselDescription', 'specUpper', 'specInner', 'specSole', 'specCustomizable', 'specMinOrder', 'specPrice', 'contactFormTitle', 'labelName', 'labelEmail', 'labelMessage', 'submitButton', 'submittingText', 'submitSuccess', 'submitError'].includes(key)) {
-              if (!this.config.pageSettings) {
-                this.config.pageSettings = {};
-              }
-              this.config.pageSettings[key] = {
-                zh: zh,
-                en: en,
-                ko: ko
-              };
-            }
           }
         });
         
         this.config.translations = translations;
         await this.saveConfig();
-        this.showStatus('翻译词典已保存，站点信息和页面设置已同步更新', 'success');
-        this.renderTranslations();
       }
       
       async savePageSettings() {
@@ -2851,19 +2147,12 @@
         this.showLoading(true);
         try {
           const jsonContent = JSON.stringify(this.config, null, 2);
-          
-          // 先更新本地存储
-          localStorage.setItem('gh5_config', jsonContent);
-          
-          // 然后尝试保存到 GitHub
           await githubAPI.commitFile('config.json', jsonContent, 'Update site configuration');
           cacheManager.clearAll();
           this.showStatus('保存成功！', 'success');
         } catch (error) {
           console.error('Save config error:', error);
-          
-          // 即使 GitHub 保存失败，本地存储也已更新
-          this.showStatus('保存到 GitHub 失败，但本地配置已更新: ' + error.message, 'info');
+          this.showStatus('保存失败: ' + error.message, 'error');
         } finally {
           this.showLoading(false);
         }

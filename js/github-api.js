@@ -211,11 +211,8 @@ class GitHubAPI {
     }
   }
 
-  async _fetch(url, options = {}, retries = 0) {
+  async _fetch(url, options = {}) {
     try {
-      // 检查速率限制
-      await this.waitForRateLimitReset();
-      
       const headers = {
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json'
@@ -239,17 +236,6 @@ class GitHubAPI {
       if (!response.ok) {
         const error = new Error(`HTTP error! status: ${response.status}`);
         error.status = response.status;
-        
-        // 重试逻辑
-        const maxRetries = config.get('api.maxRetries', 3);
-        const retryDelay = config.get('api.retryDelay', 1000);
-        
-        if (retries < maxRetries && [429, 500, 502, 503, 504].includes(response.status)) {
-          console.log(`Retrying request (${retries + 1}/${maxRetries})...`);
-          await new Promise(resolve => setTimeout(resolve, retryDelay * Math.pow(2, retries)));
-          return this._fetch(url, options, retries + 1);
-        }
-        
         throw error;
       }
 

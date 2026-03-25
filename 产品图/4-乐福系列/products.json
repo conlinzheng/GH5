@@ -40,6 +40,90 @@
         "lining": "",
         "sole": ""
       }
+    },
+    "中文-ABC (2).png": {
+      "name": {
+        "zh": "中文-ABC",
+        "en": "中文-ABC",
+        "ko": "中文-ABC"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
+    },
+    "中文-ABC (3).png": {
+      "name": {
+        "zh": "中文-ABC",
+        "en": "中文-ABC",
+        "ko": "中文-ABC"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
+    },
+    "中文-ABC (4).png": {
+      "name": {
+        "zh": "中文-ABC",
+        "en": "中文-ABC",
+        "ko": "中文-ABC"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
+    },
+    "中文-ABC (5).png": {
+      "name": {
+        "zh": "中文-ABC",
+        "en": "中文-ABC",
+        "ko": "中文-ABC"
+      },
+      "description": {
+        "zh": "",
+        "en": "",
+        "ko": ""
+      },
+      "price": "",
+      "tags": [],
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      },
+      "customizable": "",
+      "minOrder": ""
     }
   },
   "order": [

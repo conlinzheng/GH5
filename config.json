@@ -1,43 +1,50 @@
 {
+  "seriesOrder": [
+    "2-真皮系列",
+    "3-短靴系列",
+    "1-PU系列",
+    "4-乐福系列",
+    "5-春季",
+    "7-秋季",
+    "6-夏季"
+  ],
+  "seriesNameMap": {
+    "1-PU系列": "11",
+    "2-真皮系列": "真皮"
+  },
   "siteInfo": {
     "companyName": {
-      "zh": "",
-      "en": "",
-      "ko": ""
+      "zh": "GH5鞋业",
+      "en": "GH5 Shoes",
+      "ko": "GH5 신발"
     },
     "companyDescription": {
-      "zh": "",
-      "en": "",
-      "ko": ""
+      "zh": "专业鞋类制造商",
+      "en": "Professional Shoe Manufacturer",
+      "ko": "전문 신발 제조업체"
     },
     "companyAddress": {
-      "zh": "",
-      "en": "",
-      "ko": ""
+      "zh": ""
     },
     "companyPhone": {
-      "zh": "",
-      "en": "",
-      "ko": ""
+      "zh": ""
     },
     "companyEmail": {
-      "zh": "",
-      "en": "",
-      "ko": ""
+      "zh": ""
     },
     "companyWechat": {
-      "zh": "",
-      "en": "",
-      "ko": ""
+      "zh": ""
     },
     "workingHours": {
-      "zh": "",
-      "en": "",
-      "ko": ""
+      "zh": ""
     }
   },
+  "contactForm": {
+    "formspreeId": "mqeyjaqk",
+    "enable": true
+  },
   "socialLinks": {
-    "facebook": "",
+    "facebook": "https://chat.deepseek.com/a/chat/s/6ab389aa-b85a-4ea6-a9ba-635a5accfacb",
     "instagram": "",
     "twitter": "",
     "youtube": "",
@@ -53,466 +60,104 @@
   "pageAssets": {
     "favicon": "",
     "logo": "",
-    "carousel1": {
-      "url": "",
-      "title": {
-        "zh": "",
-        "en": "",
-        "ko": ""
-      },
-      "desc": {
-        "zh": "",
-        "en": "",
-        "ko": ""
-      },
-      "link": ""
-    },
-    "carousel2": {
-      "url": "",
-      "title": {
-        "zh": "",
-        "en": "",
-        "ko": ""
-      },
-      "desc": {
-        "zh": "",
-        "en": "",
-        "ko": ""
-      },
-      "link": ""
-    },
     "defaultProductImage": "",
     "defaultCoverImage": "",
     "ogImage": ""
+  },
+  "translations": {
+    "联系我们": {
+      "zh": "联系我们",
+      "en": "Contact Us",
+      "ko": "문의하기"
+    },
+    "提交": {
+      "zh": "提交",
+      "en": "Submit",
+      "ko": "제출"
+    },
+    "提交中": {
+      "zh": "提交中...",
+      "en": "Submitting...",
+      "ko": "제출 중..."
+    },
+    "感谢您的留言": {
+      "zh": "感谢您的留言！我们会尽快与您联系。",
+      "en": "Thank you for your message! We will contact you soon.",
+      "ko": "메시지를 보내주셔서 감사합니다. 곧 연락드리겠습니다."
+    },
+    "关于我们": {
+      "zh": "关于我们",
+      "en": "About Us",
+      "ko": "회사 소개"
+    },
+    "姓名": {
+      "zh": "姓名",
+      "en": "Name",
+      "ko": "이름"
+    },
+    "邮箱": {
+      "zh": "邮箱",
+      "en": "Email",
+      "ko": "이메일"
+    },
+    "留言": {
+      "zh": "留言",
+      "en": "Message",
+      "ko": "메시지"
+    }
   },
   "pageSettings": {
     "defaultLanguage": "zh",
     "enableI18n": true,
     "title": {
-      "zh": "GH5 - 产品展示",
-      "en": "GH5 - Product Showcase",
-      "ko": "GH5 - 제품 전시"
+      "zh": "GH5 鞋业",
+      "en": "GH5 Shoes",
+      "ko": "GH5 신발"
     },
-    "siteTitle": {
-      "zh": "GH5标题",
-      "en": "GH5标",
-      "ko": "GH5题"
+    "footerText": {
+      "zh": "© 2026 GH5. All rights reserved.",
+      "en": "© 2026 GH5. All rights reserved.",
+      "ko": "© 2026 GH5. All rights reserved."
     },
-    "specUpper": {
-      "zh": "鞋面材质：",
-      "en": "Upper Material:",
-      "ko": "윗부분 재질:"
+    "loadingText": {
+      "zh": "稍等，加载中...",
+      "en": "Loading...",
+      "ko": "로딩 중..."
     },
-    "specInner": {
-      "zh": "内里材质：",
-      "en": "Inner Material:",
-      "ko": "안쪽 재질:"
+    "searchPlaceholder": {
+      "zh": "搜索产品...",
+      "en": "Search products...",
+      "ko": "제품 검색..."
     },
-    "specSole": {
-      "zh": "鞋底材质：",
-      "en": "Sole Material:",
-      "ko": "솔 재질:"
+    "noProductsText": {
+      "zh": "暂无产品",
+      "en": "No products",
+      "ko": "제품 없음"
     },
-    "specCustomizable": {
-      "zh": "是否支持定制：",
-      "en": "Customizable:",
-      "ko": "맞춤 제작 지원:"
+    "productDetailsTitle": {
+      "zh": "产品详情",
+      "en": "Product Details",
+      "ko": "제품 상세"
     },
-    "specMinOrder": {
-      "zh": "起订量：",
-      "en": "Minimum Order:",
-      "ko": "최소 주문량:"
+    "viewDetailsText": {
+      "zh": "查看详情",
+      "en": "View Details",
+      "ko": "상세 보기"
     },
-    "specPrice": {
-      "zh": "价格：",
-      "en": "Price:",
-      "ko": "가격:"
-    },
-    "contactFormTitle": {
+    "contactUsText": {
       "zh": "联系我们",
       "en": "Contact Us",
-      "ko": "문의하기"
+      "ko": "联系我们"
     },
-    "labelName": {
-      "zh": "姓名",
-      "en": "Name",
-      "ko": "이름"
+    "carouselWelcome": {
+      "zh": "欢迎来到 GH5",
+      "en": "Welcome to GH5",
+      "ko": "GH5에 오신 것을 환영합니다"
     },
-    "labelEmail": {
-      "zh": "邮箱",
-      "en": "Email",
-      "ko": "이메일"
-    },
-    "labelMessage": {
-      "zh": "留言",
-      "en": "Message",
-      "ko": "메시지"
-    },
-    "submitButton": {
-      "zh": "提交",
-      "en": "Submit",
-      "ko": "제출"
-    },
-    "submittingText": {
-      "zh": "提交中...",
-      "en": "Submitting...",
-      "ko": "제출 중..."
-    },
-    "submitSuccess": {
-      "zh": "提交成功！",
-      "en": "Submitted successfully!",
-      "ko": "성공적으로 제출되었습니다!"
-    },
-    "submitError": {
-      "zh": "提交失败，请重试",
-      "en": "Submission failed, please try again",
-      "ko": "제출 실패, 다시 시도하세요"
+    "carouselDescription": {
+      "zh": "探索我们的优质产品",
+      "en": "Explore our quality products",
+      "ko": "저희 품질 제품을 탐색하세요"
     }
-  },
-  "translations": {
-    "41": {
-      "zh": "41",
-      "en": "41",
-      "ko": "41",
-      "category": "网站标题"
-    },
-    "42": {
-      "zh": "42",
-      "en": "42",
-      "ko": "42",
-      "category": "网站标题"
-    },
-    "43": {
-      "zh": "43",
-      "en": "43",
-      "ko": "43",
-      "category": "网站标题"
-    },
-    "44": {
-      "zh": "44",
-      "en": "44",
-      "ko": "44",
-      "category": "网站标题"
-    },
-    "45": {
-      "zh": "45",
-      "en": "45",
-      "ko": "45",
-      "category": "网站标题"
-    },
-    "55": {
-      "zh": "55",
-      "en": "55",
-      "ko": "55",
-      "category": "网站标题"
-    },
-    "中文": {
-      "zh": "中文",
-      "en": "中文",
-      "ko": "中文",
-      "category": "网站标题"
-    },
-    "产品1": {
-      "zh": "产品1",
-      "en": "产品1",
-      "ko": "产品1",
-      "category": "网站标题"
-    },
-    "中文数字": {
-      "zh": "中文数字",
-      "en": "中文数字",
-      "ko": "中文数字",
-      "category": "网站标题"
-    },
-    "勃肯1": {
-      "zh": "勃肯1",
-      "en": "勃肯1",
-      "ko": "勃肯1",
-      "category": "网站标题"
-    },
-    "00A": {
-      "zh": "00A",
-      "en": "00A",
-      "ko": "00A",
-      "category": "网站标题"
-    },
-    "中文+": {
-      "zh": "中文+",
-      "en": "中文+",
-      "ko": "中文+",
-      "category": "网站标题"
-    },
-    "B5": {
-      "zh": "B5",
-      "en": "B5",
-      "ko": "B5",
-      "category": "网站标题"
-    },
-    "中文-ABC": {
-      "zh": "中文-ABC",
-      "en": "中文-ABC",
-      "ko": "中文-ABC",
-      "category": "网站标题"
-    },
-    "新款1": {
-      "zh": "新款1",
-      "en": "新款1",
-      "ko": "新款1",
-      "category": "网站标题"
-    },
-    "@@@": {
-      "zh": "@@@",
-      "en": "@@@",
-      "ko": "@@@",
-      "category": "网站标题"
-    },
-    "siteTitle": {
-      "zh": "GH5标题",
-      "en": "GH5标",
-      "ko": "GH5题",
-      "category": "网站标题"
-    },
-    "pageTitle": {
-      "zh": "GH5 - 产品展示",
-      "en": "GH5 - Product Showcase",
-      "ko": "GH5 - 제품 전시",
-      "category": "网站标题"
-    },
-    "specUpper": {
-      "zh": "鞋面材质：",
-      "en": "Upper Material:",
-      "ko": "윗부분 재질:",
-      "category": "网站标题"
-    },
-    "specInner": {
-      "zh": "内里材质：",
-      "en": "Inner Material:",
-      "ko": "안쪽 재질:",
-      "category": "网站标题"
-    },
-    "specSole": {
-      "zh": "鞋底材质：",
-      "en": "Sole Material:",
-      "ko": "솔 재질:",
-      "category": "网站标题"
-    },
-    "specCustomizable": {
-      "zh": "是否支持定制：",
-      "en": "Customizable:",
-      "ko": "맞춤 제작 지원:",
-      "category": "网站标题"
-    },
-    "specMinOrder": {
-      "zh": "起订量：",
-      "en": "Minimum Order:",
-      "ko": "최소 주문량:",
-      "category": "网站标题"
-    },
-    "specPrice": {
-      "zh": "价格：",
-      "en": "Price:",
-      "ko": "가격:",
-      "category": "网站标题"
-    },
-    "contactFormTitle": {
-      "zh": "联系我们",
-      "en": "Contact Us",
-      "ko": "문의하기",
-      "category": "网站标题"
-    },
-    "labelName": {
-      "zh": "姓名",
-      "en": "Name",
-      "ko": "이름",
-      "category": "网站标题"
-    },
-    "labelEmail": {
-      "zh": "邮箱",
-      "en": "Email",
-      "ko": "이메일",
-      "category": "网站标题"
-    },
-    "labelMessage": {
-      "zh": "留言",
-      "en": "Message",
-      "ko": "메시지",
-      "category": "网站标题"
-    },
-    "submitButton": {
-      "zh": "提交",
-      "en": "Submit",
-      "ko": "제출",
-      "category": "网站标题"
-    },
-    "submittingText": {
-      "zh": "提交中...",
-      "en": "Submitting...",
-      "ko": "제출 중...",
-      "category": "网站标题"
-    },
-    "submitSuccess": {
-      "zh": "提交成功！",
-      "en": "Submitted successfully!",
-      "ko": "성공적으로 제출되었습니다!",
-      "category": "网站标题"
-    },
-    "submitError": {
-      "zh": "提交失败，请重试",
-      "en": "Submission failed, please try again",
-      "ko": "제출 실패, 다시 시도하세요",
-      "category": "网站标题"
-    },
-    "1-PU系列": {
-      "zh": "1-PU系列",
-      "en": "1-PU系列",
-      "ko": "1-PU系列",
-      "category": "网站标题"
-    },
-    "2-真皮系列": {
-      "zh": "真皮",
-      "en": "2-真",
-      "ko": "2-皮",
-      "category": "网站标题"
-    },
-    "3-短靴系列": {
-      "zh": "3-短靴系列",
-      "en": "3-短靴系列",
-      "ko": "3-短靴系列",
-      "category": "网站标题"
-    },
-    "4-乐福系列": {
-      "zh": "4-乐福系列",
-      "en": "4-乐福系列",
-      "ko": "4-乐福系列",
-      "category": "网站标题"
-    },
-    "5-春季": {
-      "zh": "5-春季",
-      "en": "5-春季",
-      "ko": "5-春季",
-      "category": "网站标题"
-    },
-    "6-夏季": {
-      "zh": "6-夏季",
-      "en": "6-夏季",
-      "ko": "6-夏季",
-      "category": "网站标题"
-    },
-    "7-秋季": {
-      "zh": "7-秋季",
-      "en": "7-秋季",
-      "ko": "7-秋季",
-      "category": "网站标题"
-    },
-    "中文_描述": {
-      "zh": "中文 - 高品质产品",
-      "en": "中文 - High quality product",
-      "ko": "中文 - 고품질 제품",
-      "category": "网站标题"
-    },
-    "产品1_描述": {
-      "zh": "产品1 - 高品质产品",
-      "en": "产品1 - High quality product",
-      "ko": "产品1 - 고품질 제품",
-      "category": "网站标题"
-    },
-    "55_描述": {
-      "zh": "33 - 高品质产品",
-      "en": "33 - 高品质产品",
-      "ko": "33 - 高品质产品",
-      "category": "网站标题"
-    },
-    "中文数字_描述": {
-      "zh": "中文数字123 - 高品质产品",
-      "en": "中文数字123 - 高品质产品",
-      "ko": "中文数字123 - 高品质产品",
-      "category": "网站标题"
-    },
-    "勃肯1_描述": {
-      "zh": "勃肯1 - 高品质产品",
-      "en": "勃肯1 - High quality product",
-      "ko": "勃肯1 - 고품질 제품",
-      "category": "网站标题"
-    },
-    "00A_描述": {
-      "zh": "00A - 高品质产品",
-      "en": "00A - High quality product",
-      "ko": "00A - 고품질 제품",
-      "category": "网站标题"
-    },
-    "中文+_描述": {
-      "zh": "中文+ - 高品质产品",
-      "en": "中文+ - High quality product",
-      "ko": "中文+ - 고품질 제품",
-      "category": "网站标题"
-    },
-    "B5_描述": {
-      "zh": "B5 - 高品质产品",
-      "en": "B5 - High quality product",
-      "ko": "B5 - 고품질 제품",
-      "category": "网站标题"
-    },
-    "中文-ABC_描述": {
-      "zh": "中文-ABC - 高品质产品",
-      "en": "中文-ABC - High quality product",
-      "ko": "中文-ABC - 고품질 제품",
-      "category": "网站标题"
-    },
-    "新款1_描述": {
-      "zh": "新款1 - 高品质产品",
-      "en": "新款1 - High quality product",
-      "ko": "新款1 - 고품질 제품",
-      "category": "网站标题"
-    },
-    "44_描述": {
-      "zh": "44 - 高品质产品",
-      "en": "44 - High quality product",
-      "ko": "44 - 고품질 제품",
-      "category": "网站标题"
-    },
-    "41_描述": {
-      "zh": "41 - 高品质产品",
-      "en": "41 - High quality product",
-      "ko": "41 - 고품질 제품",
-      "category": "网站标题"
-    },
-    "42_描述": {
-      "zh": "42 - 高品质产品",
-      "en": "42 - High quality product",
-      "ko": "42 - 고품질 제품",
-      "category": "网站标题"
-    },
-    "43_描述": {
-      "zh": "43 - 高品质产品",
-      "en": "43 - High quality product",
-      "ko": "43 - 고품질 제품",
-      "category": "网站标题"
-    },
-    "45_描述": {
-      "zh": "45 - 高品质产品",
-      "en": "45 - High quality product",
-      "ko": "45 - 고품질 제품",
-      "category": "网站标题"
-    },
-    "@@@_描述": {
-      "zh": "@@@ - 高品质产品",
-      "en": "@@@ - High quality product",
-      "ko": "@@@ - 고품질 제품",
-      "category": "网站标题"
-    }
-  },
-  "contactForm": {
-    "formspreeId": "",
-    "enable": true
-  },
-  "seriesOrder": [
-    ".history",
-    "1-PU系列",
-    "2-真皮系列",
-    "3-短靴系列",
-    "4-乐福系列",
-    "5-春季",
-    "6-夏季",
-    "7-秋季"
-  ]
+  }
 }

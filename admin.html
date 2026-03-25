@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="admin.title">后台管理 - GH5</title>
+  <title>后台管理 - GH5</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
     .lang-tab {
@@ -411,33 +411,28 @@
 </head>
 <body>
   <div class="admin-container">
-    <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <h1 data-i18n="admin.title">GH5 后台管理</h1>
-        <span class="subtitle" data-i18n="admin.subtitle">扫描、管理、更新和编辑首页显示所需的文件</span>
-      </div>
-      <button id="language-toggle" class="lang-tab">
-        <span class="lang-text">ZH</span>
-      </button>
+    <div class="admin-header">
+      <h1>GH5 后台管理</h1>
+      <span class="subtitle">扫描、管理、更新和编辑首页显示所需的文件</span>
     </div>
     
     <div class="admin-nav">
-    <button id="btn-scan" data-i18n="admin.nav.scan">扫描文件</button>
-    <button id="btn-scan-new" style="background-color: #28a745; color: white;" data-i18n="admin.nav.scanNew">🔍 扫描新增产品</button>
-    <button id="btn-refresh" data-i18n="admin.nav.refresh">刷新数据</button>
-    <button id="btn-clear-cache" data-i18n="admin.nav.clearCache">清除缓存</button>
-    <button id="btn-regenerate-json" style="background-color: #ff9800; color: white;" data-i18n="admin.nav.regenerate">🔄 重新生成JSON</button>
-    <button id="btn-export" data-i18n="admin.nav.export">导出数据</button>
-    <button id="btn-import" data-i18n="admin.nav.import">导入数据</button>
-    <button id="btn-set-token" data-i18n="admin.nav.setToken">设置 API 密钥</button>
+    <button id="btn-scan">扫描文件</button>
+    <button id="btn-scan-new" style="background-color: #28a745; color: white;">🔍 扫描新增产品</button>
+    <button id="btn-refresh">刷新数据</button>
+    <button id="btn-clear-cache">清除缓存</button>
+    <button id="btn-regenerate-json" style="background-color: #ff9800; color: white;">🔄 重新生成JSON</button>
+    <button id="btn-export">导出数据</button>
+    <button id="btn-import">导入数据</button>
+    <button id="btn-set-token">设置 API 密钥</button>
     </div>
     
     <div class="admin-content">
       <div class="admin-left">
         <div class="admin-section">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">
-            <h2 style="margin: 0; color: #333;" data-i18n="admin.sections.series">系列管理</h2>
-            <button id="btn-save-series-order" class="btn-save" data-i18n="admin.buttons.saveSeries">💾 保存系列顺序</button>
+            <h2 style="margin: 0; color: #333;">系列管理</h2>
+            <button id="btn-save-series-order" class="btn-save">💾 保存系列顺序</button>
           </div>
           <p style="color: #666; font-size: 14px; margin-bottom: 15px;">拖拽系列卡片可以调整显示顺序</p>
           <div id="series-list" class="series-list" style="min-height: 200px;">
@@ -449,12 +444,12 @@
       <div class="admin-center">
         <div class="admin-section">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">
-            <h2 style="margin: 0; color: #333;" data-i18n="admin.sections.files">文件管理</h2>
-            <button id="btn-save-product-order" class="btn-save" data-i18n="admin.buttons.saveProduct">💾 保存产品顺序</button>
+            <h2 style="margin: 0; color: #333;">文件管理</h2>
+            <button id="btn-save-product-order" class="btn-save">💾 保存产品顺序</button>
           </div>
           <p style="color: #666; font-size: 14px; margin-bottom: 15px;">拖拽产品可以调整系列内显示顺序</p>
           <div style="margin-bottom: 15px;">
-            <button id="btn-toggle-all-images" class="btn-toggle" onclick="adminPanel.toggleAllImages()" data-i18n="admin.buttons.toggleImages">一键折叠/展开所有图片</button>
+            <button id="btn-toggle-all-images" class="btn-toggle" onclick="adminPanel.toggleAllImages()">一键折叠/展开所有图片</button>
           </div>
           <div id="file-list-container" style="max-height: 70vh; overflow-y: auto; padding-right: 5px;">
             <ul id="file-list" class="file-list" style="min-height: 200px;">
@@ -467,41 +462,109 @@
       <div class="admin-right">
         <div class="admin-section">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">
-            <h2 style="margin: 0; color: #333;" data-i18n="admin.sections.edit">编辑产品数据</h2>
+            <h2 style="margin: 0; color: #333;">编辑产品数据</h2>
           </div>
           <div id="edit-form-container">
+            <!-- 语言切换标签 -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+              <button type="button" class="lang-tab active" data-lang="zh">中文</button>
+              <button type="button" class="lang-tab" data-lang="en">英文</button>
+              <button type="button" class="lang-tab" data-lang="ko">韩文</button>
+              <button type="button" class="btn btn-secondary" id="btn-batch-edit" style="margin-left: auto;">批量编辑</button>
+              <button type="button" class="btn btn-primary" id="btn-translate" style="margin-left: 10px;">自动翻译</button>
+            </div>
+            
+            <!-- 批量编辑模式 -->
+            <div id="batch-edit-panel" style="display: none; margin-bottom: 15px; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px; background-color: #f8f9fa;">
+              <h4 style="margin-top: 0; margin-bottom: 10px;">批量编辑</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                  <label>所有语言 - 产品名称</label>
+                  <input type="text" id="batch-name" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>所有语言 - 描述</label>
+                  <textarea id="batch-description" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>所有语言 - 价格</label>
+                  <input type="text" id="batch-price" class="form-control">
+                </div>
+              </div>
+              <button type="button" id="btn-apply-batch" class="btn btn-success" style="margin-top: 10px;">应用批量编辑</button>
+            </div>
+            
             <form id="edit-form">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div class="form-group">
-                  <label for="product-name" data-i18n="admin.labels.productName">产品名称</label>
-                  <input type="text" id="product-name" name="name" required>
+              <!-- 中文输入 -->
+              <div class="lang-panel" data-lang="zh" style="display: block;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group">
+                    <label for="product-name-zh">产品名称 (中文)</label>
+                    <input type="text" id="product-name-zh" name="name-zh" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="product-price">价格</label>
+                    <input type="text" id="product-price" name="price">
+                  </div>
                 </div>
                 <div class="form-group">
-                  <label for="product-price" data-i18n="admin.labels.price">价格</label>
-                  <input type="text" id="product-price" name="price">
+                  <label for="product-description-zh">产品描述 (中文)</label>
+                  <textarea id="product-description-zh" name="description-zh" rows="2"></textarea>
                 </div>
               </div>
-              <div class="form-group">
-                <label for="product-description" data-i18n="admin.labels.description">产品描述</label>
-                <textarea id="product-description" name="description" rows="2"></textarea>
+              
+              <!-- 英文输入 -->
+              <div class="lang-panel" data-lang="en" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group">
+                    <label for="product-name-en">产品名称 (英文)</label>
+                    <input type="text" id="product-name-en" name="name-en">
+                  </div>
+                  <div class="form-group">
+                    <label for="product-price">价格</label>
+                    <input type="text" id="product-price" name="price">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="product-description-en">产品描述 (英文)</label>
+                  <textarea id="product-description-en" name="description-en" rows="2"></textarea>
+                </div>
+              </div>
+              
+              <!-- 韩文输入 -->
+              <div class="lang-panel" data-lang="ko" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group">
+                    <label for="product-name-ko">产品名称 (韩文)</label>
+                    <input type="text" id="product-name-ko" name="name-ko">
+                  </div>
+                  <div class="form-group">
+                    <label for="product-price">价格</label>
+                    <input type="text" id="product-price" name="price">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="product-description-ko">产品描述 (韩文)</label>
+                  <textarea id="product-description-ko" name="description-ko" rows="2"></textarea>
+                </div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
-                  <label for="product-upper-material" data-i18n="admin.labels.upperMaterial">鞋面材质</label>
+                  <label for="product-upper-material">鞋面材质</label>
                   <input type="text" id="product-upper-material" name="upperMaterial">
                 </div>
                 <div class="form-group">
-                  <label for="product-inner-material" data-i18n="admin.labels.innerMaterial">内里材质</label>
+                  <label for="product-inner-material">内里材质</label>
                   <input type="text" id="product-inner-material" name="innerMaterial">
                 </div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
-                  <label for="product-sole-material" data-i18n="admin.labels.soleMaterial">鞋底材质</label>
+                  <label for="product-sole-material">鞋底材质</label>
                   <input type="text" id="product-sole-material" name="soleMaterial">
                 </div>
                 <div class="form-group">
-                  <label for="product-customizable" data-i18n="admin.labels.customizable">是否支持定制</label>
+                  <label for="product-customizable">是否支持定制</label>
                   <select id="product-customizable" name="customizable">
                     <option value="">请选择</option>
                     <option value="true">是</option>
@@ -511,38 +574,38 @@
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
-                  <label for="product-min-order" data-i18n="admin.labels.minOrder">起订量</label>
+                  <label for="product-min-order">起订量</label>
                   <input type="number" id="product-min-order" name="minOrder" min="1">
                 </div>
                 <div class="form-group">
-                  <label for="product-tags" data-i18n="admin.labels.tags">标签 (用逗号分隔)</label>
-                  <input type="text" id="product-tags" name="tags" placeholder="例如: 新品,热销" data-i18n="admin.placeholders.tags">
+                  <label for="product-tags">标签 (用逗号分隔)</label>
+                  <input type="text" id="product-tags" name="tags" placeholder="例如: 新品,热销">
                 </div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
-                  <label for="product-series" data-i18n="admin.labels.series">所属系列</label>
+                  <label for="product-series">所属系列</label>
                   <select id="product-series" name="series" required>
                     <!-- 系列选项将通过 JavaScript 动态生成 -->
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="product-image" data-i18n="admin.labels.image">图片文件名</label>
+                  <label for="product-image">图片文件名</label>
                   <input type="text" id="product-image" name="image" required>
                 </div>
               </div>
-              <button type="button" class="btn-save" style="width: 100%; margin-top: 15px;" onclick="adminPanel.saveProduct()" data-i18n="admin.buttons.saveProductData">💾 保存产品数据</button>
+              <button type="button" class="btn-save" style="width: 100%; margin-top: 15px;" onclick="adminPanel.saveProduct()">💾 保存产品数据</button>
             </form>
           </div>
         </div>
         
         <div class="admin-section">
-          <h2 data-i18n="admin.sections.status">系统状态</h2>
+          <h2>系统状态</h2>
           <div id="system-status">
-            <p data-i18n="admin.status.lastScan">最后扫描时间: <span id="last-scan">未扫描</span></p>
-            <p data-i18n="admin.status.cacheStatus">缓存状态: <span id="cache-status">未知</span></p>
-            <p data-i18n="admin.status.productCount">产品总数: <span id="product-count">0</span></p>
-            <p data-i18n="admin.status.seriesCount">系列总数: <span id="series-count">0</span></p>
+            <p>最后扫描时间: <span id="last-scan">未扫描</span></p>
+            <p>缓存状态: <span id="cache-status">未知</span></p>
+            <p>产品总数: <span id="product-count">0</span></p>
+            <p>系列总数: <span id="series-count">0</span></p>
           </div>
         </div>
       </div>
@@ -559,10 +622,118 @@
   <script src="js/github-api.js"></script>
   <script src="js/i18n.js"></script>
   <script>
-    // 初始化国际化
+    // 语言切换和翻译功能
     document.addEventListener('DOMContentLoaded', function() {
-      i18n.init();
+      // 语言标签切换
+      const langTabs = document.querySelectorAll('.lang-tab');
+      langTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          const lang = this.dataset.lang;
+          
+          // 更新标签状态
+          langTabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          
+          // 显示对应语言面板
+          const langPanels = document.querySelectorAll('.lang-panel');
+          langPanels.forEach(panel => {
+            panel.style.display = panel.dataset.lang === lang ? 'block' : 'none';
+          });
+        });
+      });
+      
+      // 批量编辑切换
+      const btnBatchEdit = document.getElementById('btn-batch-edit');
+      const batchEditPanel = document.getElementById('batch-edit-panel');
+      if (btnBatchEdit && batchEditPanel) {
+        btnBatchEdit.addEventListener('click', function() {
+          batchEditPanel.style.display = batchEditPanel.style.display === 'none' ? 'block' : 'none';
+        });
+      }
+      
+      // 应用批量编辑
+      const btnApplyBatch = document.getElementById('btn-apply-batch');
+      if (btnApplyBatch) {
+        btnApplyBatch.addEventListener('click', function() {
+          const batchName = document.getElementById('batch-name').value;
+          const batchDescription = document.getElementById('batch-description').value;
+          const batchPrice = document.getElementById('batch-price').value;
+          
+          if (batchName) {
+            document.getElementById('product-name-zh').value = batchName;
+            document.getElementById('product-name-en').value = batchName;
+            document.getElementById('product-name-ko').value = batchName;
+          }
+          
+          if (batchDescription) {
+            document.getElementById('product-description-zh').value = batchDescription;
+            document.getElementById('product-description-en').value = batchDescription;
+            document.getElementById('product-description-ko').value = batchDescription;
+          }
+          
+          if (batchPrice) {
+            document.getElementById('product-price').value = batchPrice;
+          }
+          
+          alert('批量编辑已应用');
+        });
+      }
+      
+      // 自动翻译功能
+      const btnTranslate = document.getElementById('btn-translate');
+      if (btnTranslate) {
+        btnTranslate.addEventListener('click', async function() {
+          const zhName = document.getElementById('product-name-zh').value;
+          const zhDesc = document.getElementById('product-description-zh').value;
+          
+          if (!zhName && !zhDesc) {
+            alert('请先填写中文内容');
+            return;
+          }
+          
+          btnTranslate.disabled = true;
+          btnTranslate.textContent = '翻译中...';
+          
+          try {
+            // 翻译产品名称
+            if (zhName) {
+              const enName = await translateText(zhName, 'zh', 'en');
+              const koName = await translateText(zhName, 'zh', 'ko');
+              document.getElementById('product-name-en').value = enName;
+              document.getElementById('product-name-ko').value = koName;
+            }
+            
+            // 翻译产品描述
+            if (zhDesc) {
+              const enDesc = await translateText(zhDesc, 'zh', 'en');
+              const koDesc = await translateText(zhDesc, 'zh', 'ko');
+              document.getElementById('product-description-en').value = enDesc;
+              document.getElementById('product-description-ko').value = koDesc;
+            }
+            
+            alert('翻译完成');
+          } catch (error) {
+            console.error('翻译失败:', error);
+            alert('翻译失败，请稍后重试');
+          } finally {
+            btnTranslate.disabled = false;
+            btnTranslate.textContent = '自动翻译';
+          }
+        });
+      }
     });
+    
+    // 翻译函数（使用模拟翻译）
+    async function translateText(text, from, to) {
+      // 这里使用一个简单的模拟翻译
+      // 实际项目中应该使用真实的翻译 API
+      if (from === 'zh' && to === 'en') {
+        return 'Translated: ' + text;
+      } else if (from === 'zh' && to === 'ko') {
+        return '번역: ' + text;
+      }
+      return text;
+    }
     
     class AdminPanel {
       constructor() {
@@ -726,10 +897,7 @@
         
         try {
           const startTime = new Date();
-          const lastScanElement = document.getElementById('last-scan');
-          if (lastScanElement) {
-            lastScanElement.textContent = startTime.toLocaleString();
-          }
+          document.getElementById('last-scan').textContent = startTime.toLocaleString();
           
           this.showStatus('正在扫描...', 'info');
           
@@ -1293,32 +1461,26 @@
       
       async loadSeriesNameMap() {
         try {
-          // 初始化系列名称映射
-          this.seriesNameMap = {};
+          // 清除 config.json 的缓存以确保获取最新数据
+          cacheManager.clear('config.json');
+          console.log('Config.json cache cleared in admin loadSeriesNameMap');
           
-          // 从各个系列的 products.json 文件中加载 seriesName 字段
+          // 尝试从配置文件加载系列名称映射和顺序
+          let configFile;
           try {
-            const seriesList = await githubAPI.fetchDirectory('产品图');
-            const allSeries = seriesList.filter(item => item.type === 'dir');
-            
-            for (const series of allSeries) {
-              try {
-                const data = await githubAPI.fetchFile(`${series.path}/products.json`);
-                if (data && data.seriesName && data.seriesName.zh) {
-                  this.seriesNameMap[series.name] = data.seriesName.zh;
-                }
-              } catch (err) {
-                console.warn(`Failed to load ${series.name}/products.json:`, err);
+            configFile = await githubAPI.fetchFile('config.json');
+            if (configFile) {
+              if (configFile.seriesNameMap) {
+                this.seriesNameMap = configFile.seriesNameMap;
+              }
+              if (configFile.seriesOrder) {
+                this.seriesOrder = configFile.seriesOrder;
               }
             }
           } catch (error) {
-            console.warn('Failed to fetch series list:', error);
-          }
-          
-          // 如果没有任何映射，使用默认映射
-          if (Object.keys(this.seriesNameMap).length === 0) {
+            // 如果配置文件不存在，使用默认映射
             this.seriesNameMap = {
-              '1-PU系列': '超纤',
+              '1-PU系列': 'PU超纤',
               '2-真皮系列': '真皮系列',
               '3-短靴系列': '短靴系列',
               '4-乐福系列': '乐福系列',
@@ -1331,7 +1493,7 @@
           console.error('Load series name map error:', error);
           // 使用默认映射
           this.seriesNameMap = {
-            '1-PU系列': '超纤',
+            '1-PU系列': 'PU超纤',
             '2-真皮系列': '真皮系列',
             '3-短靴系列': '短靴系列',
             '4-乐福系列': '乐福系列',
@@ -1705,29 +1867,21 @@
       }
       
       updateSystemStatus() {
-        const productCountElement = document.getElementById('product-count');
-        if (productCountElement) {
-          productCountElement.textContent = this.products.length;
-        }
-        const seriesCountElement = document.getElementById('series-count');
-        if (seriesCountElement) {
-          seriesCountElement.textContent = this.series.length;
-        }
+        document.getElementById('product-count').textContent = this.products.length;
+        document.getElementById('series-count').textContent = this.series.length;
       }
       
       updateSeriesSelect() {
         const select = document.getElementById('product-series');
-        if (select) {
-          select.innerHTML = '';
-          
-          this.series.forEach(seriesItem => {
-            const displayName = this.seriesNameMap[seriesItem.name] || seriesItem.name;
-            const option = document.createElement('option');
-            option.value = seriesItem.name;
-            option.textContent = displayName;
-            select.appendChild(option);
-          });
-        }
+        select.innerHTML = '';
+        
+        this.series.forEach(seriesItem => {
+          const displayName = this.seriesNameMap[seriesItem.name] || seriesItem.name;
+          const option = document.createElement('option');
+          option.value = seriesItem.name;
+          option.textContent = displayName;
+          select.appendChild(option);
+        });
       }
       
       editProduct(productId, seriesId) {
@@ -1735,18 +1889,26 @@
         if (product) {
           this.currentEditingProduct = product;
           
-          // 处理产品名称（只显示中文）
+          // 处理多语言名称
           if (product.name && typeof product.name === 'object') {
-            document.getElementById('product-name').value = product.name.zh || '';
+            document.getElementById('product-name-zh').value = product.name.zh || '';
+            document.getElementById('product-name-en').value = product.name.en || '';
+            document.getElementById('product-name-ko').value = product.name.ko || '';
           } else {
-            document.getElementById('product-name').value = product.name || '';
+            document.getElementById('product-name-zh').value = product.name || '';
+            document.getElementById('product-name-en').value = product.name || '';
+            document.getElementById('product-name-ko').value = product.name || '';
           }
           
-          // 处理产品描述（只显示中文）
+          // 处理多语言描述
           if (product.description && typeof product.description === 'object') {
-            document.getElementById('product-description').value = product.description.zh || '';
+            document.getElementById('product-description-zh').value = product.description.zh || '';
+            document.getElementById('product-description-en').value = product.description.en || '';
+            document.getElementById('product-description-ko').value = product.description.ko || '';
           } else {
-            document.getElementById('product-description').value = product.description || '';
+            document.getElementById('product-description-zh').value = product.description || '';
+            document.getElementById('product-description-en').value = product.description || '';
+            document.getElementById('product-description-ko').value = product.description || '';
           }
           
           document.getElementById('product-price').value = product.price || '';
@@ -1763,24 +1925,29 @@
       
       async saveProduct() {
         try {
-          const name = document.getElementById('product-name').value.trim();
-          const description = document.getElementById('product-description').value.trim();
+          // 获取多语言输入
+          const nameZh = document.getElementById('product-name-zh').value.trim();
+          const nameEn = document.getElementById('product-name-en').value.trim();
+          const nameKo = document.getElementById('product-name-ko').value.trim();
+          const descZh = document.getElementById('product-description-zh').value.trim();
+          const descEn = document.getElementById('product-description-en').value.trim();
+          const descKo = document.getElementById('product-description-ko').value.trim();
           const priceInput = document.getElementById('product-price');
           const tagsInput = document.getElementById('product-tags');
           
           const price = priceInput ? priceInput.value.trim() : '';
           
-          if (!name) {
-            this.showStatus('产品名称不能为空', 'error');
+          if (!nameZh) {
+            this.showStatus('产品名称（中文）不能为空', 'error');
             return;
           }
           
-          if (name.length > 200) {
+          if (nameZh.length > 200 || nameEn.length > 200 || nameKo.length > 200) {
             this.showStatus('产品名称不能超过 200 个字符', 'error');
             return;
           }
           
-          if (description.length > 1000) {
+          if (descZh.length > 1000 || descEn.length > 1000 || descKo.length > 1000) {
             this.showStatus('产品描述不能超过 1000 个字符', 'error');
             return;
           }
@@ -1798,8 +1965,16 @@
           }
           
           const formData = {
-            name: name,
-            description: description,
+            name: {
+              zh: nameZh,
+              en: nameEn || nameZh,
+              ko: nameKo || nameZh
+            },
+            description: {
+              zh: descZh,
+              en: descEn || descZh,
+              ko: descKo || descZh
+            },
             price: price,
             tags: tags,
             upperMaterial: document.getElementById('product-upper-material').value,
@@ -1847,8 +2022,16 @@
           // 更新同组的所有图片产品数据
           sameGroupImages.forEach(file => {
             productsFile.products[file.name] = {
-              name: formData.name,
-              description: formData.description,
+              name: {
+                zh: formData.name,
+                en: formData.name,
+                ko: formData.name
+              },
+              description: {
+                zh: formData.description,
+                en: formData.description,
+                ko: formData.description
+              },
               price: formData.price,
               tags: formData.tags,
               materials: {
@@ -1915,7 +2098,7 @@
       }
       
       async deleteProduct(productId, seriesId) {
-        if (confirm(i18n.t('admin.messages.confirmDeleteProduct'))) {
+        if (confirm('确定要删除这个产品吗？')) {
           try {
             // 找到对应的系列
             const series = this.series.find(s => s.name === seriesId);
@@ -1994,7 +2177,7 @@
       async saveProductOrder() {
         try {
           if (!this.currentSeries) {
-            this.showStatus(i18n.t('admin.messages.selectSeriesFirst'), 'error');
+            this.showStatus('请先选择一个系列', 'error');
             return;
           }
           
@@ -2038,7 +2221,7 @@
       viewProduct(productId, seriesId) {
         const product = this.products.find(p => p.id === productId && p.seriesId === seriesId);
         if (product) {
-          alert(`${i18n.t('admin.messages.productInfo')}\n名称: ${product.name}\n描述: ${product.description || '无'}\n价格: ${product.price || '无'}\n材质: ${product.materials || '无'}\n系列: ${product.seriesId}\n图片: ${product.image}`);
+          alert(`产品信息:\n名称: ${product.name}\n描述: ${product.description || '无'}\n价格: ${product.price || '无'}\n材质: ${product.materials || '无'}\n系列: ${product.seriesId}\n图片: ${product.image}`);
         }
       }
       
@@ -2049,12 +2232,12 @@
         const seriesProducts = this.products.filter(p => p.seriesId === seriesName);
         
         // 构建提示信息
-        const infoMessage = `${i18n.t('admin.messages.seriesInfo')}\n` +
+        const infoMessage = `系列信息:\n` +
           `文件夹名称: ${seriesName}\n` +
           `当前显示名称: ${currentDisplayName}\n` +
           `产品数量: ${seriesProducts.length}\n` +
           `文件夹路径: ${series ? series.path : '未知'}\n\n` +
-          `${i18n.t('admin.messages.enterNewSeriesName')}`;
+          `请输入新的系列显示名称:`;
         
         const newDisplayName = prompt(infoMessage, currentDisplayName);
         if (newDisplayName && newDisplayName !== currentDisplayName) {
@@ -2076,37 +2259,33 @@
       
       async saveSeriesNameMap() {
         try {
-          // 获取所有系列列表
-          const seriesList = await githubAPI.fetchDirectory('产品图');
-          const allSeries = seriesList.filter(item => item.type === 'dir');
-          
-          // 为每个系列保存系列名称到对应的 products.json
-          for (const series of allSeries) {
-            const seriesName = series.name;
-            const displayName = this.seriesNameMap[seriesName];
-            
-            // 如果没有自定义名称，跳过
-            if (!displayName || displayName === seriesName) continue;
-            
-            // 获取当前系列的产品文件
-            const seriesPath = `${series.path}/products.json`;
-            let productsFile;
-            try {
-              productsFile = await githubAPI.fetchFile(seriesPath);
-            } catch (error) {
-              productsFile = { products: {}, order: [] };
+          // 先获取现有的配置文件，以保留其他数据（如 seriesOrder）
+          let configData = {};
+          try {
+            const existingConfig = await githubAPI.fetchFile('config.json');
+            if (existingConfig) {
+              configData = existingConfig;
             }
-            
-            // 更新 seriesName 字段（多语言）
-            productsFile.seriesName = {
-              zh: displayName,
-              en: productsFile.seriesName?.en || displayName,
-              ko: productsFile.seriesName?.ko || displayName
-            };
-            
-            // 保存到 products.json
-            const jsonContent = JSON.stringify(productsFile, null, 2);
-            await githubAPI.commitFile(seriesPath, jsonContent, `Update series name for ${seriesName}`);
+          } catch (error) {
+            // 文件不存在，使用空对象
+            console.log('Config file not found, creating new one');
+          }
+          
+          // 更新系列名称映射
+          configData.seriesNameMap = this.seriesNameMap;
+          
+          const jsonContent = JSON.stringify(configData, null, 2);
+          
+          try {
+            // 尝试更新配置文件
+            await githubAPI.commitFile('config.json', jsonContent, 'Update series name map');
+          } catch (error) {
+            // 如果文件不存在，尝试创建文件
+            if (error.status === 404) {
+              await githubAPI.commitFile('config.json', jsonContent, 'Create config file');
+            } else {
+              throw error;
+            }
           }
         } catch (error) {
           console.error('Save series name map error:', error);
@@ -2117,7 +2296,7 @@
       viewSeries(seriesName) {
         const seriesProducts = this.products.filter(p => p.seriesId === seriesName);
         const displayName = this.seriesNameMap[seriesName] || seriesName;
-        let message = `${i18n.t('admin.messages.series').replace('{name}', displayName)}\n${i18n.t('admin.messages.productCount').replace('{count}', seriesProducts.length)}\n\n${i18n.t('admin.messages.productList')}\n`;
+        let message = `系列: ${displayName}\n产品数量: ${seriesProducts.length}\n\n产品列表:\n`;
         seriesProducts.forEach(product => {
           message += `- ${product.name} (${product.image})\n`;
         });
