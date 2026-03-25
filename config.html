@@ -1754,11 +1754,18 @@
       // 按分类筛选翻译项
       filterTranslationsByCategory(category) {
         const items = document.querySelectorAll('.translation-item');
-        items.forEach((item, index) => {
-          if (category === 'all' || this.translations[index].category === category) {
-            item.style.display = 'block';
+        items.forEach((item) => {
+          const categorySelect = item.querySelector('.category-select');
+          if (categorySelect) {
+            const itemCategory = categorySelect.value;
+            if (category === 'all' || itemCategory === category) {
+              item.style.display = 'block';
+            } else {
+              item.style.display = 'none';
+            }
           } else {
-            item.style.display = 'none';
+            // 对于没有分类选择器的项（如扫描结果），始终显示
+            item.style.display = 'block';
           }
         });
       }
@@ -2000,7 +2007,9 @@
             // 从不同位置获取值
             if (field.key.startsWith('company')) {
               value = this.config.siteInfo?.[field.key];
-            } else if (field.key === 'siteTitle' || field.key === 'pageTitle') {
+            } else if (field.key === 'siteTitle') {
+              value = this.config.pageSettings?.siteTitle;
+            } else if (field.key === 'pageTitle') {
               value = this.config.pageSettings?.title;
             } else {
               value = this.config.pageSettings?.[field.key];
@@ -2485,9 +2494,14 @@
           const en = document.querySelector(`.scan-en[data-key="${key}"]`).value.trim();
           const ko = document.querySelector(`.scan-ko[data-key="${key}"]`).value.trim();
           
+          // 找到对应的扫描项，获取分类信息
+          const scanItem = Array.from(document.querySelectorAll('.scan-zh')).find(i => i.dataset.key === key);
+          const itemContainer = scanItem.closest('.translation-item');
+          const category = itemContainer?.parentElement?.parentElement?.querySelector('p')?.textContent?.replace('📁 ', '') || '自定义翻译';
+          
           if (zh) {
             // 直接使用原始键名，确保与后台页面自定义显示的名称一致
-            newTranslations[key] = { zh, en, ko };
+            newTranslations[key] = { zh, en, ko, category };
           }
         });
         
