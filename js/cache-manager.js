@@ -30,6 +30,12 @@ class CacheManager {
 
   set(key, data, ttl = this.defaultTTL) {
     try {
+      // 检查存储空间
+      const size = this.getSize();
+      if (size.sizeKB > 4000) { // 接近 5MB 限制
+        this._cleanupOldest(10); // 清理最旧的 10 条
+      }
+      
       const fullKey = this.prefix + key;
       const expiry = Date.now() + ttl;
       const item = {
@@ -41,9 +47,26 @@ class CacheManager {
       localStorage.setItem(fullKey, JSON.stringify(item));
       return true;
     } catch (error) {
+      // 可能是存储空间不足
+      if (error.name === 'QuotaExceededError') {
+        this._cleanupOldest(20);
+        // 重试一次
+        return this.set(key, data, ttl);
+      }
       console.error('Cache set error:', error);
       return false;
     }
+  }
+
+  _cleanupOldest(count) {
+    const keys = this.getKeys();
+    const items = keys.map(key => ({
+      key,
+      info: this.getInfo(key.replace(this.prefix, ''))
+    })).filter(item => item.info);
+    
+    items.sort((a, b) => a.info.timestamp - b.info.timestamp);
+    items.slice(0, count).forEach(item => this.clear(item.key.replace(this.prefix, '')));
   }
 
   clear(key) {

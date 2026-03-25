@@ -125,7 +125,7 @@ class I18n {
         }
       }
     };
-    this.isReady = false;
+    this._isReady = false;
   }
 
   init() {
@@ -140,7 +140,7 @@ class I18n {
         }
       }
 
-      this.isReady = true;
+      this._isReady = true;
       this.updateLanguage();
       this._dispatchLanguageChanged();
       
@@ -178,7 +178,7 @@ class I18n {
     } catch (error) {
       console.error('I18n init error:', error);
       this.currentLang = this.defaultLang;
-      this.isReady = true;
+      this._isReady = true;
     }
   }
 
@@ -263,7 +263,7 @@ class I18n {
   }
 
   isReady() {
-    return this.isReady;
+    return this._isReady;
   }
 
   exportTranslations() {

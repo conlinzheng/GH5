@@ -27,6 +27,7 @@ class Frontend {
     
     this.currentLightboxImages = [];
     this.currentLightboxIndex = 0;
+    this._carouselTimers = {}; // 存储轮播定时器引用
     
     this.init();
   }
@@ -974,6 +975,9 @@ class Frontend {
     const container = document.getElementById('products-container');
     if (!container) return;
     
+    // 清理旧的轮播定时器，防止内存泄漏
+    this.clearAllCarousels();
+    
     container.innerHTML = '';
     
     // 按系列分组产品
@@ -1079,7 +1083,7 @@ class Frontend {
         <div class="product-image-carousel">
           ${product.images.map((image, index) => `
             <div class="carousel-item ${index === 0 ? 'active' : ''}">
-              <img src="${image}" alt="${translatedName} ${index + 1}" loading="lazy">
+              <img src="${image}" alt="${this._escapeHtml(translatedName)} ${index + 1}" loading="lazy">
             </div>
           `).join('')}
           <div class="carousel-controls">
@@ -1092,7 +1096,7 @@ class Frontend {
     } else {
       imageCarousel = `
         <div class="product-image">
-          <img src="${product.images[0]}" alt="${translatedName}" loading="lazy">
+          <img src="${product.images[0]}" alt="${this._escapeHtml(translatedName)}" loading="lazy">
         </div>
       `;
     }
@@ -1102,7 +1106,7 @@ class Frontend {
     console.log('产品标签:', translatedTags);
     const tagsHtml = translatedTags && translatedTags.length > 0 ? `
       <div class="product-tags">
-        ${translatedTags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}
+        ${translatedTags.map(tag => `<span class="product-tag">${this._escapeHtml(tag)}</span>`).join('')}
       </div>
     ` : '';
     console.log('标签HTML:', tagsHtml);
@@ -1112,14 +1116,16 @@ class Frontend {
         ${imageCarousel}
       </div>
       <div class="product-info">
-        <h3 class="product-name">${translatedName}</h3>
-        <p class="product-price">${product.price || ''}</p>
+        <h3 class="product-name">${this._escapeHtml(translatedName)}</h3>
+        <p class="product-price">${this._escapeHtml(product.price || '')}</p>
         ${tagsHtml}
       </div>
     `;
     
     // 添加图片轮播功能
     if (product.images.length > 1) {
+      const carouselId = `carousel-${product.id}`;
+      
       setTimeout(() => {
         const carousel = div.querySelector('.product-image-carousel');
         const items = carousel.querySelectorAll('.carousel-item');
@@ -1140,10 +1146,13 @@ class Frontend {
         });
         
         // 自动轮播
-        setInterval(() => {
+        const timer = setInterval(() => {
           const nextIndex = (currentIndex + 1) % items.length;
           showSlide(nextIndex);
         }, 3000);
+        
+        // 存储定时器引用
+        this._carouselTimers[carouselId] = timer;
       }, 0);
     }
     
@@ -1254,6 +1263,12 @@ class Frontend {
       }, 5000);
     }
   }
+
+  _escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
   
   _loadLocalFallbackData() {
     // 加载本地备用数据
@@ -1296,6 +1311,13 @@ class Frontend {
     };
     
     return seriesNameMaps[currentLang] || seriesNameMaps.zh;
+  }
+
+  clearAllCarousels() {
+    if (this._carouselTimers) {
+      Object.values(this._carouselTimers).forEach(timer => clearInterval(timer));
+      this._carouselTimers = {};
+    }
   }
   
   extractProductName(fileName) {
