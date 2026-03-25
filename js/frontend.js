@@ -1021,16 +1021,19 @@ class Frontend {
         console.log('Config file not found, using default series name map');
       }
       
-      // 2. 从各个系列的 products.json 文件中加载 seriesName 字段
+      // 2. 从各个系列的 products.json 文件中加载 seriesName 字段（仅当 config.json 中没有映射时）
       try {
         const seriesList = await githubAPI.fetchDirectory('产品图');
         const allSeries = seriesList.filter(item => item.type === 'dir');
         
         for (const series of allSeries) {
           try {
-            const data = await githubAPI.fetchFile(`${series.path}/products.json`);
-            if (data && data.seriesName && data.seriesName.zh) {
-              seriesNameMap[series.name] = data.seriesName.zh;
+            // 只有当 config.json 中没有该系列的映射时，才从 products.json 中加载
+            if (!seriesNameMap[series.name]) {
+              const data = await githubAPI.fetchFile(`${series.path}/products.json`);
+              if (data && data.seriesName && data.seriesName.zh) {
+                seriesNameMap[series.name] = data.seriesName.zh;
+              }
             }
           } catch (err) {
             console.warn(`Failed to load ${series.name}/products.json:`, err);
