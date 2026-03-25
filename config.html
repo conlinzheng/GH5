@@ -3,32 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>配置管理 - GH5</title>
+  <title data-i18n="admin.title">配置管理 - GH5</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
     .config-container {
-      max-width: 95vw;
+      max-width: 98vw;
       margin: 0 auto;
-      padding: 20px;
+      padding: 15px;
     }
     
     .config-header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 30px;
-      border-radius: 12px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
     }
     
     .config-header h1 {
-      margin: 0 0 10px 0;
-      font-size: 28px;
+      margin: 0;
+      color: white;
+      font-size: 20px;
     }
     
-    .config-header p {
+    .config-header .subtitle {
       margin: 0;
-      opacity: 0.9;
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+    }
+    
+    .language-selector select {
+      padding: 6px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+    }
+    
+    .language-selector select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
     }
     
     .config-nav {
@@ -462,7 +492,7 @@
       border-left: 4px solid #dc3545;
     }
     
-    .status-loading {
+    .status-info {
       background: #cce5ff;
       color: #004085;
       border-left: 4px solid #007bff;
@@ -532,17 +562,28 @@
 <body>
   <div class="config-container">
     <div class="config-header">
-      <h1>⚙️ 配置管理中心</h1>
-      <p>管理站点基本信息、联系表单、翻译词典和页面设置</p>
+      <div class="header-left">
+        <h1>⚙️ 配置管理中心</h1>
+        <span class="subtitle">管理站点基本信息、联系表单、翻译词典和页面设置</span>
+      </div>
+      <div class="header-right">
+        <div class="language-selector">
+          <select id="language-select" onchange="i18n.setLanguage(this.value)">
+            <option value="zh">中文</option>
+            <option value="en">English</option>
+            <option value="ko">한국어</option>
+          </select>
+        </div>
+      </div>
     </div>
     
     <div class="config-nav">
-
       <button data-section="social-media">📱 社交媒体</button>
       <button data-section="page-assets">🖼️ 页面资源</button>
       <button data-section="display-text">📝 显示文本</button>
       <button data-section="contact-form">📧 表单配置</button>
       <button data-section="translations">🌐 翻译词典</button>
+      <button data-section="product-translations">🛍️ 产品数据翻译</button>
       <button data-section="page-settings">⚡ 页面设置</button>
       <button data-section="preview">👁️ 预览效果</button>
     </div>
@@ -976,6 +1017,19 @@
       <input type="file" id="translation-import-input" accept=".json,.csv" style="display: none;" onchange="configManager.handleImportTranslation(event)">
     </div>
     
+    <div id="product-translations" class="config-section">
+      <h2>🛍️ 产品数据翻译</h2>
+      <p style="color: #666; margin-bottom: 20px;">管理产品数据的多语言翻译，包括产品名称、描述等</p>
+      
+      <div style="margin-bottom: 20px;">
+        <button class="btn-save" onclick="configManager.loadProductData()">📥 加载产品数据</button>
+        <button class="btn-save" onclick="configManager.saveProductTranslations()" style="margin-left: 10px;">💾 保存产品翻译</button>
+        <button class="btn-translate" onclick="configManager.translateAllProducts()" style="margin-left: 10px;">🔄 自动翻译所有产品</button>
+      </div>
+      
+      <div id="product-list" style="max-height: 600px; overflow-y: auto;"></div>
+    </div>
+    
     <div id="page-settings" class="config-section">
       <h2>⚡ 页面设置</h2>
       <p style="color: #666; margin-bottom: 20px;">配置页面的基本显示设置</p>
@@ -1046,6 +1100,7 @@
   <script src="js/error-handler.js"></script>
   <script src="js/cache-manager.js"></script>
   <script src="js/github-api.js"></script>
+  <script src="js/i18n.js"></script>
   <script>
     class ConfigManager {
       constructor() {
@@ -1058,6 +1113,16 @@
         this.setupNav();
         await this.loadConfig();
         this.initCategoryManagement();
+        this.initI18n();
+      }
+      
+      initI18n() {
+        // 初始化i18n模块
+        if (typeof i18n !== 'undefined') {
+          const savedLanguage = localStorage.getItem('language') || 'zh';
+          document.getElementById('language-select').value = savedLanguage;
+          i18n.setLanguage(savedLanguage);
+        }
       }
       
       setupNav() {
@@ -1144,20 +1209,30 @@
       
       fillFormData() {
         const siteInfo = this.config.siteInfo || {};
+        const translations = this.config.translations || {};
         
-        document.getElementById('companyName-zh').value = siteInfo.companyName?.zh || '';
-        document.getElementById('companyName-en').value = siteInfo.companyName?.en || '';
-        document.getElementById('companyName-ko').value = siteInfo.companyName?.ko || '';
+        // 从翻译词典中加载站点信息
+        const companyName = translations['companyName'] || siteInfo.companyName || {};
+        const companyDescription = translations['companyDescription'] || siteInfo.companyDescription || {};
+        const companyAddress = translations['companyAddress'] || siteInfo.companyAddress || {};
+        const companyPhone = translations['companyPhone'] || siteInfo.companyPhone || {};
+        const companyEmail = translations['companyEmail'] || siteInfo.companyEmail || {};
+        const companyWechat = translations['companyWechat'] || siteInfo.companyWechat || {};
+        const workingHours = translations['workingHours'] || siteInfo.workingHours || {};
         
-        document.getElementById('companyDescription-zh').value = siteInfo.companyDescription?.zh || '';
-        document.getElementById('companyDescription-en').value = siteInfo.companyDescription?.en || '';
-        document.getElementById('companyDescription-ko').value = siteInfo.companyDescription?.ko || '';
+        document.getElementById('companyName-zh').value = companyName.zh || '';
+        document.getElementById('companyName-en').value = companyName.en || '';
+        document.getElementById('companyName-ko').value = companyName.ko || '';
         
-        document.getElementById('companyAddress').value = siteInfo.companyAddress?.zh || '';
-        document.getElementById('companyPhone').value = siteInfo.companyPhone?.zh || '';
-        document.getElementById('companyEmail').value = siteInfo.companyEmail?.zh || '';
-        document.getElementById('companyWechat').value = siteInfo.companyWechat?.zh || '';
-        document.getElementById('workingHours').value = siteInfo.workingHours?.zh || '';
+        document.getElementById('companyDescription-zh').value = companyDescription.zh || '';
+        document.getElementById('companyDescription-en').value = companyDescription.en || '';
+        document.getElementById('companyDescription-ko').value = companyDescription.ko || '';
+        
+        document.getElementById('companyAddress').value = companyAddress.zh || '';
+        document.getElementById('companyPhone').value = companyPhone.zh || '';
+        document.getElementById('companyEmail').value = companyEmail.zh || '';
+        document.getElementById('companyWechat').value = companyWechat.zh || '';
+        document.getElementById('workingHours').value = workingHours.zh || '';
         
         this.fillSocialMediaForm();
         this.fillPageAssetsForm();
@@ -1850,6 +1925,267 @@
         } catch (error) {
           console.error('Scan error:', error);
           this.showStatus('扫描失败: ' + error.message, 'error');
+        } finally {
+          this.showLoading(false);
+        }
+      }
+      
+      // 产品数据翻译相关方法
+      async loadProductData() {
+        this.showLoading(true);
+        try {
+          const seriesList = await githubAPI.fetchDirectory('产品图');
+          const allSeries = seriesList
+            .filter(item => item.type === 'dir')
+            .map(item => ({
+              name: item.name,
+              path: `${item.path}/products.json`
+            }));
+          
+          const productList = [];
+          
+          for (const series of allSeries) {
+            try {
+              const data = await githubAPI.fetchFile(series.path);
+              
+              if (data.products) {
+                Object.entries(data.products).forEach(([fileName, productData]) => {
+                  productList.push({
+                    series: series.name,
+                    fileName: fileName,
+                    name: productData.name || {},
+                    description: productData.description || {},
+                    seriesName: data.seriesName || {}
+                  });
+                });
+              }
+            } catch (err) {
+              console.warn(`Failed to load ${series.name}:`, err);
+            }
+          }
+          
+          this.renderProductList(productList);
+          this.showStatus('产品数据加载成功，共 ' + productList.length + ' 个产品', 'success');
+        } catch (error) {
+          console.error('Load product data error:', error);
+          this.showStatus('加载产品数据失败: ' + error.message, 'error');
+        } finally {
+          this.showLoading(false);
+        }
+      }
+      
+      renderProductList(products) {
+        const container = document.getElementById('product-list');
+        container.innerHTML = '';
+        
+        if (products.length === 0) {
+          container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">暂无产品数据</p>';
+          return;
+        }
+        
+        products.forEach((product, index) => {
+          const item = document.createElement('div');
+          item.className = 'translation-item';
+          item.innerHTML = `
+            <div class="translation-header">
+              <h4 style="margin: 0 0 10px 0;">${product.fileName} (${product.series})</h4>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; margin-bottom: 5px; display: block;">系列名称</label>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>中文 <span class="lang-badge">ZH</span></label>
+                  <input type="text" class="series-zh" value="${product.seriesName.zh || ''}" placeholder="系列名称（中文）">
+                </div>
+                <div class="form-group">
+                  <label>英文 <span class="lang-badge">EN</span></label>
+                  <input type="text" class="series-en" value="${product.seriesName.en || ''}" placeholder="Series Name (English)">
+                </div>
+                <div class="form-group">
+                  <label>韩文 <span class="lang-badge">KO</span></label>
+                  <input type="text" class="series-ko" value="${product.seriesName.ko || ''}" placeholder="시리즈 이름 (한국어)">
+                </div>
+              </div>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; margin-bottom: 5px; display: block;">产品名称</label>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>中文 <span class="lang-badge">ZH</span></label>
+                  <input type="text" class="name-zh" value="${product.name.zh || ''}" placeholder="产品名称（中文）">
+                </div>
+                <div class="form-group">
+                  <label>英文 <span class="lang-badge">EN</span></label>
+                  <input type="text" class="name-en" value="${product.name.en || ''}" placeholder="Product Name (English)">
+                </div>
+                <div class="form-group">
+                  <label>韩文 <span class="lang-badge">KO</span></label>
+                  <input type="text" class="name-ko" value="${product.name.ko || ''}" placeholder="제품 이름 (한국어)">
+                </div>
+              </div>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; margin-bottom: 5px; display: block;">产品描述</label>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>中文 <span class="lang-badge">ZH</span></label>
+                  <textarea class="desc-zh" rows="2" placeholder="产品描述（中文）">${product.description.zh || ''}</textarea>
+                </div>
+                <div class="form-group">
+                  <label>英文 <span class="lang-badge">EN</span></label>
+                  <textarea class="desc-en" rows="2" placeholder="Product Description (English)">${product.description.en || ''}</textarea>
+                </div>
+                <div class="form-group">
+                  <label>韩文 <span class="lang-badge">KO</span></label>
+                  <textarea class="desc-ko" rows="2" placeholder="제품 설명 (한국어)">${product.description.ko || ''}</textarea>
+                </div>
+              </div>
+            </div>
+            <div class="translation-actions">
+              <button class="btn-translate" onclick="configManager.translateProduct(${index})">🔄 自动翻译</button>
+            </div>
+            <input type="hidden" class="product-series" value="${product.series}">
+            <input type="hidden" class="product-file" value="${product.fileName}">
+          `;
+          container.appendChild(item);
+        });
+      }
+      
+      async saveProductTranslations() {
+        this.showLoading(true);
+        try {
+          const productItems = document.querySelectorAll('#product-list .translation-item');
+          const productsBySeries = {};
+          
+          // 收集所有产品数据
+          productItems.forEach(item => {
+            const series = item.querySelector('.product-series').value;
+            const fileName = item.querySelector('.product-file').value;
+            
+            if (!productsBySeries[series]) {
+              productsBySeries[series] = {
+                seriesName: {
+                  zh: item.querySelector('.series-zh').value,
+                  en: item.querySelector('.series-en').value,
+                  ko: item.querySelector('.series-ko').value
+                },
+                products: {}
+              };
+            }
+            
+            productsBySeries[series].products[fileName] = {
+              name: {
+                zh: item.querySelector('.name-zh').value,
+                en: item.querySelector('.name-en').value,
+                ko: item.querySelector('.name-ko').value
+              },
+              description: {
+                zh: item.querySelector('.desc-zh').value,
+                en: item.querySelector('.desc-en').value,
+                ko: item.querySelector('.desc-ko').value
+              }
+            };
+          });
+          
+          // 保存每个系列的产品数据
+          for (const [series, data] of Object.entries(productsBySeries)) {
+            try {
+              await githubAPI.commitFile(
+                `产品图/${series}/products.json`,
+                JSON.stringify(data, null, 2),
+                `更新 ${series} 系列产品翻译`
+              );
+            } catch (err) {
+              console.warn(`Failed to save ${series}:`, err);
+            }
+          }
+          
+          this.showStatus('产品翻译保存成功', 'success');
+        } catch (error) {
+          console.error('Save product translations error:', error);
+          this.showStatus('保存产品翻译失败: ' + error.message, 'error');
+        } finally {
+          this.showLoading(false);
+        }
+      }
+      
+      async translateProduct(index) {
+        const productItems = document.querySelectorAll('#product-list .translation-item');
+        const item = productItems[index];
+        
+        const zhName = item.querySelector('.name-zh').value;
+        const zhDesc = item.querySelector('.desc-zh').value;
+        
+        if (!zhName && !zhDesc) {
+          this.showStatus('请先填写中文内容', 'error');
+          return;
+        }
+        
+        try {
+          // 翻译产品名称
+          if (zhName) {
+            const enName = await this.translateText(zhName, 'zh', 'en');
+            const koName = await this.translateText(zhName, 'zh', 'ko');
+            item.querySelector('.name-en').value = enName;
+            item.querySelector('.name-ko').value = koName;
+          }
+          
+          // 翻译产品描述
+          if (zhDesc) {
+            const enDesc = await this.translateText(zhDesc, 'zh', 'en');
+            const koDesc = await this.translateText(zhDesc, 'zh', 'ko');
+            item.querySelector('.desc-en').value = enDesc;
+            item.querySelector('.desc-ko').value = koDesc;
+          }
+          
+          this.showStatus('翻译完成', 'success');
+        } catch (error) {
+          console.error('翻译失败:', error);
+          this.showStatus('翻译失败，请稍后重试', 'error');
+        }
+      }
+      
+      async translateAllProducts() {
+        this.showLoading(true);
+        try {
+          const productItems = document.querySelectorAll('#product-list .translation-item');
+          let completed = 0;
+          
+          for (let i = 0; i < productItems.length; i++) {
+            const item = productItems[i];
+            const zhName = item.querySelector('.name-zh').value;
+            const zhDesc = item.querySelector('.desc-zh').value;
+            
+            if (zhName) {
+              try {
+                const enName = await this.translateText(zhName, 'zh', 'en');
+                const koName = await this.translateText(zhName, 'zh', 'ko');
+                item.querySelector('.name-en').value = enName;
+                item.querySelector('.name-ko').value = koName;
+              } catch (err) {
+                console.warn(`Translation failed for product ${i}:`, err);
+              }
+            }
+            
+            if (zhDesc) {
+              try {
+                const enDesc = await this.translateText(zhDesc, 'zh', 'en');
+                const koDesc = await this.translateText(zhDesc, 'zh', 'ko');
+                item.querySelector('.desc-en').value = enDesc;
+                item.querySelector('.desc-ko').value = koDesc;
+              } catch (err) {
+                console.warn(`Translation failed for product ${i}:`, err);
+              }
+            }
+            
+            completed++;
+            this.showStatus(`正在翻译... ${completed}/${productItems.length}`, 'info');
+          }
+          
+          this.showStatus('所有产品翻译完成', 'success');
+        } catch (error) {
+          console.error('翻译所有产品失败:', error);
+          this.showStatus('翻译所有产品失败: ' + error.message, 'error');
         } finally {
           this.showLoading(false);
         }
