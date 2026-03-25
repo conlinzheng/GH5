@@ -483,7 +483,7 @@ class Frontend {
     
     if (!modal) return;
     
-    const seriesDisplayName = this.state.seriesNameMap[product.seriesId] || product.seriesId;
+    const seriesDisplayName = this.getSeriesDisplayName(product.seriesId);
     const translatedName = this.getProductTranslation(product.name, 'name');
     const translatedDesc = product.description ? this.getProductTranslation(product.description, 'desc') : '';
     
@@ -1005,23 +1005,48 @@ class Frontend {
       localStorage.removeItem(configCacheKey);
       console.log('Config.json cache cleared in loadSeriesNameMap');
       
-      // 尝试从配置文件加载系列名称映射和排序信息
-      let configFile;
+      // 初始化系列名称映射
+      let seriesNameMap = {};
+      
+      // 1. 尝试从配置文件加载系列名称映射和排序信息
       try {
-        configFile = await githubAPI.fetchFile('config.json');
+        const configFile = await githubAPI.fetchFile('config.json');
         if (configFile && configFile.seriesNameMap) {
-          this.state.seriesNameMap = configFile.seriesNameMap;
+          seriesNameMap = { ...seriesNameMap, ...configFile.seriesNameMap };
         }
         if (configFile && configFile.seriesOrder) {
           this.state.seriesOrder = configFile.seriesOrder;
         }
-        return;
       } catch (error) {
         console.log('Config file not found, using default series name map');
       }
       
-      // 使用默认映射
-      this.state.seriesNameMap = this._getDefaultSeriesNameMap();
+      // 2. 从各个系列的 products.json 文件中加载 seriesName 字段
+      try {
+        const seriesList = await githubAPI.fetchDirectory('产品图');
+        const allSeries = seriesList.filter(item => item.type === 'dir');
+        
+        for (const series of allSeries) {
+          try {
+            const data = await githubAPI.fetchFile(`${series.path}/products.json`);
+            if (data && data.seriesName && data.seriesName.zh) {
+              seriesNameMap[series.name] = data.seriesName.zh;
+            }
+          } catch (err) {
+            console.warn(`Failed to load ${series.name}/products.json:`, err);
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to fetch series list:', error);
+      }
+      
+      // 3. 如果没有任何映射，使用默认映射
+      if (Object.keys(seriesNameMap).length === 0) {
+        seriesNameMap = this._getDefaultSeriesNameMap();
+      }
+      
+      this.state.seriesNameMap = seriesNameMap;
+      console.log('Series name map loaded:', seriesNameMap);
     } catch (error) {
       console.error('Load series name map error:', error);
       // 使用默认映射
@@ -1126,7 +1151,7 @@ class Frontend {
     const div = document.createElement('div');
     div.className = 'product-card';
     
-    const seriesDisplayName = this.state.seriesNameMap[product.seriesId] || product.seriesId;
+    const seriesDisplayName = this.getSeriesDisplayName(product.seriesId);
     
     const translatedName = this.getProductTranslation(product.name, 'name');
     const translatedDesc = product.description ? this.getProductTranslation(product.description, 'desc') : '';
@@ -1240,7 +1265,7 @@ class Frontend {
     
     // 添加系列按钮
     this.state.series.forEach(seriesItem => {
-      const displayName = this.state.seriesNameMap[seriesItem.name] || seriesItem.name;
+      const displayName = this.getSeriesDisplayName(seriesItem.name);
       const btn = document.createElement('button');
       btn.className = `series-filter ${this.state.selectedSeries === seriesItem.name ? 'active' : ''}`;
       btn.textContent = displayName;
@@ -1331,39 +1356,34 @@ class Frontend {
   }
   
   _getDefaultSeriesNameMap() {
-    const currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : 'zh';
-    
-    const seriesNameMaps = {
-      zh: {
-        '1-PU系列': 'PU超纤',
-        '2-真皮系列': '真皮系列',
-        '3-短靴系列': '短靴系列',
-        '4-乐福系列': '乐福系列',
-        '5-春季': '春季系列',
-        '6-夏季': '夏季系列',
-        '7-秋季': '秋季系列'
-      },
-      en: {
-        '1-PU系列': 'PU Collection',
-        '2-真皮系列': 'Leather Collection',
-        '3-短靴系列': 'Boots Collection',
-        '4-乐福系列': 'Loafers Collection',
-        '5-春季': 'Spring Collection',
-        '6-夏季': 'Summer Collection',
-        '7-秋季': 'Autumn Collection'
-      },
-      ko: {
-        '1-PU系列': 'PU 컬렉션',
-        '2-真皮系列': '가죽 컬렉션',
-        '3-短靴系列': '부츠 컬렉션',
-        '4-乐福系列': '로퍼 컬렉션',
-        '5-春季': '봄 컬렉션',
-        '6-夏季': '여름 컬렉션',
-        '7-秋季': '가을 컬렉션'
-      }
+    // 默认的系列名称映射，仅作为 fallback
+    return {
+      '1-PU系列': '超纤',
+      '2-真皮系列': '真皮系列',
+      '3-短靴系列': '短靴系列',
+      '4-乐福系列': '乐福系列',
+      '5-春季': '春季系列',
+      '6-夏季': '夏季系列',
+      '7-秋季': '秋季系列'
     };
+  }
+
+  // 获取系列的显示名称（支持多语言）
+  getSeriesDisplayName(seriesId) {
+    // 1. 首先从 seriesNameMap 中获取中文显示名称
+    const chineseName = this.state.seriesNameMap[seriesId] || this._getDefaultSeriesNameMap()[seriesId] || seriesId;
     
-    return seriesNameMaps[currentLang] || seriesNameMaps.zh;
+    // 2. 尝试使用翻译词典获取当前语言的译文
+    if (typeof i18n !== 'undefined') {
+      const translatedName = i18n.t(chineseName);
+      // 如果翻译存在且不是默认值，使用翻译
+      if (translatedName && translatedName !== chineseName) {
+        return translatedName;
+      }
+    }
+    
+    // 3. 如果没有翻译，返回中文名称
+    return chineseName;
   }
   
   extractProductName(fileName) {

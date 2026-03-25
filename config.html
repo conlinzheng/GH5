@@ -2135,21 +2135,29 @@
                 path: `${item.path}/products.json`
               }));
             
+            // 获取系列名称映射
+            const seriesNameMap = this.config.seriesNameMap || {};
+            
             for (const series of allSeries) {
               try {
                 const data = await githubAPI.fetchFile(series.path);
                 
-                // 扫描系列名称（包括后台自定义显示名称）
+                // 确定系列显示名称
+                let seriesDisplayName = seriesNameMap[series.name] || series.name;
+                
+                // 如果产品文件中有 seriesName 字段，使用它
                 if (data.seriesName?.zh) {
-                  // 使用系列名称作为键，确保与后台显示一致
-                  scannedTranslations[data.seriesName.zh] = {
-                    zh: data.seriesName.zh,
-                    en: data.seriesName.en || '',
-                    ko: data.seriesName.ko || '',
-                    category: '系列名称',
-                    label: `系列名称 - ${series.name}`
-                  };
+                  seriesDisplayName = data.seriesName.zh;
                 }
+                
+                // 扫描系列名称（使用显示名称作为键）
+                scannedTranslations[seriesDisplayName] = {
+                  zh: seriesDisplayName,
+                  en: data.seriesName?.en || '',
+                  ko: data.seriesName?.ko || '',
+                  category: '系列名称',
+                  label: `系列名称 - ${series.name}`
+                };
                 
                 if (data.products) {
                   Object.entries(data.products).forEach(([filename, product], idx) => {
