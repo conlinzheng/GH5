@@ -1060,6 +1060,20 @@ class Frontend {
     
     container.innerHTML = '';
     
+    // 如果没有产品，显示提示信息
+    if (this.state.products.length === 0) {
+      const emptyMessage = document.createElement('div');
+      emptyMessage.className = 'empty-message';
+      emptyMessage.innerHTML = `
+        <div class="empty-icon">📦</div>
+        <h3>暂无产品数据</h3>
+        <p>请检查网络连接或稍后重试</p>
+        <button class="btn btn-primary" onclick="frontend.refreshData()">刷新数据</button>
+      `;
+      container.appendChild(emptyMessage);
+      return;
+    }
+    
     // 按系列分组产品
     const productsBySeries = {};
     this.state.products.forEach(product => {
@@ -1350,8 +1364,41 @@ class Frontend {
   
   _loadLocalFallbackData() {
     // 加载本地备用数据
-    this.state.products = [];
-    this.state.series = [];
+    console.log('Loading fallback data');
+    
+    // 提供默认系列数据
+    this.state.series = [
+      { name: '1-PU系列', type: 'dir', path: '产品图/1-PU系列' },
+      { name: '2-真皮系列', type: 'dir', path: '产品图/2-真皮系列' }
+    ];
+    
+    // 提供默认产品数据
+    this.state.products = [
+      {
+        id: '产品1.jpg',
+        seriesId: '1-PU系列',
+        name: '产品1',
+        description: '这是一个示例产品',
+        price: '¥199',
+        upperMaterial: '超纤',
+        innerMaterial: '透气网布',
+        soleMaterial: '橡胶底',
+        customizable: '是',
+        minOrder: '100双',
+        tags: ['新品', '热销'],
+        specs: '超纤/透气网布/橡胶底',
+        images: [`https://${this.config.github.owner}.github.io/${this.config.github.repo}/产品图/1-PU系列/产品1.jpg`]
+      }
+    ];
+    
+    // 确保系列名称映射存在
+    if (Object.keys(this.state.seriesNameMap).length === 0) {
+      this.state.seriesNameMap = this._getDefaultSeriesNameMap();
+    }
+    
+    // 显示错误提示
+    this._showError('无法连接到服务器，显示备用数据');
+    
     this.renderProducts();
   }
   
