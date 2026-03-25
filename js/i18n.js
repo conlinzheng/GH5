@@ -82,10 +82,10 @@ class I18n {
             zh: {
               site: {
                 title: config.pageSettings.title?.zh || 'GH5',
-                description: config.siteInfo?.companyDescription?.zh || '产品展示网站'
+                description: '专业鞋类制造商'
               },
               header: {
-                logo: config.siteInfo?.companyName?.zh || 'GH5',
+                logo: 'GH5鞋业',
                 language: '语言'
               },
               carousel: {
@@ -122,10 +122,10 @@ class I18n {
             en: {
               site: {
                 title: config.pageSettings.title?.en || 'GH5',
-                description: config.siteInfo?.companyDescription?.en || 'Product Showcase'
+                description: 'Professional Shoe Manufacturer'
               },
               header: {
-                logo: config.siteInfo?.companyName?.en || 'GH5',
+                logo: 'GH5 Shoes',
                 language: 'Language'
               },
               carousel: {
@@ -162,10 +162,10 @@ class I18n {
             ko: {
               site: {
                 title: config.pageSettings.title?.ko || 'GH5',
-                description: config.siteInfo?.companyDescription?.ko || '제품 전시'
+                description: '전문 신발 제조업체'
               },
               header: {
-                logo: config.siteInfo?.companyName?.ko || 'GH5',
+                logo: 'GH5 신발',
                 language: '언어'
               },
               carousel: {

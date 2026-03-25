@@ -12,33 +12,6 @@
     "1-PU系列": "11",
     "2-真皮系列": "真皮"
   },
-  "siteInfo": {
-    "companyName": {
-      "zh": "GH5鞋业",
-      "en": "GH5 Shoes",
-      "ko": "GH5 신발"
-    },
-    "companyDescription": {
-      "zh": "专业鞋类制造商",
-      "en": "Professional Shoe Manufacturer",
-      "ko": "전문 신발 제조업체"
-    },
-    "companyAddress": {
-      "zh": ""
-    },
-    "companyPhone": {
-      "zh": ""
-    },
-    "companyEmail": {
-      "zh": ""
-    },
-    "companyWechat": {
-      "zh": ""
-    },
-    "workingHours": {
-      "zh": ""
-    }
-  },
   "contactForm": {
     "formspreeId": "mqeyjaqk",
     "enable": true
@@ -104,6 +77,16 @@
       "zh": "留言",
       "en": "Message",
       "ko": "메시지"
+    },
+    "GH5鞋业": {
+      "zh": "GH5鞋业",
+      "en": "GH5 Shoes",
+      "ko": "GH5 신발"
+    },
+    "专业鞋类制造商": {
+      "zh": "专业鞋类制造商",
+      "en": "Professional Shoe Manufacturer",
+      "ko": "전문 신발 제조업체"
     }
   },
   "pageSettings": {

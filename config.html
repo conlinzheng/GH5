@@ -555,69 +555,10 @@
     
     <div id="site-info" class="config-section active">
       <h2>🏢 站点基本信息</h2>
-      <p style="color: #666; margin-bottom: 20px;">这些信息将显示在联系我们弹窗的左侧</p>
-      
-      <h3>公司名称</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>中文 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="companyName-zh" placeholder="例如：GH5鞋业">
-        </div>
-        <div class="form-group">
-          <label>英文 <span class="lang-badge">EN</span></label>
-          <input type="text" id="companyName-en" placeholder="例如：GH5 Shoes">
-        </div>
-        <div class="form-group">
-          <label>韩文 <span class="lang-badge">KO</span></label>
-          <input type="text" id="companyName-ko" placeholder="例如：GH5 신발">
-        </div>
-      </div>
-      
-      <h3>公司描述</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>中文 <span class="lang-badge">ZH</span></label>
-          <textarea id="companyDescription-zh" placeholder="公司简介描述"></textarea>
-        </div>
-        <div class="form-group">
-          <label>英文 <span class="lang-badge">EN</span></label>
-          <textarea id="companyDescription-en" placeholder="Company description"></textarea>
-        </div>
-        <div class="form-group">
-          <label>韩文 <span class="lang-badge">KO</span></label>
-          <textarea id="companyDescription-ko" placeholder="회사 설명"></textarea>
-        </div>
-      </div>
-      
-      <h3>联系方式</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>地址 <span class="lang-badge">所有语言</span></label>
-          <input type="text" id="companyAddress" placeholder="公司地址">
-        </div>
-        <div class="form-group">
-          <label>电话 <span class="lang-badge">所有语言</span></label>
-          <input type="text" id="companyPhone" placeholder="联系电话">
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label>邮箱 <span class="lang-badge">所有语言</span></label>
-          <input type="email" id="companyEmail" placeholder="电子邮箱">
-        </div>
-        <div class="form-group">
-          <label>微信 <span class="lang-badge">所有语言</span></label>
-          <input type="text" id="companyWechat" placeholder="微信号">
-        </div>
-      </div>
-      
+      <p style="color: #666; margin-bottom: 20px;">站点信息现已移至翻译词典管理</p>
       <div class="form-group">
-        <label>工作时间 <span class="lang-badge">所有语言</span></label>
-        <input type="text" id="workingHours" placeholder="例如：周一至周五 9:00-18:00">
+        <p>请在翻译词典中管理所有站点信息的翻译</p>
       </div>
-      
-      <button class="btn-save" onclick="configManager.saveSiteInfo()">保存站点信息</button>
     </div>
     
     <div id="social-media" class="config-section">
@@ -959,7 +900,6 @@
         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
           <button class="quick-add-btn" onclick="configManager.scanAllTranslations()">🔍 扫描页面翻译</button>
           <button class="quick-add-btn" onclick="configManager.scanProductsTranslations()">📦 扫描产品翻译</button>
-          <button class="quick-add-btn" onclick="configManager.mergeSiteInfoToTranslations()">🏢 合并站点信息到翻译</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('联系我们')">联系我们</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('提交')">提交</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('提交中')">提交中</button>
@@ -1137,15 +1077,6 @@
       
       getDefaultConfig() {
         return {
-          siteInfo: {
-            companyName: { zh: '', en: '', ko: '' },
-            companyDescription: { zh: '', en: '', ko: '' },
-            companyAddress: { zh: '', en: '', ko: '' },
-            companyPhone: { zh: '', en: '', ko: '' },
-            companyEmail: { zh: '', en: '', ko: '' },
-            companyWechat: { zh: '', en: '', ko: '' },
-            workingHours: { zh: '', en: '', ko: '' }
-          },
           socialLinks: {
             facebook: '',
             instagram: '',
@@ -1183,21 +1114,6 @@
       }
       
       fillFormData() {
-        const siteInfo = this.config.siteInfo || {};
-        
-        document.getElementById('companyName-zh').value = siteInfo.companyName?.zh || '';
-        document.getElementById('companyName-en').value = siteInfo.companyName?.en || '';
-        document.getElementById('companyName-ko').value = siteInfo.companyName?.ko || '';
-        
-        document.getElementById('companyDescription-zh').value = siteInfo.companyDescription?.zh || '';
-        document.getElementById('companyDescription-en').value = siteInfo.companyDescription?.en || '';
-        document.getElementById('companyDescription-ko').value = siteInfo.companyDescription?.ko || '';
-        
-        document.getElementById('companyAddress').value = siteInfo.companyAddress?.zh || '';
-        document.getElementById('companyPhone').value = siteInfo.companyPhone?.zh || '';
-        document.getElementById('companyEmail').value = siteInfo.companyEmail?.zh || '';
-        document.getElementById('companyWechat').value = siteInfo.companyWechat?.zh || '';
-        document.getElementById('workingHours').value = siteInfo.workingHours?.zh || '';
         
         this.fillSocialMediaForm();
         this.fillPageAssetsForm();
@@ -1941,47 +1857,22 @@
       }
       
       updatePreview() {
-        const siteInfo = this.config.siteInfo || {};
         const contactForm = this.config.contactForm || {};
         const pageSettings = this.config.pageSettings || {};
         const currentLang = pageSettings.defaultLanguage || 'zh';
         
-        document.getElementById('preview-companyName').textContent = siteInfo.companyName?.[currentLang] || '-';
-        document.getElementById('preview-companyDescription').textContent = siteInfo.companyDescription?.[currentLang] || '-';
-        document.getElementById('preview-address').textContent = siteInfo.companyAddress?.zh || '-';
-        document.getElementById('preview-phone').textContent = siteInfo.companyPhone?.zh || '-';
-        document.getElementById('preview-email').textContent = siteInfo.companyEmail?.zh || '-';
-        document.getElementById('preview-wechat').textContent = siteInfo.companyWechat?.zh || '-';
-        document.getElementById('preview-workingHours').textContent = siteInfo.workingHours?.zh || '-';
+        document.getElementById('preview-companyName').textContent = this.config.translations['GH5鞋业']?.[currentLang] || '-';
+        document.getElementById('preview-companyDescription').textContent = this.config.translations['专业鞋类制造商']?.[currentLang] || '-';
+        document.getElementById('preview-address').textContent = '-';
+        document.getElementById('preview-phone').textContent = '-';
+        document.getElementById('preview-email').textContent = '-';
+        document.getElementById('preview-wechat').textContent = '-';
+        document.getElementById('preview-workingHours').textContent = '-';
         
         document.getElementById('preview-formspreeId').textContent = contactForm.formspreeId || '未配置';
         document.getElementById('preview-formStatus').textContent = contactForm.enable !== false ? '已启用' : '已禁用';
         document.getElementById('preview-defaultLanguage').textContent = 
           currentLang === 'zh' ? '中文' : currentLang === 'en' ? 'English' : '한국어';
-      }
-      
-      async saveSiteInfo() {
-        const siteInfo = {
-          companyName: {
-            zh: document.getElementById('companyName-zh').value,
-            en: document.getElementById('companyName-en').value,
-            ko: document.getElementById('companyName-ko').value
-          },
-          companyDescription: {
-            zh: document.getElementById('companyDescription-zh').value,
-            en: document.getElementById('companyDescription-en').value,
-            ko: document.getElementById('companyDescription-ko').value
-          },
-          companyAddress: { zh: document.getElementById('companyAddress').value },
-          companyPhone: { zh: document.getElementById('companyPhone').value },
-          companyEmail: { zh: document.getElementById('companyEmail').value },
-          companyWechat: { zh: document.getElementById('companyWechat').value },
-          workingHours: { zh: document.getElementById('workingHours').value }
-        };
-        
-        this.config.siteInfo = siteInfo;
-        await this.saveConfig();
-        this.updatePreview();
       }
       
       async saveSocialMedia() {
