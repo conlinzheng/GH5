@@ -958,6 +958,8 @@
         <p style="margin: 0 0 10px 0; font-weight: 600; color: #444;">快速操作：</p>
         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
           <button class="quick-add-btn" onclick="configManager.scanAllTranslations()">🔍 扫描页面翻译</button>
+          <button class="quick-add-btn" onclick="configManager.scanProductsTranslations()">📦 扫描产品翻译</button>
+          <button class="quick-add-btn" onclick="configManager.mergeSiteInfoToTranslations()">🏢 合并站点信息到翻译</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('联系我们')">联系我们</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('提交')">提交</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('提交中')">提交中</button>
@@ -1324,7 +1326,7 @@
         
         document.getElementById('text-contact-us-zh').value = pageSettings.contactUsText?.zh || '联系我们';
         document.getElementById('text-contact-us-en').value = pageSettings.contactUsText?.en || 'Contact Us';
-        document.getElementById('text-contact-us-ko').value = pageSettings.contactUsText?.ko || '联系我们';
+        document.getElementById('text-contact-us-ko').value = pageSettings.contactUsText?.ko || '문의하기';
         
         document.getElementById('text-carousel-welcome-zh').value = pageSettings.carouselWelcome?.zh || '欢迎来到 GH5';
         document.getElementById('text-carousel-welcome-en').value = pageSettings.carouselWelcome?.en || 'Welcome to GH5';
@@ -1703,8 +1705,8 @@
                     const key = `product_${series.name}_${idx}`;
                     scannedTranslations[key] = {
                       zh: productName,
-                      en: product.name?.en || '',
-                      ko: product.name?.ko || '',
+                      en: '',
+                      ko: '',
                       category: `产品分类 - ${series.name}`,
                       label: `产品名称`
                     };
@@ -1714,8 +1716,8 @@
                     const key = `product_desc_${series.name}_${idx}`;
                     scannedTranslations[key] = {
                       zh: productDesc,
-                      en: product.description?.en || '',
-                      ko: product.description?.ko || '',
+                      en: '',
+                      ko: '',
                       category: `产品分类 - ${series.name}`,
                       label: `产品描述`
                     };
@@ -2126,6 +2128,99 @@
         
         this.config.translations = translations;
         await this.saveConfig();
+      }
+      
+      // 扫描产品信息中的中文文本，添加到翻译词典
+      async scanProductsTranslations() {
+        this.showLoading(true);
+        try {
+          const series = await githubAPI.fetchDirectory('产品图');
+          const productSeries = series.filter(item => item.type === 'dir');
+          
+          const foundTexts = new Set();
+          
+          for (const seriesItem of productSeries) {
+            try {
+              const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+              if (productsFile && productsFile.products) {
+                for (const [_, product] of Object.entries(productsFile.products)) {
+                  if (product.name && product.name.zh) {
+                    foundTexts.add(product.name.zh);
+                  }
+                  if (product.description && product.description.zh) {
+                    foundTexts.add(product.description.zh);
+                  }
+                }
+              }
+            } catch (error) {
+              console.warn(`Failed to load products for ${seriesItem.name}:`, error);
+            }
+          }
+          
+          const newTexts = Array.from(foundTexts).filter(text => !this.config.translations[text]);
+          
+          if (newTexts.length > 0) {
+            const container = document.getElementById('scanned-translations-list');
+            container.innerHTML = '';
+            newTexts.forEach(text => {
+              const div = document.createElement('div');
+              div.style.marginBottom = '5px';
+              div.textContent = text;
+              container.appendChild(div);
+            });
+            
+            document.getElementById('translation-scan-results').style.display = 'block';
+            this.scannedTranslations = newTexts;
+            this.showStatus(`扫描到 ${newTexts.length} 个产品文本需要翻译`, 'info');
+          } else {
+            this.showStatus('所有产品文本已在翻译词典中', 'success');
+          }
+        } catch (error) {
+          console.error('Scan products translations error:', error);
+          this.showStatus('扫描产品翻译失败: ' + error.message, 'error');
+        } finally {
+          this.showLoading(false);
+        }
+      }
+      
+      // 合并站点信息到翻译词典
+      mergeSiteInfoToTranslations() {
+        try {
+          const siteInfo = this.config.siteInfo || {};
+          let mergedCount = 0;
+          
+          // 合并公司名称
+          if (siteInfo.companyName && siteInfo.companyName.zh) {
+            const key = siteInfo.companyName.zh;
+            if (!this.config.translations[key]) {
+              this.config.translations[key] = {
+                zh: siteInfo.companyName.zh,
+                en: siteInfo.companyName.en || '',
+                ko: siteInfo.companyName.ko || ''
+              };
+              mergedCount++;
+            }
+          }
+          
+          // 合并公司描述
+          if (siteInfo.companyDescription && siteInfo.companyDescription.zh) {
+            const key = siteInfo.companyDescription.zh;
+            if (!this.config.translations[key]) {
+              this.config.translations[key] = {
+                zh: siteInfo.companyDescription.zh,
+                en: siteInfo.companyDescription.en || '',
+                ko: siteInfo.companyDescription.ko || ''
+              };
+              mergedCount++;
+            }
+          }
+          
+          this.saveTranslations();
+          this.showStatus(`成功合并 ${mergedCount} 条站点信息到翻译词典`, 'success');
+        } catch (error) {
+          console.error('Merge site info error:', error);
+          this.showStatus('合并站点信息失败: ' + error.message, 'error');
+        }
       }
       
       async savePageSettings() {

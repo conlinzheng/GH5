@@ -3,128 +3,8 @@ class I18n {
     this.currentLang = config.get('i18n.defaultLang', 'zh');
     this.defaultLang = config.get('i18n.defaultLang', 'zh');
     this.supportedLangs = config.get('i18n.supportedLangs', ['zh', 'en', 'ko']);
-    this.translations = {
-      zh: {
-        site: {
-          title: 'GH5',
-          description: '产品展示网站'
-        },
-        header: {
-          logo: 'GH5',
-          language: '语言'
-        },
-        carousel: {
-          welcome: '欢迎来到 GH5',
-          description: '探索我们的优质产品'
-        },
-        search: {
-          placeholder: '搜索产品...',
-          button: '搜索'
-        },
-        products: {
-          loading: '加载中...',
-          noResults: '没有找到产品',
-          viewDetails: '查看详情'
-        },
-        contact: {
-          title: '联系我们',
-          name: '姓名',
-          email: '邮箱',
-          message: '留言',
-          submit: '提交',
-          success: '提交成功！',
-          error: '提交失败，请重试'
-        },
-        footer: {
-          copyright: '© 2026 GH5. All rights reserved.'
-        },
-        modal: {
-          close: '关闭',
-          previous: '上一张',
-          next: '下一张'
-        }
-      },
-      en: {
-        site: {
-          title: 'GH5',
-          description: 'Product Showcase'
-        },
-        header: {
-          logo: 'GH5',
-          language: 'Language'
-        },
-        carousel: {
-          welcome: 'Welcome to GH5',
-          description: 'Explore our quality products'
-        },
-        search: {
-          placeholder: 'Search products...',
-          button: 'Search'
-        },
-        products: {
-          loading: 'Loading...',
-          noResults: 'No products found',
-          viewDetails: 'View Details'
-        },
-        contact: {
-          title: 'Contact Us',
-          name: 'Name',
-          email: 'Email',
-          message: 'Message',
-          submit: 'Submit',
-          success: 'Submitted successfully!',
-          error: 'Submission failed, please try again'
-        },
-        footer: {
-          copyright: '© 2026 GH5. All rights reserved.'
-        },
-        modal: {
-          close: 'Close',
-          previous: 'Previous',
-          next: 'Next'
-        }
-      },
-      ko: {
-        site: {
-          title: 'GH5',
-          description: '제품 전시'
-        },
-        header: {
-          logo: 'GH5',
-          language: '언어'
-        },
-        carousel: {
-          welcome: 'GH5에 오신 것을 환영합니다',
-          description: '우리의 고품질 제품을 탐험하세요'
-        },
-        search: {
-          placeholder: '제품 검색...',
-          button: '검색'
-        },
-        products: {
-          loading: '로딩 중...',
-          noResults: '제품을 찾을 수 없습니다',
-          viewDetails: '세부 정보 보기'
-        },
-        contact: {
-          title: '문의하기',
-          name: '이름',
-          email: '이메일',
-          message: '메시지',
-          submit: '제출',
-          success: '성공적으로 제출되었습니다!',
-          error: '제출 실패, 다시 시도하세요'
-        },
-        footer: {
-          copyright: '© 2026 GH5. All rights reserved.'
-        },
-        modal: {
-          close: '닫기',
-          previous: '이전',
-          next: '다음'
-        }
-      }
-    };
+    this.translations = {}; // 从 config.json 加载
+    this.translationDictionary = {}; // 翻译词典
     this._isReady = false;
   }
 
@@ -139,6 +19,9 @@ class I18n {
           this.currentLang = browserLang;
         }
       }
+
+      // 从 config.json 加载翻译数据
+      this.loadTranslationsFromConfig();
 
       this._isReady = true;
       this.updateLanguage();
@@ -181,6 +64,148 @@ class I18n {
       this._isReady = true;
     }
   }
+  
+  // 从 config.json 加载翻译数据
+  loadTranslationsFromConfig() {
+    try {
+      if (typeof frontend !== 'undefined' && frontend.state && frontend.state.siteConfig) {
+        const config = frontend.state.siteConfig;
+        
+        // 加载翻译词典
+        if (config.translations) {
+          this.translationDictionary = config.translations;
+        }
+        
+        // 加载页面设置中的翻译
+        if (config.pageSettings) {
+          this.translations = {
+            zh: {
+              site: {
+                title: config.pageSettings.title?.zh || 'GH5',
+                description: config.siteInfo?.companyDescription?.zh || '产品展示网站'
+              },
+              header: {
+                logo: config.siteInfo?.companyName?.zh || 'GH5',
+                language: '语言'
+              },
+              carousel: {
+                welcome: config.pageSettings.carouselWelcome?.zh || '欢迎来到 GH5',
+                description: config.pageSettings.carouselDescription?.zh || '探索我们的优质产品'
+              },
+              search: {
+                placeholder: config.pageSettings.searchPlaceholder?.zh || '搜索产品...',
+                button: '搜索'
+              },
+              products: {
+                loading: config.pageSettings.loadingText?.zh || '加载中...',
+                noResults: config.pageSettings.noProductsText?.zh || '没有找到产品',
+                viewDetails: config.pageSettings.viewDetailsText?.zh || '查看详情'
+              },
+              contact: {
+                title: config.pageSettings.contactUsText?.zh || '联系我们',
+                name: '姓名',
+                email: '邮箱',
+                message: '留言',
+                submit: '提交',
+                success: '提交成功！',
+                error: '提交失败，请重试'
+              },
+              footer: {
+                copyright: config.pageSettings.footerText?.zh || '© 2026 GH5. All rights reserved.'
+              },
+              modal: {
+                close: '关闭',
+                previous: '上一张',
+                next: '下一张'
+              }
+            },
+            en: {
+              site: {
+                title: config.pageSettings.title?.en || 'GH5',
+                description: config.siteInfo?.companyDescription?.en || 'Product Showcase'
+              },
+              header: {
+                logo: config.siteInfo?.companyName?.en || 'GH5',
+                language: 'Language'
+              },
+              carousel: {
+                welcome: config.pageSettings.carouselWelcome?.en || 'Welcome to GH5',
+                description: config.pageSettings.carouselDescription?.en || 'Explore our quality products'
+              },
+              search: {
+                placeholder: config.pageSettings.searchPlaceholder?.en || 'Search products...',
+                button: 'Search'
+              },
+              products: {
+                loading: config.pageSettings.loadingText?.en || 'Loading...',
+                noResults: config.pageSettings.noProductsText?.en || 'No products found',
+                viewDetails: config.pageSettings.viewDetailsText?.en || 'View Details'
+              },
+              contact: {
+                title: config.pageSettings.contactUsText?.en || 'Contact Us',
+                name: 'Name',
+                email: 'Email',
+                message: 'Message',
+                submit: 'Submit',
+                success: 'Submitted successfully!',
+                error: 'Submission failed, please try again'
+              },
+              footer: {
+                copyright: config.pageSettings.footerText?.en || '© 2026 GH5. All rights reserved.'
+              },
+              modal: {
+                close: 'Close',
+                previous: 'Previous',
+                next: 'Next'
+              }
+            },
+            ko: {
+              site: {
+                title: config.pageSettings.title?.ko || 'GH5',
+                description: config.siteInfo?.companyDescription?.ko || '제품 전시'
+              },
+              header: {
+                logo: config.siteInfo?.companyName?.ko || 'GH5',
+                language: '언어'
+              },
+              carousel: {
+                welcome: config.pageSettings.carouselWelcome?.ko || 'GH5에 오신 것을 환영합니다',
+                description: config.pageSettings.carouselDescription?.ko || '저희 품질 제품을 탐색하세요'
+              },
+              search: {
+                placeholder: config.pageSettings.searchPlaceholder?.ko || '제품 검색...',
+                button: '검색'
+              },
+              products: {
+                loading: config.pageSettings.loadingText?.ko || '로딩 중...',
+                noResults: config.pageSettings.noProductsText?.ko || '제품을 찾을 수 없습니다',
+                viewDetails: config.pageSettings.viewDetailsText?.ko || '세부 정보 보기'
+              },
+              contact: {
+                title: config.pageSettings.contactUsText?.ko || '문의하기',
+                name: '이름',
+                email: '이메일',
+                message: '메시지',
+                submit: '제출',
+                success: '성공적으로 제출되었습니다!',
+                error: '제출 실패, 다시 시도하세요'
+              },
+              footer: {
+                copyright: config.pageSettings.footerText?.ko || '© 2026 GH5. All rights reserved.'
+              },
+              modal: {
+                close: '닫기',
+                previous: '이전',
+                next: '다음'
+              }
+            }
+          };
+        }
+      }
+    } catch (error) {
+      console.error('Load translations from config error:', error);
+    }
+  }
 
   switchLanguage(lang) {
     if (!this.supportedLangs.includes(lang)) {
@@ -191,6 +216,8 @@ class I18n {
     try {
       this.currentLang = lang;
       localStorage.setItem('gh5_language', lang);
+      // 重新加载翻译数据
+      this.loadTranslationsFromConfig();
       this.updateLanguage();
       this._dispatchLanguageChanged();
       
@@ -236,6 +263,14 @@ class I18n {
 
     if (obj[field] && typeof obj[field] === 'object' && obj[field][this.currentLang]) {
       return obj[field][this.currentLang];
+    }
+
+    // 从翻译词典中查找译文
+    if (obj[field] && typeof obj[field] === 'object' && obj[field].zh) {
+      const zhText = obj[field].zh;
+      if (this.translationDictionary[zhText] && this.translationDictionary[zhText][this.currentLang]) {
+        return this.translationDictionary[zhText][this.currentLang];
+      }
     }
 
     if (obj[field]) {
