@@ -41,6 +41,9 @@ class Frontend {
       i18n.init();
     }
     
+    // 更新搜索框placeholder
+    this.updateSearchPlaceholder();
+    
     // 监听语言变化事件
     document.addEventListener('languageChanged', (event) => {
       const newLang = event.detail.language;
@@ -50,6 +53,8 @@ class Frontend {
       this.updateContactModal();
       this.updateFooter();
       this.updateFormLabels();
+      // 更新搜索框placeholder
+      this.updateSearchPlaceholder();
       console.log('Language changed to:', newLang);
     });
   }
@@ -1216,6 +1221,15 @@ class Frontend {
     this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     // 重新渲染产品以更新系列名称和产品翻译
     this.renderProducts();
+    // 更新搜索框placeholder
+    this.updateSearchPlaceholder();
+  }
+  
+  updateSearchPlaceholder() {
+    const searchInput = document.getElementById('search-input');
+    if (searchInput && typeof i18n !== 'undefined') {
+      searchInput.placeholder = i18n.t('search.placeholder');
+    }
   }
   
   getProductTranslation(zhText, fieldType = 'name') {

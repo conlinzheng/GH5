@@ -989,15 +989,22 @@
       </div>
       
       <div class="translation-categories">
-        <h3>📁 按位置分类</h3>
+        <h3>📁 按首页位置分类</h3>
         <div class="category-tabs">
           <button class="category-tab active" data-category="all">全部</button>
-          <button class="category-tab" data-category="home">首页</button>
-          <button class="category-tab" data-category="series">系列页面</button>
-          <button class="category-tab" data-category="product">产品页面</button>
-          <button class="category-tab" data-category="contact">联系我们</button>
-          <button class="category-tab" data-category="admin">管理后台</button>
-          <button class="category-tab" data-category="common">通用文本</button>
+          <button class="category-tab" data-category="网站标题">网站标题</button>
+          <button class="category-tab" data-category="页面标题">页面标题</button>
+          <button class="category-tab" data-category="轮播图">轮播图</button>
+          <button class="category-tab" data-category="搜索框">搜索框</button>
+          <button class="category-tab" data-category="产品列表">产品列表</button>
+          <button class="category-tab" data-category="产品详情框">产品详情框</button>
+          <button class="category-tab" data-category="联系我们弹窗">联系我们弹窗</button>
+          <button class="category-tab" data-category="页脚">页脚</button>
+          <button class="category-tab" data-category="站点信息">站点信息</button>
+          <button class="category-tab" data-category="系列名称">系列名称</button>
+          <button class="category-tab" data-category="产品名称">产品名称</button>
+          <button class="category-tab" data-category="产品描述">产品描述</button>
+          <button class="category-tab" data-category="产品标签">产品标签</button>
         </div>
       </div>
       
@@ -1345,11 +1352,11 @@
           zh: values.zh || '',
           en: values.en || '',
           ko: values.ko || '',
-          category: values.category || 'common'
+          category: values.category || '网站标题'
         }));
         
         if (this.translations.length === 0) {
-          this.translations = [{ key: '', zh: '', en: '', ko: '', category: 'common' }];
+          this.translations = [{ key: '', zh: '', en: '', ko: '', category: '网站标题' }];
         }
         
         // 更新统计信息
@@ -1365,12 +1372,20 @@
                      value="${trans.key}" 
                      placeholder="翻译键名">
               <select class="category-select" data-index="${index}">
-                <option value="home" ${trans.category === 'home' ? 'selected' : ''}>首页</option>
-                <option value="series" ${trans.category === 'series' ? 'selected' : ''}>系列页面</option>
-                <option value="product" ${trans.category === 'product' ? 'selected' : ''}>产品页面</option>
-                <option value="contact" ${trans.category === 'contact' ? 'selected' : ''}>联系我们</option>
-                <option value="admin" ${trans.category === 'admin' ? 'selected' : ''}>管理后台</option>
-                <option value="common" ${trans.category === 'common' ? 'selected' : ''}>通用文本</option>
+                <option value="网站标题" ${trans.category === '网站标题' ? 'selected' : ''}>网站标题</option>
+                <option value="页面标题" ${trans.category === '页面标题' ? 'selected' : ''}>页面标题</option>
+                <option value="轮播图" ${trans.category === '轮播图' ? 'selected' : ''}>轮播图</option>
+                <option value="搜索框" ${trans.category === '搜索框' ? 'selected' : ''}>搜索框</option>
+                <option value="产品列表" ${trans.category === '产品列表' ? 'selected' : ''}>产品列表</option>
+                <option value="产品详情框" ${trans.category === '产品详情框' ? 'selected' : ''}>产品详情框</option>
+                <option value="联系我们弹窗" ${trans.category === '联系我们弹窗' ? 'selected' : ''}>联系我们弹窗</option>
+                <option value="页脚" ${trans.category === '页脚' ? 'selected' : ''}>页脚</option>
+                <option value="站点信息" ${trans.category === '站点信息' ? 'selected' : ''}>站点信息</option>
+                <option value="系列名称" ${trans.category === '系列名称' ? 'selected' : ''}>系列名称</option>
+                <option value="产品名称" ${trans.category === '产品名称' ? 'selected' : ''}>产品名称</option>
+                <option value="产品描述" ${trans.category === '产品描述' ? 'selected' : ''}>产品描述</option>
+                <option value="产品标签" ${trans.category === '产品标签' ? 'selected' : ''}>产品标签</option>
+                <option value="自定义翻译" ${trans.category === '自定义翻译' ? 'selected' : ''}>自定义翻译</option>
               </select>
               <button class="btn-delete-translation" onclick="configManager.removeTranslation(${index})")">删除</button>
             </div>
@@ -1394,6 +1409,9 @@
           `;
           container.appendChild(item);
         });
+        
+        // 更新分类选择器选项
+        this.updateCategorySelectors();
       }
       
       updateTranslationStats() {
@@ -1494,6 +1512,24 @@
         });
       }
       
+      // 更新分类选择器选项
+      updateCategorySelectors() {
+        const categorySelects = document.querySelectorAll('.category-select');
+        categorySelects.forEach(select => {
+          // 清空现有选项
+          select.innerHTML = '';
+          
+          // 添加新的选项
+          const categories = ['网站标题', '页面标题', '轮播图', '搜索框', '产品列表', '产品详情框', '联系我们弹窗', '页脚', '站点信息', '系列名称', '产品名称', '产品描述', '产品标签', '自定义翻译'];
+          categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            select.appendChild(option);
+          });
+        });
+      }
+      
       // 添加新翻译时设置默认分类
       addTranslation() {
         this.translations.push({ 
@@ -1525,12 +1561,53 @@
               ko: ko,
               category: category
             };
+            
+            // 同时更新站点信息和页面设置
+            if (key.startsWith('company')) {
+              if (!this.config.siteInfo) {
+                this.config.siteInfo = {};
+              }
+              this.config.siteInfo[key] = {
+                zh: zh,
+                en: en,
+                ko: ko
+              };
+            } else if (key === 'siteTitle') {
+              // 网站标题
+              if (!this.config.pageSettings) {
+                this.config.pageSettings = {};
+              }
+              this.config.pageSettings.siteTitle = {
+                zh: zh,
+                en: en,
+                ko: ko
+              };
+            } else if (key === 'pageTitle') {
+              // 页面标题
+              if (!this.config.pageSettings) {
+                this.config.pageSettings = {};
+              }
+              this.config.pageSettings.title = {
+                zh: zh,
+                en: en,
+                ko: ko
+              };
+            } else if (['footerText', 'loadingText', 'searchPlaceholder', 'noProductsText', 'productDetailsTitle', 'viewDetailsText', 'contactUsText', 'carouselWelcome', 'carouselDescription'].includes(key)) {
+              if (!this.config.pageSettings) {
+                this.config.pageSettings = {};
+              }
+              this.config.pageSettings[key] = {
+                zh: zh,
+                en: en,
+                ko: ko
+              };
+            }
           }
         });
         
         this.config.translations = translations;
         this.saveConfig();
-        this.showStatus('翻译词典已保存', 'success');
+        this.showStatus('翻译词典已保存，站点信息和页面设置已同步更新', 'success');
         this.renderTranslations();
       }
       
@@ -1614,25 +1691,70 @@
         try {
           const scannedTranslations = {};
           
-          const pageSettingsFields = [
-            { key: 'footerText', category: '显示文本', label: '版权文本' },
-            { key: 'loadingText', category: '显示文本', label: '加载中文本' },
-            { key: 'searchPlaceholder', category: '显示文本', label: '搜索占位符' },
-            { key: 'noProductsText', category: '显示文本', label: '无产品显示' },
-            { key: 'productDetailsTitle', category: '显示文本', label: '产品详情标题' },
-            { key: 'viewDetailsText', category: '显示文本', label: '查看详情按钮' },
-            { key: 'contactUsText', category: '显示文本', label: '联系我们按钮' },
-            { key: 'carouselWelcome', category: '显示文本', label: '轮播图欢迎标题' },
-            { key: 'carouselDescription', category: '显示文本', label: '轮播图描述' }
-          ];
-          
-          const siteInfoFields = [
+          // 按照首页位置分类的字段
+          const homePageFields = [
+            // 网站标题和页面标题
+            { key: 'siteTitle', category: '网站标题', label: '网站标题' },
+            { key: 'pageTitle', category: '页面标题', label: '页面标题' },
+            
+            // 轮播图文本
+            { key: 'carouselWelcome', category: '轮播图', label: '轮播图欢迎标题' },
+            { key: 'carouselDescription', category: '轮播图', label: '轮播图描述' },
+            
+            // 搜索框
+            { key: 'searchPlaceholder', category: '搜索框', label: '搜索占位符' },
+            
+            // 产品相关
+            { key: 'loadingText', category: '产品列表', label: '加载中文本' },
+            { key: 'noProductsText', category: '产品列表', label: '无产品显示' },
+            { key: 'viewDetailsText', category: '产品列表', label: '查看详情按钮' },
+            
+            // 产品详情框
+            { key: 'productDetailsTitle', category: '产品详情框', label: '产品详情标题' },
+            { key: 'specUpper', category: '产品详情框', label: '鞋面材质标签' },
+            { key: 'specInner', category: '产品详情框', label: '内里材质标签' },
+            { key: 'specSole', category: '产品详情框', label: '鞋底材质标签' },
+            { key: 'specCustomizable', category: '产品详情框', label: '是否支持定制标签' },
+            { key: 'specMinOrder', category: '产品详情框', label: '起订量标签' },
+            { key: 'specPrice', category: '产品详情框', label: '价格标签' },
+            
+            // 联系我们弹窗
+            { key: 'contactFormTitle', category: '联系我们弹窗', label: '联系表单标题' },
+            { key: 'labelName', category: '联系我们弹窗', label: '姓名标签' },
+            { key: 'labelEmail', category: '联系我们弹窗', label: '邮箱标签' },
+            { key: 'labelMessage', category: '联系我们弹窗', label: '留言标签' },
+            { key: 'submitButton', category: '联系我们弹窗', label: '提交按钮' },
+            { key: 'submittingText', category: '联系我们弹窗', label: '提交中文本' },
+            { key: 'submitSuccess', category: '联系我们弹窗', label: '提交成功提示' },
+            { key: 'submitError', category: '联系我们弹窗', label: '提交失败提示' },
+            
+            // 页脚
+            { key: 'footerText', category: '页脚', label: '版权文本' },
+            { key: 'contactUsText', category: '页脚', label: '联系我们按钮' },
+            
+            // 站点信息（合并到翻译词典）
             { key: 'companyName', category: '站点信息', label: '公司名称' },
-            { key: 'companyDescription', category: '站点信息', label: '公司简介' }
+            { key: 'companyDescription', category: '站点信息', label: '公司简介' },
+            { key: 'companyAddress', category: '站点信息', label: '公司地址' },
+            { key: 'companyPhone', category: '站点信息', label: '公司电话' },
+            { key: 'companyEmail', category: '站点信息', label: '公司邮箱' },
+            { key: 'companyWechat', category: '站点信息', label: '公司微信' },
+            { key: 'workingHours', category: '站点信息', label: '工作时间' }
           ];
           
-          pageSettingsFields.forEach(field => {
-            const value = this.config.pageSettings?.[field.key];
+          // 扫描首页文本
+          homePageFields.forEach(field => {
+            let value;
+            
+            // 从不同位置获取值
+            if (field.key.startsWith('company')) {
+              value = this.config.siteInfo?.[field.key];
+            } else if (field.key === 'siteTitle' || field.key === 'pageTitle') {
+              value = this.config.pageSettings?.title;
+            } else {
+              value = this.config.pageSettings?.[field.key];
+            }
+            
             if (value?.zh) {
               scannedTranslations[field.key] = {
                 zh: value.zh,
@@ -1644,15 +1766,35 @@
             }
           });
           
-          siteInfoFields.forEach(field => {
-            const value = this.config.siteInfo?.[field.key];
-            if (value?.zh) {
-              scannedTranslations[field.key] = {
+          // 添加默认值
+          const defaultValues = {
+            'siteTitle': { zh: 'GH5', en: 'GH5', ko: 'GH5' },
+            'pageTitle': { zh: 'GH5 - 产品展示', en: 'GH5 - Product Showcase', ko: 'GH5 - 제품 전시' },
+            'specUpper': { zh: '鞋面材质：', en: 'Upper Material: ', ko: '윗부분 재질: ' },
+            'specInner': { zh: '内里材质：', en: 'Inner Material: ', ko: '안쪽 재질: ' },
+            'specSole': { zh: '鞋底材质：', en: 'Sole Material: ', ko: '솔 재질: ' },
+            'specCustomizable': { zh: '是否支持定制：', en: 'Customizable: ', ko: '맞춤 제작 지원: ' },
+            'specMinOrder': { zh: '起订量：', en: 'Minimum Order: ', ko: '최소 주문량: ' },
+            'specPrice': { zh: '价格：', en: 'Price: ', ko: '가격: ' },
+            'contactFormTitle': { zh: '联系我们', en: 'Contact Us', ko: '문의하기' },
+            'labelName': { zh: '姓名', en: 'Name', ko: '이름' },
+            'labelEmail': { zh: '邮箱', en: 'Email', ko: '이메일' },
+            'labelMessage': { zh: '留言', en: 'Message', ko: '메시지' },
+            'submitButton': { zh: '提交', en: 'Submit', ko: '제출' },
+            'submittingText': { zh: '提交中...', en: 'Submitting...', ko: '제출 중...' },
+            'submitSuccess': { zh: '提交成功！', en: 'Submitted successfully!', ko: '성공적으로 제출되었습니다!' },
+            'submitError': { zh: '提交失败，请重试', en: 'Submission failed, please try again', ko: '제출 실패, 다시 시도하세요' }
+          };
+          
+          // 添加默认值到扫描结果
+          Object.entries(defaultValues).forEach(([key, value]) => {
+            if (!scannedTranslations[key]) {
+              scannedTranslations[key] = {
                 zh: value.zh,
-                en: value.en || '',
-                ko: value.ko || '',
-                category: field.category,
-                label: field.label
+                en: value.en,
+                ko: value.ko,
+                category: homePageFields.find(f => f.key === key)?.category || '其他',
+                label: homePageFields.find(f => f.key === key)?.label || key
               };
             }
           });
@@ -1683,53 +1825,58 @@
           for (const series of allSeries) {
             try {
               const data = await githubAPI.fetchFile(series.path);
+              
+              // 扫描系列名称（包括后台自定义显示名称）
               if (data.seriesName?.zh) {
-                scannedTranslations[`series_${series.name}`] = {
+                // 使用系列名称作为键，确保与后台显示一致
+                scannedTranslations[data.seriesName.zh] = {
                   zh: data.seriesName.zh,
                   en: data.seriesName.en || '',
                   ko: data.seriesName.ko || '',
-                  category: '产品分类',
-                  label: `分类名称 - ${series.name}`
+                  category: '系列名称',
+                  label: `系列名称 - ${series.name}`
                 };
               }
               
               if (data.products) {
                 Object.entries(data.products).forEach(([filename, product], idx) => {
+                  // 处理产品名称（包括后台自定义显示名称）
                   const productName = product.name?.zh || product.name;
                   const productDesc = product.description?.zh || product.description;
                   const tags = product.tags || [];
                   
                   if (productName && typeof productName === 'string' && productName.trim()) {
-                    const key = `product_${series.name}_${idx}`;
-                    scannedTranslations[key] = {
+                    // 使用产品名称作为键，确保与后台显示一致
+                    scannedTranslations[productName] = {
                       zh: productName,
                       en: product.name?.en || '',
                       ko: product.name?.ko || '',
-                      category: `产品分类 - ${series.name}`,
-                      label: `产品名称`
+                      category: '产品名称',
+                      label: `产品名称 - ${series.name}`
                     };
                   }
                   
                   if (productDesc && typeof productDesc === 'string' && productDesc.trim()) {
-                    const key = `product_desc_${series.name}_${idx}`;
-                    scannedTranslations[key] = {
+                    // 为产品描述生成唯一键
+                    const descKey = `${productName || filename}_描述`;
+                    scannedTranslations[descKey] = {
                       zh: productDesc,
                       en: product.description?.en || '',
                       ko: product.description?.ko || '',
-                      category: `产品分类 - ${series.name}`,
-                      label: `产品描述`
+                      category: '产品描述',
+                      label: `产品描述 - ${series.name}`
                     };
                   }
                   
                   tags.forEach((tag, tagIdx) => {
                     if (tag && tag.trim()) {
-                      const key = `tag_${series.name}_${idx}_${tagIdx}`;
-                      scannedTranslations[key] = {
+                      // 使用标签文本作为键
+                      scannedTranslations[tag] = {
                         zh: tag,
                         en: '',
                         ko: '',
-                        category: `产品标签 - ${series.name}`,
-                        label: `产品标签`
+                        category: '产品标签',
+                        label: `产品标签 - ${series.name}`
                       };
                     }
                   });
@@ -1796,23 +1943,8 @@
           const ko = document.querySelector(`.scan-ko[data-key="${key}"]`).value.trim();
           
           if (zh) {
-            let cleanKey = zh;
-            const prefixMatch = key.match(/^(product_|product_desc_|tag_|series_)/);
-            if (prefixMatch) {
-              const prefix = prefixMatch[1];
-              if (prefix === 'product_') {
-                cleanKey = '产品_' + zh;
-              } else if (prefix === 'product_desc_') {
-                cleanKey = '产品描述_' + zh.substring(0, 20);
-              } else if (prefix === 'tag_') {
-                cleanKey = '标签_' + zh;
-              } else if (prefix === 'series_') {
-                cleanKey = '分类_' + zh;
-              }
-            } else {
-              cleanKey = zh;
-            }
-            newTranslations[cleanKey] = { zh, en, ko };
+            // 直接使用原始键名，确保与后台页面自定义显示的名称一致
+            newTranslations[key] = { zh, en, ko };
           }
         });
         
@@ -2113,19 +2245,68 @@
         const translationItems = document.querySelectorAll('.translation-item');
         const translations = {};
         
-        translationItems.forEach(item => {
+        translationItems.forEach((item, index) => {
           const key = item.querySelector('.trans-key').value.trim();
           if (key) {
+            const zh = item.querySelector('.trans-zh').value.trim();
+            const en = item.querySelector('.trans-en').value.trim();
+            const ko = item.querySelector('.trans-ko').value.trim();
+            const category = this.translations[index].category || 'common';
+            
             translations[key] = {
-              zh: item.querySelector('.trans-zh').value,
-              en: item.querySelector('.trans-en').value,
-              ko: item.querySelector('.trans-ko').value
+              zh: zh,
+              en: en,
+              ko: ko,
+              category: category
             };
+            
+            // 同时更新站点信息和页面设置
+            if (key.startsWith('company')) {
+              if (!this.config.siteInfo) {
+                this.config.siteInfo = {};
+              }
+              this.config.siteInfo[key] = {
+                zh: zh,
+                en: en,
+                ko: ko
+              };
+            } else if (key === 'siteTitle') {
+              // 网站标题
+              if (!this.config.pageSettings) {
+                this.config.pageSettings = {};
+              }
+              this.config.pageSettings.siteTitle = {
+                zh: zh,
+                en: en,
+                ko: ko
+              };
+            } else if (key === 'pageTitle') {
+              // 页面标题
+              if (!this.config.pageSettings) {
+                this.config.pageSettings = {};
+              }
+              this.config.pageSettings.title = {
+                zh: zh,
+                en: en,
+                ko: ko
+              };
+            } else if (['footerText', 'loadingText', 'searchPlaceholder', 'noProductsText', 'productDetailsTitle', 'viewDetailsText', 'contactUsText', 'carouselWelcome', 'carouselDescription', 'specUpper', 'specInner', 'specSole', 'specCustomizable', 'specMinOrder', 'specPrice', 'contactFormTitle', 'labelName', 'labelEmail', 'labelMessage', 'submitButton', 'submittingText', 'submitSuccess', 'submitError'].includes(key)) {
+              if (!this.config.pageSettings) {
+                this.config.pageSettings = {};
+              }
+              this.config.pageSettings[key] = {
+                zh: zh,
+                en: en,
+                ko: ko
+              };
+            }
           }
         });
         
         this.config.translations = translations;
         await this.saveConfig();
+        this.showStatus('翻译词典已保存，站点信息和页面设置已同步更新', 'success');
+        this.renderTranslations();
       }
       
       async savePageSettings() {

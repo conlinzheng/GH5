@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>后台管理 - GH5</title>
+  <title data-i18n="admin.title">后台管理 - GH5</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
     .lang-tab {
@@ -411,28 +411,33 @@
 </head>
 <body>
   <div class="admin-container">
-    <div class="admin-header">
-      <h1>GH5 后台管理</h1>
-      <span class="subtitle">扫描、管理、更新和编辑首页显示所需的文件</span>
+    <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 data-i18n="admin.title">GH5 后台管理</h1>
+        <span class="subtitle" data-i18n="admin.subtitle">扫描、管理、更新和编辑首页显示所需的文件</span>
+      </div>
+      <button id="language-toggle" class="lang-tab">
+        <span class="lang-text">ZH</span>
+      </button>
     </div>
     
     <div class="admin-nav">
-    <button id="btn-scan">扫描文件</button>
-    <button id="btn-scan-new" style="background-color: #28a745; color: white;">🔍 扫描新增产品</button>
-    <button id="btn-refresh">刷新数据</button>
-    <button id="btn-clear-cache">清除缓存</button>
-    <button id="btn-regenerate-json" style="background-color: #ff9800; color: white;">🔄 重新生成JSON</button>
-    <button id="btn-export">导出数据</button>
-    <button id="btn-import">导入数据</button>
-    <button id="btn-set-token">设置 API 密钥</button>
+    <button id="btn-scan" data-i18n="admin.nav.scan">扫描文件</button>
+    <button id="btn-scan-new" style="background-color: #28a745; color: white;" data-i18n="admin.nav.scanNew">🔍 扫描新增产品</button>
+    <button id="btn-refresh" data-i18n="admin.nav.refresh">刷新数据</button>
+    <button id="btn-clear-cache" data-i18n="admin.nav.clearCache">清除缓存</button>
+    <button id="btn-regenerate-json" style="background-color: #ff9800; color: white;" data-i18n="admin.nav.regenerate">🔄 重新生成JSON</button>
+    <button id="btn-export" data-i18n="admin.nav.export">导出数据</button>
+    <button id="btn-import" data-i18n="admin.nav.import">导入数据</button>
+    <button id="btn-set-token" data-i18n="admin.nav.setToken">设置 API 密钥</button>
     </div>
     
     <div class="admin-content">
       <div class="admin-left">
         <div class="admin-section">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">
-            <h2 style="margin: 0; color: #333;">系列管理</h2>
-            <button id="btn-save-series-order" class="btn-save">💾 保存系列顺序</button>
+            <h2 style="margin: 0; color: #333;" data-i18n="admin.sections.series">系列管理</h2>
+            <button id="btn-save-series-order" class="btn-save" data-i18n="admin.buttons.saveSeries">💾 保存系列顺序</button>
           </div>
           <p style="color: #666; font-size: 14px; margin-bottom: 15px;">拖拽系列卡片可以调整显示顺序</p>
           <div id="series-list" class="series-list" style="min-height: 200px;">
@@ -444,12 +449,12 @@
       <div class="admin-center">
         <div class="admin-section">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">
-            <h2 style="margin: 0; color: #333;">文件管理</h2>
-            <button id="btn-save-product-order" class="btn-save">💾 保存产品顺序</button>
+            <h2 style="margin: 0; color: #333;" data-i18n="admin.sections.files">文件管理</h2>
+            <button id="btn-save-product-order" class="btn-save" data-i18n="admin.buttons.saveProduct">💾 保存产品顺序</button>
           </div>
           <p style="color: #666; font-size: 14px; margin-bottom: 15px;">拖拽产品可以调整系列内显示顺序</p>
           <div style="margin-bottom: 15px;">
-            <button id="btn-toggle-all-images" class="btn-toggle" onclick="adminPanel.toggleAllImages()">一键折叠/展开所有图片</button>
+            <button id="btn-toggle-all-images" class="btn-toggle" onclick="adminPanel.toggleAllImages()" data-i18n="admin.buttons.toggleImages">一键折叠/展开所有图片</button>
           </div>
           <div id="file-list-container" style="max-height: 70vh; overflow-y: auto; padding-right: 5px;">
             <ul id="file-list" class="file-list" style="min-height: 200px;">
@@ -462,36 +467,36 @@
       <div class="admin-right">
         <div class="admin-section">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">
-            <h2 style="margin: 0; color: #333;">编辑产品数据</h2>
+            <h2 style="margin: 0; color: #333;" data-i18n="admin.sections.edit">编辑产品数据</h2>
           </div>
           <div id="edit-form-container">
             <!-- 语言切换标签 -->
             <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
-              <button type="button" class="lang-tab active" data-lang="zh">中文</button>
-              <button type="button" class="lang-tab" data-lang="en">英文</button>
-              <button type="button" class="lang-tab" data-lang="ko">韩文</button>
-              <button type="button" class="btn btn-secondary" id="btn-batch-edit" style="margin-left: auto;">批量编辑</button>
-              <button type="button" class="btn btn-primary" id="btn-translate" style="margin-left: 10px;">自动翻译</button>
+              <button type="button" class="lang-tab active" data-lang="zh" data-i18n="admin.language.zh">中文</button>
+              <button type="button" class="lang-tab" data-lang="en" data-i18n="admin.language.en">英文</button>
+              <button type="button" class="lang-tab" data-lang="ko" data-i18n="admin.language.ko">韩文</button>
+              <button type="button" class="btn btn-secondary" id="btn-batch-edit" style="margin-left: auto;" data-i18n="admin.buttons.batchEdit">批量编辑</button>
+              <button type="button" class="btn btn-primary" id="btn-translate" style="margin-left: 10px;" data-i18n="admin.buttons.translate">自动翻译</button>
             </div>
             
             <!-- 批量编辑模式 -->
             <div id="batch-edit-panel" style="display: none; margin-bottom: 15px; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px; background-color: #f8f9fa;">
-              <h4 style="margin-top: 0; margin-bottom: 10px;">批量编辑</h4>
+              <h4 style="margin-top: 0; margin-bottom: 10px;" data-i18n="admin.batchEdit.title">批量编辑</h4>
               <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                 <div class="form-group">
-                  <label>所有语言 - 产品名称</label>
+                  <label data-i18n="admin.batchEdit.allLanguages">所有语言</label> - <label data-i18n="admin.batchEdit.name">产品名称</label>
                   <input type="text" id="batch-name" class="form-control">
                 </div>
                 <div class="form-group">
-                  <label>所有语言 - 描述</label>
+                  <label data-i18n="admin.batchEdit.allLanguages">所有语言</label> - <label data-i18n="admin.batchEdit.description">描述</label>
                   <textarea id="batch-description" class="form-control" rows="2"></textarea>
                 </div>
                 <div class="form-group">
-                  <label>所有语言 - 价格</label>
+                  <label data-i18n="admin.batchEdit.allLanguages">所有语言</label> - <label data-i18n="admin.batchEdit.price">价格</label>
                   <input type="text" id="batch-price" class="form-control">
                 </div>
               </div>
-              <button type="button" id="btn-apply-batch" class="btn btn-success" style="margin-top: 10px;">应用批量编辑</button>
+              <button type="button" id="btn-apply-batch" class="btn btn-success" style="margin-top: 10px;" data-i18n="admin.buttons.applyBatch">应用批量编辑</button>
             </div>
             
             <form id="edit-form">
@@ -499,16 +504,16 @@
               <div class="lang-panel" data-lang="zh" style="display: block;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                   <div class="form-group">
-                    <label for="product-name-zh">产品名称 (中文)</label>
+                    <label for="product-name-zh" data-i18n="admin.labels.productName">产品名称</label> (中文)
                     <input type="text" id="product-name-zh" name="name-zh" required>
                   </div>
                   <div class="form-group">
-                    <label for="product-price">价格</label>
+                    <label for="product-price" data-i18n="admin.labels.price">价格</label>
                     <input type="text" id="product-price" name="price">
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="product-description-zh">产品描述 (中文)</label>
+                  <label for="product-description-zh" data-i18n="admin.labels.description">产品描述</label> (中文)
                   <textarea id="product-description-zh" name="description-zh" rows="2"></textarea>
                 </div>
               </div>
@@ -517,16 +522,16 @@
               <div class="lang-panel" data-lang="en" style="display: none;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                   <div class="form-group">
-                    <label for="product-name-en">产品名称 (英文)</label>
+                    <label for="product-name-en" data-i18n="admin.labels.productName">产品名称</label> (English)
                     <input type="text" id="product-name-en" name="name-en">
                   </div>
                   <div class="form-group">
-                    <label for="product-price">价格</label>
+                    <label for="product-price" data-i18n="admin.labels.price">价格</label>
                     <input type="text" id="product-price" name="price">
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="product-description-en">产品描述 (英文)</label>
+                  <label for="product-description-en" data-i18n="admin.labels.description">产品描述</label> (English)
                   <textarea id="product-description-en" name="description-en" rows="2"></textarea>
                 </div>
               </div>
@@ -535,36 +540,36 @@
               <div class="lang-panel" data-lang="ko" style="display: none;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                   <div class="form-group">
-                    <label for="product-name-ko">产品名称 (韩文)</label>
+                    <label for="product-name-ko" data-i18n="admin.labels.productName">产品名称</label> (한국어)
                     <input type="text" id="product-name-ko" name="name-ko">
                   </div>
                   <div class="form-group">
-                    <label for="product-price">价格</label>
+                    <label for="product-price" data-i18n="admin.labels.price">价格</label>
                     <input type="text" id="product-price" name="price">
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="product-description-ko">产品描述 (韩文)</label>
+                  <label for="product-description-ko" data-i18n="admin.labels.description">产品描述</label> (한국어)
                   <textarea id="product-description-ko" name="description-ko" rows="2"></textarea>
                 </div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
-                  <label for="product-upper-material">鞋面材质</label>
+                  <label for="product-upper-material" data-i18n="admin.labels.upperMaterial">鞋面材质</label>
                   <input type="text" id="product-upper-material" name="upperMaterial">
                 </div>
                 <div class="form-group">
-                  <label for="product-inner-material">内里材质</label>
+                  <label for="product-inner-material" data-i18n="admin.labels.innerMaterial">内里材质</label>
                   <input type="text" id="product-inner-material" name="innerMaterial">
                 </div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
-                  <label for="product-sole-material">鞋底材质</label>
+                  <label for="product-sole-material" data-i18n="admin.labels.soleMaterial">鞋底材质</label>
                   <input type="text" id="product-sole-material" name="soleMaterial">
                 </div>
                 <div class="form-group">
-                  <label for="product-customizable">是否支持定制</label>
+                  <label for="product-customizable" data-i18n="admin.labels.customizable">是否支持定制</label>
                   <select id="product-customizable" name="customizable">
                     <option value="">请选择</option>
                     <option value="true">是</option>
@@ -574,38 +579,38 @@
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
-                  <label for="product-min-order">起订量</label>
+                  <label for="product-min-order" data-i18n="admin.labels.minOrder">起订量</label>
                   <input type="number" id="product-min-order" name="minOrder" min="1">
                 </div>
                 <div class="form-group">
-                  <label for="product-tags">标签 (用逗号分隔)</label>
-                  <input type="text" id="product-tags" name="tags" placeholder="例如: 新品,热销">
+                  <label for="product-tags" data-i18n="admin.labels.tags">标签 (用逗号分隔)</label>
+                  <input type="text" id="product-tags" name="tags" placeholder="例如: 新品,热销" data-i18n="admin.placeholders.tags">
                 </div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
-                  <label for="product-series">所属系列</label>
+                  <label for="product-series" data-i18n="admin.labels.series">所属系列</label>
                   <select id="product-series" name="series" required>
                     <!-- 系列选项将通过 JavaScript 动态生成 -->
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="product-image">图片文件名</label>
+                  <label for="product-image" data-i18n="admin.labels.image">图片文件名</label>
                   <input type="text" id="product-image" name="image" required>
                 </div>
               </div>
-              <button type="button" class="btn-save" style="width: 100%; margin-top: 15px;" onclick="adminPanel.saveProduct()">💾 保存产品数据</button>
+              <button type="button" class="btn-save" style="width: 100%; margin-top: 15px;" onclick="adminPanel.saveProduct()" data-i18n="admin.buttons.saveProductData">💾 保存产品数据</button>
             </form>
           </div>
         </div>
         
         <div class="admin-section">
-          <h2>系统状态</h2>
+          <h2 data-i18n="admin.sections.status">系统状态</h2>
           <div id="system-status">
-            <p>最后扫描时间: <span id="last-scan">未扫描</span></p>
-            <p>缓存状态: <span id="cache-status">未知</span></p>
-            <p>产品总数: <span id="product-count">0</span></p>
-            <p>系列总数: <span id="series-count">0</span></p>
+            <p data-i18n="admin.status.lastScan">最后扫描时间: <span id="last-scan">未扫描</span></p>
+            <p data-i18n="admin.status.cacheStatus">缓存状态: <span id="cache-status">未知</span></p>
+            <p data-i18n="admin.status.productCount">产品总数: <span id="product-count">0</span></p>
+            <p data-i18n="admin.status.seriesCount">系列总数: <span id="series-count">0</span></p>
           </div>
         </div>
       </div>
@@ -622,6 +627,10 @@
   <script src="js/github-api.js"></script>
   <script src="js/i18n.js"></script>
   <script>
+    // 初始化国际化
+    document.addEventListener('DOMContentLoaded', function() {
+      i18n.init();
+    });
     // 语言切换和翻译功能
     document.addEventListener('DOMContentLoaded', function() {
       // 语言标签切换
@@ -675,7 +684,7 @@
             document.getElementById('product-price').value = batchPrice;
           }
           
-          alert('批量编辑已应用');
+          alert(i18n.t('admin.messages.batchApplied'));
         });
       }
       
@@ -687,12 +696,12 @@
           const zhDesc = document.getElementById('product-description-zh').value;
           
           if (!zhName && !zhDesc) {
-            alert('请先填写中文内容');
+            alert(i18n.t('admin.messages.enterChineseFirst'));
             return;
           }
           
           btnTranslate.disabled = true;
-          btnTranslate.textContent = '翻译中...';
+          btnTranslate.textContent = i18n.t('admin.messages.translateStart');
           
           try {
             // 翻译产品名称
@@ -711,13 +720,13 @@
               document.getElementById('product-description-ko').value = koDesc;
             }
             
-            alert('翻译完成');
+            alert(i18n.t('admin.messages.translateComplete'));
           } catch (error) {
             console.error('翻译失败:', error);
-            alert('翻译失败，请稍后重试');
+            alert(i18n.t('admin.messages.translateError'));
           } finally {
             btnTranslate.disabled = false;
-            btnTranslate.textContent = '自动翻译';
+            btnTranslate.textContent = i18n.t('admin.buttons.translate');
           }
         });
       }
@@ -2098,7 +2107,7 @@
       }
       
       async deleteProduct(productId, seriesId) {
-        if (confirm('确定要删除这个产品吗？')) {
+        if (confirm(i18n.t('admin.messages.confirmDeleteProduct'))) {
           try {
             // 找到对应的系列
             const series = this.series.find(s => s.name === seriesId);
@@ -2177,7 +2186,7 @@
       async saveProductOrder() {
         try {
           if (!this.currentSeries) {
-            this.showStatus('请先选择一个系列', 'error');
+            this.showStatus(i18n.t('admin.messages.selectSeriesFirst'), 'error');
             return;
           }
           
@@ -2221,7 +2230,7 @@
       viewProduct(productId, seriesId) {
         const product = this.products.find(p => p.id === productId && p.seriesId === seriesId);
         if (product) {
-          alert(`产品信息:\n名称: ${product.name}\n描述: ${product.description || '无'}\n价格: ${product.price || '无'}\n材质: ${product.materials || '无'}\n系列: ${product.seriesId}\n图片: ${product.image}`);
+          alert(`${i18n.t('admin.messages.productInfo')}\n名称: ${product.name}\n描述: ${product.description || '无'}\n价格: ${product.price || '无'}\n材质: ${product.materials || '无'}\n系列: ${product.seriesId}\n图片: ${product.image}`);
         }
       }
       
@@ -2232,12 +2241,12 @@
         const seriesProducts = this.products.filter(p => p.seriesId === seriesName);
         
         // 构建提示信息
-        const infoMessage = `系列信息:\n` +
+        const infoMessage = `${i18n.t('admin.messages.seriesInfo')}\n` +
           `文件夹名称: ${seriesName}\n` +
           `当前显示名称: ${currentDisplayName}\n` +
           `产品数量: ${seriesProducts.length}\n` +
           `文件夹路径: ${series ? series.path : '未知'}\n\n` +
-          `请输入新的系列显示名称:`;
+          `${i18n.t('admin.messages.enterNewSeriesName')}`;
         
         const newDisplayName = prompt(infoMessage, currentDisplayName);
         if (newDisplayName && newDisplayName !== currentDisplayName) {
@@ -2296,7 +2305,7 @@
       viewSeries(seriesName) {
         const seriesProducts = this.products.filter(p => p.seriesId === seriesName);
         const displayName = this.seriesNameMap[seriesName] || seriesName;
-        let message = `系列: ${displayName}\n产品数量: ${seriesProducts.length}\n\n产品列表:\n`;
+        let message = `${i18n.t('admin.messages.series').replace('{name}', displayName)}\n${i18n.t('admin.messages.productCount').replace('{count}', seriesProducts.length)}\n\n${i18n.t('admin.messages.productList')}\n`;
         seriesProducts.forEach(product => {
           message += `- ${product.name} (${product.image})\n`;
         });
