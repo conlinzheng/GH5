@@ -6,22 +6,14 @@
   },
   "products": {
     "33 (1).png": {
-      "name": {
-        "zh": "55",
-        "en": "55",
-        "ko": "55"
-      },
-      "description": {
-        "zh": "33 - 高品质产品",
-        "en": "33 - 高品质产品",
-        "ko": "33 - 高品质产品"
-      },
+      "name": "牛皮",
+      "description": "牛皮- 高品质产品",
       "price": "55",
       "tags": [],
       "materials": {
-        "upper": "5",
-        "lining": "",
-        "sole": ""
+        "upper": "牛皮",
+        "lining": "猪",
+        "sole": "橡胶"
       },
       "customizable": "",
       "minOrder": ""
@@ -66,22 +58,14 @@
       }
     },
     "33 (2).png": {
-      "name": {
-        "zh": "55",
-        "en": "55",
-        "ko": "55"
-      },
-      "description": {
-        "zh": "33 - 高品质产品",
-        "en": "33 - 高品质产品",
-        "ko": "33 - 高品质产品"
-      },
+      "name": "牛皮",
+      "description": "牛皮- 高品质产品",
       "price": "55",
       "tags": [],
       "materials": {
-        "upper": "5",
-        "lining": "",
-        "sole": ""
+        "upper": "牛皮",
+        "lining": "猪",
+        "sole": "橡胶"
       },
       "customizable": "",
       "minOrder": ""

@@ -506,7 +506,8 @@
     "enable": true
   },
   "seriesNameMap": {
-    "2-真皮系列": "真皮"
+    "2-真皮系列": "真皮",
+    "1-PU系列": "超纤"
   },
   "seriesOrder": [
     "2-真皮系列",
