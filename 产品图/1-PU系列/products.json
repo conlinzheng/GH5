@@ -6,22 +6,17 @@
   },
   "products": {
     "产品1 (1).jpg": {
-      "name": {
-        "zh": "产品1",
-        "en": "Product 1",
-        "ko": "제품 1"
-      },
-      "description": {
-        "zh": "产品1 - 高品质超纤产品",
-        "en": "Product 1 - High quality microfiber product",
-        "ko": "제품 1 - 고품질 마이크로파이버 제품"
-      },
-      "price": "",
+      "name": "产品1",
+      "description": "产品1 - 高品质超纤产品",
+      "price": "55",
+      "tags": [],
       "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+        "upper": "牛皮",
+        "lining": "猪",
+        "sole": "橡胶"
+      },
+      "customizable": "",
+      "minOrder": "111"
     },
     "产品2 (1).jpg": {
       "name": {
@@ -40,6 +35,19 @@
         "lining": "",
         "sole": ""
       }
+    },
+    "产品1 (2).jpg": {
+      "name": "产品1",
+      "description": "产品1 - 高品质超纤产品",
+      "price": "55",
+      "tags": [],
+      "materials": {
+        "upper": "牛皮",
+        "lining": "猪",
+        "sole": "橡胶"
+      },
+      "customizable": "",
+      "minOrder": "111"
     }
   },
   "order": [
