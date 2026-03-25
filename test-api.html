@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API 测试</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .test-result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+    .success { background-color: #d4edda; border-color: #c3e6cb; }
+    .error { background-color: #f8d7da; border-color: #f5c6cb; }
+  </style>
+</head>
+<body>
+  <h1>GitHub API 测试</h1>
+  <div id="test-results"></div>
+  
+  <script src="js/config.js"></script>
+  <script src="js/github-api.js"></script>
+  <script>
+    const githubAPI = new GitHubAPI('conlinzheng', 'GH5');
+    const resultsContainer = document.getElementById('test-results');
+    
+    function addResult(message, isSuccess) {
+      const div = document.createElement('div');
+      div.className = `test-result ${isSuccess ? 'success' : 'error'}`;
+      div.textContent = message;
+      resultsContainer.appendChild(div);
+    }
+    
+    async function testAPI() {
+      addResult('开始测试 GitHub API...', true);
+      
+      try {
+        // 测试获取目录
+        addResult('测试获取 产品图 目录...', true);
+        const seriesList = await githubAPI.fetchDirectory('产品图');
+        addResult(`获取到 ${seriesList.length} 个项目`, true);
+        console.log('Series list:', seriesList);
+        
+        // 测试获取 config.json
+        addResult('测试获取 config.json...', true);
+        const config = await githubAPI.fetchFile('config.json');
+        addResult('成功获取 config.json', true);
+        console.log('Config:', config);
+        
+        // 测试获取 products.json
+        if (seriesList.length > 0) {
+          const firstSeries = seriesList.find(item => item.type === 'dir');
+          if (firstSeries) {
+            addResult(`测试获取 ${firstSeries.name}/products.json...`, true);
+            try {
+              const productsFile = await githubAPI.fetchFile(`${firstSeries.path}/products.json`);
+              addResult('成功获取 products.json', true);
+              console.log('Products file:', productsFile);
+            } catch (error) {
+              addResult(`获取 products.json 失败: ${error.message}`, false);
+            }
+          }
+        }
+        
+        addResult('API 测试完成', true);
+      } catch (error) {
+        addResult(`API 测试失败: ${error.message}`, false);
+        console.error('API test error:', error);
+      }
+    }
+    
+    testAPI();
+  </script>
+</body>
+</html>
