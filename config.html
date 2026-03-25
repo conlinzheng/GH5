@@ -2215,6 +2215,71 @@
             }
           }
           
+          // 合并公司地址
+          if (siteInfo.companyAddress && siteInfo.companyAddress.zh) {
+            const key = siteInfo.companyAddress.zh;
+            if (!this.config.translations[key]) {
+              this.config.translations[key] = {
+                zh: siteInfo.companyAddress.zh,
+                en: siteInfo.companyAddress.en || '',
+                ko: siteInfo.companyAddress.ko || ''
+              };
+              mergedCount++;
+            }
+          }
+          
+          // 合并公司电话
+          if (siteInfo.companyPhone && siteInfo.companyPhone.zh) {
+            const key = siteInfo.companyPhone.zh;
+            if (!this.config.translations[key]) {
+              this.config.translations[key] = {
+                zh: siteInfo.companyPhone.zh,
+                en: siteInfo.companyPhone.en || '',
+                ko: siteInfo.companyPhone.ko || ''
+              };
+              mergedCount++;
+            }
+          }
+          
+          // 合并公司邮箱
+          if (siteInfo.companyEmail && siteInfo.companyEmail.zh) {
+            const key = siteInfo.companyEmail.zh;
+            if (!this.config.translations[key]) {
+              this.config.translations[key] = {
+                zh: siteInfo.companyEmail.zh,
+                en: siteInfo.companyEmail.en || '',
+                ko: siteInfo.companyEmail.ko || ''
+              };
+              mergedCount++;
+            }
+          }
+          
+          // 合并公司微信
+          if (siteInfo.companyWechat && siteInfo.companyWechat.zh) {
+            const key = siteInfo.companyWechat.zh;
+            if (!this.config.translations[key]) {
+              this.config.translations[key] = {
+                zh: siteInfo.companyWechat.zh,
+                en: siteInfo.companyWechat.en || '',
+                ko: siteInfo.companyWechat.ko || ''
+              };
+              mergedCount++;
+            }
+          }
+          
+          // 合并工作时间
+          if (siteInfo.workingHours && siteInfo.workingHours.zh) {
+            const key = siteInfo.workingHours.zh;
+            if (!this.config.translations[key]) {
+              this.config.translations[key] = {
+                zh: siteInfo.workingHours.zh,
+                en: siteInfo.workingHours.en || '',
+                ko: siteInfo.workingHours.ko || ''
+              };
+              mergedCount++;
+            }
+          }
+          
           this.saveTranslations();
           this.showStatus(`成功合并 ${mergedCount} 条站点信息到翻译词典`, 'success');
         } catch (error) {
