@@ -537,7 +537,7 @@
     </div>
     
     <div class="config-nav">
-      <button class="active" data-section="site-info">🏢 站点信息</button>
+
       <button data-section="social-media">📱 社交媒体</button>
       <button data-section="page-assets">🖼️ 页面资源</button>
       <button data-section="display-text">📝 显示文本</button>
@@ -553,74 +553,9 @@
     
     <div class="status-container" id="status-container"></div>
     
-    <div id="site-info" class="config-section active">
-      <h2>🏢 站点基本信息</h2>
-      <p style="color: #666; margin-bottom: 20px;">这些信息将显示在联系我们弹窗的左侧</p>
-      
-      <h3>公司名称</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>中文 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="companyName-zh" placeholder="例如：GH5鞋业">
-        </div>
-        <div class="form-group">
-          <label>英文 <span class="lang-badge">EN</span></label>
-          <input type="text" id="companyName-en" placeholder="例如：GH5 Shoes">
-        </div>
-        <div class="form-group">
-          <label>韩文 <span class="lang-badge">KO</span></label>
-          <input type="text" id="companyName-ko" placeholder="例如：GH5 신발">
-        </div>
-      </div>
-      
-      <h3>公司描述</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>中文 <span class="lang-badge">ZH</span></label>
-          <textarea id="companyDescription-zh" placeholder="公司简介描述"></textarea>
-        </div>
-        <div class="form-group">
-          <label>英文 <span class="lang-badge">EN</span></label>
-          <textarea id="companyDescription-en" placeholder="Company description"></textarea>
-        </div>
-        <div class="form-group">
-          <label>韩文 <span class="lang-badge">KO</span></label>
-          <textarea id="companyDescription-ko" placeholder="회사 설명"></textarea>
-        </div>
-      </div>
-      
-      <h3>联系方式</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>地址 <span class="lang-badge">所有语言</span></label>
-          <input type="text" id="companyAddress" placeholder="公司地址">
-        </div>
-        <div class="form-group">
-          <label>电话 <span class="lang-badge">所有语言</span></label>
-          <input type="text" id="companyPhone" placeholder="联系电话">
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label>邮箱 <span class="lang-badge">所有语言</span></label>
-          <input type="email" id="companyEmail" placeholder="电子邮箱">
-        </div>
-        <div class="form-group">
-          <label>微信 <span class="lang-badge">所有语言</span></label>
-          <input type="text" id="companyWechat" placeholder="微信号">
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label>工作时间 <span class="lang-badge">所有语言</span></label>
-        <input type="text" id="workingHours" placeholder="例如：周一至周五 9:00-18:00">
-      </div>
-      
-      <button class="btn-save" onclick="configManager.saveSiteInfo()">保存站点信息</button>
-    </div>
+
     
-    <div id="social-media" class="config-section">
+    <div id="social-media" class="config-section active">
       <h2>📱 社交媒体链接</h2>
       <p style="color: #666; margin-bottom: 20px;">配置首页页脚显示的社交媒体快速链接</p>
       
@@ -781,145 +716,165 @@
       <h2>📝 显示文本配置</h2>
       <p style="color: #666; margin-bottom: 20px;">配置首页各处的显示文本内容</p>
       
-      <h3>页脚文本</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>版权文本 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-footer-zh" placeholder="© 2026 GH5. All rights reserved.">
-        </div>
-        <div class="form-group">
-          <label>版权文本 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-footer-en" placeholder="© 2026 GH5. All rights reserved.">
-        </div>
-        <div class="form-group">
-          <label>版权文本 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-footer-ko" placeholder="© 2026 GH5. All rights reserved.">
-        </div>
-      </div>
-      
-      <h3>加载提示</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>加载中文本 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-loading-zh" placeholder="加载中...">
-        </div>
-        <div class="form-group">
-          <label>加载中文本 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-loading-en" placeholder="Loading...">
-        </div>
-        <div class="form-group">
-          <label>加载中文本 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-loading-ko" placeholder="로딩 중...">
+      <div class="form-group">
+        <label>页脚文本 - 版权信息</label>
+        <div class="form-row">
+          <div class="form-group">
+            <label>中文 <span class="lang-badge">ZH</span></label>
+            <input type="text" id="text-footer-zh" placeholder="© 2026 GH5. All rights reserved.">
+          </div>
+          <div class="form-group">
+            <label>英文 <span class="lang-badge">EN</span></label>
+            <input type="text" id="text-footer-en" placeholder="© 2026 GH5. All rights reserved.">
+          </div>
+          <div class="form-group">
+            <label>韩文 <span class="lang-badge">KO</span></label>
+            <input type="text" id="text-footer-ko" placeholder="© 2026 GH5. All rights reserved.">
+          </div>
         </div>
       </div>
       
-      <h3>搜索框</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>搜索占位符 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-search-zh" placeholder="搜索产品名称、标签...">
-        </div>
-        <div class="form-group">
-          <label>搜索占位符 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-search-en" placeholder="Search products...">
-        </div>
-        <div class="form-group">
-          <label>搜索占位符 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-search-ko" placeholder="제품 검색...">
-        </div>
-      </div>
-      
-      <h3>空状态文本</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>无产品显示 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-no-products-zh" placeholder="暂无产品">
-        </div>
-        <div class="form-group">
-          <label>无产品显示 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-no-products-en" placeholder="No products">
-        </div>
-        <div class="form-group">
-          <label>无产品显示 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-no-products-ko" placeholder="제품 없음">
+      <div class="form-group">
+        <label>加载提示</label>
+        <div class="form-row">
+          <div class="form-group">
+            <label>中文 <span class="lang-badge">ZH</span></label>
+            <input type="text" id="text-loading-zh" placeholder="加载中...">
+          </div>
+          <div class="form-group">
+            <label>英文 <span class="lang-badge">EN</span></label>
+            <input type="text" id="text-loading-en" placeholder="Loading...">
+          </div>
+          <div class="form-group">
+            <label>韩文 <span class="lang-badge">KO</span></label>
+            <input type="text" id="text-loading-ko" placeholder="로딩 중...">
+          </div>
         </div>
       </div>
       
-      <h3>产品相关</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>产品详情标题 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-product-details-zh" placeholder="产品详情">
-        </div>
-        <div class="form-group">
-          <label>产品详情标题 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-product-details-en" placeholder="Product Details">
-        </div>
-        <div class="form-group">
-          <label>产品详情标题 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-product-details-ko" placeholder="제품 상세">
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label>查看详情按钮 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-view-details-zh" placeholder="查看详情">
-        </div>
-        <div class="form-group">
-          <label>查看详情按钮 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-view-details-en" placeholder="View Details">
-        </div>
-        <div class="form-group">
-          <label>查看详情按钮 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-view-details-ko" placeholder="상세 보기">
+      <div class="form-group">
+        <label>搜索框</label>
+        <div class="form-row">
+          <div class="form-group">
+            <label>中文 <span class="lang-badge">ZH</span></label>
+            <input type="text" id="text-search-zh" placeholder="搜索产品名称、标签...">
+          </div>
+          <div class="form-group">
+            <label>英文 <span class="lang-badge">EN</span></label>
+            <input type="text" id="text-search-en" placeholder="Search products...">
+          </div>
+          <div class="form-group">
+            <label>韩文 <span class="lang-badge">KO</span></label>
+            <input type="text" id="text-search-ko" placeholder="제품 검색...">
+          </div>
         </div>
       </div>
       
-      <h3>联系我们</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>联系我们按钮 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-contact-us-zh" placeholder="联系我们">
-        </div>
-        <div class="form-group">
-          <label>联系我们按钮 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-contact-us-en" placeholder="Contact Us">
-        </div>
-        <div class="form-group">
-          <label>联系我们按钮 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-contact-us-ko" placeholder="联系我们">
-        </div>
-      </div>
-      
-      <h3>轮播图文本</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>轮播图欢迎标题 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-carousel-welcome-zh" placeholder="欢迎来到 GH5">
-        </div>
-        <div class="form-group">
-          <label>轮播图欢迎标题 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-carousel-welcome-en" placeholder="Welcome to GH5">
-        </div>
-        <div class="form-group">
-          <label>轮播图欢迎标题 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-carousel-welcome-ko" placeholder="GH5에 오신 것을 환영합니다">
+      <div class="form-group">
+        <label>空状态文本</label>
+        <div class="form-row">
+          <div class="form-group">
+            <label>中文 <span class="lang-badge">ZH</span></label>
+            <input type="text" id="text-no-products-zh" placeholder="暂无产品">
+          </div>
+          <div class="form-group">
+            <label>英文 <span class="lang-badge">EN</span></label>
+            <input type="text" id="text-no-products-en" placeholder="No products">
+          </div>
+          <div class="form-group">
+            <label>韩文 <span class="lang-badge">KO</span></label>
+            <input type="text" id="text-no-products-ko" placeholder="제품 없음">
+          </div>
         </div>
       </div>
       
-      <div class="form-row">
-        <div class="form-group">
-          <label>轮播图描述 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-carousel-desc-zh" placeholder="探索我们的优质产品">
+      <div class="form-group">
+        <label>产品详情标题</label>
+        <div class="form-row">
+          <div class="form-group">
+            <label>中文 <span class="lang-badge">ZH</span></label>
+            <input type="text" id="text-product-details-zh" placeholder="产品详情">
+          </div>
+          <div class="form-group">
+            <label>英文 <span class="lang-badge">EN</span></label>
+            <input type="text" id="text-product-details-en" placeholder="Product Details">
+          </div>
+          <div class="form-group">
+            <label>韩文 <span class="lang-badge">KO</span></label>
+            <input type="text" id="text-product-details-ko" placeholder="제품 상세">
+          </div>
         </div>
-        <div class="form-group">
-          <label>轮播图描述 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-carousel-desc-en" placeholder="Explore our quality products">
+      </div>
+      
+      <div class="form-group">
+        <label>查看详情按钮</label>
+        <div class="form-row">
+          <div class="form-group">
+            <label>中文 <span class="lang-badge">ZH</span></label>
+            <input type="text" id="text-view-details-zh" placeholder="查看详情">
+          </div>
+          <div class="form-group">
+            <label>英文 <span class="lang-badge">EN</span></label>
+            <input type="text" id="text-view-details-en" placeholder="View Details">
+          </div>
+          <div class="form-group">
+            <label>韩文 <span class="lang-badge">KO</span></label>
+            <input type="text" id="text-view-details-ko" placeholder="상세 보기">
+          </div>
         </div>
-        <div class="form-group">
-          <label>轮播图描述 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-carousel-desc-ko" placeholder="저희 품질 제품을 탐색하세요">
+      </div>
+      
+      <div class="form-group">
+        <label>联系我们按钮</label>
+        <div class="form-row">
+          <div class="form-group">
+            <label>中文 <span class="lang-badge">ZH</span></label>
+            <input type="text" id="text-contact-us-zh" placeholder="联系我们">
+          </div>
+          <div class="form-group">
+            <label>英文 <span class="lang-badge">EN</span></label>
+            <input type="text" id="text-contact-us-en" placeholder="Contact Us">
+          </div>
+          <div class="form-group">
+            <label>韩文 <span class="lang-badge">KO</span></label>
+            <input type="text" id="text-contact-us-ko" placeholder="联系我们">
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>轮播图欢迎标题</label>
+        <div class="form-row">
+          <div class="form-group">
+            <label>中文 <span class="lang-badge">ZH</span></label>
+            <input type="text" id="text-carousel-welcome-zh" placeholder="欢迎来到 GH5">
+          </div>
+          <div class="form-group">
+            <label>英文 <span class="lang-badge">EN</span></label>
+            <input type="text" id="text-carousel-welcome-en" placeholder="Welcome to GH5">
+          </div>
+          <div class="form-group">
+            <label>韩文 <span class="lang-badge">KO</span></label>
+            <input type="text" id="text-carousel-welcome-ko" placeholder="GH5에 오신 것을 환영합니다">
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>轮播图描述</label>
+        <div class="form-row">
+          <div class="form-group">
+            <label>中文 <span class="lang-badge">ZH</span></label>
+            <input type="text" id="text-carousel-desc-zh" placeholder="探索我们的优质产品">
+          </div>
+          <div class="form-group">
+            <label>英文 <span class="lang-badge">EN</span></label>
+            <input type="text" id="text-carousel-desc-en" placeholder="Explore our quality products">
+          </div>
+          <div class="form-group">
+            <label>韩文 <span class="lang-badge">KO</span></label>
+            <input type="text" id="text-carousel-desc-ko" placeholder="저희 품질 제품을 탐색하세요">
+          </div>
         </div>
       </div>
       
@@ -1812,79 +1767,82 @@
             }
           }
           
-          const allSeries = [
-            { name: '1-PU系列', path: '产品图/1-PU系列/products.json' },
-            { name: '2-真皮系列', path: '产品图/2-真皮系列/products.json' },
-            { name: '3-短靴系列', path: '产品图/3-短靴系列/products.json' },
-            { name: '4-乐福系列', path: '产品图/4-乐福系列/products.json' },
-            { name: '5-春季', path: '产品图/5-春季/products.json' },
-            { name: '6-夏季', path: '产品图/6-夏季/products.json' },
-            { name: '7-秋季', path: '产品图/7-秋季/products.json' }
-          ];
-          
-          for (const series of allSeries) {
-            try {
-              const data = await githubAPI.fetchFile(series.path);
-              
-              // 扫描系列名称（包括后台自定义显示名称）
-              if (data.seriesName?.zh) {
-                // 使用系列名称作为键，确保与后台显示一致
-                scannedTranslations[data.seriesName.zh] = {
-                  zh: data.seriesName.zh,
-                  en: data.seriesName.en || '',
-                  ko: data.seriesName.ko || '',
-                  category: '系列名称',
-                  label: `系列名称 - ${series.name}`
-                };
-              }
-              
-              if (data.products) {
-                Object.entries(data.products).forEach(([filename, product], idx) => {
-                  // 处理产品名称（包括后台自定义显示名称）
-                  const productName = product.name?.zh || product.name;
-                  const productDesc = product.description?.zh || product.description;
-                  const tags = product.tags || [];
-                  
-                  if (productName && typeof productName === 'string' && productName.trim()) {
-                    // 使用产品名称作为键，确保与后台显示一致
-                    scannedTranslations[productName] = {
-                      zh: productName,
-                      en: product.name?.en || '',
-                      ko: product.name?.ko || '',
-                      category: '产品名称',
-                      label: `产品名称 - ${series.name}`
-                    };
-                  }
-                  
-                  if (productDesc && typeof productDesc === 'string' && productDesc.trim()) {
-                    // 为产品描述生成唯一键
-                    const descKey = `${productName || filename}_描述`;
-                    scannedTranslations[descKey] = {
-                      zh: productDesc,
-                      en: product.description?.en || '',
-                      ko: product.description?.ko || '',
-                      category: '产品描述',
-                      label: `产品描述 - ${series.name}`
-                    };
-                  }
-                  
-                  tags.forEach((tag, tagIdx) => {
-                    if (tag && tag.trim()) {
-                      // 使用标签文本作为键
-                      scannedTranslations[tag] = {
-                        zh: tag,
-                        en: '',
-                        ko: '',
-                        category: '产品标签',
-                        label: `产品标签 - ${series.name}`
+          // 动态获取系列信息，而不是硬编码
+          try {
+            const seriesList = await githubAPI.fetchDirectory('产品图');
+            const allSeries = seriesList
+              .filter(item => item.type === 'dir')
+              .map(item => ({
+                name: item.name,
+                path: `${item.path}/products.json`
+              }));
+            
+            for (const series of allSeries) {
+              try {
+                const data = await githubAPI.fetchFile(series.path);
+                
+                // 扫描系列名称（包括后台自定义显示名称）
+                if (data.seriesName?.zh) {
+                  // 使用系列名称作为键，确保与后台显示一致
+                  scannedTranslations[data.seriesName.zh] = {
+                    zh: data.seriesName.zh,
+                    en: data.seriesName.en || '',
+                    ko: data.seriesName.ko || '',
+                    category: '系列名称',
+                    label: `系列名称 - ${series.name}`
+                  };
+                }
+                
+                if (data.products) {
+                  Object.entries(data.products).forEach(([filename, product], idx) => {
+                    // 处理产品名称（包括后台自定义显示名称）
+                    const productName = product.name?.zh || product.name;
+                    const productDesc = product.description?.zh || product.description;
+                    const tags = product.tags || [];
+                    
+                    if (productName && typeof productName === 'string' && productName.trim()) {
+                      // 使用产品名称作为键，确保与后台显示一致
+                      scannedTranslations[productName] = {
+                        zh: productName,
+                        en: product.name?.en || '',
+                        ko: product.name?.ko || '',
+                        category: '产品名称',
+                        label: `产品名称 - ${series.name}`
                       };
                     }
+                    
+                    if (productDesc && typeof productDesc === 'string' && productDesc.trim()) {
+                      // 为产品描述生成唯一键
+                      const descKey = `${productName || filename}_描述`;
+                      scannedTranslations[descKey] = {
+                        zh: productDesc,
+                        en: product.description?.en || '',
+                        ko: product.description?.ko || '',
+                        category: '产品描述',
+                        label: `产品描述 - ${series.name}`
+                      };
+                    }
+                    
+                    tags.forEach((tag, tagIdx) => {
+                      if (tag && tag.trim()) {
+                        // 使用标签文本作为键
+                        scannedTranslations[tag] = {
+                          zh: tag,
+                          en: '',
+                          ko: '',
+                          category: '产品标签',
+                          label: `产品标签 - ${series.name}`
+                        };
+                      }
+                    });
                   });
-                });
+                }
+              } catch (err) {
+                console.warn(`Failed to load ${series.name}:`, err);
               }
-            } catch (err) {
-              console.warn(`Failed to load ${series.name}:`, err);
             }
+          } catch (err) {
+            console.warn('Failed to fetch series list:', err);
           }
           
           this.displayScannedTranslations(scannedTranslations);
@@ -2091,27 +2049,8 @@
       }
       
       async saveSiteInfo() {
-        const siteInfo = {
-          companyName: {
-            zh: document.getElementById('companyName-zh').value,
-            en: document.getElementById('companyName-en').value,
-            ko: document.getElementById('companyName-ko').value
-          },
-          companyDescription: {
-            zh: document.getElementById('companyDescription-zh').value,
-            en: document.getElementById('companyDescription-en').value,
-            ko: document.getElementById('companyDescription-ko').value
-          },
-          companyAddress: { zh: document.getElementById('companyAddress').value },
-          companyPhone: { zh: document.getElementById('companyPhone').value },
-          companyEmail: { zh: document.getElementById('companyEmail').value },
-          companyWechat: { zh: document.getElementById('companyWechat').value },
-          workingHours: { zh: document.getElementById('workingHours').value }
-        };
-        
-        this.config.siteInfo = siteInfo;
-        await this.saveConfig();
-        this.updatePreview();
+        // 站点信息已合并到翻译词典，此方法已废弃
+        this.showStatus('站点信息已合并到翻译词典，请通过翻译词典管理', 'info');
       }
       
       async saveSocialMedia() {
