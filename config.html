@@ -1180,23 +1180,7 @@
       async loadConfig() {
         this.showLoading(true);
         try {
-          // 1. 首先尝试从本地存储加载配置
-          const localConfig = localStorage.getItem('gh5_config');
-          if (localConfig) {
-            try {
-              this.config = JSON.parse(localConfig);
-              this.fillFormData();
-              this.updatePreview();
-              this.showStatus('从本地存储加载配置', 'info');
-              // 后台尝试从 GitHub 更新配置
-              this.updateConfigFromGitHub();
-              return;
-            } catch (parseError) {
-              console.warn('Local config parse error:', parseError);
-            }
-          }
-          
-          // 2. 尝试从 GitHub API 加载配置
+          // 1. 首先尝试从 GitHub API 加载最新配置
           try {
             cacheManager.clear('config.json');
             this.config = await githubAPI.fetchFile('config.json');
@@ -1209,6 +1193,20 @@
             this.showStatus('配置加载成功', 'success');
           } catch (apiError) {
             console.error('GitHub API config error:', apiError);
+            
+            // 2. 如果 GitHub 加载失败，尝试从本地存储加载配置
+            const localConfig = localStorage.getItem('gh5_config');
+            if (localConfig) {
+              try {
+                this.config = JSON.parse(localConfig);
+                this.fillFormData();
+                this.updatePreview();
+                this.showStatus('从本地存储加载配置（GitHub 加载失败）', 'info');
+                return;
+              } catch (parseError) {
+                console.warn('Local config parse error:', parseError);
+              }
+            }
             
             // 3. 使用默认配置
             this.config = this.getDefaultConfig();
@@ -2134,6 +2132,16 @@
                 name: item.name,
                 path: `${item.path}/products.json`
               }));
+            
+            // 重新加载配置以确保获取最新的系列名称映射
+            try {
+              const freshConfig = await githubAPI.fetchFile('config.json');
+              if (freshConfig && freshConfig.seriesNameMap) {
+                this.config.seriesNameMap = freshConfig.seriesNameMap;
+              }
+            } catch (configError) {
+              console.warn('Failed to refresh config:', configError);
+            }
             
             // 获取系列名称映射
             const seriesNameMap = this.config.seriesNameMap || {};
