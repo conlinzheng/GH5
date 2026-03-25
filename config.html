@@ -1483,8 +1483,14 @@
       updateTranslationStats() {
         const count = this.translations.length;
         const complete = this.translations.filter(t => t.zh && t.en && t.ko).length;
-        document.getElementById('translation-count').textContent = count;
-        document.getElementById('translation-complete').textContent = complete;
+        const countElement = document.getElementById('translation-count');
+        if (countElement) {
+          countElement.textContent = count;
+        }
+        const completeElement = document.getElementById('translation-complete');
+        if (completeElement) {
+          completeElement.textContent = complete;
+        }
       }
       
       searchTranslations(query) {
@@ -2633,18 +2639,25 @@
         const pageSettings = this.config.pageSettings || {};
         const currentLang = pageSettings.defaultLanguage || 'zh';
         
-        document.getElementById('preview-companyName').textContent = siteInfo.companyName?.[currentLang] || '-';
-        document.getElementById('preview-companyDescription').textContent = siteInfo.companyDescription?.[currentLang] || '-';
-        document.getElementById('preview-address').textContent = siteInfo.companyAddress?.zh || '-';
-        document.getElementById('preview-phone').textContent = siteInfo.companyPhone?.zh || '-';
-        document.getElementById('preview-email').textContent = siteInfo.companyEmail?.zh || '-';
-        document.getElementById('preview-wechat').textContent = siteInfo.companyWechat?.zh || '-';
-        document.getElementById('preview-workingHours').textContent = siteInfo.workingHours?.zh || '-';
+        const previewElements = [
+          { id: 'preview-companyName', value: siteInfo.companyName?.[currentLang] || '-' },
+          { id: 'preview-companyDescription', value: siteInfo.companyDescription?.[currentLang] || '-' },
+          { id: 'preview-address', value: siteInfo.companyAddress?.zh || '-' },
+          { id: 'preview-phone', value: siteInfo.companyPhone?.zh || '-' },
+          { id: 'preview-email', value: siteInfo.companyEmail?.zh || '-' },
+          { id: 'preview-wechat', value: siteInfo.companyWechat?.zh || '-' },
+          { id: 'preview-workingHours', value: siteInfo.workingHours?.zh || '-' },
+          { id: 'preview-formspreeId', value: contactForm.formspreeId || '未配置' },
+          { id: 'preview-formStatus', value: contactForm.enable !== false ? '已启用' : '已禁用' },
+          { id: 'preview-defaultLanguage', value: currentLang === 'zh' ? '中文' : currentLang === 'en' ? 'English' : '한국어' }
+        ];
         
-        document.getElementById('preview-formspreeId').textContent = contactForm.formspreeId || '未配置';
-        document.getElementById('preview-formStatus').textContent = contactForm.enable !== false ? '已启用' : '已禁用';
-        document.getElementById('preview-defaultLanguage').textContent = 
-          currentLang === 'zh' ? '中文' : currentLang === 'en' ? 'English' : '한국어';
+        previewElements.forEach(({ id, value }) => {
+          const element = document.getElementById(id);
+          if (element) {
+            element.textContent = value;
+          }
+        });
       }
       
       async saveSiteInfo() {

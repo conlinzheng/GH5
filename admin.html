@@ -726,7 +726,10 @@
         
         try {
           const startTime = new Date();
-          document.getElementById('last-scan').textContent = startTime.toLocaleString();
+          const lastScanElement = document.getElementById('last-scan');
+          if (lastScanElement) {
+            lastScanElement.textContent = startTime.toLocaleString();
+          }
           
           this.showStatus('正在扫描...', 'info');
           
@@ -1696,21 +1699,29 @@
       }
       
       updateSystemStatus() {
-        document.getElementById('product-count').textContent = this.products.length;
-        document.getElementById('series-count').textContent = this.series.length;
+        const productCountElement = document.getElementById('product-count');
+        if (productCountElement) {
+          productCountElement.textContent = this.products.length;
+        }
+        const seriesCountElement = document.getElementById('series-count');
+        if (seriesCountElement) {
+          seriesCountElement.textContent = this.series.length;
+        }
       }
       
       updateSeriesSelect() {
         const select = document.getElementById('product-series');
-        select.innerHTML = '';
-        
-        this.series.forEach(seriesItem => {
-          const displayName = this.seriesNameMap[seriesItem.name] || seriesItem.name;
-          const option = document.createElement('option');
-          option.value = seriesItem.name;
-          option.textContent = displayName;
-          select.appendChild(option);
-        });
+        if (select) {
+          select.innerHTML = '';
+          
+          this.series.forEach(seriesItem => {
+            const displayName = this.seriesNameMap[seriesItem.name] || seriesItem.name;
+            const option = document.createElement('option');
+            option.value = seriesItem.name;
+            option.textContent = displayName;
+            select.appendChild(option);
+          });
+        }
       }
       
       editProduct(productId, seriesId) {
