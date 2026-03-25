@@ -1306,7 +1306,7 @@ class Frontend {
   
   _handleLanguageChange(lang) {
     // 重新加载系列名称映射
-    this.state.seriesNameMap = this._getDefaultSeriesNameMap();
+    this.loadSeriesNameMap();
     // 重新渲染产品以更新系列名称和产品翻译
     this.renderProducts();
     // 更新搜索框placeholder
@@ -1321,6 +1321,11 @@ class Frontend {
   }
   
   getProductTranslation(zhText, fieldType = 'name') {
+    // 处理对象格式的输入（包含 zh, en, ko 字段）
+    if (typeof zhText === 'object' && zhText !== null) {
+      return zhText[this.state.currentLang] || zhText.zh || zhText;
+    }
+    
     if (!zhText || this.state.currentLang === 'zh') {
       return zhText;
     }
@@ -1377,23 +1382,7 @@ class Frontend {
     };
   }
 
-  // 获取系列的显示名称（支持多语言）
-  getSeriesDisplayName(seriesId) {
-    // 1. 首先从 seriesNameMap 中获取中文显示名称
-    const chineseName = this.state.seriesNameMap[seriesId] || this._getDefaultSeriesNameMap()[seriesId] || seriesId;
-    
-    // 2. 尝试使用翻译词典获取当前语言的译文
-    if (typeof i18n !== 'undefined') {
-      const translatedName = i18n.t(chineseName);
-      // 如果翻译存在且不是默认值，使用翻译
-      if (translatedName && translatedName !== chineseName) {
-        return translatedName;
-      }
-    }
-    
-    // 3. 如果没有翻译，返回中文名称
-    return chineseName;
-  }
+
   
   extractProductName(fileName) {
     // 从文件名中提取产品名称
