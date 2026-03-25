@@ -504,5 +504,8 @@
   "contactForm": {
     "formspreeId": "",
     "enable": true
+  },
+  "seriesNameMap": {
+    "2-真皮系列": "真皮"
   }
 }
