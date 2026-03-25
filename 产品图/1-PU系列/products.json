@@ -1,20 +1,20 @@
 {
   "seriesName": {
-    "zh": "1-PU系列",
-    "en": "1-PU系列",
-    "ko": "1-PU系列"
+    "zh": "超纤",
+    "en": "Microfiber",
+    "ko": "마이크로파이버"
   },
   "products": {
-    "中文 (1).png": {
+    "产品1 (1).jpg": {
       "name": {
-        "zh": "中文",
-        "en": "中文",
-        "ko": "中文"
+        "zh": "产品1",
+        "en": "Product 1",
+        "ko": "제품 1"
       },
       "description": {
-        "zh": "中文 - 高品质产品",
-        "en": "中文 - High quality product",
-        "ko": "中文 - 고품질 제품"
+        "zh": "产品1 - 高品质超纤产品",
+        "en": "Product 1 - High quality microfiber product",
+        "ko": "제품 1 - 고품질 마이크로파이버 제품"
       },
       "price": "",
       "materials": {
@@ -23,16 +23,16 @@
         "sole": ""
       }
     },
-    "产品1 (1).jpg": {
+    "产品2 (1).jpg": {
       "name": {
-        "zh": "产品1",
-        "en": "产品1",
-        "ko": "产品1"
+        "zh": "产品2",
+        "en": "Product 2",
+        "ko": "제품 2"
       },
       "description": {
-        "zh": "产品1 - 高品质产品",
-        "en": "产品1 - High quality product",
-        "ko": "产品1 - 고품질 제품"
+        "zh": "产品2 - 高品质超纤产品",
+        "en": "Product 2 - High quality microfiber product",
+        "ko": "제품 2 - 고품질 마이크로파이버 제품"
       },
       "price": "",
       "materials": {
@@ -43,7 +43,7 @@
     }
   },
   "order": [
-    "中文",
-    "产品1"
+    "产品1",
+    "产品2"
   ]
 }

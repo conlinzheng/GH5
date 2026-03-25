@@ -2123,101 +2123,10 @@
             }
           }
           
-          // 动态获取系列信息，而不是硬编码
-          try {
-            const seriesList = await githubAPI.fetchDirectory('产品图');
-            const allSeries = seriesList
-              .filter(item => item.type === 'dir')
-              .map(item => ({
-                name: item.name,
-                path: `${item.path}/products.json`
-              }));
-            
-            // 重新加载配置以确保获取最新的系列名称映射
-            try {
-              const freshConfig = await githubAPI.fetchFile('config.json');
-              if (freshConfig && freshConfig.seriesNameMap) {
-                this.config.seriesNameMap = freshConfig.seriesNameMap;
-              }
-            } catch (configError) {
-              console.warn('Failed to refresh config:', configError);
-            }
-            
-            // 获取系列名称映射
-            const seriesNameMap = this.config.seriesNameMap || {};
-            
-            for (const series of allSeries) {
-              try {
-                const data = await githubAPI.fetchFile(series.path);
-                
-                // 确定系列显示名称
-                let seriesDisplayName = seriesNameMap[series.name] || series.name;
-                
-                // 如果产品文件中有 seriesName 字段，使用它
-                if (data.seriesName?.zh) {
-                  seriesDisplayName = data.seriesName.zh;
-                }
-                
-                // 扫描系列名称（使用显示名称作为键）
-                scannedTranslations[seriesDisplayName] = {
-                  zh: seriesDisplayName,
-                  en: data.seriesName?.en || '',
-                  ko: data.seriesName?.ko || '',
-                  category: '系列名称',
-                  label: `系列名称 - ${series.name}`
-                };
-                
-                if (data.products) {
-                  Object.entries(data.products).forEach(([filename, product], idx) => {
-                    // 处理产品名称（包括后台自定义显示名称）
-                    const productName = product.name?.zh || product.name;
-                    const productDesc = product.description?.zh || product.description;
-                    const tags = product.tags || [];
-                    
-                    if (productName && typeof productName === 'string' && productName.trim()) {
-                      // 使用产品名称作为键，确保与后台显示一致
-                      scannedTranslations[productName] = {
-                        zh: productName,
-                        en: product.name?.en || '',
-                        ko: product.name?.ko || '',
-                        category: '产品名称',
-                        label: `产品名称 - ${series.name}`
-                      };
-                    }
-                    
-                    if (productDesc && typeof productDesc === 'string' && productDesc.trim()) {
-                      // 为产品描述生成唯一键
-                      const descKey = `${productName || filename}_描述`;
-                      scannedTranslations[descKey] = {
-                        zh: productDesc,
-                        en: product.description?.en || '',
-                        ko: product.description?.ko || '',
-                        category: '产品描述',
-                        label: `产品描述 - ${series.name}`
-                      };
-                    }
-                    
-                    tags.forEach((tag, tagIdx) => {
-                      if (tag && tag.trim()) {
-                        // 使用标签文本作为键
-                        scannedTranslations[tag] = {
-                          zh: tag,
-                          en: '',
-                          ko: '',
-                          category: '产品标签',
-                          label: `产品标签 - ${series.name}`
-                        };
-                      }
-                    });
-                  });
-                }
-              } catch (err) {
-                console.warn(`Failed to load ${series.name}:`, err);
-              }
-            }
-          } catch (err) {
-            console.warn('Failed to fetch series list:', err);
-          }
+          // 注意：系列名称和产品信息的翻译现在由后台页面管理
+          // 配置管理页面只管理通用文本翻译
+          // 系列名称存储在 products.json 的 seriesName 字段中
+          // 产品信息（名称、描述、标签）存储在 products.json 的 products 字段中
           
           this.displayScannedTranslations(scannedTranslations);
           this.showStatus(`扫描完成，共发现 ${Object.keys(scannedTranslations).length} 个翻译项`, 'success');
