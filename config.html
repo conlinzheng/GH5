@@ -1180,19 +1180,66 @@
       async loadConfig() {
         this.showLoading(true);
         try {
-          cacheManager.clear('config.json');
-          this.config = await githubAPI.fetchFile('config.json');
+          // 1. 首先尝试从本地存储加载配置
+          const localConfig = localStorage.getItem('gh5_config');
+          if (localConfig) {
+            try {
+              this.config = JSON.parse(localConfig);
+              this.fillFormData();
+              this.updatePreview();
+              this.showStatus('从本地存储加载配置', 'info');
+              // 后台尝试从 GitHub 更新配置
+              this.updateConfigFromGitHub();
+              return;
+            } catch (parseError) {
+              console.warn('Local config parse error:', parseError);
+            }
+          }
           
-          this.fillFormData();
-          this.updatePreview();
-          this.showStatus('配置加载成功', 'success');
+          // 2. 尝试从 GitHub API 加载配置
+          try {
+            cacheManager.clear('config.json');
+            this.config = await githubAPI.fetchFile('config.json');
+            
+            // 保存到本地存储
+            localStorage.setItem('gh5_config', JSON.stringify(this.config));
+            
+            this.fillFormData();
+            this.updatePreview();
+            this.showStatus('配置加载成功', 'success');
+          } catch (apiError) {
+            console.error('GitHub API config error:', apiError);
+            
+            // 3. 使用默认配置
+            this.config = this.getDefaultConfig();
+            this.fillFormData();
+            this.updatePreview();
+            this.showStatus('使用默认配置', 'info');
+          }
         } catch (error) {
           console.error('Load config error:', error);
-          this.showStatus('加载配置失败，使用默认配置', 'error');
           this.config = this.getDefaultConfig();
           this.fillFormData();
+          this.updatePreview();
+          this.showStatus('加载配置失败，使用默认配置', 'error');
         } finally {
           this.showLoading(false);
+        }
+      }
+
+      async updateConfigFromGitHub() {
+        try {
+          const remoteConfig = await githubAPI.fetchFile('config.json');
+          if (remoteConfig) {
+            this.config = remoteConfig;
+            localStorage.setItem('gh5_config', JSON.stringify(this.config));
+            this.fillFormData();
+            this.updatePreview();
+            this.showStatus('配置已从 GitHub 更新', 'success');
+          }
+        } catch (error) {
+          console.warn('Update config from GitHub failed:', error);
+          // 静默失败，不影响用户体验
         }
       }
       
@@ -2879,12 +2926,19 @@
         this.showLoading(true);
         try {
           const jsonContent = JSON.stringify(this.config, null, 2);
+          
+          // 先更新本地存储
+          localStorage.setItem('gh5_config', jsonContent);
+          
+          // 然后尝试保存到 GitHub
           await githubAPI.commitFile('config.json', jsonContent, 'Update site configuration');
           cacheManager.clearAll();
           this.showStatus('保存成功！', 'success');
         } catch (error) {
           console.error('Save config error:', error);
-          this.showStatus('保存失败: ' + error.message, 'error');
+          
+          // 即使 GitHub 保存失败，本地存储也已更新
+          this.showStatus('保存到 GitHub 失败，但本地配置已更新: ' + error.message, 'info');
         } finally {
           this.showLoading(false);
         }
