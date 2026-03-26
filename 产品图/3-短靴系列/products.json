@@ -6,22 +6,19 @@
   },
   "products": {
     "00A (1).jpg": {
-      "name": {
-        "zh": "00A",
-        "en": "00A",
-        "ko": "00A"
-      },
-      "description": {
-        "zh": "00A - 高品质产品",
-        "en": "00A - High quality product",
-        "ko": "00A - 고품질 제품"
-      },
-      "price": "",
+      "name": "短靴",
+      "description": "短靴111",
+      "price": "10",
+      "tags": [
+        "新品"
+      ],
       "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      }
+        "upper": "皮",
+        "lining": "皮",
+        "sole": "发泡"
+      },
+      "customizable": "true",
+      "minOrder": "111"
     },
     "中文+ (1).png": {
       "name": {
