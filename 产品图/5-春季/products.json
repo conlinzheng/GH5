@@ -60,15 +60,15 @@
       },
       "price": "44",
       "tags": [
-        "春天"
+        "新品"
       ],
       "materials": {
         "upper": "44",
         "lining": "44",
         "sole": "44"
       },
-      "customizable": "",
-      "minOrder": ""
+      "customizable": "true",
+      "minOrder": "100"
     },
     "99 (2).png": {
       "name": {
@@ -107,15 +107,15 @@
       },
       "price": "44",
       "tags": [
-        "春天"
+        "新品"
       ],
       "materials": {
         "upper": "44",
         "lining": "44",
         "sole": "44"
       },
-      "customizable": "",
-      "minOrder": ""
+      "customizable": "true",
+      "minOrder": "100"
     },
     "新款1 (2).jpg": {
       "name": {
