@@ -2014,19 +2014,24 @@
           }
         });
         
-        this.config.socialLinks = {
-          facebook: document.getElementById('social-facebook').value,
-          instagram: document.getElementById('social-instagram').value,
-          twitter: document.getElementById('social-twitter').value,
-          youtube: document.getElementById('social-youtube').value,
-          tiktok: document.getElementById('social-tiktok').value,
-          telegram: document.getElementById('social-telegram').value,
-          whatsapp: document.getElementById('social-whatsapp').value,
-          linkedin: document.getElementById('social-linkedin').value,
-          pinterest: document.getElementById('social-pinterest').value,
-          weibo: document.getElementById('social-weibo').value,
-          customLinks: customLinks,
-          display: document.getElementById('social-display').checked
+        // 保留其他重要配置字段
+        const existingConfig = this.config;
+        this.config = {
+          ...existingConfig,
+          socialLinks: {
+            facebook: document.getElementById('social-facebook').value,
+            instagram: document.getElementById('social-instagram').value,
+            twitter: document.getElementById('social-twitter').value,
+            youtube: document.getElementById('social-youtube').value,
+            tiktok: document.getElementById('social-tiktok').value,
+            telegram: document.getElementById('social-telegram').value,
+            whatsapp: document.getElementById('social-whatsapp').value,
+            linkedin: document.getElementById('social-linkedin').value,
+            pinterest: document.getElementById('social-pinterest').value,
+            weibo: document.getElementById('social-weibo').value,
+            customLinks: customLinks,
+            display: document.getElementById('social-display').checked
+          }
         };
         
         await this.saveConfig();
@@ -2034,24 +2039,29 @@
       }
       
       async savePageAssets() {
-        this.config.pageAssets = {
-          favicon: document.getElementById('asset-favicon').value,
-          logo: document.getElementById('asset-logo').value,
-          carousel1: {
-            url: document.getElementById('asset-carousel1').value,
-            title: { zh: document.getElementById('asset-carousel1-title-zh').value },
-            desc: { zh: document.getElementById('asset-carousel1-desc-zh').value },
-            link: document.getElementById('asset-carousel1-link').value
-          },
-          carousel2: {
-            url: document.getElementById('asset-carousel2').value,
-            title: { zh: document.getElementById('asset-carousel2-title-zh').value },
-            desc: { zh: document.getElementById('asset-carousel2-desc-zh').value },
-            link: document.getElementById('asset-carousel2-link').value
-          },
-          defaultProductImage: document.getElementById('asset-default-product').value,
-          defaultCoverImage: document.getElementById('asset-default-cover').value,
-          ogImage: document.getElementById('asset-og-image').value
+        // 保留其他重要配置字段
+        const existingConfig = this.config;
+        this.config = {
+          ...existingConfig,
+          pageAssets: {
+            favicon: document.getElementById('asset-favicon').value,
+            logo: document.getElementById('asset-logo').value,
+            carousel1: {
+              url: document.getElementById('asset-carousel1').value,
+              title: { zh: document.getElementById('asset-carousel1-title-zh').value },
+              desc: { zh: document.getElementById('asset-carousel1-desc-zh').value },
+              link: document.getElementById('asset-carousel1-link').value
+            },
+            carousel2: {
+              url: document.getElementById('asset-carousel2').value,
+              title: { zh: document.getElementById('asset-carousel2-title-zh').value },
+              desc: { zh: document.getElementById('asset-carousel2-desc-zh').value },
+              link: document.getElementById('asset-carousel2-link').value
+            },
+            defaultProductImage: document.getElementById('asset-default-product').value,
+            defaultCoverImage: document.getElementById('asset-default-cover').value,
+            ogImage: document.getElementById('asset-og-image').value
+          }
         };
         
         await this.saveConfig();
@@ -2059,9 +2069,14 @@
       }
       
       async saveContactForm() {
-        this.config.contactForm = {
-          formspreeId: document.getElementById('formspreeId').value,
-          enable: document.getElementById('contactFormEnable').checked
+        // 保留其他重要配置字段
+        const existingConfig = this.config;
+        this.config = {
+          ...existingConfig,
+          contactForm: {
+            formspreeId: document.getElementById('formspreeId').value,
+            enable: document.getElementById('contactFormEnable').checked
+          }
         };
         
         await this.saveConfig();
@@ -2083,18 +2098,30 @@
           }
         });
         
-        this.config.translations = translations;
+        // 保留其他重要配置字段
+        const existingConfig = this.config;
+        this.config = {
+          ...existingConfig,
+          translations: translations
+        };
+        
         await this.saveConfig();
       }
       
       async savePageSettings() {
-        this.config.pageSettings = {
-          defaultLanguage: document.getElementById('defaultLanguage').value,
-          enableI18n: document.getElementById('enableI18n').value === 'true',
-          title: {
-            zh: document.getElementById('title-zh').value,
-            en: document.getElementById('title-en').value,
-            ko: document.getElementById('title-ko').value
+        // 保留其他重要配置字段
+        const existingConfig = this.config;
+        this.config = {
+          ...existingConfig,
+          pageSettings: {
+            ...(existingConfig.pageSettings || {}),
+            defaultLanguage: document.getElementById('defaultLanguage').value,
+            enableI18n: document.getElementById('enableI18n').value === 'true',
+            title: {
+              zh: document.getElementById('title-zh').value,
+              en: document.getElementById('title-en').value,
+              ko: document.getElementById('title-ko').value
+            }
           }
         };
         
@@ -2179,8 +2206,13 @@
           ko: document.getElementById('text-loading-ko').value
         };
         
-        this.config.siteInfo = siteInfo;
-        this.config.pageSettings = pageSettings;
+        // 保留其他重要配置字段
+        const existingConfig = this.config;
+        this.config = {
+          ...existingConfig,
+          siteInfo: siteInfo,
+          pageSettings: pageSettings
+        };
         
         await this.saveConfig();
         this.updatePreview();
