@@ -118,8 +118,20 @@ class FrontendEvents {
     // 联系表单提交
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
+      // 表单输入验证
+      contactForm.querySelectorAll('input, textarea').forEach(field => {
+        field.addEventListener('blur', (e) => {
+          this.validateContactField(e.target);
+        });
+      });
+      
       contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // 验证表单
+        if (!this.validateContactForm()) {
+          return;
+        }
         
         const formspreeUrl = this.frontend.getFormspreeUrl();
         
@@ -183,6 +195,61 @@ class FrontendEvents {
         }
       });
     }
+  }
+  
+  validateContactForm() {
+    const form = document.getElementById('contact-form');
+    const fields = form.querySelectorAll('input, textarea');
+    let isValid = true;
+    
+    fields.forEach(field => {
+      if (!this.validateContactField(field)) {
+        isValid = false;
+      }
+    });
+    
+    return isValid;
+  }
+  
+  validateContactField(field) {
+    const value = field.value.trim();
+    const id = field.id;
+    
+    // 清除之前的错误信息
+    const errorElement = field.nextElementSibling;
+    if (errorElement && errorElement.classList.contains('field-error')) {
+      errorElement.remove();
+    }
+    
+    if (field.hasAttribute('required') && value === '') {
+      this.showFieldError(field, '此字段为必填项');
+      return false;
+    }
+    
+    if (id === 'email' && value !== '') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        this.showFieldError(field, '请输入有效的邮箱地址');
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  showFieldError(field, message) {
+    let errorElement = field.nextElementSibling;
+    if (!errorElement || !errorElement.classList.contains('field-error')) {
+      errorElement = document.createElement('div');
+      errorElement.classList.add('field-error');
+      errorElement.style.cssText = `
+        color: #dc2626;
+        font-size: 12px;
+        margin-top: 4px;
+      `;
+      field.parentNode.insertBefore(errorElement, field.nextSibling);
+    }
+    errorElement.textContent = message;
   }
 }
 

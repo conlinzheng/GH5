@@ -1,0 +1,16 @@
+{
+  "name": "gh5-product-site",
+  "version": "1.0.0",
+  "description": "GH5 产品展示网站",
+  "main": "index.html",
+  "scripts": {
+    "deploy": "cloudbase hosting:deploy"
+  },
+  "keywords": [
+    "product",
+    "showcase",
+    "cloudbase"
+  ],
+  "author": "",
+  "license": "ISC"
+}

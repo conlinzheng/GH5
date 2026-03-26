@@ -65,7 +65,22 @@ class Frontend {
   }
   
   getImageUrl(seriesId, imageName) {
-    return `https://${this.config.github.owner}.github.io/${this.config.github.repo}/${this.config.github.productsPath}/${seriesId}/${imageName}`;
+    // 生成基础图片URL
+    const baseUrl = `https://${this.config.github.owner}.github.io/${this.config.github.repo}/${this.config.github.productsPath}/${seriesId}/`;
+    
+    // 检查浏览器是否支持WebP格式
+    const supportsWebP = (function() {
+      var elem = document.createElement('canvas');
+      return !!(elem.getContext && elem.getContext('2d')) && elem.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+    })();
+    
+    // 如果支持WebP且图片不是WebP格式，尝试使用WebP版本
+    if (supportsWebP && !imageName.toLowerCase().endsWith('.webp')) {
+      const webpImageName = imageName.replace(/\.(jpg|jpeg|png|gif)$/i, '.webp');
+      return baseUrl + webpImageName;
+    }
+    
+    return baseUrl + imageName;
   }
   
   async loadSiteConfig() {
@@ -387,7 +402,7 @@ class Frontend {
     return zhText;
   }
   
-  _showLoading(show) {
+  _showLoading(show, message = '正在加载产品数据...') {
     const loadingElement = document.getElementById('loading');
     if (loadingElement) {
       loadingElement.style.display = show ? 'block' : 'none';
@@ -402,8 +417,24 @@ class Frontend {
         if (productsContainer.querySelector('.loading-message') === null) {
           const loadingMessage = document.createElement('div');
           loadingMessage.className = 'loading-message';
-          loadingMessage.textContent = '正在加载产品数据...';
+          loadingMessage.innerHTML = `
+            <div class="loading-spinner"></div>
+            <p>${message}</p>
+          `;
           productsContainer.appendChild(loadingMessage);
+        } else {
+          // 更新加载消息
+          const existingMessage = productsContainer.querySelector('.loading-message p');
+          if (existingMessage) {
+            existingMessage.textContent = message;
+          }
+        }
+        
+        // 禁用刷新按钮
+        const refreshBtn = document.getElementById('refresh-data');
+        if (refreshBtn) {
+          refreshBtn.disabled = true;
+          refreshBtn.classList.add('disabled');
         }
       } else {
         productsContainer.classList.remove('loading');
@@ -411,19 +442,31 @@ class Frontend {
         if (loadingMessage) {
           loadingMessage.remove();
         }
+        
+        // 启用刷新按钮
+        const refreshBtn = document.getElementById('refresh-data');
+        if (refreshBtn) {
+          refreshBtn.disabled = false;
+          refreshBtn.classList.remove('disabled');
+        }
       }
     }
   }
   
-  _showError(message) {
+  _showError(message, showRetry = true) {
     const errorElement = document.getElementById('error-message');
     if (errorElement) {
-      errorElement.textContent = message;
+      errorElement.innerHTML = `
+        <div class="error-content">
+          <p>${message}</p>
+          ${showRetry ? '<button class="retry-btn" onclick="frontend.refreshData()">重试</button>' : ''}
+        </div>
+      `;
       errorElement.style.display = 'block';
-      // 3秒后自动隐藏错误信息
+      // 5秒后自动隐藏错误信息
       setTimeout(() => {
         errorElement.style.display = 'none';
-      }, 3000);
+      }, 5000);
     }
     
     // 同时在产品容器显示错误提示
@@ -435,12 +478,26 @@ class Frontend {
         loadingMessage.remove();
       }
       
-      if (productsContainer.querySelector('.error-message') === null) {
-        const errorMessage = document.createElement('div');
-        errorMessage.className = 'error-message';
-        errorMessage.textContent = message;
-        productsContainer.appendChild(errorMessage);
+      const existingError = productsContainer.querySelector('.error-message');
+      if (existingError) {
+        existingError.remove();
       }
+      
+      const errorMessage = document.createElement('div');
+      errorMessage.className = 'error-message';
+      errorMessage.innerHTML = `
+        <div class="error-icon">⚠️</div>
+        <div class="error-text">${message}</div>
+        ${showRetry ? '<button class="retry-btn" onclick="frontend.refreshData()">重试</button>' : ''}
+      `;
+      productsContainer.appendChild(errorMessage);
+    }
+    
+    // 启用刷新按钮
+    const refreshBtn = document.getElementById('refresh-data');
+    if (refreshBtn) {
+      refreshBtn.disabled = false;
+      refreshBtn.classList.remove('disabled');
     }
   }
   

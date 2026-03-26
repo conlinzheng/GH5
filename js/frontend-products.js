@@ -31,7 +31,7 @@ class FrontendProducts {
       const products = [];
       
       // 限制并发请求数量
-      const maxConcurrentRequests = 2;
+      const maxConcurrentRequests = 3;
       const seriesBatches = [];
       
       // 将系列分成批次
@@ -41,38 +41,54 @@ class FrontendProducts {
       
       // 按批次处理系列
       for (const batch of seriesBatches) {
+        // 检查API限流状态
+        const rateLimitInfo = githubAPI.getRateLimitInfo();
+        if (rateLimitInfo.isLimited) {
+          const waitTime = rateLimitInfo.resetInMinutes;
+          console.log(`API rate limit reached, waiting ${waitTime} minutes...`);
+          
+          // 显示用户友好的提示
+          const message = typeof i18n !== 'undefined' 
+            ? `API请求过于频繁，请${waitTime}分钟后重试` 
+            : `API rate limit reached. Please try again in ${waitTime} minutes.`;
+          
+          this.frontend._showError(message);
+          
+          await githubAPI.waitForRateLimitReset();
+          
+          // 清除错误提示
+          const errorElement = document.getElementById('error-message');
+          if (errorElement) {
+            errorElement.style.display = 'none';
+          }
+        }
+        
         const batchPromises = batch.map(async (seriesItem) => {
           try {
-            // 检查API限流状态
-            const rateLimitInfo = githubAPI.getRateLimitInfo();
-            if (rateLimitInfo.isLimited) {
-              const waitTime = rateLimitInfo.resetInMinutes;
-              console.log(`API rate limit reached, waiting ${waitTime} minutes...`);
-              
-              // 显示用户友好的提示
-              const message = typeof i18n !== 'undefined' 
-                ? `API请求过于频繁，请${waitTime}分钟后重试` 
-                : `API rate limit reached. Please try again in ${waitTime} minutes.`;
-              
-              this.frontend._showError(message);
-              
-              await githubAPI.waitForRateLimitReset();
-              
-              // 清除错误提示
-              const errorElement = document.getElementById('error-message');
-              if (errorElement) {
-                errorElement.style.display = 'none';
-              }
-            }
-            
-            // 获取系列目录下的所有文件
-            let files;
-            try {
-              files = await githubAPI.fetchDirectory(seriesItem.path);
-            } catch (error) {
-              console.warn(`Failed to fetch directory for ${seriesItem.name}:`, error);
-              return;
-            }
+            // 并行获取系列目录和产品数据文件
+            const [files, productsFile] = await Promise.all([
+              githubAPI.fetchDirectory(seriesItem.path).catch(error => {
+                console.warn(`Failed to fetch directory for ${seriesItem.name}:`, error);
+                return [];
+              }),
+              (async () => {
+                // 只有在缓存不存在时才请求API
+                const cachedData = cacheManager.get(`${seriesItem.path}/products.json`);
+                if (cachedData) {
+                  console.log(`Using cached data for ${seriesItem.path}/products.json`);
+                  return cachedData;
+                }
+                try {
+                  const data = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+                  // 缓存数据
+                  cacheManager.set(`${seriesItem.path}/products.json`, data, this.frontend.config.cacheTTL);
+                  return data;
+                } catch (error) {
+                  console.warn(`Failed to load products.json for ${seriesItem.name}:`, error);
+                  return { products: {} };
+                }
+              })()
+            ]);
             
             const imageFiles = files.filter(file => {
               const ext = file.name.split('.').pop().toLowerCase();
@@ -88,24 +104,6 @@ class FrontendProducts {
               }
               productGroups[productName].push(file.name);
             });
-            
-            // 获取产品数据文件
-            let productsFile = { products: {} };
-            try {
-              // 只有在缓存不存在时才请求API
-              const cachedData = cacheManager.get(`${seriesItem.path}/products.json`);
-              if (cachedData) {
-                productsFile = cachedData;
-                console.log(`Using cached data for ${seriesItem.path}/products.json`);
-              } else {
-                productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
-                // 缓存数据
-                cacheManager.set(`${seriesItem.path}/products.json`, productsFile, this.frontend.config.cacheTTL);
-              }
-            } catch (error) {
-              console.warn(`Failed to load products.json for ${seriesItem.name}:`, error);
-              productsFile = { products: {} };
-            }
             
             // 为每个产品创建数据
             const productsByGroup = {};
@@ -175,9 +173,6 @@ class FrontendProducts {
             Object.values(productsByGroup).forEach(product => {
               products.push(product);
             });
-            
-            // 添加请求间隔，避免API限流
-            await new Promise(resolve => setTimeout(resolve, 500));
           } catch (error) {
             console.warn(`Failed to load products for ${seriesItem.name}:`, error);
           }
@@ -185,6 +180,9 @@ class FrontendProducts {
         
         // 等待批次请求完成
         await Promise.all(batchPromises);
+        
+        // 添加批次间的间隔，避免API限流
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
 
       console.log('产品数据加载完成，产品数量:', products.length);

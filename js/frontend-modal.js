@@ -104,6 +104,7 @@ class FrontendModal {
           <img src="${img}" 
                alt="${index + 1}" 
                class="gallery-thumb"
+               loading="lazy"
                onclick="changeMainImage('${img}')">
           <div class="gallery-thumb-label">图片 ${index + 1}</div>
         </div>
