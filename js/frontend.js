@@ -62,11 +62,11 @@ class Frontend {
   async loadSiteConfig() {
     try {
       cacheManager.clear('config.json');
-      const config = await githubAPI.fetchFile('config.json');
-      this.state.siteConfig = config;
+      const siteConfig = await githubAPI.fetchFile('config.json');
+      this.state.siteConfig = siteConfig;
       // 使用i18n的当前语言设置
-      this.state.currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : config.pageSettings?.defaultLanguage || 'zh';
-      this.state.translations = config.translations || {};
+      this.state.currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : siteConfig.pageSettings?.defaultLanguage || 'zh';
+      this.state.translations = siteConfig.translations || {};
       this.updateContactModal();
       this.updatePageTitle();
       this.updateCarousel();
@@ -941,29 +941,48 @@ class Frontend {
   
   async loadSeriesNameMap() {
     try {
-      // 清除 config.json 的缓存以确保获取最新数据
-      // 使用正确的缓存键名格式
-      const configCacheKey = cacheManager.prefix + 'config.json';
-      localStorage.removeItem(configCacheKey);
-      console.log('Config.json cache cleared in loadSeriesNameMap');
+      // 从每个系列的 products.json 文件中加载系列名称映射
+      const seriesNameMap = {};
+      const seriesList = [
+        '1-PU系列', '2-真皮系列', '3-短靴系列', 
+        '4-乐福系列', '5-春季', '6-夏季', '7-秋季'
+      ];
       
-      // 尝试从配置文件加载系列名称映射和排序信息
-      let configFile;
-      try {
-        configFile = await githubAPI.fetchFile('config.json');
-        if (configFile && configFile.seriesNameMap) {
-          this.state.seriesNameMap = configFile.seriesNameMap;
+      for (const seriesName of seriesList) {
+        try {
+          // 清除 products.json 的缓存
+          const cacheKey = cacheManager.prefix + `产品图/${seriesName}/products.json`;
+          localStorage.removeItem(cacheKey);
+          
+          const productsFile = await githubAPI.fetchFile(`产品图/${seriesName}/products.json`);
+          if (productsFile && productsFile.seriesName && productsFile.seriesName.zh) {
+            seriesNameMap[seriesName] = productsFile.seriesName.zh;
+          }
+        } catch (error) {
+          console.warn(`Failed to load series name for ${seriesName}:`, error);
         }
+      }
+      
+      if (Object.keys(seriesNameMap).length > 0) {
+        this.state.seriesNameMap = seriesNameMap;
+      } else {
+        // 使用默认映射
+        this.state.seriesNameMap = this._getDefaultSeriesNameMap();
+      }
+      
+      // 尝试从配置文件加载系列顺序
+      try {
+        // 清除 config.json 的缓存
+        const configCacheKey = cacheManager.prefix + 'config.json';
+        localStorage.removeItem(configCacheKey);
+        
+        const configFile = await githubAPI.fetchFile('config.json');
         if (configFile && configFile.seriesOrder) {
           this.state.seriesOrder = configFile.seriesOrder;
         }
-        return;
       } catch (error) {
-        console.log('Config file not found, using default series name map');
+        console.warn('Failed to load series order:', error);
       }
-      
-      // 使用默认映射
-      this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     } catch (error) {
       console.error('Load series name map error:', error);
       // 使用默认映射
