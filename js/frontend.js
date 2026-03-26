@@ -46,12 +46,10 @@ class Frontend {
       const newLang = event.detail.language;
       this.state.currentLang = newLang;
       this.updatePageTitle();
-      this.updateSiteTitle();
       this.updateCarousel();
       this.updateContactModal();
       this.updateFooter();
       this.updateFormLabels();
-      this.updateSearchPlaceholder();
       console.log('Language changed to:', newLang);
     });
   }
@@ -70,9 +68,7 @@ class Frontend {
       this.state.translations = config.translations || {};
       this.updateContactModal();
       this.updatePageTitle();
-      this.updateSiteTitle();
       this.updateCarousel();
-      this.updateSearchPlaceholder();
     } catch (error) {
       console.error('Load site config error:', error);
       this.state.siteConfig = {
@@ -93,28 +89,6 @@ class Frontend {
     
     if (pageSettings.title) {
       document.title = pageSettings.title[lang] || pageSettings.title.zh || 'GH5';
-    }
-  }
-  
-  updateSiteTitle() {
-    const config = this.state.siteConfig;
-    const lang = this.state.currentLang;
-    const pageSettings = config.pageSettings || {};
-    
-    const logoTitle = document.querySelector('.logo h1');
-    if (logoTitle) {
-      logoTitle.textContent = pageSettings.siteTitle?.[lang] || pageSettings.siteTitle?.zh || 'GH5';
-    }
-  }
-  
-  updateSearchPlaceholder() {
-    const config = this.state.siteConfig;
-    const lang = this.state.currentLang;
-    const pageSettings = config.pageSettings || {};
-    
-    const searchInput = document.getElementById('search-input');
-    if (searchInput && pageSettings.searchPlaceholder) {
-      searchInput.placeholder = pageSettings.searchPlaceholder[lang] || pageSettings.searchPlaceholder.zh || '搜索产品名称、标签...';
     }
   }
   
@@ -564,14 +538,6 @@ class Frontend {
     // 加载相关图片
     this.loadRelatedImages(product.images);
     
-    // 更新联系我们按钮文本
-    const contactBtn = modal.querySelector('.contact-btn');
-    if (contactBtn) {
-      const lang = this.state.currentLang;
-      const pageSettings = this.state.siteConfig.pageSettings || {};
-      contactBtn.textContent = pageSettings.contactUsText?.[lang] || pageSettings.contactUsText?.zh || '联系我们';
-    }
-    
     // 显示弹窗
     modal.style.display = 'block';
     modal.setAttribute('aria-hidden', 'false');
@@ -883,8 +849,8 @@ class Frontend {
                 console.log('产品标签:', productData.tags);
                 
                 // 处理多语言字段
-                const name = typeof productData.name === 'object' && productData.name !== null ? productData.name : (productData.name || productName);
-                const description = typeof productData.description === 'object' && productData.description !== null ? productData.description : (productData.description || '');
+                const name = productData.name?.zh || productData.name || productName;
+                const description = productData.description?.zh || productData.description || '';
                 
                 // 处理材质字段（兼容两种格式：materials 对象 或 单独字段）
                 const upperMaterial = productData.materials?.upper || productData.upperMaterial || '';
@@ -937,10 +903,10 @@ class Frontend {
           });
           
           // 等待批次请求完成
-          await Promise.all(batchPromises);
-        }
+        await Promise.all(batchPromises);
+      }
 
-        console.log('产品数据加载完成，产品数量:', products.length);
+      console.log('产品数据加载完成，产品数量:', products.length);
       console.log('产品数据示例:', products[0]);
       
       this.state.products = products;
@@ -1250,24 +1216,9 @@ class Frontend {
     this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     // 重新渲染产品以更新系列名称和产品翻译
     this.renderProducts();
-    // 更新搜索框占位文本
-    this.updateSearchPlaceholder();
   }
   
   getProductTranslation(zhText, fieldType = 'name') {
-    // 处理对象类型的输入
-    if (typeof zhText === 'object' && zhText !== null) {
-      const lang = this.state.currentLang;
-      const value = zhText[lang] || zhText.zh || '';
-      // 确保返回的是字符串
-      return typeof value === 'string' ? value : '';
-    }
-    
-    // 确保输入是字符串
-    if (typeof zhText !== 'string') {
-      return '';
-    }
-    
     if (!zhText || this.state.currentLang === 'zh') {
       return zhText;
     }
@@ -1279,9 +1230,7 @@ class Frontend {
     
     for (const [key, value] of Object.entries(translations)) {
       if (value.zh === zhText) {
-        const translatedValue = value[this.state.currentLang] || zhText;
-        // 确保返回的是字符串
-        return typeof translatedValue === 'string' ? translatedValue : zhText;
+        return value[this.state.currentLang] || zhText;
       }
     }
     

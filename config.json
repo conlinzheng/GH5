@@ -14,29 +14,29 @@
   },
   "siteInfo": {
     "companyName": {
-      "zh": "1",
+      "zh": "GH5鞋业",
       "en": "GH5 Shoes",
       "ko": "GH5 신발"
     },
     "companyDescription": {
-      "zh": "2",
+      "zh": "专业鞋类制造商",
       "en": "Professional Shoe Manufacturer",
       "ko": "전문 신발 제조업체"
     },
     "companyAddress": {
-      "zh": "广东省广州市黄埔区"
+      "zh": ""
     },
     "companyPhone": {
-      "zh": "15625613141"
+      "zh": ""
     },
     "companyEmail": {
-      "zh": "1329502822@qq.com"
+      "zh": ""
     },
     "companyWechat": {
-      "zh": "123456"
+      "zh": ""
     },
     "workingHours": {
-      "zh": "每天 9:00-18:00"
+      "zh": ""
     }
   },
   "contactForm": {
@@ -110,59 +110,54 @@
     "defaultLanguage": "zh",
     "enableI18n": true,
     "title": {
-      "zh": "GH5 鞋业2",
-      "en": "GH5 Shoes2",
+      "zh": "GH5 鞋业",
+      "en": "GH5 Shoes",
       "ko": "GH5 신발"
     },
-    "carouselWelcome": {
-      "zh": "3",
-      "en": "Welcome to GH5",
-      "ko": "GH5에 오신 것을 환영합니다"
+    "footerText": {
+      "zh": "© 2026 GH5. All rights reserved.",
+      "en": "© 2026 GH5. All rights reserved.",
+      "ko": "© 2026 GH5. All rights reserved."
     },
-    "carouselDescription": {
-      "zh": "4",
-      "en": "Explore our quality products",
-      "ko": "저희 품질 제품을 탐색하세요"
+    "loadingText": {
+      "zh": "稍等，加载中...",
+      "en": "Loading...",
+      "ko": "로딩 중..."
     },
     "searchPlaceholder": {
-      "zh": "5",
-      "en": "Search products...26",
+      "zh": "搜索产品...",
+      "en": "Search products...",
       "ko": "제품 검색..."
-    },
-    "productDetailsTitle": {
-      "zh": "6",
-      "en": "Product Details26",
-      "ko": "제품 상세"
-    },
-    "viewDetailsText": {
-      "zh": "7",
-      "en": "View Details",
-      "ko": "상세 보기"
     },
     "noProductsText": {
       "zh": "暂无产品",
       "en": "No products",
       "ko": "제품 없음"
     },
+    "productDetailsTitle": {
+      "zh": "产品详情",
+      "en": "Product Details",
+      "ko": "제품 상세"
+    },
+    "viewDetailsText": {
+      "zh": "查看详情",
+      "en": "View Details",
+      "ko": "상세 보기"
+    },
     "contactUsText": {
-      "zh": "8",
-      "en": "Contact Us26",
+      "zh": "联系我们",
+      "en": "Contact Us",
       "ko": "联系我们"
     },
-    "footerText": {
-      "zh": "9",
-      "en": "© 2026 GH5. All rights reserved.",
-      "ko": "© 2026 GH5. All rights reserved."
+    "carouselWelcome": {
+      "zh": "欢迎来到 GH5",
+      "en": "Welcome to GH5",
+      "ko": "GH5에 오신 것을 환영합니다"
     },
-    "loadingText": {
-      "zh": "10",
-      "en": "Loading...",
-      "ko": "로딩 중..."
-    },
-    "siteTitle": {
-      "zh": "0",
-      "en": "GH5",
-      "ko": "GH5"
+    "carouselDescription": {
+      "zh": "探索我们的优质产品",
+      "en": "Explore our quality products",
+      "ko": "저희 품질 제품을 탐색하세요"
     }
   }
 }
