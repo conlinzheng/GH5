@@ -236,13 +236,18 @@ class GitHubAPI {
       if (!response.ok) {
         const error = new Error(`HTTP error! status: ${response.status}`);
         error.status = response.status;
+        // 对于404错误，返回null而不是抛出错误
+        if (error.status === 404) {
+          return null;
+        }
         throw error;
       }
 
       return await response.json();
     } catch (error) {
       console.error('Fetch error:', error);
-      throw error;
+      // 网络错误或其他错误，返回null
+      return null;
     }
   }
 

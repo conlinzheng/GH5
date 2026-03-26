@@ -39,13 +39,17 @@ class Frontend {
   
   async init() {
     await this.loadSiteConfig();
-    this.loadProductsData();
-    this.setupEventListeners();
-    
     // 确保i18n初始化
     if (typeof i18n !== 'undefined' && !i18n.isReady) {
       i18n.init();
     }
+    this.setupEventListeners();
+    // 加载产品数据（不使用await，避免阻塞UI）
+    this.loadProductsData().catch(error => {
+      console.error('Failed to load products data:', error);
+      this.state.isLoading = false;
+      this._showLoading(false);
+    });
     
     // 监听语言变化事件
     document.addEventListener('languageChanged', (event) => {
@@ -388,6 +392,27 @@ class Frontend {
     if (loadingElement) {
       loadingElement.style.display = show ? 'block' : 'none';
     }
+    
+    // 同时更新产品容器的加载状态
+    const productsContainer = document.getElementById('products-container');
+    if (productsContainer) {
+      if (show) {
+        productsContainer.classList.add('loading');
+        // 添加加载提示
+        if (productsContainer.querySelector('.loading-message') === null) {
+          const loadingMessage = document.createElement('div');
+          loadingMessage.className = 'loading-message';
+          loadingMessage.textContent = '正在加载产品数据...';
+          productsContainer.appendChild(loadingMessage);
+        }
+      } else {
+        productsContainer.classList.remove('loading');
+        const loadingMessage = productsContainer.querySelector('.loading-message');
+        if (loadingMessage) {
+          loadingMessage.remove();
+        }
+      }
+    }
   }
   
   _showError(message) {
@@ -395,6 +420,27 @@ class Frontend {
     if (errorElement) {
       errorElement.textContent = message;
       errorElement.style.display = 'block';
+      // 3秒后自动隐藏错误信息
+      setTimeout(() => {
+        errorElement.style.display = 'none';
+      }, 3000);
+    }
+    
+    // 同时在产品容器显示错误提示
+    const productsContainer = document.getElementById('products-container');
+    if (productsContainer) {
+      productsContainer.classList.remove('loading');
+      const loadingMessage = productsContainer.querySelector('.loading-message');
+      if (loadingMessage) {
+        loadingMessage.remove();
+      }
+      
+      if (productsContainer.querySelector('.error-message') === null) {
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'error-message';
+        errorMessage.textContent = message;
+        productsContainer.appendChild(errorMessage);
+      }
     }
   }
   
