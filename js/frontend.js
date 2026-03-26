@@ -50,6 +50,7 @@ class Frontend {
       this.updateContactModal();
       this.updateFooter();
       this.updateFormLabels();
+      this.updateSearchPlaceholder();
       console.log('Language changed to:', newLang);
     });
   }
@@ -69,6 +70,7 @@ class Frontend {
       this.updateContactModal();
       this.updatePageTitle();
       this.updateCarousel();
+      this.updateSearchPlaceholder();
     } catch (error) {
       console.error('Load site config error:', error);
       this.state.siteConfig = {
@@ -89,6 +91,17 @@ class Frontend {
     
     if (pageSettings.title) {
       document.title = pageSettings.title[lang] || pageSettings.title.zh || 'GH5';
+    }
+  }
+  
+  updateSearchPlaceholder() {
+    const config = this.state.siteConfig;
+    const lang = this.state.currentLang;
+    const pageSettings = config.pageSettings || {};
+    
+    const searchInput = document.getElementById('search-input');
+    if (searchInput && pageSettings.searchPlaceholder) {
+      searchInput.placeholder = pageSettings.searchPlaceholder[lang] || pageSettings.searchPlaceholder.zh || '搜索产品名称、标签...';
     }
   }
   
@@ -1216,6 +1229,8 @@ class Frontend {
     this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     // 重新渲染产品以更新系列名称和产品翻译
     this.renderProducts();
+    // 更新搜索框占位文本
+    this.updateSearchPlaceholder();
   }
   
   getProductTranslation(zhText, fieldType = 'name') {
