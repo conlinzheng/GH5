@@ -38,6 +38,9 @@ class Frontend {
   }
   
   async init() {
+    // 检查产品图目录是否存在
+    await this.checkProductsPathExists();
+    
     await this.loadSiteConfig();
     // 确保i18n初始化
     if (typeof i18n !== 'undefined' && !i18n.isReady) {
@@ -65,8 +68,8 @@ class Frontend {
   }
   
   getImageUrl(seriesId, imageName) {
-    // 生成基础图片URL
-    const baseUrl = `https://${this.config.github.owner}.github.io/${this.config.github.repo}/${this.config.github.productsPath}/${seriesId}/`;
+    // 使用GitHub的raw.githubusercontent.com来访问图片文件，避免GitHub Pages部署问题
+    const baseUrl = `https://raw.githubusercontent.com/${this.config.github.owner}/${this.config.github.repo}/${this.config.github.branch}/${this.config.github.productsPath}/${seriesId}/`;
     const imageUrl = baseUrl + imageName;
     
     // 输出图片URL到控制台，以便调试
@@ -74,6 +77,19 @@ class Frontend {
     
     // 直接返回原始图片URL，避免WebP格式转换导致的图片显示问题
     return imageUrl;
+  }
+  
+  // 检查产品图目录是否存在
+  async checkProductsPathExists() {
+    try {
+      const testUrl = `https://raw.githubusercontent.com/${this.config.github.owner}/${this.config.github.repo}/${this.config.github.branch}/${this.config.github.productsPath}/`;
+      const response = await fetch(testUrl, { method: 'HEAD' });
+      console.log('Products path exists:', response.ok);
+      return response.ok;
+    } catch (error) {
+      console.error('Error checking products path:', error);
+      return false;
+    }
   }
   
   async loadSiteConfig() {
