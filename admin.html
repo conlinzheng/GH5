@@ -1889,9 +1889,22 @@
           
           // 更新同组的所有图片产品数据
           sameGroupImages.forEach(file => {
+            // 保留现有的译文
+            const existingProduct = productsFile.products[file.name] || {};
+            const existingName = existingProduct.name || {};
+            const existingDescription = existingProduct.description || {};
+            
             productsFile.products[file.name] = {
-              name: formData.name,
-              description: formData.description,
+              name: {
+                zh: formData.name.zh,
+                en: existingName.en || '',
+                ko: existingName.ko || ''
+              },
+              description: {
+                zh: formData.description.zh,
+                en: existingDescription.en || '',
+                ko: existingDescription.ko || ''
+              },
               price: formData.price,
               tags: formData.tags,
               materials: {

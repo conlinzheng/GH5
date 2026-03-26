@@ -537,8 +537,7 @@
     </div>
     
     <div class="config-nav">
-      <button class="active" data-section="site-info">🏢 站点信息</button>
-      <button data-section="social-media">📱 社交媒体</button>
+      <button class="active" data-section="social-media">📱 社交媒体</button>
       <button data-section="page-assets">🖼️ 页面资源</button>
       <button data-section="display-text">📝 显示文本</button>
       <button data-section="contact-form">📧 表单配置</button>
@@ -553,15 +552,7 @@
     
     <div class="status-container" id="status-container"></div>
     
-    <div id="site-info" class="config-section active">
-      <h2>🏢 站点基本信息</h2>
-      <p style="color: #666; margin-bottom: 20px;">站点信息现已移至翻译词典管理</p>
-      <div class="form-group">
-        <p>请在翻译词典中管理所有站点信息的翻译</p>
-      </div>
-    </div>
-    
-    <div id="social-media" class="config-section">
+    <div id="social-media" class="config-section active">
       <h2>📱 社交媒体链接</h2>
       <p style="color: #666; margin-bottom: 20px;">配置首页页脚显示的社交媒体快速链接</p>
       
@@ -1706,6 +1697,7 @@
       addScannedTranslations() {
         const scanZhInputs = document.querySelectorAll('.scan-zh');
         const newTranslations = {};
+        const productTranslations = {}; // 存储产品译文
         
         scanZhInputs.forEach(input => {
           const key = input.dataset.key;
@@ -1720,12 +1712,20 @@
               const prefix = prefixMatch[1];
               if (prefix === 'product_') {
                 cleanKey = '产品_' + zh;
+                // 存储产品名称译文
+                productTranslations[key] = { zh, en, ko, type: 'name' };
               } else if (prefix === 'product_desc_') {
                 cleanKey = '产品描述_' + zh.substring(0, 20);
+                // 存储产品描述译文
+                productTranslations[key] = { zh, en, ko, type: 'description' };
               } else if (prefix === 'tag_') {
                 cleanKey = '标签_' + zh;
+                // 存储标签译文
+                productTranslations[key] = { zh, en, ko, type: 'tag' };
               } else if (prefix === 'series_') {
                 cleanKey = '分类_' + zh;
+                // 存储系列名称译文
+                productTranslations[key] = { zh, en, ko, type: 'series' };
               }
             } else {
               cleanKey = zh;
@@ -1734,12 +1734,117 @@
           }
         });
         
+        // 保存产品译文到对应的 products.json 文件
+        this.saveProductTranslations(productTranslations);
+        
         const current = this.config.translations || {};
         this.config.translations = { ...current, ...newTranslations };
         
         document.getElementById('translation-scan-results').style.display = 'none';
         this.renderTranslations();
         this.showStatus('已添加扫描的翻译项', 'success');
+      }
+      
+      async saveProductTranslations(productTranslations) {
+        try {
+          this.showLoading(true);
+          
+          // 按系列分组产品译文
+          const seriesTranslations = {};
+          for (const [key, value] of Object.entries(productTranslations)) {
+            const match = key.match(/^(product_|product_desc_|tag_|series_)([^_]+)_(\d+)(?:_(\d+))?$/);
+            if (match) {
+              const prefix = match[1];
+              const seriesName = match[2];
+              const idx = match[3];
+              const tagIdx = match[4];
+              
+              if (!seriesTranslations[seriesName]) {
+                seriesTranslations[seriesName] = [];
+              }
+              
+              seriesTranslations[seriesName].push({ key, value, prefix, idx, tagIdx });
+            }
+          }
+          
+          // 处理每个系列的译文
+          for (const [seriesName, translations] of Object.entries(seriesTranslations)) {
+            try {
+              const seriesPath = `产品图/${seriesName}/products.json`;
+              let productsFile;
+              
+              try {
+                productsFile = await githubAPI.fetchFile(seriesPath);
+              } catch (error) {
+                console.warn(`Failed to load ${seriesName}:`, error);
+                continue;
+              }
+              
+              if (!productsFile || !productsFile.products) continue;
+              
+              // 获取系列中的所有产品文件名
+              const productFiles = Object.keys(productsFile.products);
+              
+              // 应用译文到产品
+              translations.forEach(({ key, value, prefix, idx, tagIdx }) => {
+                if (prefix === 'series_') {
+                  // 更新系列名称
+                  if (productsFile.seriesName) {
+                    productsFile.seriesName.en = value.en || '';
+                    productsFile.seriesName.ko = value.ko || '';
+                  }
+                } else {
+                  // 找到对应的产品文件
+                  const productFiles = Object.entries(productsFile.products);
+                  const targetIdx = parseInt(idx);
+                  
+                  if (targetIdx < productFiles.length) {
+                    const [filename, product] = productFiles[targetIdx];
+                    
+                    if (prefix === 'product_') {
+                      // 更新产品名称译文
+                      if (product.name) {
+                        product.name.en = value.en || '';
+                        product.name.ko = value.ko || '';
+                      }
+                    } else if (prefix === 'product_desc_') {
+                      // 更新产品描述译文
+                      if (product.description) {
+                        product.description.en = value.en || '';
+                        product.description.ko = value.ko || '';
+                      }
+                    } else if (prefix === 'tag_') {
+                      // 更新标签译文
+                      if (product.tags && tagIdx !== undefined) {
+                        const tagIdxNum = parseInt(tagIdx);
+                        if (tagIdxNum < product.tags.length) {
+                          // 标签是字符串，需要通过翻译词典管理
+                          // 这里暂时不处理标签译文
+                        }
+                      }
+                    }
+                    
+                    productsFile.products[filename] = product;
+                  }
+                }
+              });
+              
+              // 保存更新后的 products.json
+              const jsonContent = JSON.stringify(productsFile, null, 2);
+              await githubAPI.commitFile(seriesPath, jsonContent, `Update product translations for ${seriesName}`);
+              
+            } catch (error) {
+              console.error(`Failed to save translations for ${seriesName}:`, error);
+            }
+          }
+          
+          this.showStatus('产品译文已保存到 products.json', 'success');
+        } catch (error) {
+          console.error('Save product translations error:', error);
+          this.showStatus('保存产品译文失败: ' + error.message, 'error');
+        } finally {
+          this.showLoading(false);
+        }
       }
       
       exportTranslationsCSV() {
