@@ -883,8 +883,8 @@ class Frontend {
                 console.log('产品标签:', productData.tags);
                 
                 // 处理多语言字段
-                const name = productData.name?.zh || productData.name || productName;
-                const description = productData.description?.zh || productData.description || '';
+                const name = typeof productData.name === 'object' && productData.name !== null ? productData.name : (productData.name || productName);
+                const description = typeof productData.description === 'object' && productData.description !== null ? productData.description : (productData.description || '');
                 
                 // 处理材质字段（兼容两种格式：materials 对象 或 单独字段）
                 const upperMaterial = productData.materials?.upper || productData.upperMaterial || '';
@@ -1255,6 +1255,12 @@ class Frontend {
   }
   
   getProductTranslation(zhText, fieldType = 'name') {
+    // 处理对象类型的输入
+    if (typeof zhText === 'object' && zhText !== null) {
+      const lang = this.state.currentLang;
+      return zhText[lang] || zhText.zh || '';
+    }
+    
     if (!zhText || this.state.currentLang === 'zh') {
       return zhText;
     }
