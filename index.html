@@ -247,18 +247,21 @@
   <script src="js/cache-manager.js"></script>
   <script src="js/github-api.js"></script>
   <script src="js/i18n.js"></script>
-  <script src="js/frontend.js?v=20260320"></script>
+  <script src="js/frontend-core.js"></script>
+  <script src="js/frontend-ui.js"></script>
+  <script src="js/frontend-events.js"></script>
+  <script src="js/frontend.js"></script>
   <script src="js/browse-history.js"></script>
   <script>
     function openContactModal() {
-      if (typeof frontend !== 'undefined') {
-        frontend.openContactModal();
+      if (typeof frontendUI !== 'undefined') {
+        frontendUI.openContactModal();
       }
     }
     
     function closeContactModal() {
-      if (typeof frontend !== 'undefined') {
-        frontend.closeContactModal();
+      if (typeof frontendUI !== 'undefined') {
+        frontendUI.closeContactModal();
       }
     }
   </script>
