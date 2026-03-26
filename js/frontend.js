@@ -27,7 +27,6 @@ class Frontend {
     
     this.currentLightboxImages = [];
     this.currentLightboxIndex = 0;
-    this._carouselTimers = {}; // 存储轮播定时器引用
     
     this.init();
   }
@@ -748,15 +747,15 @@ class Frontend {
       // 重新加载系列名称映射和系列列表
       await this.loadSeriesNameMap();
       
-      // 声明products变量在外部作用域
-      const products = [];
-      
       try {
         // 从GitHub API获取最新的系列列表
         const series = await githubAPI.fetchDirectory(this.config.github.productsPath);
         this.state.series = series.filter(item => item.type === 'dir');
         
         console.log('Loading products from GitHub API');
+        
+        // 串行请求所有系列的产品数据，避免API限流
+        const products = [];
         
         // 限制并发请求数量
         const maxConcurrentRequests = 2;
@@ -823,16 +822,7 @@ class Frontend {
                   // 缓存数据
                   cacheManager.set(`${seriesItem.path}/products.json`, productsFile, this.config.cacheTTL);
                 }
-                
-                // 从products.json中加载系列名称映射
-                if (productsFile.seriesName) {
-                  const currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : 'zh';
-                  const seriesDisplayName = productsFile.seriesName[currentLang] || productsFile.seriesName.zh || seriesItem.name;
-                  this.state.seriesNameMap[seriesItem.name] = seriesDisplayName;
-                  console.log(`Loaded series name for ${seriesItem.name}: ${seriesDisplayName}`);
-                }
               } catch (error) {
-                console.warn(`Failed to load products.json for ${seriesItem.name}:`, error);
                 productsFile = { products: {} };
               }
               
@@ -913,21 +903,21 @@ class Frontend {
           });
           
           // 等待批次请求完成
-          await Promise.all(batchPromises);
-        }
+        await Promise.all(batchPromises);
+      }
 
-        console.log('产品数据加载完成，产品数量:', products.length);
-        console.log('产品数据示例:', products[0]);
-        
-        this.state.products = products;
-        this.state.allProducts = products; // 保存所有产品，用于搜索
+      console.log('产品数据加载完成，产品数量:', products.length);
+      console.log('产品数据示例:', products[0]);
+      
+      this.state.products = products;
+      this.state.allProducts = products; // 保存所有产品，用于搜索
 
-        // 缓存数据
-        cacheManager.set('products_data', {
-          products: this.state.products,
-          series: this.state.series,
-          seriesNameMap: this.state.seriesNameMap
-        }, this.config.cacheTTL);
+      // 缓存数据
+      cacheManager.set('products_data', {
+        products: this.state.products,
+        series: this.state.series,
+        seriesNameMap: this.state.seriesNameMap
+      }, this.config.cacheTTL);
       } catch (apiError) {
         console.error('GitHub API error:', apiError);
         console.log('Using fallback local data');
@@ -950,26 +940,32 @@ class Frontend {
   
   async loadSeriesNameMap() {
     try {
-      console.log('Loading series name map from products.json files');
+      // 清除 config.json 的缓存以确保获取最新数据
+      // 使用正确的缓存键名格式
+      const configCacheKey = cacheManager.prefix + 'config.json';
+      localStorage.removeItem(configCacheKey);
+      console.log('Config.json cache cleared in loadSeriesNameMap');
       
-      // 初始化系列名称映射
-      this.state.seriesNameMap = {};
-      
-      // 尝试从配置文件加载系列顺序（保留这个功能）
+      // 尝试从配置文件加载系列名称映射和排序信息
+      let configFile;
       try {
-        const configFile = await githubAPI.fetchFile('config.json');
+        configFile = await githubAPI.fetchFile('config.json');
+        if (configFile && configFile.seriesNameMap) {
+          this.state.seriesNameMap = configFile.seriesNameMap;
+        }
         if (configFile && configFile.seriesOrder) {
           this.state.seriesOrder = configFile.seriesOrder;
         }
+        return;
       } catch (error) {
-        console.log('Config file not found, using default series order');
+        console.log('Config file not found, using default series name map');
       }
       
-      // 系列名称映射现在从各个系列的products.json文件中加载
-      // 这个方法会在loadProductsData中被调用，每个系列的名称会在加载产品数据时被读取
+      // 使用默认映射
+      this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     } catch (error) {
       console.error('Load series name map error:', error);
-      // 使用默认映射作为后备
+      // 使用默认映射
       this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     }
   }
@@ -977,9 +973,6 @@ class Frontend {
   renderProducts() {
     const container = document.getElementById('products-container');
     if (!container) return;
-    
-    // 清理旧的轮播定时器，防止内存泄漏
-    this.clearAllCarousels();
     
     container.innerHTML = '';
     
@@ -1086,7 +1079,7 @@ class Frontend {
         <div class="product-image-carousel">
           ${product.images.map((image, index) => `
             <div class="carousel-item ${index === 0 ? 'active' : ''}">
-              <img src="${image}" alt="${this._escapeHtml(translatedName)} ${index + 1}" loading="lazy">
+              <img src="${image}" alt="${translatedName} ${index + 1}" loading="lazy">
             </div>
           `).join('')}
           <div class="carousel-controls">
@@ -1099,7 +1092,7 @@ class Frontend {
     } else {
       imageCarousel = `
         <div class="product-image">
-          <img src="${product.images[0]}" alt="${this._escapeHtml(translatedName)}" loading="lazy">
+          <img src="${product.images[0]}" alt="${translatedName}" loading="lazy">
         </div>
       `;
     }
@@ -1109,7 +1102,7 @@ class Frontend {
     console.log('产品标签:', translatedTags);
     const tagsHtml = translatedTags && translatedTags.length > 0 ? `
       <div class="product-tags">
-        ${translatedTags.map(tag => `<span class="product-tag">${this._escapeHtml(tag)}</span>`).join('')}
+        ${translatedTags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}
       </div>
     ` : '';
     console.log('标签HTML:', tagsHtml);
@@ -1119,16 +1112,14 @@ class Frontend {
         ${imageCarousel}
       </div>
       <div class="product-info">
-        <h3 class="product-name">${this._escapeHtml(translatedName)}</h3>
-        <p class="product-price">${this._escapeHtml(product.price || '')}</p>
+        <h3 class="product-name">${translatedName}</h3>
+        <p class="product-price">${product.price || ''}</p>
         ${tagsHtml}
       </div>
     `;
     
     // 添加图片轮播功能
     if (product.images.length > 1) {
-      const carouselId = `carousel-${product.id}`;
-      
       setTimeout(() => {
         const carousel = div.querySelector('.product-image-carousel');
         const items = carousel.querySelectorAll('.carousel-item');
@@ -1149,13 +1140,10 @@ class Frontend {
         });
         
         // 自动轮播
-        const timer = setInterval(() => {
+        setInterval(() => {
           const nextIndex = (currentIndex + 1) % items.length;
           showSlide(nextIndex);
         }, 3000);
-        
-        // 存储定时器引用
-        this._carouselTimers[carouselId] = timer;
       }, 0);
     }
     
@@ -1266,210 +1254,11 @@ class Frontend {
       }, 5000);
     }
   }
-
-  _escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
   
   _loadLocalFallbackData() {
     // 加载本地备用数据
-    console.log('Loading local fallback data');
-    
-    // 本地系列数据
-    const localSeries = [
-      { name: '1-PU系列', type: 'dir', path: '产品图/1-PU系列' },
-      { name: '2-真皮系列', type: 'dir', path: '产品图/2-真皮系列' },
-      { name: '3-短靴系列', type: 'dir', path: '产品图/3-短靴系列' },
-      { name: '4-乐福系列', type: 'dir', path: '产品图/4-乐福系列' },
-      { name: '5-春季', type: 'dir', path: '产品图/5-春季' },
-      { name: '6-夏季', type: 'dir', path: '产品图/6-夏季' },
-      { name: '7-秋季', type: 'dir', path: '产品图/7-秋季' }
-    ];
-    
-    this.state.series = localSeries;
-    
-    // 从本地products.json文件加载系列名称映射
-    this.state.seriesNameMap = {
-      '1-PU系列': '11', // 从products.json中获取的自定义名称
-      '2-真皮系列': '真皮', // 从products.json中获取的自定义名称
-      '3-短靴系列': '短靴系列',
-      '4-乐福系列': '乐福系列',
-      '5-春季': '春季系列',
-      '6-夏季': '夏季系列',
-      '7-秋季': '秋季系列'
-    };
-    
-    // 构建本地产品数据
-    const localProducts = [];
-    
-    // 模拟产品数据
-    const seriesProducts = {
-      '1-PU系列': [
-        {
-          id: '中文 (1).png',
-          seriesId: '1-PU系列',
-          name: '中文',
-          description: '高品质PU系列产品',
-          price: '',
-          upperMaterial: 'PU',
-          innerMaterial: '织物',
-          soleMaterial: '橡胶',
-          customizable: '是',
-          minOrder: '100',
-          tags: ['PU', '时尚'],
-          images: [
-            '产品图/1-PU系列/中文 (1).png',
-            '产品图/1-PU系列/中文 (2).png'
-          ]
-        },
-        {
-          id: '产品1 (1).jpg',
-          seriesId: '1-PU系列',
-          name: '产品1',
-          description: 'PU系列经典款',
-          price: '',
-          upperMaterial: 'PU',
-          innerMaterial: '织物',
-          soleMaterial: '橡胶',
-          customizable: '是',
-          minOrder: '100',
-          tags: ['PU', '经典'],
-          images: [
-            '产品图/1-PU系列/产品1 (1).jpg',
-            '产品图/1-PU系列/产品1 (2).jpg'
-          ]
-        }
-      ],
-      '2-真皮系列': [
-        {
-          id: '33 (1).png',
-          seriesId: '2-真皮系列',
-          name: '真皮经典款',
-          description: '高品质真皮产品',
-          price: '',
-          upperMaterial: '真皮',
-          innerMaterial: '真皮',
-          soleMaterial: '橡胶',
-          customizable: '是',
-          minOrder: '50',
-          tags: ['真皮', '高端'],
-          images: [
-            '产品图/2-真皮系列/33 (1).png',
-            '产品图/2-真皮系列/33 (2).png'
-          ]
-        }
-      ],
-      '3-短靴系列': [
-        {
-          id: '00A (1).jpg',
-          seriesId: '3-短靴系列',
-          name: '短靴',
-          description: '时尚短靴',
-          price: '',
-          upperMaterial: 'PU',
-          innerMaterial: '织物',
-          soleMaterial: '橡胶',
-          customizable: '是',
-          minOrder: '100',
-          tags: ['短靴', '时尚'],
-          images: [
-            '产品图/3-短靴系列/00A (1).jpg'
-          ]
-        }
-      ],
-      '4-乐福系列': [
-        {
-          id: 'B5 (1).jpg',
-          seriesId: '4-乐福系列',
-          name: '乐福鞋',
-          description: '经典乐福鞋',
-          price: '',
-          upperMaterial: 'PU',
-          innerMaterial: '织物',
-          soleMaterial: '橡胶',
-          customizable: '是',
-          minOrder: '100',
-          tags: ['乐福', '经典'],
-          images: [
-            '产品图/4-乐福系列/B5 (1).jpg'
-          ]
-        }
-      ],
-      '5-春季': [
-        {
-          id: '99 (1).png',
-          seriesId: '5-春季',
-          name: '春季新品',
-          description: '春季时尚新品',
-          price: '',
-          upperMaterial: 'PU',
-          innerMaterial: '织物',
-          soleMaterial: '橡胶',
-          customizable: '是',
-          minOrder: '100',
-          tags: ['春季', '新品'],
-          images: [
-            '产品图/5-春季/99 (1).png',
-            '产品图/5-春季/99 (2).png'
-          ]
-        }
-      ],
-      '6-夏季': [
-        {
-          id: '41.png',
-          seriesId: '6-夏季',
-          name: '夏季凉鞋',
-          description: '夏季清凉凉鞋',
-          price: '',
-          upperMaterial: 'PU',
-          innerMaterial: '织物',
-          soleMaterial: '橡胶',
-          customizable: '是',
-          minOrder: '100',
-          tags: ['夏季', '凉鞋'],
-          images: [
-            '产品图/6-夏季/41.png',
-            '产品图/6-夏季/42.png'
-          ]
-        }
-      ],
-      '7-秋季': [
-        {
-          id: '@@@ (1).png',
-          seriesId: '7-秋季',
-          name: '秋季新品',
-          description: '秋季时尚新品',
-          price: '',
-          upperMaterial: 'PU',
-          innerMaterial: '织物',
-          soleMaterial: '橡胶',
-          customizable: '是',
-          minOrder: '100',
-          tags: ['秋季', '新品'],
-          images: [
-            '产品图/7-秋季/@@@ (1).png',
-            '产品图/7-秋季/@@@ (2).png'
-          ]
-        }
-      ]
-    };
-    
-    // 合并所有产品
-    Object.values(seriesProducts).forEach(products => {
-      products.forEach(product => {
-        // 修正图片路径为本地相对路径
-        product.images = product.images.map(img => img);
-        localProducts.push(product);
-      });
-    });
-    
-    this.state.products = localProducts;
-    this.state.allProducts = localProducts;
-    
-    console.log('Local fallback data loaded:', localProducts.length, 'products');
-    console.log('Series name map:', this.state.seriesNameMap);
+    this.state.products = [];
+    this.state.series = [];
     this.renderProducts();
   }
   
@@ -1478,8 +1267,8 @@ class Frontend {
     
     const seriesNameMaps = {
       zh: {
-        '1-PU系列': '11', // 从config.json中获取的自定义名称
-        '2-真皮系列': '真皮', // 从config.json中获取的自定义名称
+        '1-PU系列': 'PU超纤',
+        '2-真皮系列': '真皮系列',
         '3-短靴系列': '短靴系列',
         '4-乐福系列': '乐福系列',
         '5-春季': '春季系列',
@@ -1487,8 +1276,8 @@ class Frontend {
         '7-秋季': '秋季系列'
       },
       en: {
-        '1-PU系列': '11',
-        '2-真皮系列': '真皮',
+        '1-PU系列': 'PU Collection',
+        '2-真皮系列': 'Leather Collection',
         '3-短靴系列': 'Boots Collection',
         '4-乐福系列': 'Loafers Collection',
         '5-春季': 'Spring Collection',
@@ -1496,8 +1285,8 @@ class Frontend {
         '7-秋季': 'Autumn Collection'
       },
       ko: {
-        '1-PU系列': '11',
-        '2-真皮系列': '真皮',
+        '1-PU系列': 'PU 컬렉션',
+        '2-真皮系列': '가죽 컬렉션',
         '3-短靴系列': '부츠 컬렉션',
         '4-乐福系列': '로퍼 컬렉션',
         '5-春季': '봄 컬렉션',
@@ -1507,13 +1296,6 @@ class Frontend {
     };
     
     return seriesNameMaps[currentLang] || seriesNameMaps.zh;
-  }
-
-  clearAllCarousels() {
-    if (this._carouselTimers) {
-      Object.values(this._carouselTimers).forEach(timer => clearInterval(timer));
-      this._carouselTimers = {};
-    }
   }
   
   extractProductName(fileName) {

@@ -135,19 +135,6 @@ class ErrorHandler {
   handleValidationError(error) {
     return this.handleError(error, this.errorTypes.VALIDATION);
   }
-
-  // 清理所有通知
-  clearAllNotifications() {
-    this.hideError();
-    this.hideSuccess();
-  }
 }
 
 const errorHandler = new ErrorHandler();
-
-// 页面卸载时清理通知，防止内存泄漏
-if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', () => {
-    errorHandler.clearAllNotifications();
-  });
-}

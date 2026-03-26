@@ -212,9 +212,6 @@ class GitHubAPI {
   }
 
   async _fetch(url, options = {}) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时
-    
     try {
       const headers = {
         'Accept': 'application/vnd.github.v3+json',
@@ -228,14 +225,12 @@ class GitHubAPI {
 
       const response = await fetch(url, {
         ...options,
-        signal: controller.signal,
         headers: {
           ...headers,
           ...options.headers
         }
       });
 
-      clearTimeout(timeoutId);
       this._updateRateLimit(response);
 
       if (!response.ok) {
@@ -246,12 +241,6 @@ class GitHubAPI {
 
       return await response.json();
     } catch (error) {
-      clearTimeout(timeoutId);
-      if (error.name === 'AbortError') {
-        const timeoutError = new Error('Request timeout');
-        timeoutError.status = 408;
-        throw timeoutError;
-      }
       console.error('Fetch error:', error);
       throw error;
     }

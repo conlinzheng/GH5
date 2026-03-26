@@ -468,7 +468,10 @@
             <!-- 语言切换标签 -->
             <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
               <button type="button" class="lang-tab active" data-lang="zh">中文</button>
+              <button type="button" class="lang-tab" data-lang="en">英文</button>
+              <button type="button" class="lang-tab" data-lang="ko">韩文</button>
               <button type="button" class="btn btn-secondary" id="btn-batch-edit" style="margin-left: auto;">批量编辑</button>
+              <button type="button" class="btn btn-primary" id="btn-translate" style="margin-left: 10px;">自动翻译</button>
             </div>
             
             <!-- 批量编辑模式 -->
@@ -507,6 +510,42 @@
                 <div class="form-group">
                   <label for="product-description-zh">产品描述 (中文)</label>
                   <textarea id="product-description-zh" name="description-zh" rows="2"></textarea>
+                </div>
+              </div>
+              
+              <!-- 英文输入 -->
+              <div class="lang-panel" data-lang="en" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group">
+                    <label for="product-name-en">产品名称 (英文)</label>
+                    <input type="text" id="product-name-en" name="name-en">
+                  </div>
+                  <div class="form-group">
+                    <label for="product-price">价格</label>
+                    <input type="text" id="product-price" name="price">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="product-description-en">产品描述 (英文)</label>
+                  <textarea id="product-description-en" name="description-en" rows="2"></textarea>
+                </div>
+              </div>
+              
+              <!-- 韩文输入 -->
+              <div class="lang-panel" data-lang="ko" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group">
+                    <label for="product-name-ko">产品名称 (韩文)</label>
+                    <input type="text" id="product-name-ko" name="name-ko">
+                  </div>
+                  <div class="form-group">
+                    <label for="product-price">价格</label>
+                    <input type="text" id="product-price" name="price">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="product-description-ko">产品描述 (韩文)</label>
+                  <textarea id="product-description-ko" name="description-ko" rows="2"></textarea>
                 </div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -583,8 +622,26 @@
   <script src="js/github-api.js"></script>
   <script src="js/i18n.js"></script>
   <script>
-    // 批量编辑功能
+    // 语言切换和翻译功能
     document.addEventListener('DOMContentLoaded', function() {
+      // 语言标签切换
+      const langTabs = document.querySelectorAll('.lang-tab');
+      langTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          const lang = this.dataset.lang;
+          
+          // 更新标签状态
+          langTabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          
+          // 显示对应语言面板
+          const langPanels = document.querySelectorAll('.lang-panel');
+          langPanels.forEach(panel => {
+            panel.style.display = panel.dataset.lang === lang ? 'block' : 'none';
+          });
+        });
+      });
+      
       // 批量编辑切换
       const btnBatchEdit = document.getElementById('btn-batch-edit');
       const batchEditPanel = document.getElementById('batch-edit-panel');
@@ -604,10 +661,14 @@
           
           if (batchName) {
             document.getElementById('product-name-zh').value = batchName;
+            document.getElementById('product-name-en').value = batchName;
+            document.getElementById('product-name-ko').value = batchName;
           }
           
           if (batchDescription) {
             document.getElementById('product-description-zh').value = batchDescription;
+            document.getElementById('product-description-en').value = batchDescription;
+            document.getElementById('product-description-ko').value = batchDescription;
           }
           
           if (batchPrice) {
@@ -617,7 +678,62 @@
           alert('批量编辑已应用');
         });
       }
+      
+      // 自动翻译功能
+      const btnTranslate = document.getElementById('btn-translate');
+      if (btnTranslate) {
+        btnTranslate.addEventListener('click', async function() {
+          const zhName = document.getElementById('product-name-zh').value;
+          const zhDesc = document.getElementById('product-description-zh').value;
+          
+          if (!zhName && !zhDesc) {
+            alert('请先填写中文内容');
+            return;
+          }
+          
+          btnTranslate.disabled = true;
+          btnTranslate.textContent = '翻译中...';
+          
+          try {
+            // 翻译产品名称
+            if (zhName) {
+              const enName = await translateText(zhName, 'zh', 'en');
+              const koName = await translateText(zhName, 'zh', 'ko');
+              document.getElementById('product-name-en').value = enName;
+              document.getElementById('product-name-ko').value = koName;
+            }
+            
+            // 翻译产品描述
+            if (zhDesc) {
+              const enDesc = await translateText(zhDesc, 'zh', 'en');
+              const koDesc = await translateText(zhDesc, 'zh', 'ko');
+              document.getElementById('product-description-en').value = enDesc;
+              document.getElementById('product-description-ko').value = koDesc;
+            }
+            
+            alert('翻译完成');
+          } catch (error) {
+            console.error('翻译失败:', error);
+            alert('翻译失败，请稍后重试');
+          } finally {
+            btnTranslate.disabled = false;
+            btnTranslate.textContent = '自动翻译';
+          }
+        });
+      }
     });
+    
+    // 翻译函数（使用模拟翻译）
+    async function translateText(text, from, to) {
+      // 这里使用一个简单的模拟翻译
+      // 实际项目中应该使用真实的翻译 API
+      if (from === 'zh' && to === 'en') {
+        return 'Translated: ' + text;
+      } else if (from === 'zh' && to === 'ko') {
+        return '번역: ' + text;
+      }
+      return text;
+    }
     
     class AdminPanel {
       constructor() {
@@ -1773,18 +1889,26 @@
         if (product) {
           this.currentEditingProduct = product;
           
-          // 处理多语言名称（只显示中文）
+          // 处理多语言名称
           if (product.name && typeof product.name === 'object') {
             document.getElementById('product-name-zh').value = product.name.zh || '';
+            document.getElementById('product-name-en').value = product.name.en || '';
+            document.getElementById('product-name-ko').value = product.name.ko || '';
           } else {
             document.getElementById('product-name-zh').value = product.name || '';
+            document.getElementById('product-name-en').value = product.name || '';
+            document.getElementById('product-name-ko').value = product.name || '';
           }
           
-          // 处理多语言描述（只显示中文）
+          // 处理多语言描述
           if (product.description && typeof product.description === 'object') {
             document.getElementById('product-description-zh').value = product.description.zh || '';
+            document.getElementById('product-description-en').value = product.description.en || '';
+            document.getElementById('product-description-ko').value = product.description.ko || '';
           } else {
             document.getElementById('product-description-zh').value = product.description || '';
+            document.getElementById('product-description-en').value = product.description || '';
+            document.getElementById('product-description-ko').value = product.description || '';
           }
           
           document.getElementById('product-price').value = product.price || '';
@@ -1801,9 +1925,13 @@
       
       async saveProduct() {
         try {
-          // 获取中文输入
+          // 获取多语言输入
           const nameZh = document.getElementById('product-name-zh').value.trim();
+          const nameEn = document.getElementById('product-name-en').value.trim();
+          const nameKo = document.getElementById('product-name-ko').value.trim();
           const descZh = document.getElementById('product-description-zh').value.trim();
+          const descEn = document.getElementById('product-description-en').value.trim();
+          const descKo = document.getElementById('product-description-ko').value.trim();
           const priceInput = document.getElementById('product-price');
           const tagsInput = document.getElementById('product-tags');
           
@@ -1814,12 +1942,12 @@
             return;
           }
           
-          if (nameZh.length > 200) {
+          if (nameZh.length > 200 || nameEn.length > 200 || nameKo.length > 200) {
             this.showStatus('产品名称不能超过 200 个字符', 'error');
             return;
           }
           
-          if (descZh.length > 1000) {
+          if (descZh.length > 1000 || descEn.length > 1000 || descKo.length > 1000) {
             this.showStatus('产品描述不能超过 1000 个字符', 'error');
             return;
           }
@@ -1838,10 +1966,14 @@
           
           const formData = {
             name: {
-              zh: nameZh
+              zh: nameZh,
+              en: nameEn || nameZh,
+              ko: nameKo || nameZh
             },
             description: {
-              zh: descZh
+              zh: descZh,
+              en: descEn || descZh,
+              ko: descKo || descZh
             },
             price: price,
             tags: tags,
@@ -1889,21 +2021,16 @@
           
           // 更新同组的所有图片产品数据
           sameGroupImages.forEach(file => {
-            // 保留现有的译文
-            const existingProduct = productsFile.products[file.name] || {};
-            const existingName = existingProduct.name || {};
-            const existingDescription = existingProduct.description || {};
-            
             productsFile.products[file.name] = {
               name: {
-                zh: formData.name.zh,
-                en: existingName.en || '',
-                ko: existingName.ko || ''
+                zh: formData.name,
+                en: formData.name,
+                ko: formData.name
               },
               description: {
-                zh: formData.description.zh,
-                en: existingDescription.en || '',
-                ko: existingDescription.ko || ''
+                zh: formData.description,
+                en: formData.description,
+                ko: formData.description
               },
               price: formData.price,
               tags: formData.tags,

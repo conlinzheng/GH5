@@ -537,7 +537,8 @@
     </div>
     
     <div class="config-nav">
-      <button class="active" data-section="social-media">📱 社交媒体</button>
+      <button class="active" data-section="site-info">🏢 站点信息</button>
+      <button data-section="social-media">📱 社交媒体</button>
       <button data-section="page-assets">🖼️ 页面资源</button>
       <button data-section="display-text">📝 显示文本</button>
       <button data-section="contact-form">📧 表单配置</button>
@@ -552,7 +553,74 @@
     
     <div class="status-container" id="status-container"></div>
     
-    <div id="social-media" class="config-section active">
+    <div id="site-info" class="config-section active">
+      <h2>🏢 站点基本信息</h2>
+      <p style="color: #666; margin-bottom: 20px;">这些信息将显示在联系我们弹窗的左侧</p>
+      
+      <h3>公司名称</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>中文 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="companyName-zh" placeholder="例如：GH5鞋业">
+        </div>
+        <div class="form-group">
+          <label>英文 <span class="lang-badge">EN</span></label>
+          <input type="text" id="companyName-en" placeholder="例如：GH5 Shoes">
+        </div>
+        <div class="form-group">
+          <label>韩文 <span class="lang-badge">KO</span></label>
+          <input type="text" id="companyName-ko" placeholder="例如：GH5 신발">
+        </div>
+      </div>
+      
+      <h3>公司描述</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>中文 <span class="lang-badge">ZH</span></label>
+          <textarea id="companyDescription-zh" placeholder="公司简介描述"></textarea>
+        </div>
+        <div class="form-group">
+          <label>英文 <span class="lang-badge">EN</span></label>
+          <textarea id="companyDescription-en" placeholder="Company description"></textarea>
+        </div>
+        <div class="form-group">
+          <label>韩文 <span class="lang-badge">KO</span></label>
+          <textarea id="companyDescription-ko" placeholder="회사 설명"></textarea>
+        </div>
+      </div>
+      
+      <h3>联系方式</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>地址 <span class="lang-badge">所有语言</span></label>
+          <input type="text" id="companyAddress" placeholder="公司地址">
+        </div>
+        <div class="form-group">
+          <label>电话 <span class="lang-badge">所有语言</span></label>
+          <input type="text" id="companyPhone" placeholder="联系电话">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>邮箱 <span class="lang-badge">所有语言</span></label>
+          <input type="email" id="companyEmail" placeholder="电子邮箱">
+        </div>
+        <div class="form-group">
+          <label>微信 <span class="lang-badge">所有语言</span></label>
+          <input type="text" id="companyWechat" placeholder="微信号">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>工作时间 <span class="lang-badge">所有语言</span></label>
+        <input type="text" id="workingHours" placeholder="例如：周一至周五 9:00-18:00">
+      </div>
+      
+      <button class="btn-save" onclick="configManager.saveSiteInfo()">保存站点信息</button>
+    </div>
+    
+    <div id="social-media" class="config-section">
       <h2>📱 社交媒体链接</h2>
       <p style="color: #666; margin-bottom: 20px;">配置首页页脚显示的社交媒体快速链接</p>
       
@@ -890,7 +958,6 @@
         <p style="margin: 0 0 10px 0; font-weight: 600; color: #444;">快速操作：</p>
         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
           <button class="quick-add-btn" onclick="configManager.scanAllTranslations()">🔍 扫描页面翻译</button>
-          <button class="quick-add-btn" onclick="configManager.scanProductsTranslations()">📦 扫描产品翻译</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('联系我们')">联系我们</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('提交')">提交</button>
           <button class="quick-add-btn" onclick="configManager.addPresetTranslation('提交中')">提交中</button>
@@ -1068,6 +1135,15 @@
       
       getDefaultConfig() {
         return {
+          siteInfo: {
+            companyName: { zh: '', en: '', ko: '' },
+            companyDescription: { zh: '', en: '', ko: '' },
+            companyAddress: { zh: '', en: '', ko: '' },
+            companyPhone: { zh: '', en: '', ko: '' },
+            companyEmail: { zh: '', en: '', ko: '' },
+            companyWechat: { zh: '', en: '', ko: '' },
+            workingHours: { zh: '', en: '', ko: '' }
+          },
           socialLinks: {
             facebook: '',
             instagram: '',
@@ -1105,6 +1181,21 @@
       }
       
       fillFormData() {
+        const siteInfo = this.config.siteInfo || {};
+        
+        document.getElementById('companyName-zh').value = siteInfo.companyName?.zh || '';
+        document.getElementById('companyName-en').value = siteInfo.companyName?.en || '';
+        document.getElementById('companyName-ko').value = siteInfo.companyName?.ko || '';
+        
+        document.getElementById('companyDescription-zh').value = siteInfo.companyDescription?.zh || '';
+        document.getElementById('companyDescription-en').value = siteInfo.companyDescription?.en || '';
+        document.getElementById('companyDescription-ko').value = siteInfo.companyDescription?.ko || '';
+        
+        document.getElementById('companyAddress').value = siteInfo.companyAddress?.zh || '';
+        document.getElementById('companyPhone').value = siteInfo.companyPhone?.zh || '';
+        document.getElementById('companyEmail').value = siteInfo.companyEmail?.zh || '';
+        document.getElementById('companyWechat').value = siteInfo.companyWechat?.zh || '';
+        document.getElementById('workingHours').value = siteInfo.workingHours?.zh || '';
         
         this.fillSocialMediaForm();
         this.fillPageAssetsForm();
@@ -1233,7 +1324,7 @@
         
         document.getElementById('text-contact-us-zh').value = pageSettings.contactUsText?.zh || '联系我们';
         document.getElementById('text-contact-us-en').value = pageSettings.contactUsText?.en || 'Contact Us';
-        document.getElementById('text-contact-us-ko').value = pageSettings.contactUsText?.ko || '문의하기';
+        document.getElementById('text-contact-us-ko').value = pageSettings.contactUsText?.ko || '联系我们';
         
         document.getElementById('text-carousel-welcome-zh').value = pageSettings.carouselWelcome?.zh || '欢迎来到 GH5';
         document.getElementById('text-carousel-welcome-en').value = pageSettings.carouselWelcome?.en || 'Welcome to GH5';
@@ -1612,8 +1703,8 @@
                     const key = `product_${series.name}_${idx}`;
                     scannedTranslations[key] = {
                       zh: productName,
-                      en: '',
-                      ko: '',
+                      en: product.name?.en || '',
+                      ko: product.name?.ko || '',
                       category: `产品分类 - ${series.name}`,
                       label: `产品名称`
                     };
@@ -1623,8 +1714,8 @@
                     const key = `product_desc_${series.name}_${idx}`;
                     scannedTranslations[key] = {
                       zh: productDesc,
-                      en: '',
-                      ko: '',
+                      en: product.description?.en || '',
+                      ko: product.description?.ko || '',
                       category: `产品分类 - ${series.name}`,
                       label: `产品描述`
                     };
@@ -1697,7 +1788,6 @@
       addScannedTranslations() {
         const scanZhInputs = document.querySelectorAll('.scan-zh');
         const newTranslations = {};
-        const productTranslations = {}; // 存储产品译文
         
         scanZhInputs.forEach(input => {
           const key = input.dataset.key;
@@ -1712,20 +1802,12 @@
               const prefix = prefixMatch[1];
               if (prefix === 'product_') {
                 cleanKey = '产品_' + zh;
-                // 存储产品名称译文
-                productTranslations[key] = { zh, en, ko, type: 'name' };
               } else if (prefix === 'product_desc_') {
                 cleanKey = '产品描述_' + zh.substring(0, 20);
-                // 存储产品描述译文
-                productTranslations[key] = { zh, en, ko, type: 'description' };
               } else if (prefix === 'tag_') {
                 cleanKey = '标签_' + zh;
-                // 存储标签译文
-                productTranslations[key] = { zh, en, ko, type: 'tag' };
               } else if (prefix === 'series_') {
                 cleanKey = '分类_' + zh;
-                // 存储系列名称译文
-                productTranslations[key] = { zh, en, ko, type: 'series' };
               }
             } else {
               cleanKey = zh;
@@ -1734,117 +1816,12 @@
           }
         });
         
-        // 保存产品译文到对应的 products.json 文件
-        this.saveProductTranslations(productTranslations);
-        
         const current = this.config.translations || {};
         this.config.translations = { ...current, ...newTranslations };
         
         document.getElementById('translation-scan-results').style.display = 'none';
         this.renderTranslations();
         this.showStatus('已添加扫描的翻译项', 'success');
-      }
-      
-      async saveProductTranslations(productTranslations) {
-        try {
-          this.showLoading(true);
-          
-          // 按系列分组产品译文
-          const seriesTranslations = {};
-          for (const [key, value] of Object.entries(productTranslations)) {
-            const match = key.match(/^(product_|product_desc_|tag_|series_)([^_]+)_(\d+)(?:_(\d+))?$/);
-            if (match) {
-              const prefix = match[1];
-              const seriesName = match[2];
-              const idx = match[3];
-              const tagIdx = match[4];
-              
-              if (!seriesTranslations[seriesName]) {
-                seriesTranslations[seriesName] = [];
-              }
-              
-              seriesTranslations[seriesName].push({ key, value, prefix, idx, tagIdx });
-            }
-          }
-          
-          // 处理每个系列的译文
-          for (const [seriesName, translations] of Object.entries(seriesTranslations)) {
-            try {
-              const seriesPath = `产品图/${seriesName}/products.json`;
-              let productsFile;
-              
-              try {
-                productsFile = await githubAPI.fetchFile(seriesPath);
-              } catch (error) {
-                console.warn(`Failed to load ${seriesName}:`, error);
-                continue;
-              }
-              
-              if (!productsFile || !productsFile.products) continue;
-              
-              // 获取系列中的所有产品文件名
-              const productFiles = Object.keys(productsFile.products);
-              
-              // 应用译文到产品
-              translations.forEach(({ key, value, prefix, idx, tagIdx }) => {
-                if (prefix === 'series_') {
-                  // 更新系列名称
-                  if (productsFile.seriesName) {
-                    productsFile.seriesName.en = value.en || '';
-                    productsFile.seriesName.ko = value.ko || '';
-                  }
-                } else {
-                  // 找到对应的产品文件
-                  const productFiles = Object.entries(productsFile.products);
-                  const targetIdx = parseInt(idx);
-                  
-                  if (targetIdx < productFiles.length) {
-                    const [filename, product] = productFiles[targetIdx];
-                    
-                    if (prefix === 'product_') {
-                      // 更新产品名称译文
-                      if (product.name) {
-                        product.name.en = value.en || '';
-                        product.name.ko = value.ko || '';
-                      }
-                    } else if (prefix === 'product_desc_') {
-                      // 更新产品描述译文
-                      if (product.description) {
-                        product.description.en = value.en || '';
-                        product.description.ko = value.ko || '';
-                      }
-                    } else if (prefix === 'tag_') {
-                      // 更新标签译文
-                      if (product.tags && tagIdx !== undefined) {
-                        const tagIdxNum = parseInt(tagIdx);
-                        if (tagIdxNum < product.tags.length) {
-                          // 标签是字符串，需要通过翻译词典管理
-                          // 这里暂时不处理标签译文
-                        }
-                      }
-                    }
-                    
-                    productsFile.products[filename] = product;
-                  }
-                }
-              });
-              
-              // 保存更新后的 products.json
-              const jsonContent = JSON.stringify(productsFile, null, 2);
-              await githubAPI.commitFile(seriesPath, jsonContent, `Update product translations for ${seriesName}`);
-              
-            } catch (error) {
-              console.error(`Failed to save translations for ${seriesName}:`, error);
-            }
-          }
-          
-          this.showStatus('产品译文已保存到 products.json', 'success');
-        } catch (error) {
-          console.error('Save product translations error:', error);
-          this.showStatus('保存产品译文失败: ' + error.message, 'error');
-        } finally {
-          this.showLoading(false);
-        }
       }
       
       exportTranslationsCSV() {
@@ -1962,22 +1939,47 @@
       }
       
       updatePreview() {
+        const siteInfo = this.config.siteInfo || {};
         const contactForm = this.config.contactForm || {};
         const pageSettings = this.config.pageSettings || {};
         const currentLang = pageSettings.defaultLanguage || 'zh';
         
-        document.getElementById('preview-companyName').textContent = this.config.translations['GH5鞋业']?.[currentLang] || '-';
-        document.getElementById('preview-companyDescription').textContent = this.config.translations['专业鞋类制造商']?.[currentLang] || '-';
-        document.getElementById('preview-address').textContent = '-';
-        document.getElementById('preview-phone').textContent = '-';
-        document.getElementById('preview-email').textContent = '-';
-        document.getElementById('preview-wechat').textContent = '-';
-        document.getElementById('preview-workingHours').textContent = '-';
+        document.getElementById('preview-companyName').textContent = siteInfo.companyName?.[currentLang] || '-';
+        document.getElementById('preview-companyDescription').textContent = siteInfo.companyDescription?.[currentLang] || '-';
+        document.getElementById('preview-address').textContent = siteInfo.companyAddress?.zh || '-';
+        document.getElementById('preview-phone').textContent = siteInfo.companyPhone?.zh || '-';
+        document.getElementById('preview-email').textContent = siteInfo.companyEmail?.zh || '-';
+        document.getElementById('preview-wechat').textContent = siteInfo.companyWechat?.zh || '-';
+        document.getElementById('preview-workingHours').textContent = siteInfo.workingHours?.zh || '-';
         
         document.getElementById('preview-formspreeId').textContent = contactForm.formspreeId || '未配置';
         document.getElementById('preview-formStatus').textContent = contactForm.enable !== false ? '已启用' : '已禁用';
         document.getElementById('preview-defaultLanguage').textContent = 
           currentLang === 'zh' ? '中文' : currentLang === 'en' ? 'English' : '한국어';
+      }
+      
+      async saveSiteInfo() {
+        const siteInfo = {
+          companyName: {
+            zh: document.getElementById('companyName-zh').value,
+            en: document.getElementById('companyName-en').value,
+            ko: document.getElementById('companyName-ko').value
+          },
+          companyDescription: {
+            zh: document.getElementById('companyDescription-zh').value,
+            en: document.getElementById('companyDescription-en').value,
+            ko: document.getElementById('companyDescription-ko').value
+          },
+          companyAddress: { zh: document.getElementById('companyAddress').value },
+          companyPhone: { zh: document.getElementById('companyPhone').value },
+          companyEmail: { zh: document.getElementById('companyEmail').value },
+          companyWechat: { zh: document.getElementById('companyWechat').value },
+          workingHours: { zh: document.getElementById('workingHours').value }
+        };
+        
+        this.config.siteInfo = siteInfo;
+        await this.saveConfig();
+        this.updatePreview();
       }
       
       async saveSocialMedia() {
@@ -2124,164 +2126,6 @@
         
         this.config.translations = translations;
         await this.saveConfig();
-      }
-      
-      // 扫描产品信息中的中文文本，添加到翻译词典
-      async scanProductsTranslations() {
-        this.showLoading(true);
-        try {
-          const series = await githubAPI.fetchDirectory('产品图');
-          const productSeries = series.filter(item => item.type === 'dir');
-          
-          const foundTexts = new Set();
-          
-          for (const seriesItem of productSeries) {
-            try {
-              const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
-              if (productsFile && productsFile.products) {
-                for (const [_, product] of Object.entries(productsFile.products)) {
-                  if (product.name && product.name.zh) {
-                    foundTexts.add(product.name.zh);
-                  }
-                  if (product.description && product.description.zh) {
-                    foundTexts.add(product.description.zh);
-                  }
-                }
-              }
-            } catch (error) {
-              console.warn(`Failed to load products for ${seriesItem.name}:`, error);
-            }
-          }
-          
-          const newTexts = Array.from(foundTexts).filter(text => !this.config.translations[text]);
-          
-          if (newTexts.length > 0) {
-            const container = document.getElementById('scanned-translations-list');
-            container.innerHTML = '';
-            newTexts.forEach(text => {
-              const div = document.createElement('div');
-              div.style.marginBottom = '5px';
-              div.textContent = text;
-              container.appendChild(div);
-            });
-            
-            document.getElementById('translation-scan-results').style.display = 'block';
-            this.scannedTranslations = newTexts;
-            this.showStatus(`扫描到 ${newTexts.length} 个产品文本需要翻译`, 'info');
-          } else {
-            this.showStatus('所有产品文本已在翻译词典中', 'success');
-          }
-        } catch (error) {
-          console.error('Scan products translations error:', error);
-          this.showStatus('扫描产品翻译失败: ' + error.message, 'error');
-        } finally {
-          this.showLoading(false);
-        }
-      }
-      
-      // 合并站点信息到翻译词典
-      mergeSiteInfoToTranslations() {
-        try {
-          const siteInfo = this.config.siteInfo || {};
-          let mergedCount = 0;
-          
-          // 合并公司名称
-          if (siteInfo.companyName && siteInfo.companyName.zh) {
-            const key = siteInfo.companyName.zh;
-            if (!this.config.translations[key]) {
-              this.config.translations[key] = {
-                zh: siteInfo.companyName.zh,
-                en: siteInfo.companyName.en || '',
-                ko: siteInfo.companyName.ko || ''
-              };
-              mergedCount++;
-            }
-          }
-          
-          // 合并公司描述
-          if (siteInfo.companyDescription && siteInfo.companyDescription.zh) {
-            const key = siteInfo.companyDescription.zh;
-            if (!this.config.translations[key]) {
-              this.config.translations[key] = {
-                zh: siteInfo.companyDescription.zh,
-                en: siteInfo.companyDescription.en || '',
-                ko: siteInfo.companyDescription.ko || ''
-              };
-              mergedCount++;
-            }
-          }
-          
-          // 合并公司地址
-          if (siteInfo.companyAddress && siteInfo.companyAddress.zh) {
-            const key = siteInfo.companyAddress.zh;
-            if (!this.config.translations[key]) {
-              this.config.translations[key] = {
-                zh: siteInfo.companyAddress.zh,
-                en: siteInfo.companyAddress.en || '',
-                ko: siteInfo.companyAddress.ko || ''
-              };
-              mergedCount++;
-            }
-          }
-          
-          // 合并公司电话
-          if (siteInfo.companyPhone && siteInfo.companyPhone.zh) {
-            const key = siteInfo.companyPhone.zh;
-            if (!this.config.translations[key]) {
-              this.config.translations[key] = {
-                zh: siteInfo.companyPhone.zh,
-                en: siteInfo.companyPhone.en || '',
-                ko: siteInfo.companyPhone.ko || ''
-              };
-              mergedCount++;
-            }
-          }
-          
-          // 合并公司邮箱
-          if (siteInfo.companyEmail && siteInfo.companyEmail.zh) {
-            const key = siteInfo.companyEmail.zh;
-            if (!this.config.translations[key]) {
-              this.config.translations[key] = {
-                zh: siteInfo.companyEmail.zh,
-                en: siteInfo.companyEmail.en || '',
-                ko: siteInfo.companyEmail.ko || ''
-              };
-              mergedCount++;
-            }
-          }
-          
-          // 合并公司微信
-          if (siteInfo.companyWechat && siteInfo.companyWechat.zh) {
-            const key = siteInfo.companyWechat.zh;
-            if (!this.config.translations[key]) {
-              this.config.translations[key] = {
-                zh: siteInfo.companyWechat.zh,
-                en: siteInfo.companyWechat.en || '',
-                ko: siteInfo.companyWechat.ko || ''
-              };
-              mergedCount++;
-            }
-          }
-          
-          // 合并工作时间
-          if (siteInfo.workingHours && siteInfo.workingHours.zh) {
-            const key = siteInfo.workingHours.zh;
-            if (!this.config.translations[key]) {
-              this.config.translations[key] = {
-                zh: siteInfo.workingHours.zh,
-                en: siteInfo.workingHours.en || '',
-                ko: siteInfo.workingHours.ko || ''
-              };
-              mergedCount++;
-            }
-          }
-          
-          this.saveTranslations();
-          this.showStatus(`成功合并 ${mergedCount} 条站点信息到翻译词典`, 'success');
-        } catch (error) {
-          console.error('Merge site info error:', error);
-          this.showStatus('合并站点信息失败: ' + error.message, 'error');
-        }
       }
       
       async savePageSettings() {
