@@ -7,24 +7,26 @@
   "products": {
     "33 (1).png": {
       "name": {
-        "zh": "55",
+        "zh": "样板马皮",
         "en": "55",
         "ko": "55"
       },
       "description": {
-        "zh": "33 - 高品质产品",
+        "zh": "纯马皮",
         "en": "33 - 高品质产品",
         "ko": "33 - 高品质产品"
       },
-      "price": "55",
-      "tags": [],
+      "price": "100",
+      "tags": [
+        "马皮，新品"
+      ],
       "materials": {
-        "upper": "5",
-        "lining": "",
-        "sole": ""
+        "upper": "马皮",
+        "lining": "马里",
+        "sole": "真皮组合大底"
       },
-      "customizable": "",
-      "minOrder": ""
+      "customizable": "true",
+      "minOrder": "50"
     },
     "中文数字123 (1).png": {
       "name": {
@@ -67,24 +69,26 @@
     },
     "33 (2).png": {
       "name": {
-        "zh": "55",
+        "zh": "样板马皮",
         "en": "55",
         "ko": "55"
       },
       "description": {
-        "zh": "33 - 高品质产品",
+        "zh": "纯马皮",
         "en": "33 - 高品质产品",
         "ko": "33 - 高品质产品"
       },
-      "price": "55",
-      "tags": [],
+      "price": "100",
+      "tags": [
+        "马皮，新品"
+      ],
       "materials": {
-        "upper": "5",
-        "lining": "",
-        "sole": ""
+        "upper": "马皮",
+        "lining": "马里",
+        "sole": "真皮组合大底"
       },
-      "customizable": "",
-      "minOrder": ""
+      "customizable": "true",
+      "minOrder": "50"
     },
     "中文数字123 (2).png": {
       "name": {
