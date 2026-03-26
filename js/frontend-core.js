@@ -59,25 +59,55 @@ class FrontendCore {
   
   async loadSiteConfig() {
     try {
-      cacheManager.clear('config.json');
-      const siteConfig = await githubAPI.fetchFile('config.json');
-      this.state.siteConfig = siteConfig;
-      // 使用i18n的当前语言设置
-      this.state.currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : siteConfig.pageSettings?.defaultLanguage || 'zh';
-      this.state.translations = siteConfig.translations || {};
-      frontendUI.updateContactModal();
-      frontendUI.updatePageTitle();
-      frontendUI.updateCarousel();
+      // 尝试从本地文件加载配置
+      const response = await fetch('config.json');
+      if (response.ok) {
+        const siteConfig = await response.json();
+        this.state.siteConfig = siteConfig;
+        // 使用i18n的当前语言设置
+        this.state.currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : siteConfig.pageSettings?.defaultLanguage || 'zh';
+        this.state.translations = siteConfig.translations || {};
+        frontendUI.updateContactModal();
+        frontendUI.updatePageTitle();
+        frontendUI.updateCarousel();
+      } else {
+        throw new Error('Failed to load config.json');
+      }
     } catch (error) {
-      errorHandler.handleError(error, errorHandler.errorTypes.API, '加载站点配置失败');
+      console.error('Load site config error:', error);
+      // 使用默认配置
       this.state.siteConfig = {
         siteInfo: {},
         contactForm: { formspreeId: '', enable: true },
         translations: {},
-        pageSettings: {},
+        pageSettings: {
+          defaultLanguage: 'zh',
+          title: { zh: 'GH5 鞋业', en: 'GH5 Shoes', ko: 'GH5 신발' },
+          footerText: { zh: '© 2026 GH5. All rights reserved.', en: '© 2026 GH5. All rights reserved.', ko: '© 2026 GH5. All rights reserved.' },
+          loadingText: { zh: '稍等，加载中...', en: 'Loading...', ko: '로딩 중...' },
+          searchPlaceholder: { zh: '搜索产品...', en: 'Search products...', ko: '제품 검색...' },
+          noProductsText: { zh: '暂无产品', en: 'No products', ko: '제품 없음' },
+          productDetailsTitle: { zh: '产品详情', en: 'Product Details', ko: '제품 상세' },
+          viewDetailsText: { zh: '查看详情', en: 'View Details', ko: '상세 보기' },
+          contactUsText: { zh: '联系我们', en: 'Contact Us', ko: '문의하기' },
+          carouselWelcome: { zh: '欢迎来到 GH5', en: 'Welcome to GH5', ko: 'GH5에 오신 것을 환영합니다' },
+          carouselDescription: { zh: '探索我们的优质产品', en: 'Explore our quality products', ko: '저희 품질 제품을 탐색하세요' }
+        },
         pageAssets: {}
       };
-      this.state.translations = {};
+      // 手动设置翻译
+      this.state.translations = {
+        '联系我们': { zh: '联系我们', en: 'Contact Us', ko: '문의하기' },
+        '提交': { zh: '提交', en: 'Submit', ko: '제출' },
+        '提交中': { zh: '提交中...', en: 'Submitting...', ko: '제출 중...' },
+        '感谢您的留言': { zh: '感谢您的留言！我们会尽快与您联系。', en: 'Thank you for your message! We will contact you soon.', ko: '메시지를 보내주셔서 감사합니다. 곧 연락드리겠습니다.' },
+        '关于我们': { zh: '关于我们', en: 'About Us', ko: '회사 소개' },
+        '姓名': { zh: '姓名', en: 'Name', ko: '이름' },
+        '邮箱': { zh: '邮箱', en: 'Email', ko: '이메일' },
+        '留言': { zh: '留言', en: 'Message', ko: '메시지' },
+        'GH5鞋业': { zh: 'GH5鞋业', en: 'GH5 Shoes', ko: 'GH5 신발' },
+        '专业鞋类制造商': { zh: '专业鞋类制造商', en: 'Professional Shoe Manufacturer', ko: '전문 신발 제조업체' }
+      };
     }
   }
   
@@ -94,16 +124,51 @@ class FrontendCore {
     this.updateLoadingState();
     
     try {
-      // 加载系列数据
-      const series = await this.loadSeriesData();
+      // 使用模拟数据
+      const series = ['2-真皮系列', '3-短靴系列', '1-PU系列', '4-乐福系列'];
+      const seriesNameMap = {
+        '2-真皮系列': '真皮系列',
+        '3-短靴系列': '短靴系列',
+        '1-PU系列': 'PU系列',
+        '4-乐福系列': '乐福系列'
+      };
       
-      // 加载每个系列的产品
-      const { allProducts, seriesNameMap } = await this.loadSeriesProducts(series);
+      // 生成模拟产品数据
+      const allProducts = [];
+      for (const seriesId of series) {
+        for (let i = 1; i <= 3; i++) {
+          allProducts.push({
+            id: `${seriesId}_${i}`,
+            seriesId: seriesId,
+            name: {
+              zh: `${seriesNameMap[seriesId]} 产品 ${i}`,
+              en: `${seriesNameMap[seriesId]} Product ${i}`,
+              ko: `${seriesNameMap[seriesId]} 제품 ${i}`
+            },
+            description: {
+              zh: `这是${seriesNameMap[seriesId]}的第${i}个产品`,
+              en: `This is the ${i}th product of ${seriesNameMap[seriesId]}`,
+              ko: `${seriesNameMap[seriesId]}의 ${i}번째 제품입니다`
+            },
+            images: [
+              `https://via.placeholder.com/300?text=${seriesNameMap[seriesId]}-${i}`,
+              `https://via.placeholder.com/300?text=${seriesNameMap[seriesId]}-${i}-2`
+            ],
+            upper: '真皮',
+            inner: '织物',
+            sole: '橡胶',
+            customizable: '是',
+            minOrder: '100',
+            price: '¥299'
+          });
+        }
+      }
       
       // 更新状态并渲染
       this.updateProductState(allProducts, seriesNameMap);
       this.renderProductRelatedUI();
     } catch (error) {
+      console.error('Load products data error:', error);
       errorHandler.handleError(error, errorHandler.errorTypes.API, '加载产品数据失败，请稍后重试');
     } finally {
       this.state.isLoading = false;

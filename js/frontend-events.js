@@ -5,20 +5,20 @@ class FrontendEvents {
   
   // 设置事件监听器
   setupEventListeners() {
-    // 系列筛选
-    document.querySelectorAll('.series-filter').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    // 系列筛选 - 使用事件委托
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('series-filter')) {
         const seriesId = e.target.dataset.series;
         frontendCore.filterBySeries(seriesId);
-      });
+      }
     });
     
-    // 分页
-    document.querySelectorAll('.pagination-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    // 分页 - 使用事件委托
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('pagination-btn')) {
         const page = parseInt(e.target.dataset.page);
         frontendCore.goToPage(page);
-      });
+      }
     });
     
     // 刷新数据按钮
