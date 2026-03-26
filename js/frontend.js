@@ -69,11 +69,16 @@ class Frontend {
   
   getImageUrl(seriesId, imageName) {
     // 使用GitHub的raw.githubusercontent.com来访问图片文件，避免GitHub Pages部署问题
-    const baseUrl = `https://raw.githubusercontent.com/${this.config.github.owner}/${this.config.github.repo}/${this.config.github.branch}/${this.config.github.productsPath}/${seriesId}/`;
-    const imageUrl = baseUrl + imageName;
+    // 对路径中的中文部分进行编码
+    const encodedSeriesId = encodeURIComponent(seriesId);
+    const encodedImageName = encodeURIComponent(imageName);
+    const baseUrl = `https://raw.githubusercontent.com/${this.config.github.owner}/${this.config.github.repo}/${this.config.github.branch}/${this.config.github.productsPath}/${encodedSeriesId}/`;
+    const imageUrl = baseUrl + encodedImageName;
     
     // 输出图片URL到控制台，以便调试
     console.log('Generated image URL:', imageUrl);
+    console.log('Original seriesId:', seriesId);
+    console.log('Original imageName:', imageName);
     
     // 直接返回原始图片URL，避免WebP格式转换导致的图片显示问题
     return imageUrl;
@@ -321,7 +326,7 @@ class Frontend {
   }
   
   loadProductsData() {
-    this.products.loadProductsData();
+    return this.products.loadProductsData();
   }
   
   renderProducts() {

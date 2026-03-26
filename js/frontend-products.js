@@ -160,6 +160,8 @@ class FrontendProducts {
               };
               
               console.log('构建的产品对象:', product);
+              console.log('产品图片数量:', product.images.length);
+              console.log('第一张图片URL:', product.images[0]);
               
               productsByGroup[productName] = product;
             });
@@ -256,6 +258,8 @@ class FrontendProducts {
     
     container.innerHTML = '';
     
+    console.log('渲染产品，总产品数量:', this.frontend.state.products.length);
+    
     // 按系列分组产品
     const productsBySeries = {};
     this.frontend.state.products.forEach(product => {
@@ -264,6 +268,8 @@ class FrontendProducts {
       }
       productsBySeries[product.seriesId].push(product);
     });
+    
+    console.log('按系列分组后的产品:', productsBySeries);
     
     // 获取系列顺序
     let seriesOrder = this.frontend.state.seriesOrder || Object.keys(productsBySeries);
@@ -359,7 +365,7 @@ class FrontendProducts {
         <div class="product-image-carousel">
           ${product.images.map((image, index) => `
             <div class="carousel-item ${index === 0 ? 'active' : ''}">
-              <img src="${image}" alt="${translatedName} ${index + 1}" loading="lazy">
+              <img src="${image}" alt="${translatedName} ${index + 1}" loading="lazy" onerror="console.error('图片加载失败:', '${image}'); this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOTk5Ij7mlrDlrabliLDop6Pph448L3RleHQ+PC9zdmc+';">
             </div>
           `).join('')}
           <div class="carousel-controls">
@@ -372,7 +378,7 @@ class FrontendProducts {
     } else {
       imageCarousel = `
         <div class="product-image">
-          <img src="${product.images[0]}" alt="${translatedName}" loading="lazy">
+          <img src="${product.images[0]}" alt="${translatedName}" loading="lazy" onerror="console.error('图片加载失败:', '${product.images[0]}'); this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOTk5Ij7mlrDlrabliLDop6Pph448L3RleHQ+PC9zdmc+';">
         </div>
       `;
     }

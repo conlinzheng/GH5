@@ -86,7 +86,7 @@ class Config {
         }
         
         // 默认内置认证令牌
-        const defaultToken = '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';
+        const defaultToken = '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';
         this.set('github.token', defaultToken);
         // 同时保存到 localStorage，以便后续使用
         localStorage.setItem('gh5_github_token', defaultToken);
