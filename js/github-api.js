@@ -246,8 +246,8 @@ class GitHubAPI {
       return await response.json();
     } catch (error) {
       console.error('Fetch error:', error);
-      // 网络错误或其他错误，返回null
-      return null;
+      // 网络错误或其他错误，抛出错误
+      throw error;
     }
   }
 

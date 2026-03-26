@@ -563,7 +563,16 @@
         this.products = [];
         this.currentEditingProduct = null;
         this.currentSeries = null; // 当前选中的系列
-        this.seriesNameMap = {}; // 系列名称映射
+        // 初始化系列名称映射，设置默认值
+        this.seriesNameMap = {
+          '1-PU系列': 'PU超纤',
+          '2-真皮系列': '真皮系列',
+          '3-短靴系列': '短靴系列',
+          '4-乐福系列': '乐福系列',
+          '5-春季': '春季系列',
+          '6-夏季': '夏季系列',
+          '7-秋季': '秋季系列'
+        };
         this.seriesOrder = []; // 系列顺序
         this.productOrders = {}; // 产品顺序，按系列存储
         this.init();
@@ -1266,35 +1275,23 @@
             if (configFile) {
               if (configFile.seriesNameMap) {
                 this.seriesNameMap = configFile.seriesNameMap;
+                console.log('Loaded seriesNameMap from config.json:', this.seriesNameMap);
               }
               if (configFile.seriesOrder) {
                 this.seriesOrder = configFile.seriesOrder;
               }
+            } else {
+              console.log('Config file is null, using existing seriesNameMap');
             }
           } catch (error) {
-            // 如果配置文件不存在，使用默认映射
-            this.seriesNameMap = {
-              '1-PU系列': 'PU超纤',
-              '2-真皮系列': '真皮系列',
-              '3-短靴系列': '短靴系列',
-              '4-乐福系列': '乐福系列',
-              '5-春季': '春季系列',
-              '6-夏季': '夏季系列',
-              '7-秋季': '秋季系列'
-            };
+            console.error('Error fetching config.json:', error);
+            // 如果配置文件不存在或获取失败，保持现有的seriesNameMap不变
+            console.log('Using existing seriesNameMap:', this.seriesNameMap);
           }
         } catch (error) {
           console.error('Load series name map error:', error);
-          // 使用默认映射
-          this.seriesNameMap = {
-            '1-PU系列': 'PU超纤',
-            '2-真皮系列': '真皮系列',
-            '3-短靴系列': '短靴系列',
-            '4-乐福系列': '乐福系列',
-            '5-春季': '春季系列',
-            '6-夏季': '夏季系列',
-            '7-秋季': '秋季系列'
-          };
+          // 保持现有的seriesNameMap不变
+          console.log('Using existing seriesNameMap after error:', this.seriesNameMap);
         }
       }
       
@@ -2010,9 +2007,11 @@
           try {
             // 更新系列名称映射
             this.seriesNameMap[seriesName] = newDisplayName;
+            console.log('Updated seriesNameMap:', this.seriesNameMap);
             
             // 保存到配置文件
             await this.saveSeriesNameMap();
+            console.log('Saved seriesNameMap to config.json');
             
             this.showStatus('系列名称更新成功', 'success');
             this.scanFiles(); // 重新扫描以更新数据
