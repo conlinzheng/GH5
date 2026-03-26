@@ -24,19 +24,19 @@
       "ko": "전문 신발 제조업체"
     },
     "companyAddress": {
-      "zh": ""
+      "zh": "广东省广州市黄埔区"
     },
     "companyPhone": {
-      "zh": ""
+      "zh": "15625613141"
     },
     "companyEmail": {
-      "zh": ""
+      "zh": "1329502822@qq.com"
     },
     "companyWechat": {
-      "zh": ""
+      "zh": "123456"
     },
     "workingHours": {
-      "zh": ""
+      "zh": "每天 9:00-18:00"
     }
   },
   "contactForm": {
@@ -120,13 +120,13 @@
       "ko": "© 2026 GH5. All rights reserved."
     },
     "loadingText": {
-      "zh": "稍等，加载中...",
+      "zh": "稍等，加载中...26",
       "en": "Loading...",
       "ko": "로딩 중..."
     },
     "searchPlaceholder": {
-      "zh": "搜索产品...",
-      "en": "Search products...",
+      "zh": "搜索产品...26",
+      "en": "Search products...26",
       "ko": "제품 검색..."
     },
     "noProductsText": {
@@ -135,27 +135,27 @@
       "ko": "제품 없음"
     },
     "productDetailsTitle": {
-      "zh": "产品详情",
-      "en": "Product Details",
+      "zh": "产品详情26",
+      "en": "Product Details26",
       "ko": "제품 상세"
     },
     "viewDetailsText": {
-      "zh": "查看详情",
+      "zh": "查看详情26",
       "en": "View Details",
       "ko": "상세 보기"
     },
     "contactUsText": {
-      "zh": "联系我们",
-      "en": "Contact Us",
+      "zh": "联系我们26",
+      "en": "Contact Us26",
       "ko": "联系我们"
     },
     "carouselWelcome": {
-      "zh": "欢迎来到 GH5",
+      "zh": "欢迎来到 GH526",
       "en": "Welcome to GH5",
       "ko": "GH5에 오신 것을 환영합니다"
     },
     "carouselDescription": {
-      "zh": "探索我们的优质产品",
+      "zh": "探索我们的优质产品26",
       "en": "Explore our quality products",
       "ko": "저희 품질 제품을 탐색하세요"
     }
