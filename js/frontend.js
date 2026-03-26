@@ -748,15 +748,15 @@ class Frontend {
       // 重新加载系列名称映射和系列列表
       await this.loadSeriesNameMap();
       
+      // 声明products变量在外部作用域
+      const products = [];
+      
       try {
         // 从GitHub API获取最新的系列列表
         const series = await githubAPI.fetchDirectory(this.config.github.productsPath);
         this.state.series = series.filter(item => item.type === 'dir');
         
         console.log('Loading products from GitHub API');
-        
-        // 串行请求所有系列的产品数据，避免API限流
-        const products = [];
         
         // 限制并发请求数量
         const maxConcurrentRequests = 2;
@@ -904,21 +904,21 @@ class Frontend {
           });
           
           // 等待批次请求完成
-        await Promise.all(batchPromises);
-      }
+          await Promise.all(batchPromises);
+        }
 
-      console.log('产品数据加载完成，产品数量:', products.length);
-      console.log('产品数据示例:', products[0]);
-      
-      this.state.products = products;
-      this.state.allProducts = products; // 保存所有产品，用于搜索
+        console.log('产品数据加载完成，产品数量:', products.length);
+        console.log('产品数据示例:', products[0]);
+        
+        this.state.products = products;
+        this.state.allProducts = products; // 保存所有产品，用于搜索
 
-      // 缓存数据
-      cacheManager.set('products_data', {
-        products: this.state.products,
-        series: this.state.series,
-        seriesNameMap: this.state.seriesNameMap
-      }, this.config.cacheTTL);
+        // 缓存数据
+        cacheManager.set('products_data', {
+          products: this.state.products,
+          series: this.state.series,
+          seriesNameMap: this.state.seriesNameMap
+        }, this.config.cacheTTL);
       } catch (apiError) {
         console.error('GitHub API error:', apiError);
         console.log('Using fallback local data');
@@ -1272,8 +1272,189 @@ class Frontend {
   
   _loadLocalFallbackData() {
     // 加载本地备用数据
-    this.state.products = [];
-    this.state.series = [];
+    console.log('Loading local fallback data');
+    
+    // 本地系列数据
+    const localSeries = [
+      { name: '1-PU系列', type: 'dir', path: '产品图/1-PU系列' },
+      { name: '2-真皮系列', type: 'dir', path: '产品图/2-真皮系列' },
+      { name: '3-短靴系列', type: 'dir', path: '产品图/3-短靴系列' },
+      { name: '4-乐福系列', type: 'dir', path: '产品图/4-乐福系列' },
+      { name: '5-春季', type: 'dir', path: '产品图/5-春季' },
+      { name: '6-夏季', type: 'dir', path: '产品图/6-夏季' },
+      { name: '7-秋季', type: 'dir', path: '产品图/7-秋季' }
+    ];
+    
+    this.state.series = localSeries;
+    
+    // 构建本地产品数据
+    const localProducts = [];
+    
+    // 模拟产品数据
+    const seriesProducts = {
+      '1-PU系列': [
+        {
+          id: '中文 (1).png',
+          seriesId: '1-PU系列',
+          name: '中文',
+          description: '高品质PU系列产品',
+          price: '',
+          upperMaterial: 'PU',
+          innerMaterial: '织物',
+          soleMaterial: '橡胶',
+          customizable: '是',
+          minOrder: '100',
+          tags: ['PU', '时尚'],
+          images: [
+            '产品图/1-PU系列/中文 (1).png',
+            '产品图/1-PU系列/中文 (2).png'
+          ]
+        },
+        {
+          id: '产品1 (1).jpg',
+          seriesId: '1-PU系列',
+          name: '产品1',
+          description: 'PU系列经典款',
+          price: '',
+          upperMaterial: 'PU',
+          innerMaterial: '织物',
+          soleMaterial: '橡胶',
+          customizable: '是',
+          minOrder: '100',
+          tags: ['PU', '经典'],
+          images: [
+            '产品图/1-PU系列/产品1 (1).jpg',
+            '产品图/1-PU系列/产品1 (2).jpg'
+          ]
+        }
+      ],
+      '2-真皮系列': [
+        {
+          id: '33 (1).png',
+          seriesId: '2-真皮系列',
+          name: '真皮经典款',
+          description: '高品质真皮产品',
+          price: '',
+          upperMaterial: '真皮',
+          innerMaterial: '真皮',
+          soleMaterial: '橡胶',
+          customizable: '是',
+          minOrder: '50',
+          tags: ['真皮', '高端'],
+          images: [
+            '产品图/2-真皮系列/33 (1).png',
+            '产品图/2-真皮系列/33 (2).png'
+          ]
+        }
+      ],
+      '3-短靴系列': [
+        {
+          id: '00A (1).jpg',
+          seriesId: '3-短靴系列',
+          name: '短靴',
+          description: '时尚短靴',
+          price: '',
+          upperMaterial: 'PU',
+          innerMaterial: '织物',
+          soleMaterial: '橡胶',
+          customizable: '是',
+          minOrder: '100',
+          tags: ['短靴', '时尚'],
+          images: [
+            '产品图/3-短靴系列/00A (1).jpg'
+          ]
+        }
+      ],
+      '4-乐福系列': [
+        {
+          id: 'B5 (1).jpg',
+          seriesId: '4-乐福系列',
+          name: '乐福鞋',
+          description: '经典乐福鞋',
+          price: '',
+          upperMaterial: 'PU',
+          innerMaterial: '织物',
+          soleMaterial: '橡胶',
+          customizable: '是',
+          minOrder: '100',
+          tags: ['乐福', '经典'],
+          images: [
+            '产品图/4-乐福系列/B5 (1).jpg'
+          ]
+        }
+      ],
+      '5-春季': [
+        {
+          id: '99 (1).png',
+          seriesId: '5-春季',
+          name: '春季新品',
+          description: '春季时尚新品',
+          price: '',
+          upperMaterial: 'PU',
+          innerMaterial: '织物',
+          soleMaterial: '橡胶',
+          customizable: '是',
+          minOrder: '100',
+          tags: ['春季', '新品'],
+          images: [
+            '产品图/5-春季/99 (1).png',
+            '产品图/5-春季/99 (2).png'
+          ]
+        }
+      ],
+      '6-夏季': [
+        {
+          id: '41.png',
+          seriesId: '6-夏季',
+          name: '夏季凉鞋',
+          description: '夏季清凉凉鞋',
+          price: '',
+          upperMaterial: 'PU',
+          innerMaterial: '织物',
+          soleMaterial: '橡胶',
+          customizable: '是',
+          minOrder: '100',
+          tags: ['夏季', '凉鞋'],
+          images: [
+            '产品图/6-夏季/41.png',
+            '产品图/6-夏季/42.png'
+          ]
+        }
+      ],
+      '7-秋季': [
+        {
+          id: '@@@ (1).png',
+          seriesId: '7-秋季',
+          name: '秋季新品',
+          description: '秋季时尚新品',
+          price: '',
+          upperMaterial: 'PU',
+          innerMaterial: '织物',
+          soleMaterial: '橡胶',
+          customizable: '是',
+          minOrder: '100',
+          tags: ['秋季', '新品'],
+          images: [
+            '产品图/7-秋季/@@@ (1).png',
+            '产品图/7-秋季/@@@ (2).png'
+          ]
+        }
+      ]
+    };
+    
+    // 合并所有产品
+    Object.values(seriesProducts).forEach(products => {
+      products.forEach(product => {
+        // 修正图片路径为本地相对路径
+        product.images = product.images.map(img => img);
+        localProducts.push(product);
+      });
+    });
+    
+    this.state.products = localProducts;
+    this.state.allProducts = localProducts;
+    
+    console.log('Local fallback data loaded:', localProducts.length, 'products');
     this.renderProducts();
   }
   
