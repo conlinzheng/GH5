@@ -284,3 +284,11 @@ class GitHubAPI {
 }
 
 const githubAPI = new GitHubAPI();
+
+// 初始化时设置token
+if (typeof config !== 'undefined') {
+  const token = config.get('github.token');
+  if (token) {
+    githubAPI.setToken(token);
+  }
+}
