@@ -648,6 +648,25 @@
         <h3>🏢 公司信息</h3>
         <p style="color: #888; margin-bottom: 15px;">联系我们弹窗中显示的公司信息</p>
         
+        <!-- 站点标题（左上角） -->
+        <div class="content-item">
+          <h4>站点标题 <small style="color: #999; font-weight: normal;">(页面左上角显示)</small></h4>
+          <div class="multi-lang-form">
+            <div class="form-group">
+              <label>中文 <span class="lang-badge">ZH</span></label>
+              <input type="text" id="text-site-title-zh" placeholder="例如：GH5">
+            </div>
+            <div class="form-group">
+              <label>英文 <span class="lang-badge">EN</span></label>
+              <input type="text" id="text-site-title-en" placeholder="例如：GH5">
+            </div>
+            <div class="form-group">
+              <label>韩文 <span class="lang-badge">KO</span></label>
+              <input type="text" id="text-site-title-ko" placeholder="例如：GH5">
+            </div>
+          </div>
+        </div>
+        
         <!-- 公司名称 -->
         <div class="content-item">
           <h4>公司名称 <small style="color: #999; font-weight: normal;">(联系我们弹窗左侧)</small></h4>
@@ -1345,7 +1364,8 @@
           pageSettings: {
             defaultLanguage: 'zh',
             enableI18n: true,
-            title: { zh: '', en: '', ko: '' }
+            title: { zh: '', en: '', ko: '' },
+            siteTitle: { zh: 'GH5', en: 'GH5', ko: 'GH5' }
           },
           translations: {},
           contactForm: {
@@ -1415,6 +1435,11 @@
         document.getElementById('text-loading-zh').value = pageSettings.loadingText?.zh || '加载中...';
         document.getElementById('text-loading-en').value = pageSettings.loadingText?.en || 'Loading...';
         document.getElementById('text-loading-ko').value = pageSettings.loadingText?.ko || '로딩 중...';
+        
+        // 站点标题（左上角）
+        document.getElementById('text-site-title-zh').value = pageSettings.siteTitle?.zh || 'GH5';
+        document.getElementById('text-site-title-en').value = pageSettings.siteTitle?.en || 'GH5';
+        document.getElementById('text-site-title-ko').value = pageSettings.siteTitle?.ko || 'GH5';
         
         this.fillSocialMediaForm();
         this.fillPageAssetsForm();
@@ -2378,6 +2403,12 @@
           ko: document.getElementById('text-loading-ko').value
         };
         
+        pageSettings.siteTitle = {
+          zh: document.getElementById('text-site-title-zh').value,
+          en: document.getElementById('text-site-title-en').value,
+          ko: document.getElementById('text-site-title-ko').value
+        };
+        
         // 保留其他重要配置字段
         const existingConfig = this.config;
         this.config = {
@@ -2470,6 +2501,7 @@
               siteInfo: defaultConfig.siteInfo,
               pageSettings: {
                 ...this.config.pageSettings,
+                siteTitle: defaultConfig.pageSettings.siteTitle,
                 carouselWelcome: defaultConfig.pageSettings.carouselWelcome,
                 carouselDescription: defaultConfig.pageSettings.carouselDescription,
                 searchPlaceholder: defaultConfig.pageSettings.searchPlaceholder,

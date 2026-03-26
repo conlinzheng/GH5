@@ -46,6 +46,7 @@ class Frontend {
       const newLang = event.detail.language;
       this.state.currentLang = newLang;
       this.updatePageTitle();
+      this.updateSiteTitle();
       this.updateCarousel();
       this.updateContactModal();
       this.updateFooter();
@@ -69,6 +70,7 @@ class Frontend {
       this.state.translations = config.translations || {};
       this.updateContactModal();
       this.updatePageTitle();
+      this.updateSiteTitle();
       this.updateCarousel();
       this.updateSearchPlaceholder();
     } catch (error) {
@@ -91,6 +93,17 @@ class Frontend {
     
     if (pageSettings.title) {
       document.title = pageSettings.title[lang] || pageSettings.title.zh || 'GH5';
+    }
+  }
+  
+  updateSiteTitle() {
+    const config = this.state.siteConfig;
+    const lang = this.state.currentLang;
+    const pageSettings = config.pageSettings || {};
+    
+    const logoTitle = document.querySelector('.logo h1');
+    if (logoTitle) {
+      logoTitle.textContent = pageSettings.siteTitle?.[lang] || pageSettings.siteTitle?.zh || 'GH5';
     }
   }
   
