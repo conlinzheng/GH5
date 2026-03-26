@@ -6,9 +6,12 @@
     "4-乐福系列",
     "5-春季",
     "7-秋季",
-    "6-夏季",
-    ".history"
+    "6-夏季"
   ],
+  "seriesNameMap": {
+    "1-PU系列": "11",
+    "2-真皮系列": "真皮"
+  },
   "contactForm": {
     "formspreeId": "mqeyjaqk",
     "enable": true

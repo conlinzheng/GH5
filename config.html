@@ -1543,46 +1543,38 @@
           pageSettingsFields.forEach(field => {
             const value = this.config.pageSettings?.[field.key];
             if (value?.zh) {
-              // 使用中文文本作为键，避免重复
-              const key = value.zh;
-              if (!scannedTranslations[key]) {
-                scannedTranslations[key] = {
-                  zh: value.zh,
-                  en: value.en || '',
-                  ko: value.ko || '',
-                  category: field.category,
-                  label: field.label
-                };
-              }
+              scannedTranslations[field.key] = {
+                zh: value.zh,
+                en: value.en || '',
+                ko: value.ko || '',
+                category: field.category,
+                label: field.label
+              };
             }
           });
           
           siteInfoFields.forEach(field => {
             const value = this.config.siteInfo?.[field.key];
             if (value?.zh) {
-              // 使用中文文本作为键，避免重复
-              const key = value.zh;
-              if (!scannedTranslations[key]) {
-                scannedTranslations[key] = {
-                  zh: value.zh,
-                  en: value.en || '',
-                  ko: value.ko || '',
-                  category: field.category,
-                  label: field.label
-                };
-              }
+              scannedTranslations[field.key] = {
+                zh: value.zh,
+                en: value.en || '',
+                ko: value.ko || '',
+                category: field.category,
+                label: field.label
+              };
             }
           });
           
           const existingTranslations = this.config.translations || {};
           for (const [key, value] of Object.entries(existingTranslations)) {
-            if (value.zh && !scannedTranslations[value.zh]) {
-              scannedTranslations[value.zh] = {
+            if (value.zh && !scannedTranslations[key]) {
+              scannedTranslations[key] = {
                 zh: value.zh,
                 en: value.en || '',
                 ko: value.ko || '',
-                category: value.category || '自定义翻译',
-                label: value.label || value.zh
+                category: '自定义翻译',
+                label: key
               };
             }
           }
@@ -1706,7 +1698,6 @@
         const scanZhInputs = document.querySelectorAll('.scan-zh');
         const newTranslations = {};
         const productTranslations = {}; // 存储产品译文
-        const current = this.config.translations || {};
         
         scanZhInputs.forEach(input => {
           const key = input.dataset.key;
@@ -1739,25 +1730,14 @@
             } else {
               cleanKey = zh;
             }
-            
-            // 检查是否已存在相同的中文翻译，避免重复
-            let exists = false;
-            for (const [existingKey, existingValue] of Object.entries(current)) {
-              if (existingValue.zh === zh) {
-                exists = true;
-                break;
-              }
-            }
-            
-            if (!exists) {
-              newTranslations[cleanKey] = { zh, en, ko };
-            }
+            newTranslations[cleanKey] = { zh, en, ko };
           }
         });
         
         // 保存产品译文到对应的 products.json 文件
         this.saveProductTranslations(productTranslations);
         
+        const current = this.config.translations || {};
         this.config.translations = { ...current, ...newTranslations };
         
         document.getElementById('translation-scan-results').style.display = 'none';

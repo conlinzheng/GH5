@@ -788,12 +788,12 @@
           // 清除缓存以确保获取最新数据
           cacheManager.clearAll();
           
+          // 加载系列名称映射
+          await this.loadSeriesNameMap();
+          
           // 扫描产品图目录
           const series = await githubAPI.fetchDirectory('产品图');
           this.series = series.filter(item => item.type === 'dir');
-          
-          // 加载系列名称映射（需要在设置 this.series 之后调用）
-          await this.loadSeriesNameMap();
           
           // 扫描每个系列的产品数据
           const products = [];
@@ -935,10 +935,10 @@
         try {
           this.showStatus('正在扫描新增产品...', 'info');
           
+          await this.loadSeriesNameMap();
+          
           const series = await githubAPI.fetchDirectory('产品图');
           this.series = series.filter(item => item.type === 'dir');
-          
-          await this.loadSeriesNameMap();
           
           let newProductsFound = 0;
           const newProducts = [];
@@ -1246,12 +1246,12 @@
         try {
           this.showStatus('开始重新生成 JSON 文件...', 'info');
           
+          // 加载系列名称映射
+          await this.loadSeriesNameMap();
+          
           // 获取所有系列
           const series = await githubAPI.fetchDirectory('产品图');
           this.series = series.filter(item => item.type === 'dir');
-          
-          // 加载系列名称映射（需要在设置 this.series 之后调用）
-          await this.loadSeriesNameMap();
           
           let successCount = 0;
           let errorCount = 0;
@@ -1349,32 +1349,29 @@
           cacheManager.clear('config.json');
           console.log('Config.json cache cleared in admin loadSeriesNameMap');
           
-          // 从每个系列的 products.json 文件中加载系列名称映射
-          this.seriesNameMap = {};
-          
-          for (const series of this.series) {
-            try {
-              // 清除 products.json 的缓存
-              cacheManager.clear(`${series.path}/products.json`);
-              
-              const productsFile = await githubAPI.fetchFile(`${series.path}/products.json`);
-              if (productsFile && productsFile.seriesName && productsFile.seriesName.zh) {
-                this.seriesNameMap[series.name] = productsFile.seriesName.zh;
-              }
-            } catch (error) {
-              console.warn(`Failed to load series name for ${series.name}:`, error);
-            }
-          }
-          
-          // 尝试从配置文件加载系列顺序
+          // 尝试从配置文件加载系列名称映射和顺序
           let configFile;
           try {
             configFile = await githubAPI.fetchFile('config.json');
-            if (configFile && configFile.seriesOrder) {
-              this.seriesOrder = configFile.seriesOrder;
+            if (configFile) {
+              if (configFile.seriesNameMap) {
+                this.seriesNameMap = configFile.seriesNameMap;
+              }
+              if (configFile.seriesOrder) {
+                this.seriesOrder = configFile.seriesOrder;
+              }
             }
           } catch (error) {
-            console.warn('Failed to load series order:', error);
+            // 如果配置文件不存在，使用默认映射
+            this.seriesNameMap = {
+              '1-PU系列': 'PU超纤',
+              '2-真皮系列': '真皮系列',
+              '3-短靴系列': '短靴系列',
+              '4-乐福系列': '乐福系列',
+              '5-春季': '春季系列',
+              '6-夏季': '夏季系列',
+              '7-秋季': '秋季系列'
+            };
           }
         } catch (error) {
           console.error('Load series name map error:', error);
@@ -2135,44 +2132,33 @@
       
       async saveSeriesNameMap() {
         try {
-          for (const [seriesName, displayName] of Object.entries(this.seriesNameMap)) {
-            const series = this.series.find(s => s.name === seriesName);
-            if (series) {
-              try {
-                // 清除缓存以获取最新数据
-                cacheManager.clear(`${series.path}/products.json`);
-                
-                // 获取现有的 products.json 文件
-                const productsFile = await githubAPI.fetchFile(`${series.path}/products.json`);
-                
-                if (productsFile) {
-                  // 更新系列名称
-                  productsFile.seriesName = {
-                    zh: displayName,
-                    en: productsFile.seriesName?.en || displayName,
-                    ko: productsFile.seriesName?.ko || displayName
-                  };
-                  
-                  // 保存更新后的文件
-                  const jsonContent = JSON.stringify(productsFile, null, 2);
-                  await githubAPI.commitFile(`${series.path}/products.json`, jsonContent, `Update series name to ${displayName}`);
-                }
-              } catch (error) {
-                console.error(`Failed to save series name for ${seriesName}:`, error);
-              }
-            }
-          }
-          
-          // 清除 config.json 中的 seriesNameMap，因为现在存储在 products.json 中
+          // 先获取现有的配置文件，以保留其他数据（如 seriesOrder）
+          let configData = {};
           try {
             const existingConfig = await githubAPI.fetchFile('config.json');
-            if (existingConfig && existingConfig.seriesNameMap) {
-              delete existingConfig.seriesNameMap;
-              const jsonContent = JSON.stringify(existingConfig, null, 2);
-              await githubAPI.commitFile('config.json', jsonContent, 'Remove seriesNameMap from config.json');
+            if (existingConfig) {
+              configData = existingConfig;
             }
           } catch (error) {
-            console.warn('Failed to remove seriesNameMap from config.json:', error);
+            // 文件不存在，使用空对象
+            console.log('Config file not found, creating new one');
+          }
+          
+          // 更新系列名称映射
+          configData.seriesNameMap = this.seriesNameMap;
+          
+          const jsonContent = JSON.stringify(configData, null, 2);
+          
+          try {
+            // 尝试更新配置文件
+            await githubAPI.commitFile('config.json', jsonContent, 'Update series name map');
+          } catch (error) {
+            // 如果文件不存在，尝试创建文件
+            if (error.status === 404) {
+              await githubAPI.commitFile('config.json', jsonContent, 'Create config file');
+            } else {
+              throw error;
+            }
           }
         } catch (error) {
           console.error('Save series name map error:', error);

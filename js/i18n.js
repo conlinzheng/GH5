@@ -6,179 +6,231 @@ class I18n {
     this.translations = {}; // 从 config.json 加载
     this.translationDictionary = {}; // 翻译词典
     this._isReady = false;
-    this._languageToggleHandler = null; // 初始化语言切换按钮事件处理器
   }
 
   init() {
     try {
-      this._initializeLanguage();
+      const savedLang = localStorage.getItem('gh5_language');
+      if (savedLang && this.supportedLangs.includes(savedLang)) {
+        this.currentLang = savedLang;
+      } else {
+        const browserLang = navigator.language.split('-')[0];
+        if (this.supportedLangs.includes(browserLang)) {
+          this.currentLang = browserLang;
+        }
+      }
+
+      // 从 config.json 加载翻译数据
       this.loadTranslationsFromConfig();
+
       this._isReady = true;
       this.updateLanguage();
       this._dispatchLanguageChanged();
-      this._syncWithFrontend();
-      this._setupLanguageToggle();
+      
+      if (typeof frontend !== 'undefined' && frontend.state && frontend.state.siteConfig) {
+        const configLang = frontend.state.siteConfig.pageSettings?.defaultLanguage;
+        if (configLang && this.supportedLangs.includes(configLang)) {
+          this.currentLang = configLang;
+          this.updateLanguage();
+        }
+        frontend.state.currentLang = this.currentLang;
+        frontend.updateFooter();
+        frontend.updateCarousel();
+        frontend.updateFormLabels();
+      }
+      
+      const langBtn = document.getElementById('language-toggle');
+      if (langBtn) {
+        // 移除可能存在的旧监听器（需要先检查是否存在）
+        if (this._languageToggleHandler) {
+          langBtn.removeEventListener('click', this._languageToggleHandler);
+        }
+        
+        // 创建并绑定新的事件处理函数
+        this._languageToggleHandler = () => {
+          const currentIndex = this.supportedLangs.indexOf(this.currentLang);
+          const nextIndex = (currentIndex + 1) % this.supportedLangs.length;
+          this.switchLanguage(this.supportedLangs[nextIndex]);
+        };
+        
+        langBtn.addEventListener('click', this._languageToggleHandler);
+        console.log('Language toggle button event listener added');
+      } else {
+        console.warn('Language toggle button not found');
+      }
     } catch (error) {
-      errorHandler.handleError(error, errorHandler.errorTypes.DOM, '国际化初始化失败');
+      console.error('I18n init error:', error);
       this.currentLang = this.defaultLang;
       this._isReady = true;
     }
   }
   
-  // 初始化语言设置
-  _initializeLanguage() {
-    const savedLang = localStorage.getItem('gh5_language');
-    if (savedLang && this.supportedLangs.includes(savedLang)) {
-      this.currentLang = savedLang;
-    } else {
-      const browserLang = navigator.language.split('-')[0];
-      if (this.supportedLangs.includes(browserLang)) {
-        this.currentLang = browserLang;
-      }
-    }
-  }
-  
-  // 同步前端状态
-  _syncWithFrontend() {
-    if (typeof frontendCore !== 'undefined' && frontendCore.state && frontendCore.state.siteConfig) {
-      const configLang = frontendCore.state.siteConfig.pageSettings?.defaultLanguage;
-      if (configLang && this.supportedLangs.includes(configLang)) {
-        this.currentLang = configLang;
-        this.updateLanguage();
-      }
-      frontendCore.state.currentLang = this.currentLang;
-      this._updateFrontendComponents();
-    }
-  }
-  
-  // 更新前端组件
-  _updateFrontendComponents() {
-    if (typeof frontendCore !== 'undefined') {
-      if (frontendCore.updateFooter) frontendCore.updateFooter();
-      if (frontendCore.updateCarousel) frontendCore.updateCarousel();
-      if (frontendCore.updateFormLabels) frontendCore.updateFormLabels();
-    }
-  }
-  
-  // 设置语言切换按钮
-  _setupLanguageToggle() {
-    const langBtn = document.getElementById('language-toggle');
-    if (langBtn) {
-      // 移除可能存在的旧监听器
-      if (this._languageToggleHandler) {
-        langBtn.removeEventListener('click', this._languageToggleHandler);
-      }
-      
-      // 创建并绑定新的事件处理函数
-      this._languageToggleHandler = () => {
-        this._cycleLanguage();
-      };
-      
-      langBtn.addEventListener('click', this._languageToggleHandler);
-      console.log('Language toggle button event listener added');
-    } else {
-      console.warn('Language toggle button not found');
-    }
-  }
-  
-  // 循环切换语言
-  _cycleLanguage() {
-    const currentIndex = this.supportedLangs.indexOf(this.currentLang);
-    const nextIndex = (currentIndex + 1) % this.supportedLangs.length;
-    this.switchLanguage(this.supportedLangs[nextIndex]);
-  }
-  
   // 从 config.json 加载翻译数据
   loadTranslationsFromConfig() {
     try {
-      if (typeof frontendCore !== 'undefined' && frontendCore.state && frontendCore.state.siteConfig) {
-        const config = frontendCore.state.siteConfig;
-        this._loadTranslationDictionary(config);
-        this._loadPageTranslations(config);
+      if (typeof frontend !== 'undefined' && frontend.state && frontend.state.siteConfig) {
+        const config = frontend.state.siteConfig;
+        
+        // 加载翻译词典
+        if (config.translations) {
+          this.translationDictionary = config.translations;
+        }
+        
+        // 加载页面设置中的翻译
+        if (config.pageSettings) {
+          this.translations = {
+            zh: {
+              site: {
+                title: config.pageSettings.title?.zh || 'GH5',
+                description: '专业鞋类制造商'
+              },
+              header: {
+                logo: 'GH5鞋业',
+                language: '语言'
+              },
+              carousel: {
+                welcome: config.pageSettings.carouselWelcome?.zh || '欢迎来到 GH5',
+                description: config.pageSettings.carouselDescription?.zh || '探索我们的优质产品'
+              },
+              search: {
+                placeholder: config.pageSettings.searchPlaceholder?.zh || '搜索产品...',
+                button: '搜索'
+              },
+              products: {
+                loading: config.pageSettings.loadingText?.zh || '加载中...',
+                noResults: config.pageSettings.noProductsText?.zh || '没有找到产品',
+                viewDetails: config.pageSettings.viewDetailsText?.zh || '查看详情'
+              },
+              contact: {
+                title: config.pageSettings.contactUsText?.zh || '联系我们',
+                name: '姓名',
+                email: '邮箱',
+                message: '留言',
+                submit: '提交',
+                success: '提交成功！',
+                error: '提交失败，请重试'
+              },
+              footer: {
+                copyright: config.pageSettings.footerText?.zh || '© 2026 GH5. All rights reserved.'
+              },
+              modal: {
+                close: '关闭',
+                previous: '上一张',
+                next: '下一张'
+              }
+            },
+            en: {
+              site: {
+                title: config.pageSettings.title?.en || 'GH5',
+                description: 'Professional Shoe Manufacturer'
+              },
+              header: {
+                logo: 'GH5 Shoes',
+                language: 'Language'
+              },
+              carousel: {
+                welcome: config.pageSettings.carouselWelcome?.en || 'Welcome to GH5',
+                description: config.pageSettings.carouselDescription?.en || 'Explore our quality products'
+              },
+              search: {
+                placeholder: config.pageSettings.searchPlaceholder?.en || 'Search products...',
+                button: 'Search'
+              },
+              products: {
+                loading: config.pageSettings.loadingText?.en || 'Loading...',
+                noResults: config.pageSettings.noProductsText?.en || 'No products found',
+                viewDetails: config.pageSettings.viewDetailsText?.en || 'View Details'
+              },
+              contact: {
+                title: config.pageSettings.contactUsText?.en || 'Contact Us',
+                name: 'Name',
+                email: 'Email',
+                message: 'Message',
+                submit: 'Submit',
+                success: 'Submitted successfully!',
+                error: 'Submission failed, please try again'
+              },
+              footer: {
+                copyright: config.pageSettings.footerText?.en || '© 2026 GH5. All rights reserved.'
+              },
+              modal: {
+                close: 'Close',
+                previous: 'Previous',
+                next: 'Next'
+              }
+            },
+            ko: {
+              site: {
+                title: config.pageSettings.title?.ko || 'GH5',
+                description: '전문 신발 제조업체'
+              },
+              header: {
+                logo: 'GH5 신발',
+                language: '언어'
+              },
+              carousel: {
+                welcome: config.pageSettings.carouselWelcome?.ko || 'GH5에 오신 것을 환영합니다',
+                description: config.pageSettings.carouselDescription?.ko || '저희 품질 제품을 탐색하세요'
+              },
+              search: {
+                placeholder: config.pageSettings.searchPlaceholder?.ko || '제품 검색...',
+                button: '검색'
+              },
+              products: {
+                loading: config.pageSettings.loadingText?.ko || '로딩 중...',
+                noResults: config.pageSettings.noProductsText?.ko || '제품을 찾을 수 없습니다',
+                viewDetails: config.pageSettings.viewDetailsText?.ko || '세부 정보 보기'
+              },
+              contact: {
+                title: config.pageSettings.contactUsText?.ko || '문의하기',
+                name: '이름',
+                email: '이메일',
+                message: '메시지',
+                submit: '제출',
+                success: '성공적으로 제출되었습니다!',
+                error: '제출 실패, 다시 시도하세요'
+              },
+              footer: {
+                copyright: config.pageSettings.footerText?.ko || '© 2026 GH5. All rights reserved.'
+              },
+              modal: {
+                close: '닫기',
+                previous: '이전',
+                next: '다음'
+              }
+            }
+          };
+        }
       }
     } catch (error) {
-      errorHandler.handleError(error, errorHandler.errorTypes.DOM, '加载翻译数据失败');
+      console.error('Load translations from config error:', error);
     }
-  }
-  
-  // 加载翻译词典
-  _loadTranslationDictionary(config) {
-    if (config.translations) {
-      this.translationDictionary = config.translations;
-    }
-  }
-  
-  // 加载页面翻译
-  _loadPageTranslations(config) {
-    if (config.pageSettings) {
-      this.translations = {
-        zh: this._getLangTranslations('zh', config.pageSettings),
-        en: this._getLangTranslations('en', config.pageSettings),
-        ko: this._getLangTranslations('ko', config.pageSettings)
-      };
-    }
-  }
-  
-  // 获取特定语言的翻译
-  _getLangTranslations(lang, pageSettings) {
-    return {
-      site: {
-        title: pageSettings.title?.[lang] || 'GH5',
-        description: lang === 'zh' ? '专业鞋类制造商' : lang === 'en' ? 'Professional Shoe Manufacturer' : '전문 신발 제조업체'
-      },
-      header: {
-        logo: lang === 'zh' ? 'GH5鞋业' : lang === 'en' ? 'GH5 Shoes' : 'GH5 신발',
-        language: lang === 'zh' ? '语言' : lang === 'en' ? 'Language' : '언어'
-      },
-      carousel: {
-        welcome: pageSettings.carouselWelcome?.[lang] || (lang === 'zh' ? '欢迎来到 GH5' : lang === 'en' ? 'Welcome to GH5' : 'GH5에 오신 것을 환영합니다'),
-        description: pageSettings.carouselDescription?.[lang] || (lang === 'zh' ? '探索我们的优质产品' : lang === 'en' ? 'Explore our quality products' : '저희 품질 제품을 탐색하세요')
-      },
-      search: {
-        placeholder: pageSettings.searchPlaceholder?.[lang] || (lang === 'zh' ? '搜索产品...' : lang === 'en' ? 'Search products...' : '제품 검색...'),
-        button: lang === 'zh' ? '搜索' : lang === 'en' ? 'Search' : '검색'
-      },
-      products: {
-        loading: pageSettings.loadingText?.[lang] || (lang === 'zh' ? '加载中...' : lang === 'en' ? 'Loading...' : '로딩 중...'),
-        noResults: pageSettings.noProductsText?.[lang] || (lang === 'zh' ? '没有找到产品' : lang === 'en' ? 'No products found' : '제품을 찾을 수 없습니다'),
-        viewDetails: pageSettings.viewDetailsText?.[lang] || (lang === 'zh' ? '查看详情' : lang === 'en' ? 'View Details' : '세부 정보 보기')
-      },
-      contact: {
-        title: pageSettings.contactUsText?.[lang] || (lang === 'zh' ? '联系我们' : lang === 'en' ? 'Contact Us' : '문의하기'),
-        name: lang === 'zh' ? '姓名' : lang === 'en' ? 'Name' : '이름',
-        email: lang === 'zh' ? '邮箱' : lang === 'en' ? 'Email' : '이메일',
-        message: lang === 'zh' ? '留言' : lang === 'en' ? 'Message' : '메시지',
-        submit: lang === 'zh' ? '提交' : lang === 'en' ? 'Submit' : '제출',
-        success: lang === 'zh' ? '提交成功！' : lang === 'en' ? 'Submitted successfully!' : '성공적으로 제출되었습니다!',
-        error: lang === 'zh' ? '提交失败，请重试' : lang === 'en' ? 'Submission failed, please try again' : '제출 실패, 다시 시도하세요'
-      },
-      footer: {
-        copyright: pageSettings.footerText?.[lang] || '© 2026 GH5. All rights reserved.'
-      },
-      modal: {
-        close: lang === 'zh' ? '关闭' : lang === 'en' ? 'Close' : '닫기',
-        previous: lang === 'zh' ? '上一张' : lang === 'en' ? 'Previous' : '이전',
-        next: lang === 'zh' ? '下一张' : lang === 'en' ? 'Next' : '다음'
-      }
-    };
   }
 
   switchLanguage(lang) {
     if (!this.supportedLangs.includes(lang)) {
-      errorHandler.handleError(new Error(`Language ${lang} is not supported`), errorHandler.errorTypes.VALIDATION);
+      console.warn(`Language ${lang} is not supported`);
       return false;
     }
 
     try {
       this.currentLang = lang;
       localStorage.setItem('gh5_language', lang);
+      // 重新加载翻译数据
       this.loadTranslationsFromConfig();
       this.updateLanguage();
       this._dispatchLanguageChanged();
-      this._syncWithFrontend();
+      
+      if (typeof frontend !== 'undefined' && frontend.state) {
+        frontend.state.currentLang = lang;
+        frontend.updateFooter();
+        frontend.updateCarousel();
+        frontend.updateFormLabels();
+      }
+      
       return true;
     } catch (error) {
-      errorHandler.handleError(error, errorHandler.errorTypes.DOM, '切换语言失败');
+      console.error('Switch language error:', error);
       return false;
     }
   }
@@ -199,7 +251,7 @@ class I18n {
 
       return value || key;
     } catch (error) {
-      errorHandler.handleError(error, errorHandler.errorTypes.DOM, '翻译处理失败');
+      console.error('Translation error:', error);
       return key;
     }
   }
@@ -253,7 +305,7 @@ class I18n {
     try {
       return JSON.stringify(this.translations, null, 2);
     } catch (error) {
-      errorHandler.handleError(error, errorHandler.errorTypes.DOM, '导出翻译数据失败');
+      console.error('Export translations error:', error);
       return '{}';
     }
   }
@@ -277,7 +329,7 @@ class I18n {
 
       return true;
     } catch (error) {
-      errorHandler.handleError(error, errorHandler.errorTypes.VALIDATION, '导入翻译数据失败');
+      console.error('Import translations error:', error);
       return false;
     }
   }

@@ -1,32 +1,30 @@
 {
   "seriesName": {
-    "zh": "真皮",
+    "zh": "2-真皮系列",
     "en": "2-真皮系列",
     "ko": "2-真皮系列"
   },
   "products": {
     "33 (1).png": {
       "name": {
-        "zh": "样板马皮",
+        "zh": "55",
         "en": "55",
         "ko": "55"
       },
       "description": {
-        "zh": "纯马皮",
+        "zh": "33 - 高品质产品",
         "en": "33 - 高品质产品",
         "ko": "33 - 高品质产品"
       },
-      "price": "100",
-      "tags": [
-        "马皮，新品"
-      ],
+      "price": "55",
+      "tags": [],
       "materials": {
-        "upper": "马皮",
-        "lining": "马里",
-        "sole": "真皮组合大底"
+        "upper": "5",
+        "lining": "",
+        "sole": ""
       },
-      "customizable": "true",
-      "minOrder": "50"
+      "customizable": "",
+      "minOrder": ""
     },
     "中文数字123 (1).png": {
       "name": {
@@ -69,26 +67,24 @@
     },
     "33 (2).png": {
       "name": {
-        "zh": "样板马皮",
+        "zh": "55",
         "en": "55",
         "ko": "55"
       },
       "description": {
-        "zh": "纯马皮",
+        "zh": "33 - 高品质产品",
         "en": "33 - 高品质产品",
         "ko": "33 - 高品质产品"
       },
-      "price": "100",
-      "tags": [
-        "马皮，新品"
-      ],
+      "price": "55",
+      "tags": [],
       "materials": {
-        "upper": "马皮",
-        "lining": "马里",
-        "sole": "真皮组合大底"
+        "upper": "5",
+        "lining": "",
+        "sole": ""
       },
-      "customizable": "true",
-      "minOrder": "50"
+      "customizable": "",
+      "minOrder": ""
     },
     "中文数字123 (2).png": {
       "name": {
@@ -176,8 +172,8 @@
     }
   },
   "order": [
-    "33",
     "中文数字123",
+    "33",
     "勃肯1"
   ]
 }
