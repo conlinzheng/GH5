@@ -3,7 +3,7 @@ class GitHubAPI {
     this.owner = owner;
     this.repo = repo;
     this.baseUrl = config.get('github.apiBaseUrl', 'https://api.github.com');
-    this.token = null;
+    // 直接从config获取token，不存储在实例中
     this.rateLimit = {
       remaining: 60,
       reset: Date.now() + 3600000
@@ -11,20 +11,14 @@ class GitHubAPI {
   }
 
   setToken(token) {
-    this.token = token;
-    if (token) {
-      // 保存到配置中
-      if (typeof config !== 'undefined') {
-        config.saveApiKey(token);
-      }
+    // 保存到配置中
+    if (typeof config !== 'undefined') {
+      config.saveApiKey(token);
     }
   }
 
   getToken() {
-    if (this.token) {
-      return this.token;
-    }
-    // 从配置中获取
+    // 总是从配置中获取最新的token
     if (typeof config !== 'undefined') {
       return config.get('github.token');
     }
@@ -34,42 +28,57 @@ class GitHubAPI {
   async fetchDirectory(path = '') {
     try {
       const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${path}`;
+      console.log('Fetching directory:', url);
       const response = await this._fetch(url);
       
       if (response && Array.isArray(response)) {
-        return response.map(item => ({
+        const result = response.map(item => ({
           name: item.name,
           type: item.type,
           path: item.path,
           size: item.size
         }));
+        console.log('Directory fetch successful:', path, 'found', result.length, 'items');
+        return result;
       }
 
+      console.log('Directory fetch returned empty result:', path);
       return [];
     } catch (error) {
       console.error('Fetch directory error:', error);
-      throw error;
+      // 增强错误信息
+      const enhancedError = new Error(`Failed to fetch directory ${path}: ${error.message}`);
+      enhancedError.status = error.status;
+      throw enhancedError;
     }
   }
 
   async fetchFile(path) {
     try {
       const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${path}`;
+      console.log('Fetching file:', url);
       const response = await this._fetch(url);
       
       if (response && response.content) {
         const content = this._base64Decode(response.content);
         try {
-          return JSON.parse(content);
+          const jsonContent = JSON.parse(content);
+          console.log('File fetch successful (JSON):', path);
+          return jsonContent;
         } catch {
+          console.log('File fetch successful (raw):', path);
           return content;
         }
       }
 
+      console.log('File fetch returned no content:', path);
       return null;
     } catch (error) {
       console.error('Fetch file error:', error);
-      throw error;
+      // 增强错误信息
+      const enhancedError = new Error(`Failed to fetch file ${path}: ${error.message}`);
+      enhancedError.status = error.status;
+      throw enhancedError;
     }
   }
 
@@ -218,9 +227,17 @@ class GitHubAPI {
         'Content-Type': 'application/json'
       };
 
-      const token = this.getToken();
+      // 每次请求都从config重新获取令牌，确保使用最新的令牌
+      let token = this.getToken();
+      // 如果实例没有token，尝试从config直接获取
+      if (!token && typeof config !== 'undefined') {
+        token = config.get('github.token');
+      }
       if (token) {
         headers['Authorization'] = `token ${token}`;
+        console.log('Using token for API request:', token.substring(0, 10) + '...');
+      } else {
+        console.warn('No token found for API request');
       }
 
       const response = await fetch(url, {
