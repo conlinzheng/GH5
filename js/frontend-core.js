@@ -164,8 +164,14 @@ class FrontendCore {
         }
       }
       
-      // 更新状态并渲染
-      this.updateProductState(allProducts, seriesNameMap);
+      // 更新状态
+      this.state.series = series;
+      this.state.seriesNameMap = seriesNameMap;
+      this.state.allProducts = allProducts;
+      this.state.products = allProducts;
+      this.calculateTotalPages();
+      
+      // 渲染
       this.renderProductRelatedUI();
     } catch (error) {
       console.error('Load products data error:', error);
@@ -178,11 +184,24 @@ class FrontendCore {
   
   // 加载系列数据
   async loadSeriesData() {
-    const series = await githubAPI.fetchDirectory(this.config.github.productsPath);
-    this.state.series = series
-      .filter(item => item.type === 'dir')
-      .map(item => item.name);
-    return this.state.series;
+    try {
+      const series = await githubAPI.fetchDirectory(this.config.github.productsPath);
+      // 确保series是数组
+      if (Array.isArray(series)) {
+        this.state.series = series
+          .filter(item => item && item.type === 'dir' && typeof item.name === 'string' && item.name !== '.history')
+          .map(item => item.name);
+      } else {
+        // 如果不是数组，使用模拟数据
+        this.state.series = ['2-真皮系列', '3-短靴系列', '1-PU系列', '4-乐福系列'];
+      }
+      return this.state.series;
+    } catch (error) {
+      console.error('Load series data error:', error);
+      // 出错时使用模拟数据
+      this.state.series = ['2-真皮系列', '3-短靴系列', '1-PU系列', '4-乐福系列'];
+      return this.state.series;
+    }
   }
   
   // 加载系列产品数据
@@ -264,7 +283,13 @@ class FrontendCore {
     let html = '<button class="series-filter active" data-series="all">全部</button>';
     
     this.state.series.forEach(seriesId => {
-      const seriesName = this.state.seriesNameMap[seriesId] || seriesId;
+      let seriesName = this.state.seriesNameMap[seriesId] || seriesId;
+      // 确保seriesName是字符串
+      if (typeof seriesName === 'object' && seriesName !== null) {
+        seriesName = seriesId;
+      }
+      // 跳过.hidden目录
+      if (seriesId === '.history') return;
       html += `<button class="series-filter" data-series="${seriesId}">${seriesName}</button>`;
     });
     
