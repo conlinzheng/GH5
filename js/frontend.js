@@ -1258,7 +1258,14 @@ class Frontend {
     // 处理对象类型的输入
     if (typeof zhText === 'object' && zhText !== null) {
       const lang = this.state.currentLang;
-      return zhText[lang] || zhText.zh || '';
+      const value = zhText[lang] || zhText.zh || '';
+      // 确保返回的是字符串
+      return typeof value === 'string' ? value : '';
+    }
+    
+    // 确保输入是字符串
+    if (typeof zhText !== 'string') {
+      return '';
     }
     
     if (!zhText || this.state.currentLang === 'zh') {
@@ -1272,7 +1279,9 @@ class Frontend {
     
     for (const [key, value] of Object.entries(translations)) {
       if (value.zh === zhText) {
-        return value[this.state.currentLang] || zhText;
+        const translatedValue = value[this.state.currentLang] || zhText;
+        // 确保返回的是字符串
+        return typeof translatedValue === 'string' ? translatedValue : zhText;
       }
     }
     
