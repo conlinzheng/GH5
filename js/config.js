@@ -79,10 +79,17 @@ class Config {
           return;
         }
         
-        // 最后从环境变量加载
+        // 然后从环境变量加载
         if (window.env && window.env.github && window.env.github.token) {
           this.set('github.token', window.env.github.token);
+          return;
         }
+        
+        // 默认内置认证令牌
+        const defaultToken = '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';
+        this.set('github.token', defaultToken);
+        // 同时保存到 localStorage，以便后续使用
+        localStorage.setItem('gh5_github_token', defaultToken);
       }
     } catch (error) {
       console.error('Load API key error:', error);
