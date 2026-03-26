@@ -67,20 +67,13 @@ class Frontend {
   getImageUrl(seriesId, imageName) {
     // 生成基础图片URL
     const baseUrl = `https://${this.config.github.owner}.github.io/${this.config.github.repo}/${this.config.github.productsPath}/${seriesId}/`;
+    const imageUrl = baseUrl + imageName;
     
-    // 检查浏览器是否支持WebP格式
-    const supportsWebP = (function() {
-      var elem = document.createElement('canvas');
-      return !!(elem.getContext && elem.getContext('2d')) && elem.toDataURL('image/webp').indexOf('data:image/webp') === 0;
-    })();
+    // 输出图片URL到控制台，以便调试
+    console.log('Generated image URL:', imageUrl);
     
-    // 如果支持WebP且图片不是WebP格式，尝试使用WebP版本
-    if (supportsWebP && !imageName.toLowerCase().endsWith('.webp')) {
-      const webpImageName = imageName.replace(/\.(jpg|jpeg|png|gif)$/i, '.webp');
-      return baseUrl + webpImageName;
-    }
-    
-    return baseUrl + imageName;
+    // 直接返回原始图片URL，避免WebP格式转换导致的图片显示问题
+    return imageUrl;
   }
   
   async loadSiteConfig() {

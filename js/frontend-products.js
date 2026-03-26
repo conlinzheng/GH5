@@ -90,10 +90,14 @@ class FrontendProducts {
               })()
             ]);
             
+            console.log('Files in directory:', files);
+            
             const imageFiles = files.filter(file => {
               const ext = file.name.split('.').pop().toLowerCase();
               return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
             });
+            
+            console.log('Image files found:', imageFiles);
             
             // 按产品名称分组图片
             const productGroups = {};
@@ -104,6 +108,8 @@ class FrontendProducts {
               }
               productGroups[productName].push(file.name);
             });
+            
+            console.log('Product groups:', productGroups);
             
             // 为每个产品创建数据
             const productsByGroup = {};
