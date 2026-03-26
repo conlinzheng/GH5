@@ -537,10 +537,9 @@
     </div>
     
     <div class="config-nav">
-      <button class="active" data-section="site-info">🏢 站点信息</button>
+      <button class="active" data-section="content-management">📝 内容管理</button>
       <button data-section="social-media">📱 社交媒体</button>
       <button data-section="page-assets">🖼️ 页面资源</button>
-      <button data-section="display-text">📝 显示文本</button>
       <button data-section="contact-form">📧 表单配置</button>
       <button data-section="translations">🌐 翻译词典</button>
       <button data-section="page-settings">⚡ 页面设置</button>
@@ -553,43 +552,43 @@
     
     <div class="status-container" id="status-container"></div>
     
-    <div id="site-info" class="config-section active">
-      <h2>🏢 站点基本信息</h2>
-      <p style="color: #666; margin-bottom: 20px;">这些信息将显示在联系我们弹窗的左侧</p>
+    <div id="content-management" class="config-section active">
+      <h2>📝 内容管理</h2>
+      <p style="color: #666; margin-bottom: 20px;">管理站点内容，按应用位置分类</p>
       
-      <h3>公司名称</h3>
+      <h3>📞 联系我们弹窗</h3>
+      <p style="color: #888; margin-bottom: 15px;">这些信息将显示在联系我们弹窗的左侧</p>
+      
       <div class="form-row">
         <div class="form-group">
-          <label>中文 <span class="lang-badge">ZH</span></label>
+          <label>公司名称 <span class="lang-badge">ZH</span></label>
           <input type="text" id="companyName-zh" placeholder="例如：GH5鞋业">
         </div>
         <div class="form-group">
-          <label>英文 <span class="lang-badge">EN</span></label>
+          <label>公司名称 <span class="lang-badge">EN</span></label>
           <input type="text" id="companyName-en" placeholder="例如：GH5 Shoes">
         </div>
         <div class="form-group">
-          <label>韩文 <span class="lang-badge">KO</span></label>
+          <label>公司名称 <span class="lang-badge">KO</span></label>
           <input type="text" id="companyName-ko" placeholder="例如：GH5 신발">
         </div>
       </div>
       
-      <h3>公司描述</h3>
       <div class="form-row">
         <div class="form-group">
-          <label>中文 <span class="lang-badge">ZH</span></label>
+          <label>公司描述 <span class="lang-badge">ZH</span></label>
           <textarea id="companyDescription-zh" placeholder="公司简介描述"></textarea>
         </div>
         <div class="form-group">
-          <label>英文 <span class="lang-badge">EN</span></label>
+          <label>公司描述 <span class="lang-badge">EN</span></label>
           <textarea id="companyDescription-en" placeholder="Company description"></textarea>
         </div>
         <div class="form-group">
-          <label>韩文 <span class="lang-badge">KO</span></label>
+          <label>公司描述 <span class="lang-badge">KO</span></label>
           <textarea id="companyDescription-ko" placeholder="회사 설명"></textarea>
         </div>
       </div>
       
-      <h3>联系方式</h3>
       <div class="form-row">
         <div class="form-group">
           <label>地址 <span class="lang-badge">所有语言</span></label>
@@ -617,7 +616,160 @@
         <input type="text" id="workingHours" placeholder="例如：周一至周五 9:00-18:00">
       </div>
       
-      <button class="btn-save" onclick="configManager.saveSiteInfo()">保存站点信息</button>
+      <h3>🏠 首页轮播图</h3>
+      <p style="color: #888; margin-bottom: 15px;">首页轮播图的文本内容</p>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>欢迎标题 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-carousel-welcome-zh" placeholder="欢迎来到 GH5">
+        </div>
+        <div class="form-group">
+          <label>欢迎标题 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-carousel-welcome-en" placeholder="Welcome to GH5">
+        </div>
+        <div class="form-group">
+          <label>欢迎标题 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-carousel-welcome-ko" placeholder="GH5에 오신 것을 환영합니다">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>轮播图描述 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-carousel-desc-zh" placeholder="探索我们的优质产品">
+        </div>
+        <div class="form-group">
+          <label>轮播图描述 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-carousel-desc-en" placeholder="Explore our quality products">
+        </div>
+        <div class="form-group">
+          <label>轮播图描述 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-carousel-desc-ko" placeholder="저희 품질 제품을 탐색하세요">
+        </div>
+      </div>
+      
+      <h3>🔍 搜索功能</h3>
+      <p style="color: #888; margin-bottom: 15px;">搜索框相关的文本内容</p>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>搜索占位符 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-search-zh" placeholder="搜索产品名称、标签...">
+        </div>
+        <div class="form-group">
+          <label>搜索占位符 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-search-en" placeholder="Search products...">
+        </div>
+        <div class="form-group">
+          <label>搜索占位符 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-search-ko" placeholder="제품 검색...">
+        </div>
+      </div>
+      
+      <h3>📦 产品相关</h3>
+      <p style="color: #888; margin-bottom: 15px;">产品展示相关的文本内容</p>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>产品详情标题 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-product-details-zh" placeholder="产品详情">
+        </div>
+        <div class="form-group">
+          <label>产品详情标题 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-product-details-en" placeholder="Product Details">
+        </div>
+        <div class="form-group">
+          <label>产品详情标题 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-product-details-ko" placeholder="제품 상세">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>查看详情按钮 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-view-details-zh" placeholder="查看详情">
+        </div>
+        <div class="form-group">
+          <label>查看详情按钮 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-view-details-en" placeholder="View Details">
+        </div>
+        <div class="form-group">
+          <label>查看详情按钮 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-view-details-ko" placeholder="상세 보기">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>无产品显示 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-no-products-zh" placeholder="暂无产品">
+        </div>
+        <div class="form-group">
+          <label>无产品显示 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-no-products-en" placeholder="No products">
+        </div>
+        <div class="form-group">
+          <label>无产品显示 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-no-products-ko" placeholder="제품 없음">
+        </div>
+      </div>
+      
+      <h3>📥 联系表单</h3>
+      <p style="color: #888; margin-bottom: 15px;">联系表单相关的文本内容</p>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>联系我们按钮 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-contact-us-zh" placeholder="联系我们">
+        </div>
+        <div class="form-group">
+          <label>联系我们按钮 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-contact-us-en" placeholder="Contact Us">
+        </div>
+        <div class="form-group">
+          <label>联系我们按钮 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-contact-us-ko" placeholder="联系我们">
+        </div>
+      </div>
+      
+      <h3>📄 页脚</h3>
+      <p style="color: #888; margin-bottom: 15px;">页脚相关的文本内容</p>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>版权文本 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-footer-zh" placeholder="© 2026 GH5. All rights reserved.">
+        </div>
+        <div class="form-group">
+          <label>版权文本 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-footer-en" placeholder="© 2026 GH5. All rights reserved.">
+        </div>
+        <div class="form-group">
+          <label>版权文本 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-footer-ko" placeholder="© 2026 GH5. All rights reserved.">
+        </div>
+      </div>
+      
+      <h3>⏳ 系统提示</h3>
+      <p style="color: #888; margin-bottom: 15px;">系统提示相关的文本内容</p>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>加载中文本 <span class="lang-badge">ZH</span></label>
+          <input type="text" id="text-loading-zh" placeholder="加载中...">
+        </div>
+        <div class="form-group">
+          <label>加载中文本 <span class="lang-badge">EN</span></label>
+          <input type="text" id="text-loading-en" placeholder="Loading...">
+        </div>
+        <div class="form-group">
+          <label>加载中文本 <span class="lang-badge">KO</span></label>
+          <input type="text" id="text-loading-ko" placeholder="로딩 중...">
+        </div>
+      </div>
+      
+      <button class="btn-save" onclick="configManager.saveContentManagement()">保存内容管理设置</button>
     </div>
     
     <div id="social-media" class="config-section">
@@ -775,155 +927,6 @@
       </div>
       
       <button class="btn-save" onclick="configManager.savePageAssets()">保存页面资源</button>
-    </div>
-    
-    <div id="display-text" class="config-section">
-      <h2>📝 显示文本配置</h2>
-      <p style="color: #666; margin-bottom: 20px;">配置首页各处的显示文本内容</p>
-      
-      <h3>页脚文本</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>版权文本 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-footer-zh" placeholder="© 2026 GH5. All rights reserved.">
-        </div>
-        <div class="form-group">
-          <label>版权文本 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-footer-en" placeholder="© 2026 GH5. All rights reserved.">
-        </div>
-        <div class="form-group">
-          <label>版权文本 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-footer-ko" placeholder="© 2026 GH5. All rights reserved.">
-        </div>
-      </div>
-      
-      <h3>加载提示</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>加载中文本 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-loading-zh" placeholder="加载中...">
-        </div>
-        <div class="form-group">
-          <label>加载中文本 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-loading-en" placeholder="Loading...">
-        </div>
-        <div class="form-group">
-          <label>加载中文本 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-loading-ko" placeholder="로딩 중...">
-        </div>
-      </div>
-      
-      <h3>搜索框</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>搜索占位符 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-search-zh" placeholder="搜索产品名称、标签...">
-        </div>
-        <div class="form-group">
-          <label>搜索占位符 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-search-en" placeholder="Search products...">
-        </div>
-        <div class="form-group">
-          <label>搜索占位符 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-search-ko" placeholder="제품 검색...">
-        </div>
-      </div>
-      
-      <h3>空状态文本</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>无产品显示 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-no-products-zh" placeholder="暂无产品">
-        </div>
-        <div class="form-group">
-          <label>无产品显示 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-no-products-en" placeholder="No products">
-        </div>
-        <div class="form-group">
-          <label>无产品显示 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-no-products-ko" placeholder="제품 없음">
-        </div>
-      </div>
-      
-      <h3>产品相关</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>产品详情标题 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-product-details-zh" placeholder="产品详情">
-        </div>
-        <div class="form-group">
-          <label>产品详情标题 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-product-details-en" placeholder="Product Details">
-        </div>
-        <div class="form-group">
-          <label>产品详情标题 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-product-details-ko" placeholder="제품 상세">
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label>查看详情按钮 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-view-details-zh" placeholder="查看详情">
-        </div>
-        <div class="form-group">
-          <label>查看详情按钮 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-view-details-en" placeholder="View Details">
-        </div>
-        <div class="form-group">
-          <label>查看详情按钮 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-view-details-ko" placeholder="상세 보기">
-        </div>
-      </div>
-      
-      <h3>联系我们</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>联系我们按钮 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-contact-us-zh" placeholder="联系我们">
-        </div>
-        <div class="form-group">
-          <label>联系我们按钮 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-contact-us-en" placeholder="Contact Us">
-        </div>
-        <div class="form-group">
-          <label>联系我们按钮 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-contact-us-ko" placeholder="联系我们">
-        </div>
-      </div>
-      
-      <h3>轮播图文本</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>轮播图欢迎标题 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-carousel-welcome-zh" placeholder="欢迎来到 GH5">
-        </div>
-        <div class="form-group">
-          <label>轮播图欢迎标题 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-carousel-welcome-en" placeholder="Welcome to GH5">
-        </div>
-        <div class="form-group">
-          <label>轮播图欢迎标题 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-carousel-welcome-ko" placeholder="GH5에 오신 것을 환영합니다">
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label>轮播图描述 <span class="lang-badge">ZH</span></label>
-          <input type="text" id="text-carousel-desc-zh" placeholder="探索我们的优质产品">
-        </div>
-        <div class="form-group">
-          <label>轮播图描述 <span class="lang-badge">EN</span></label>
-          <input type="text" id="text-carousel-desc-en" placeholder="Explore our quality products">
-        </div>
-        <div class="form-group">
-          <label>轮播图描述 <span class="lang-badge">KO</span></label>
-          <input type="text" id="text-carousel-desc-ko" placeholder="저희 품질 제품을 탐색하세요">
-        </div>
-      </div>
-      
-      <button class="btn-save" onclick="configManager.saveDisplayText()">保存显示文本</button>
     </div>
     
     <div id="contact-form" class="config-section">
@@ -1182,7 +1185,9 @@
       
       fillFormData() {
         const siteInfo = this.config.siteInfo || {};
+        const pageSettings = this.config.pageSettings || {};
         
+        // 联系我们弹窗
         document.getElementById('companyName-zh').value = siteInfo.companyName?.zh || '';
         document.getElementById('companyName-en').value = siteInfo.companyName?.en || '';
         document.getElementById('companyName-ko').value = siteInfo.companyName?.ko || '';
@@ -1197,15 +1202,55 @@
         document.getElementById('companyWechat').value = siteInfo.companyWechat?.zh || '';
         document.getElementById('workingHours').value = siteInfo.workingHours?.zh || '';
         
+        // 轮播图文本
+        document.getElementById('text-carousel-welcome-zh').value = pageSettings.carouselWelcome?.zh || '欢迎来到 GH5';
+        document.getElementById('text-carousel-welcome-en').value = pageSettings.carouselWelcome?.en || 'Welcome to GH5';
+        document.getElementById('text-carousel-welcome-ko').value = pageSettings.carouselWelcome?.ko || 'GH5에 오신 것을 환영합니다';
+        
+        document.getElementById('text-carousel-desc-zh').value = pageSettings.carouselDescription?.zh || '探索我们的优质产品';
+        document.getElementById('text-carousel-desc-en').value = pageSettings.carouselDescription?.en || 'Explore our quality products';
+        document.getElementById('text-carousel-desc-ko').value = pageSettings.carouselDescription?.ko || '저희 품질 제품을 탐색하세요';
+        
+        // 搜索功能
+        document.getElementById('text-search-zh').value = pageSettings.searchPlaceholder?.zh || '搜索产品名称、标签...';
+        document.getElementById('text-search-en').value = pageSettings.searchPlaceholder?.en || 'Search products...';
+        document.getElementById('text-search-ko').value = pageSettings.searchPlaceholder?.ko || '제품 검색...';
+        
+        // 产品相关
+        document.getElementById('text-product-details-zh').value = pageSettings.productDetailsTitle?.zh || '产品详情';
+        document.getElementById('text-product-details-en').value = pageSettings.productDetailsTitle?.en || 'Product Details';
+        document.getElementById('text-product-details-ko').value = pageSettings.productDetailsTitle?.ko || '제품 상세';
+        
+        document.getElementById('text-view-details-zh').value = pageSettings.viewDetailsText?.zh || '查看详情';
+        document.getElementById('text-view-details-en').value = pageSettings.viewDetailsText?.en || 'View Details';
+        document.getElementById('text-view-details-ko').value = pageSettings.viewDetailsText?.ko || '상세 보기';
+        
+        document.getElementById('text-no-products-zh').value = pageSettings.noProductsText?.zh || '暂无产品';
+        document.getElementById('text-no-products-en').value = pageSettings.noProductsText?.en || 'No products';
+        document.getElementById('text-no-products-ko').value = pageSettings.noProductsText?.ko || '제품 없음';
+        
+        // 联系表单
+        document.getElementById('text-contact-us-zh').value = pageSettings.contactUsText?.zh || '联系我们';
+        document.getElementById('text-contact-us-en').value = pageSettings.contactUsText?.en || 'Contact Us';
+        document.getElementById('text-contact-us-ko').value = pageSettings.contactUsText?.ko || '联系我们';
+        
+        // 页脚
+        document.getElementById('text-footer-zh').value = pageSettings.footerText?.zh || '© 2026 GH5. All rights reserved.';
+        document.getElementById('text-footer-en').value = pageSettings.footerText?.en || '© 2026 GH5. All rights reserved.';
+        document.getElementById('text-footer-ko').value = pageSettings.footerText?.ko || '© 2026 GH5. All rights reserved.';
+        
+        // 系统提示
+        document.getElementById('text-loading-zh').value = pageSettings.loadingText?.zh || '加载中...';
+        document.getElementById('text-loading-en').value = pageSettings.loadingText?.en || 'Loading...';
+        document.getElementById('text-loading-ko').value = pageSettings.loadingText?.ko || '로딩 중...';
+        
         this.fillSocialMediaForm();
         this.fillPageAssetsForm();
-        this.fillDisplayTextForm();
         
         const contactForm = this.config.contactForm || {};
         document.getElementById('formspreeId').value = contactForm.formspreeId || '';
         document.getElementById('contactFormEnable').checked = contactForm.enable !== false;
         
-        const pageSettings = this.config.pageSettings || {};
         document.getElementById('defaultLanguage').value = pageSettings.defaultLanguage || 'zh';
         document.getElementById('enableI18n').value = pageSettings.enableI18n !== false ? 'true' : 'false';
         
@@ -1958,30 +2003,6 @@
           currentLang === 'zh' ? '中文' : currentLang === 'en' ? 'English' : '한국어';
       }
       
-      async saveSiteInfo() {
-        const siteInfo = {
-          companyName: {
-            zh: document.getElementById('companyName-zh').value,
-            en: document.getElementById('companyName-en').value,
-            ko: document.getElementById('companyName-ko').value
-          },
-          companyDescription: {
-            zh: document.getElementById('companyDescription-zh').value,
-            en: document.getElementById('companyDescription-en').value,
-            ko: document.getElementById('companyDescription-ko').value
-          },
-          companyAddress: { zh: document.getElementById('companyAddress').value },
-          companyPhone: { zh: document.getElementById('companyPhone').value },
-          companyEmail: { zh: document.getElementById('companyEmail').value },
-          companyWechat: { zh: document.getElementById('companyWechat').value },
-          workingHours: { zh: document.getElementById('workingHours').value }
-        };
-        
-        this.config.siteInfo = siteInfo;
-        await this.saveConfig();
-        this.updatePreview();
-      }
-      
       async saveSocialMedia() {
         const customLinkItems = document.querySelectorAll('#custom-links-container .translation-item');
         const customLinks = [];
@@ -2037,68 +2058,6 @@
         this.showStatus('页面资源设置已保存', 'success');
       }
       
-      async saveDisplayText() {
-        const pageSettings = this.config.pageSettings || {};
-        
-        pageSettings.footerText = {
-          zh: document.getElementById('text-footer-zh').value,
-          en: document.getElementById('text-footer-en').value,
-          ko: document.getElementById('text-footer-ko').value
-        };
-        
-        pageSettings.loadingText = {
-          zh: document.getElementById('text-loading-zh').value,
-          en: document.getElementById('text-loading-en').value,
-          ko: document.getElementById('text-loading-ko').value
-        };
-        
-        pageSettings.searchPlaceholder = {
-          zh: document.getElementById('text-search-zh').value,
-          en: document.getElementById('text-search-en').value,
-          ko: document.getElementById('text-search-ko').value
-        };
-        
-        pageSettings.noProductsText = {
-          zh: document.getElementById('text-no-products-zh').value,
-          en: document.getElementById('text-no-products-en').value,
-          ko: document.getElementById('text-no-products-ko').value
-        };
-        
-        pageSettings.productDetailsTitle = {
-          zh: document.getElementById('text-product-details-zh').value,
-          en: document.getElementById('text-product-details-en').value,
-          ko: document.getElementById('text-product-details-ko').value
-        };
-        
-        pageSettings.viewDetailsText = {
-          zh: document.getElementById('text-view-details-zh').value,
-          en: document.getElementById('text-view-details-en').value,
-          ko: document.getElementById('text-view-details-ko').value
-        };
-        
-        pageSettings.contactUsText = {
-          zh: document.getElementById('text-contact-us-zh').value,
-          en: document.getElementById('text-contact-us-en').value,
-          ko: document.getElementById('text-contact-us-ko').value
-        };
-        
-        pageSettings.carouselWelcome = {
-          zh: document.getElementById('text-carousel-welcome-zh').value,
-          en: document.getElementById('text-carousel-welcome-en').value,
-          ko: document.getElementById('text-carousel-welcome-ko').value
-        };
-        
-        pageSettings.carouselDescription = {
-          zh: document.getElementById('text-carousel-desc-zh').value,
-          en: document.getElementById('text-carousel-desc-en').value,
-          ko: document.getElementById('text-carousel-desc-ko').value
-        };
-        
-        this.config.pageSettings = pageSettings;
-        await this.saveConfig();
-        this.showStatus('显示文本设置已保存', 'success');
-      }
-      
       async saveContactForm() {
         this.config.contactForm = {
           formspreeId: document.getElementById('formspreeId').value,
@@ -2141,6 +2100,91 @@
         
         await this.saveConfig();
         this.updatePreview();
+      }
+      
+      async saveContentManagement() {
+        // 保存联系我们弹窗信息
+        const siteInfo = {
+          companyName: {
+            zh: document.getElementById('companyName-zh').value,
+            en: document.getElementById('companyName-en').value,
+            ko: document.getElementById('companyName-ko').value
+          },
+          companyDescription: {
+            zh: document.getElementById('companyDescription-zh').value,
+            en: document.getElementById('companyDescription-en').value,
+            ko: document.getElementById('companyDescription-ko').value
+          },
+          companyAddress: { zh: document.getElementById('companyAddress').value },
+          companyPhone: { zh: document.getElementById('companyPhone').value },
+          companyEmail: { zh: document.getElementById('companyEmail').value },
+          companyWechat: { zh: document.getElementById('companyWechat').value },
+          workingHours: { zh: document.getElementById('workingHours').value }
+        };
+        
+        // 保存显示文本信息
+        const pageSettings = this.config.pageSettings || {};
+        
+        pageSettings.carouselWelcome = {
+          zh: document.getElementById('text-carousel-welcome-zh').value,
+          en: document.getElementById('text-carousel-welcome-en').value,
+          ko: document.getElementById('text-carousel-welcome-ko').value
+        };
+        
+        pageSettings.carouselDescription = {
+          zh: document.getElementById('text-carousel-desc-zh').value,
+          en: document.getElementById('text-carousel-desc-en').value,
+          ko: document.getElementById('text-carousel-desc-ko').value
+        };
+        
+        pageSettings.searchPlaceholder = {
+          zh: document.getElementById('text-search-zh').value,
+          en: document.getElementById('text-search-en').value,
+          ko: document.getElementById('text-search-ko').value
+        };
+        
+        pageSettings.productDetailsTitle = {
+          zh: document.getElementById('text-product-details-zh').value,
+          en: document.getElementById('text-product-details-en').value,
+          ko: document.getElementById('text-product-details-ko').value
+        };
+        
+        pageSettings.viewDetailsText = {
+          zh: document.getElementById('text-view-details-zh').value,
+          en: document.getElementById('text-view-details-en').value,
+          ko: document.getElementById('text-view-details-ko').value
+        };
+        
+        pageSettings.noProductsText = {
+          zh: document.getElementById('text-no-products-zh').value,
+          en: document.getElementById('text-no-products-en').value,
+          ko: document.getElementById('text-no-products-ko').value
+        };
+        
+        pageSettings.contactUsText = {
+          zh: document.getElementById('text-contact-us-zh').value,
+          en: document.getElementById('text-contact-us-en').value,
+          ko: document.getElementById('text-contact-us-ko').value
+        };
+        
+        pageSettings.footerText = {
+          zh: document.getElementById('text-footer-zh').value,
+          en: document.getElementById('text-footer-en').value,
+          ko: document.getElementById('text-footer-ko').value
+        };
+        
+        pageSettings.loadingText = {
+          zh: document.getElementById('text-loading-zh').value,
+          en: document.getElementById('text-loading-en').value,
+          ko: document.getElementById('text-loading-ko').value
+        };
+        
+        this.config.siteInfo = siteInfo;
+        this.config.pageSettings = pageSettings;
+        
+        await this.saveConfig();
+        this.updatePreview();
+        this.showStatus('内容管理设置已保存', 'success');
       }
       
       async saveConfig() {
