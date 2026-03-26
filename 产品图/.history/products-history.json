@@ -1,6 +1,46 @@
 {
   "history": [
     {
+      "timestamp": "2026-03-26T01:45:49.377Z",
+      "seriesId": "2-真皮系列",
+      "imageFileName": "33 (1).png",
+      "data": {
+        "name": {
+          "zh": {
+            "zh": "样板马皮"
+          },
+          "en": {
+            "zh": "样板马皮"
+          },
+          "ko": {
+            "zh": "样板马皮"
+          }
+        },
+        "description": {
+          "zh": {
+            "zh": "纯马皮"
+          },
+          "en": {
+            "zh": "纯马皮"
+          },
+          "ko": {
+            "zh": "纯马皮"
+          }
+        },
+        "price": "100",
+        "tags": [
+          "马皮，新品"
+        ],
+        "materials": {
+          "upper": "马皮",
+          "lining": "马里",
+          "sole": "真皮组合大底"
+        },
+        "customizable": "true",
+        "minOrder": "50"
+      }
+    },
+    {
       "timestamp": "2026-03-23T05:25:04.259Z",
       "seriesId": "1-PU系列",
       "imageFileName": "99 (1).png",
