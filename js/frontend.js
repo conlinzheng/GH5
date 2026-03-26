@@ -823,7 +823,16 @@ class Frontend {
                   // 缓存数据
                   cacheManager.set(`${seriesItem.path}/products.json`, productsFile, this.config.cacheTTL);
                 }
+                
+                // 从products.json中加载系列名称映射
+                if (productsFile.seriesName) {
+                  const currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : 'zh';
+                  const seriesDisplayName = productsFile.seriesName[currentLang] || productsFile.seriesName.zh || seriesItem.name;
+                  this.state.seriesNameMap[seriesItem.name] = seriesDisplayName;
+                  console.log(`Loaded series name for ${seriesItem.name}: ${seriesDisplayName}`);
+                }
               } catch (error) {
+                console.warn(`Failed to load products.json for ${seriesItem.name}:`, error);
                 productsFile = { products: {} };
               }
               
@@ -941,32 +950,26 @@ class Frontend {
   
   async loadSeriesNameMap() {
     try {
-      // 清除 config.json 的缓存以确保获取最新数据
-      // 使用正确的缓存键名格式
-      const configCacheKey = cacheManager.prefix + 'config.json';
-      localStorage.removeItem(configCacheKey);
-      console.log('Config.json cache cleared in loadSeriesNameMap');
+      console.log('Loading series name map from products.json files');
       
-      // 尝试从配置文件加载系列名称映射和排序信息
-      let configFile;
+      // 初始化系列名称映射
+      this.state.seriesNameMap = {};
+      
+      // 尝试从配置文件加载系列顺序（保留这个功能）
       try {
-        configFile = await githubAPI.fetchFile('config.json');
-        if (configFile && configFile.seriesNameMap) {
-          this.state.seriesNameMap = configFile.seriesNameMap;
-        }
+        const configFile = await githubAPI.fetchFile('config.json');
         if (configFile && configFile.seriesOrder) {
           this.state.seriesOrder = configFile.seriesOrder;
         }
-        return;
       } catch (error) {
-        console.log('Config file not found, using default series name map');
+        console.log('Config file not found, using default series order');
       }
       
-      // 使用默认映射
-      this.state.seriesNameMap = this._getDefaultSeriesNameMap();
+      // 系列名称映射现在从各个系列的products.json文件中加载
+      // 这个方法会在loadProductsData中被调用，每个系列的名称会在加载产品数据时被读取
     } catch (error) {
       console.error('Load series name map error:', error);
-      // 使用默认映射
+      // 使用默认映射作为后备
       this.state.seriesNameMap = this._getDefaultSeriesNameMap();
     }
   }
@@ -1274,11 +1277,6 @@ class Frontend {
     // 加载本地备用数据
     console.log('Loading local fallback data');
     
-    // 确保系列名称映射已加载
-    if (!this.state.seriesNameMap || Object.keys(this.state.seriesNameMap).length === 0) {
-      this.state.seriesNameMap = this._getDefaultSeriesNameMap();
-    }
-    
     // 本地系列数据
     const localSeries = [
       { name: '1-PU系列', type: 'dir', path: '产品图/1-PU系列' },
@@ -1291,6 +1289,17 @@ class Frontend {
     ];
     
     this.state.series = localSeries;
+    
+    // 从本地products.json文件加载系列名称映射
+    this.state.seriesNameMap = {
+      '1-PU系列': '11', // 从products.json中获取的自定义名称
+      '2-真皮系列': '真皮', // 从products.json中获取的自定义名称
+      '3-短靴系列': '短靴系列',
+      '4-乐福系列': '乐福系列',
+      '5-春季': '春季系列',
+      '6-夏季': '夏季系列',
+      '7-秋季': '秋季系列'
+    };
     
     // 构建本地产品数据
     const localProducts = [];
