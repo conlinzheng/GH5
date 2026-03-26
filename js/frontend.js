@@ -564,6 +564,14 @@ class Frontend {
     // 加载相关图片
     this.loadRelatedImages(product.images);
     
+    // 更新联系我们按钮文本
+    const contactBtn = modal.querySelector('.contact-btn');
+    if (contactBtn) {
+      const lang = this.state.currentLang;
+      const pageSettings = this.state.siteConfig.pageSettings || {};
+      contactBtn.textContent = pageSettings.contactUsText?.[lang] || pageSettings.contactUsText?.zh || '联系我们';
+    }
+    
     // 显示弹窗
     modal.style.display = 'block';
     modal.setAttribute('aria-hidden', 'false');
