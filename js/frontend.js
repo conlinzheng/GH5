@@ -38,7 +38,7 @@ class Frontend {
     this.setupEventListeners();
     
     // 确保i18n初始化
-    if (typeof i18n !== 'undefined' && !i18n.isReady) {
+    if (typeof i18n !== 'undefined' && (typeof i18n.isReady === 'function' && !i18n.isReady() || !i18n.isReady)) {
       i18n.init();
     }
     

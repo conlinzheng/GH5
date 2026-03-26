@@ -6,6 +6,7 @@ class I18n {
     this.translations = {}; // 从 config.json 加载
     this.translationDictionary = {}; // 翻译词典
     this._isReady = false;
+    this._languageToggleHandler = null; // 初始化语言切换按钮事件处理器
   }
 
   init() {
