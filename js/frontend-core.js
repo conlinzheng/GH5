@@ -1,4 +1,4 @@
-class Frontend {
+class FrontendCore {
   constructor() {
     this.config = {
       cacheTTL: 3600,
@@ -27,14 +27,6 @@ class Frontend {
     
     this.currentLightboxImages = [];
     this.currentLightboxIndex = 0;
-    
-    // 初始化模块
-    this.events = new FrontendEvents(this);
-    this.products = new FrontendProducts(this);
-    this.modal = new FrontendModal(this);
-    this.search = new FrontendSearch(this);
-    
-    this.init();
   }
   
   async init() {
@@ -288,64 +280,11 @@ class Frontend {
     return formId ? `https://formspree.io/f/${formId}` : '';
   }
   
-  setupEventListeners() {
-    this.events.setupEventListeners();
-  }
-  
-  loadProductsData() {
-    this.products.loadProductsData();
-  }
-  
-  renderProducts() {
-    this.products.renderProducts();
-  }
-  
-  showProductDetails(product) {
-    this.modal.showProductDetails(product);
-  }
-  
-  closeProductDetails() {
-    this.modal.closeProductDetails();
-  }
-  
-  changeMainImage(src) {
-    this.modal.changeMainImage(src);
-  }
-  
-  navigateGallery(direction) {
-    this.modal.navigateGallery(direction);
-  }
-  
-  openLightbox(src) {
-    this.modal.openLightbox(src);
-  }
-  
-  closeLightbox(event) {
-    this.modal.closeLightbox(event);
-  }
-  
-  navigateLightbox(direction) {
-    this.modal.navigateLightbox(direction);
-  }
-  
-  searchProducts(query) {
-    this.search.searchProducts(query);
-  }
-  
-  resetSearch() {
-    this.search.resetSearch();
-  }
-  
-  filterBySeries(seriesId) {
-    this.state.selectedSeries = seriesId;
-    this.state.currentPage = 1;
-    this.renderProducts();
-  }
-  
-  goToPage(page) {
-    if (page < 1 || page > this.state.totalPages) return;
-    this.state.currentPage = page;
-    this.renderProducts();
+  refreshData() {
+    // 清除缓存并重新加载数据
+    cacheManager.clearAll();
+    console.log('Data refreshed by user');
+    this.loadProductsData();
   }
   
   viewHistoryProduct(productId) {
@@ -436,15 +375,8 @@ class Frontend {
       if (nextBtn) nextBtn.style.display = 'block';
     }
   }
-  
-  refreshData() {
-    // 清除缓存并重新加载数据
-    cacheManager.clearAll();
-    console.log('Data refreshed by user');
-    this.loadProductsData();
-  }
 }
 
 // 导出实例
-const frontend = new Frontend();
-window.frontend = frontend;
+const frontendCore = new FrontendCore();
+window.frontendCore = frontendCore;

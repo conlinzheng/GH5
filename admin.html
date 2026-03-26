@@ -465,88 +465,21 @@
             <h2 style="margin: 0; color: #333;">编辑产品数据</h2>
           </div>
           <div id="edit-form-container">
-            <!-- 语言切换标签 -->
-            <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
-              <button type="button" class="lang-tab active" data-lang="zh">中文</button>
-              <button type="button" class="lang-tab" data-lang="en">英文</button>
-              <button type="button" class="lang-tab" data-lang="ko">韩文</button>
-              <button type="button" class="btn btn-secondary" id="btn-batch-edit" style="margin-left: auto;">批量编辑</button>
-              <button type="button" class="btn btn-primary" id="btn-translate" style="margin-left: 10px;">自动翻译</button>
-            </div>
-            
-            <!-- 批量编辑模式 -->
-            <div id="batch-edit-panel" style="display: none; margin-bottom: 15px; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px; background-color: #f8f9fa;">
-              <h4 style="margin-top: 0; margin-bottom: 10px;">批量编辑</h4>
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                <div class="form-group">
-                  <label>所有语言 - 产品名称</label>
-                  <input type="text" id="batch-name" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label>所有语言 - 描述</label>
-                  <textarea id="batch-description" class="form-control" rows="2"></textarea>
-                </div>
-                <div class="form-group">
-                  <label>所有语言 - 价格</label>
-                  <input type="text" id="batch-price" class="form-control">
-                </div>
-              </div>
-              <button type="button" id="btn-apply-batch" class="btn btn-success" style="margin-top: 10px;">应用批量编辑</button>
-            </div>
-            
             <form id="edit-form">
               <!-- 中文输入 -->
-              <div class="lang-panel" data-lang="zh" style="display: block;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                  <div class="form-group">
-                    <label for="product-name-zh">产品名称 (中文)</label>
-                    <input type="text" id="product-name-zh" name="name-zh" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="product-price">价格</label>
-                    <input type="text" id="product-price" name="price">
-                  </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                  <label for="product-name">产品名称</label>
+                  <input type="text" id="product-name" name="name" required>
                 </div>
                 <div class="form-group">
-                  <label for="product-description-zh">产品描述 (中文)</label>
-                  <textarea id="product-description-zh" name="description-zh" rows="2"></textarea>
+                  <label for="product-price">价格</label>
+                  <input type="text" id="product-price" name="price">
                 </div>
               </div>
-              
-              <!-- 英文输入 -->
-              <div class="lang-panel" data-lang="en" style="display: none;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                  <div class="form-group">
-                    <label for="product-name-en">产品名称 (英文)</label>
-                    <input type="text" id="product-name-en" name="name-en">
-                  </div>
-                  <div class="form-group">
-                    <label for="product-price">价格</label>
-                    <input type="text" id="product-price" name="price">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="product-description-en">产品描述 (英文)</label>
-                  <textarea id="product-description-en" name="description-en" rows="2"></textarea>
-                </div>
-              </div>
-              
-              <!-- 韩文输入 -->
-              <div class="lang-panel" data-lang="ko" style="display: none;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                  <div class="form-group">
-                    <label for="product-name-ko">产品名称 (韩文)</label>
-                    <input type="text" id="product-name-ko" name="name-ko">
-                  </div>
-                  <div class="form-group">
-                    <label for="product-price">价格</label>
-                    <input type="text" id="product-price" name="price">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="product-description-ko">产品描述 (韩文)</label>
-                  <textarea id="product-description-ko" name="description-ko" rows="2"></textarea>
-                </div>
+              <div class="form-group">
+                <label for="product-description">产品描述</label>
+                <textarea id="product-description" name="description" rows="2"></textarea>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
@@ -622,118 +555,7 @@
   <script src="js/github-api.js"></script>
   <script src="js/i18n.js"></script>
   <script>
-    // 语言切换和翻译功能
-    document.addEventListener('DOMContentLoaded', function() {
-      // 语言标签切换
-      const langTabs = document.querySelectorAll('.lang-tab');
-      langTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-          const lang = this.dataset.lang;
-          
-          // 更新标签状态
-          langTabs.forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-          
-          // 显示对应语言面板
-          const langPanels = document.querySelectorAll('.lang-panel');
-          langPanels.forEach(panel => {
-            panel.style.display = panel.dataset.lang === lang ? 'block' : 'none';
-          });
-        });
-      });
-      
-      // 批量编辑切换
-      const btnBatchEdit = document.getElementById('btn-batch-edit');
-      const batchEditPanel = document.getElementById('batch-edit-panel');
-      if (btnBatchEdit && batchEditPanel) {
-        btnBatchEdit.addEventListener('click', function() {
-          batchEditPanel.style.display = batchEditPanel.style.display === 'none' ? 'block' : 'none';
-        });
-      }
-      
-      // 应用批量编辑
-      const btnApplyBatch = document.getElementById('btn-apply-batch');
-      if (btnApplyBatch) {
-        btnApplyBatch.addEventListener('click', function() {
-          const batchName = document.getElementById('batch-name').value;
-          const batchDescription = document.getElementById('batch-description').value;
-          const batchPrice = document.getElementById('batch-price').value;
-          
-          if (batchName) {
-            document.getElementById('product-name-zh').value = batchName;
-            document.getElementById('product-name-en').value = batchName;
-            document.getElementById('product-name-ko').value = batchName;
-          }
-          
-          if (batchDescription) {
-            document.getElementById('product-description-zh').value = batchDescription;
-            document.getElementById('product-description-en').value = batchDescription;
-            document.getElementById('product-description-ko').value = batchDescription;
-          }
-          
-          if (batchPrice) {
-            document.getElementById('product-price').value = batchPrice;
-          }
-          
-          alert('批量编辑已应用');
-        });
-      }
-      
-      // 自动翻译功能
-      const btnTranslate = document.getElementById('btn-translate');
-      if (btnTranslate) {
-        btnTranslate.addEventListener('click', async function() {
-          const zhName = document.getElementById('product-name-zh').value;
-          const zhDesc = document.getElementById('product-description-zh').value;
-          
-          if (!zhName && !zhDesc) {
-            alert('请先填写中文内容');
-            return;
-          }
-          
-          btnTranslate.disabled = true;
-          btnTranslate.textContent = '翻译中...';
-          
-          try {
-            // 翻译产品名称
-            if (zhName) {
-              const enName = await translateText(zhName, 'zh', 'en');
-              const koName = await translateText(zhName, 'zh', 'ko');
-              document.getElementById('product-name-en').value = enName;
-              document.getElementById('product-name-ko').value = koName;
-            }
-            
-            // 翻译产品描述
-            if (zhDesc) {
-              const enDesc = await translateText(zhDesc, 'zh', 'en');
-              const koDesc = await translateText(zhDesc, 'zh', 'ko');
-              document.getElementById('product-description-en').value = enDesc;
-              document.getElementById('product-description-ko').value = koDesc;
-            }
-            
-            alert('翻译完成');
-          } catch (error) {
-            console.error('翻译失败:', error);
-            alert('翻译失败，请稍后重试');
-          } finally {
-            btnTranslate.disabled = false;
-            btnTranslate.textContent = '自动翻译';
-          }
-        });
-      }
-    });
-    
-    // 翻译函数（使用模拟翻译）
-    async function translateText(text, from, to) {
-      // 这里使用一个简单的模拟翻译
-      // 实际项目中应该使用真实的翻译 API
-      if (from === 'zh' && to === 'en') {
-        return 'Translated: ' + text;
-      } else if (from === 'zh' && to === 'ko') {
-        return '번역: ' + text;
-      }
-      return text;
-    }
+
     
     class AdminPanel {
       constructor() {
@@ -948,8 +770,8 @@
                       const product = {
                         id: fileName,
                         seriesId: seriesItem.name,
-                        name: productData.name?.zh || productData.name || productName,
-                        description: productData.description?.zh || productData.description || '',
+                        name: productData.name || productName,
+                        description: productData.description || '',
                         price: productData.price || '',
                         materials: materials,
                         upperMaterial: materials?.upper || '',
@@ -970,8 +792,8 @@
                       const product = {
                         id: fileName,
                         seriesId: seriesItem.name,
-                        name: productData.name?.zh || productData.name || productName,
-                        description: productData.description?.zh || productData.description || '',
+                        name: productData.name || productName,
+                        description: productData.description || '',
                         price: productData.price || '',
                         materials: materials,
                         upperMaterial: materials?.upper || '',
@@ -1189,16 +1011,8 @@
               }
               
               productsFile.products[product.image] = {
-                name: {
-                  zh: product.name,
-                  en: product.name,
-                  ko: product.name
-                },
-                description: {
-                  zh: '',
-                  en: '',
-                  ko: ''
-                },
+                name: product.name,
+                description: '',
                 price: '',
                 tags: [],
                 materials: {
@@ -1270,16 +1084,8 @@
               seriesId: seriesId,
               imageFileName: imageFileName,
               data: {
-                name: {
-                  zh: newData.name,
-                  en: newData.name,
-                  ko: newData.name
-                },
-                description: {
-                  zh: newData.description,
-                  en: newData.description,
-                  ko: newData.description
-                },
+                name: newData.name,
+                description: newData.description,
                 price: newData.price,
                 tags: newData.tags,
                 materials: {
@@ -1340,9 +1146,9 @@
             const date = new Date(entry.timestamp).toLocaleString();
             message += `--- 第 ${index + 1} 次修改 (${date}) ---\n`;
             if (entry.data) {
-              message += `名称: ${entry.data.name?.zh || entry.data.name || '无'}\n`;
+              message += `名称: ${entry.data.name || '无'}\n`;
               message += `价格: ${entry.data.price || '无'}\n`;
-              message += `描述: ${entry.data.description?.zh || entry.data.description || '无'}\n`;
+              message += `描述: ${entry.data.description || '无'}\n`;
             }
             message += '\n';
           });
@@ -1421,16 +1227,8 @@
           order.push(productName);
           
           products[mainImage] = {
-            name: {
-              zh: productName,
-              en: productName,
-              ko: productName
-            },
-            description: {
-              zh: `${productName} - 高品质产品`,
-              en: `${productName} - High quality product`,
-              ko: `${productName} - 고품질 제품`
-            },
+            name: productName,
+            description: `${productName} - 高品质产品`,
             price: '',
             materials: {
               upper: '',
@@ -1442,11 +1240,7 @@
         
         // 构建 JSON 文件内容
         const seriesJson = {
-          seriesName: {
-            zh: seriesItem.name,
-            en: seriesItem.name,
-            ko: seriesItem.name
-          },
+          seriesName: seriesItem.name,
           products: products,
           order: order
         };
@@ -1535,7 +1329,7 @@
               name: this.getProductDisplayName(productName),
               description: '',
               price: '',
-              materials: ''
+              materials: {}
             };
           });
           
@@ -1889,26 +1683,18 @@
         if (product) {
           this.currentEditingProduct = product;
           
-          // 处理多语言名称
+          // 处理产品名称
           if (product.name && typeof product.name === 'object') {
-            document.getElementById('product-name-zh').value = product.name.zh || '';
-            document.getElementById('product-name-en').value = product.name.en || '';
-            document.getElementById('product-name-ko').value = product.name.ko || '';
+            document.getElementById('product-name').value = product.name.zh || '';
           } else {
-            document.getElementById('product-name-zh').value = product.name || '';
-            document.getElementById('product-name-en').value = product.name || '';
-            document.getElementById('product-name-ko').value = product.name || '';
+            document.getElementById('product-name').value = product.name || '';
           }
           
-          // 处理多语言描述
+          // 处理产品描述
           if (product.description && typeof product.description === 'object') {
-            document.getElementById('product-description-zh').value = product.description.zh || '';
-            document.getElementById('product-description-en').value = product.description.en || '';
-            document.getElementById('product-description-ko').value = product.description.ko || '';
+            document.getElementById('product-description').value = product.description.zh || '';
           } else {
-            document.getElementById('product-description-zh').value = product.description || '';
-            document.getElementById('product-description-en').value = product.description || '';
-            document.getElementById('product-description-ko').value = product.description || '';
+            document.getElementById('product-description').value = product.description || '';
           }
           
           document.getElementById('product-price').value = product.price || '';
@@ -1925,29 +1711,25 @@
       
       async saveProduct() {
         try {
-          // 获取多语言输入
-          const nameZh = document.getElementById('product-name-zh').value.trim();
-          const nameEn = document.getElementById('product-name-en').value.trim();
-          const nameKo = document.getElementById('product-name-ko').value.trim();
-          const descZh = document.getElementById('product-description-zh').value.trim();
-          const descEn = document.getElementById('product-description-en').value.trim();
-          const descKo = document.getElementById('product-description-ko').value.trim();
+          // 获取中文输入
+          const name = document.getElementById('product-name').value.trim();
+          const description = document.getElementById('product-description').value.trim();
           const priceInput = document.getElementById('product-price');
           const tagsInput = document.getElementById('product-tags');
           
           const price = priceInput ? priceInput.value.trim() : '';
           
-          if (!nameZh) {
-            this.showStatus('产品名称（中文）不能为空', 'error');
+          if (!name) {
+            this.showStatus('产品名称不能为空', 'error');
             return;
           }
           
-          if (nameZh.length > 200 || nameEn.length > 200 || nameKo.length > 200) {
+          if (name.length > 200) {
             this.showStatus('产品名称不能超过 200 个字符', 'error');
             return;
           }
           
-          if (descZh.length > 1000 || descEn.length > 1000 || descKo.length > 1000) {
+          if (description.length > 1000) {
             this.showStatus('产品描述不能超过 1000 个字符', 'error');
             return;
           }
@@ -1965,16 +1747,8 @@
           }
           
           const formData = {
-            name: {
-              zh: nameZh,
-              en: nameEn || nameZh,
-              ko: nameKo || nameZh
-            },
-            description: {
-              zh: descZh,
-              en: descEn || descZh,
-              ko: descKo || descZh
-            },
+            name: name,
+            description: description,
             price: price,
             tags: tags,
             upperMaterial: document.getElementById('product-upper-material').value,
@@ -2022,16 +1796,8 @@
           // 更新同组的所有图片产品数据
           sameGroupImages.forEach(file => {
             productsFile.products[file.name] = {
-              name: {
-                zh: formData.name,
-                en: formData.name,
-                ko: formData.name
-              },
-              description: {
-                zh: formData.description,
-                en: formData.description,
-                ko: formData.description
-              },
+              name: formData.name,
+              description: formData.description,
               price: formData.price,
               tags: formData.tags,
               materials: {

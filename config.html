@@ -542,6 +542,7 @@
       <button data-section="page-assets">🖼️ 页面资源</button>
       <button data-section="display-text">📝 显示文本</button>
       <button data-section="contact-form">📧 表单配置</button>
+      <button data-section="product-translations">📦 产品翻译</button>
       <button data-section="translations">🌐 翻译词典</button>
       <button data-section="page-settings">⚡ 页面设置</button>
       <button data-section="preview">👁️ 预览效果</button>
@@ -712,10 +713,19 @@
       </div>
       
       <h3>首页轮播图</h3>
+      <p style="color: #666; margin-bottom: 15px;">使用 GH5\轮播图 文件夹中的图片</p>
+      
       <div class="form-row">
         <div class="form-group">
-          <label>轮播图1 URL</label>
-          <input type="url" id="asset-carousel1" placeholder="图片URL地址">
+          <label>轮播图1 图片</label>
+          <select id="asset-carousel1">
+            <option value="轮播图/15.png">轮播图/15.png</option>
+            <option value="轮播图/16.png">轮播图/16.png</option>
+            <option value="轮播图/17.png">轮播图/17.png</option>
+            <option value="轮播图/18.png">轮播图/18.png</option>
+            <option value="轮播图/19.png">轮播图/19.png</option>
+            <option value="轮播图/20.png">轮播图/20.png</option>
+          </select>
         </div>
         <div class="form-group">
           <label>轮播图1 标题 <span class="lang-badge">ZH</span></label>
@@ -735,8 +745,15 @@
       
       <div class="form-row">
         <div class="form-group">
-          <label>轮播图2 URL</label>
-          <input type="url" id="asset-carousel2" placeholder="图片URL地址">
+          <label>轮播图2 图片</label>
+          <select id="asset-carousel2">
+            <option value="轮播图/15.png">轮播图/15.png</option>
+            <option value="轮播图/16.png">轮播图/16.png</option>
+            <option value="轮播图/17.png">轮播图/17.png</option>
+            <option value="轮播图/18.png">轮播图/18.png</option>
+            <option value="轮播图/19.png">轮播图/19.png</option>
+            <option value="轮播图/20.png">轮播图/20.png</option>
+          </select>
         </div>
         <div class="form-group">
           <label>轮播图2 标题 <span class="lang-badge">ZH</span></label>
@@ -948,6 +965,29 @@
       </div>
       
       <button class="btn-save" onclick="configManager.saveContactForm()">保存表单配置</button>
+    </div>
+    
+    <div id="product-translations" class="config-section">
+      <h2>📦 产品翻译管理</h2>
+      <p style="color: #666; margin-bottom: 20px;">管理产品信息的多语言翻译</p>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>选择产品系列</label>
+          <select id="product-series-select" onchange="configManager.loadSeriesProducts()">
+            <option value="">请选择系列</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button class="btn-save" onclick="configManager.refreshSeriesList()">🔄 刷新系列列表</button>
+        </div>
+      </div>
+      
+      <div id="product-translation-list" style="margin-top: 20px;">
+        <!-- 产品翻译项将在这里动态生成 -->
+      </div>
+      
+      <button class="btn-save" onclick="configManager.saveProductTranslations()" style="margin-top: 20px;">💾 保存产品翻译</button>
     </div>
     
     <div id="translations" class="config-section">
@@ -2141,6 +2181,173 @@
         
         await this.saveConfig();
         this.updatePreview();
+      }
+      
+      // 产品翻译管理方法
+      async refreshSeriesList() {
+        try {
+          this.showLoading(true);
+          const series = await githubAPI.fetchDirectory('产品图');
+          const seriesList = series.filter(item => item.type === 'dir');
+          
+          const select = document.getElementById('product-series-select');
+          select.innerHTML = '<option value="">请选择系列</option>';
+          
+          seriesList.forEach(seriesItem => {
+            const option = document.createElement('option');
+            option.value = seriesItem.name;
+            option.textContent = seriesItem.name;
+            select.appendChild(option);
+          });
+          
+          this.showStatus('系列列表已刷新', 'success');
+        } catch (error) {
+          console.error('Refresh series list error:', error);
+          this.showStatus('刷新系列列表失败: ' + error.message, 'error');
+        } finally {
+          this.showLoading(false);
+        }
+      }
+      
+      async loadSeriesProducts() {
+        const seriesName = document.getElementById('product-series-select').value;
+        if (!seriesName) {
+          document.getElementById('product-translation-list').innerHTML = '';
+          return;
+        }
+        
+        try {
+          this.showLoading(true);
+          const filePath = `产品图/${seriesName}/products.json`;
+          const productsFile = await githubAPI.fetchFile(filePath);
+          
+          if (!productsFile || !productsFile.products) {
+            document.getElementById('product-translation-list').innerHTML = '<p style="color: #666;">该系列暂无产品</p>';
+            return;
+          }
+          
+          const container = document.getElementById('product-translation-list');
+          container.innerHTML = '';
+          
+          Object.entries(productsFile.products).forEach(([fileName, product]) => {
+            const productItem = document.createElement('div');
+            productItem.className = 'translation-item';
+            
+            // 确保产品数据结构正确
+            if (!product.name) product.name = '';
+            if (!product.description) product.description = '';
+            
+            // 处理字符串类型的名称和描述
+            if (typeof product.name === 'string') {
+              product.name = { zh: product.name, en: '', ko: '' };
+            }
+            if (typeof product.description === 'string') {
+              product.description = { zh: product.description, en: '', ko: '' };
+            }
+            
+            productItem.innerHTML = `
+              <h4>${fileName}</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>产品名称 - 中文</label>
+                  <input type="text" class="product-name-zh" value="${product.name.zh || ''}" data-file="${fileName}">
+                </div>
+                <div class="form-group">
+                  <label>产品名称 - 英文</label>
+                  <input type="text" class="product-name-en" value="${product.name.en || ''}" data-file="${fileName}">
+                </div>
+                <div class="form-group">
+                  <label>产品名称 - 韩文</label>
+                  <input type="text" class="product-name-ko" value="${product.name.ko || ''}" data-file="${fileName}">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>产品描述 - 中文</label>
+                  <textarea class="product-desc-zh" data-file="${fileName}">${product.description.zh || ''}</textarea>
+                </div>
+                <div class="form-group">
+                  <label>产品描述 - 英文</label>
+                  <textarea class="product-desc-en" data-file="${fileName}">${product.description.en || ''}</textarea>
+                </div>
+                <div class="form-group">
+                  <label>产品描述 - 韩文</label>
+                  <textarea class="product-desc-ko" data-file="${fileName}">${product.description.ko || ''}</textarea>
+                </div>
+              </div>
+            `;
+            
+            container.appendChild(productItem);
+          });
+          
+          this.showStatus(`已加载 ${Object.keys(productsFile.products).length} 个产品`, 'success');
+        } catch (error) {
+          console.error('Load series products error:', error);
+          this.showStatus('加载产品失败: ' + error.message, 'error');
+        } finally {
+          this.showLoading(false);
+        }
+      }
+      
+      async saveProductTranslations() {
+        const seriesName = document.getElementById('product-series-select').value;
+        if (!seriesName) {
+          this.showStatus('请先选择产品系列', 'error');
+          return;
+        }
+        
+        try {
+          this.showLoading(true);
+          const filePath = `产品图/${seriesName}/products.json`;
+          const productsFile = await githubAPI.fetchFile(filePath);
+          
+          if (!productsFile || !productsFile.products) {
+            this.showStatus('产品数据不存在', 'error');
+            return;
+          }
+          
+          // 收集翻译数据
+          const nameZhInputs = document.querySelectorAll('.product-name-zh');
+          const nameEnInputs = document.querySelectorAll('.product-name-en');
+          const nameKoInputs = document.querySelectorAll('.product-name-ko');
+          const descZhInputs = document.querySelectorAll('.product-desc-zh');
+          const descEnInputs = document.querySelectorAll('.product-desc-en');
+          const descKoInputs = document.querySelectorAll('.product-desc-ko');
+          
+          // 更新产品数据
+          nameZhInputs.forEach(input => {
+            const fileName = input.dataset.file;
+            const zh = input.value.trim();
+            const en = document.querySelector(`.product-name-en[data-file="${fileName}"]`).value.trim();
+            const ko = document.querySelector(`.product-name-ko[data-file="${fileName}"]`).value.trim();
+            
+            if (productsFile.products[fileName]) {
+              productsFile.products[fileName].name = { zh, en, ko };
+            }
+          });
+          
+          descZhInputs.forEach(input => {
+            const fileName = input.dataset.file;
+            const zh = input.value.trim();
+            const en = document.querySelector(`.product-desc-en[data-file="${fileName}"]`).value.trim();
+            const ko = document.querySelector(`.product-desc-ko[data-file="${fileName}"]`).value.trim();
+            
+            if (productsFile.products[fileName]) {
+              productsFile.products[fileName].description = { zh, en, ko };
+            }
+          });
+          
+          // 保存文件
+          const jsonContent = JSON.stringify(productsFile, null, 2);
+          await githubAPI.commitFile(filePath, jsonContent, `Update product translations for ${seriesName}`);
+          
+          this.showStatus('产品翻译保存成功', 'success');
+        } catch (error) {
+          console.error('Save product translations error:', error);
+          this.showStatus('保存产品翻译失败: ' + error.message, 'error');
+        } finally {
+          this.showLoading(false);
+        }
       }
       
       async saveConfig() {
