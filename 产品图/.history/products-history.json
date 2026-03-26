@@ -1,6 +1,26 @@
 {
   "history": [
     {
+      "timestamp": "2026-03-26T11:31:24.160Z",
+      "seriesId": "3-短靴系列",
+      "imageFileName": "00A (1).jpg",
+      "data": {
+        "name": "短靴",
+        "description": "短靴111",
+        "price": "10",
+        "tags": [
+          "新品"
+        ],
+        "materials": {
+          "upper": "皮",
+          "lining": "皮",
+          "sole": "发泡"
+        },
+        "customizable": "true",
+        "minOrder": "111"
+      }
+    },
+    {
       "timestamp": "2026-03-23T05:25:04.259Z",
       "seriesId": "1-PU系列",
       "imageFileName": "99 (1).png",
