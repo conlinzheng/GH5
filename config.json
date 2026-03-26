@@ -14,12 +14,12 @@
   },
   "siteInfo": {
     "companyName": {
-      "zh": "GH5鞋业2",
+      "zh": "1",
       "en": "GH5 Shoes",
       "ko": "GH5 신발"
     },
     "companyDescription": {
-      "zh": "专业鞋类制造商",
+      "zh": "2",
       "en": "Professional Shoe Manufacturer",
       "ko": "전문 신발 제조업체"
     },
@@ -115,27 +115,27 @@
       "ko": "GH5 신발"
     },
     "carouselWelcome": {
-      "zh": "欢迎来到 GH526",
+      "zh": "3",
       "en": "Welcome to GH5",
       "ko": "GH5에 오신 것을 환영합니다"
     },
     "carouselDescription": {
-      "zh": "探索我们的优质产品26",
+      "zh": "4",
       "en": "Explore our quality products",
       "ko": "저희 품질 제품을 탐색하세요"
     },
     "searchPlaceholder": {
-      "zh": "搜索产品...26",
+      "zh": "5",
       "en": "Search products...26",
       "ko": "제품 검색..."
     },
     "productDetailsTitle": {
-      "zh": "产品详情26",
+      "zh": "6",
       "en": "Product Details26",
       "ko": "제품 상세"
     },
     "viewDetailsText": {
-      "zh": "查看详情26",
+      "zh": "7",
       "en": "View Details",
       "ko": "상세 보기"
     },
@@ -145,17 +145,17 @@
       "ko": "제품 없음"
     },
     "contactUsText": {
-      "zh": "联系我们26",
+      "zh": "8",
       "en": "Contact Us26",
       "ko": "联系我们"
     },
     "footerText": {
-      "zh": "© 2026 GH5. All rights reserved.",
+      "zh": "9",
       "en": "© 2026 GH5. All rights reserved.",
       "ko": "© 2026 GH5. All rights reserved."
     },
     "loadingText": {
-      "zh": "稍等，加载中...26",
+      "zh": "10",
       "en": "Loading...",
       "ko": "로딩 중..."
     }
