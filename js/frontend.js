@@ -7,7 +7,8 @@ class Frontend {
         owner: typeof config !== 'undefined' ? config.get('github.owner', 'conlinzheng') : 'conlinzheng',
         repo: typeof config !== 'undefined' ? config.get('github.repo', 'GH5') : 'GH5',
         branch: typeof config !== 'undefined' ? config.get('github.branch', 'main') : 'main',
-        productsPath: typeof config !== 'undefined' ? config.get('github.productsPath', '产品图') : '产品图'
+        productsPath: typeof config !== 'undefined' ? config.get('github.productsPath', '产品图') : '产品图',
+        token: typeof config !== 'undefined' ? config.get('github.token') : null
       }
     };
     

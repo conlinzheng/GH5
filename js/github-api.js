@@ -228,10 +228,16 @@ class GitHubAPI {
       };
 
       // 每次请求都从config重新获取令牌，确保使用最新的令牌
-      let token = this.getToken();
-      // 如果实例没有token，尝试从config直接获取
-      if (!token && typeof config !== 'undefined') {
+      let token = null;
+      // 优先从config对象获取令牌
+      if (typeof config !== 'undefined') {
         token = config.get('github.token');
+        console.log('Token from config:', token ? token.substring(0, 10) + '...' : 'No token');
+      }
+      // 再尝试从实例获取
+      if (!token) {
+        token = this.getToken();
+        console.log('Token from instance:', token ? token.substring(0, 10) + '...' : 'No token');
       }
       if (token) {
         headers['Authorization'] = `token ${token}`;
