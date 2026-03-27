@@ -223,23 +223,9 @@ class CoreApp {
     this.updateLoadingState();
     
     try {
-      // 尝试从本地加载产品数据
-      const localProducts = this.loadLocalProductsData();
-      if (localProducts && localProducts.length > 0) {
-        console.log('Loaded products from local data');
-        this.state.allProducts = localProducts;
-        this.state.products = localProducts;
-        this.calculatePagination();
-        try {
-          this.renderProducts();
-        } catch (renderError) {
-          console.error('Render products error:', renderError);
-        } finally {
-          this.state.isLoading = false;
-          this.updateLoadingState();
-        }
-        return;
-      }
+      // 清除缓存，确保获取最新数据
+      cacheManager.clearAll();
+      console.log('Cache cleared before loading products data');
       
       // 加载系列数据
       const series = await githubAPI.fetchDirectory(this.config.github.productsPath);
@@ -273,13 +259,32 @@ class CoreApp {
         }
       }
       
-      this.state.allProducts = products;
-      this.state.products = products;
-      this.calculatePagination();
-      try {
-        this.renderProducts();
-      } catch (renderError) {
-        console.error('Render products error:', renderError);
+      if (products.length > 0) {
+        console.log('Loaded products from GitHub API');
+        this.state.allProducts = products;
+        this.state.products = products;
+        this.calculatePagination();
+        try {
+          this.renderProducts();
+        } catch (renderError) {
+          console.error('Render products error:', renderError);
+        }
+      } else {
+        // 尝试从本地加载数据作为备选
+        const localProducts = this.loadLocalProductsData();
+        if (localProducts && localProducts.length > 0) {
+          console.log('Loaded products from local data as fallback');
+          this.state.allProducts = localProducts;
+          this.state.products = localProducts;
+          this.calculatePagination();
+          try {
+            this.renderProducts();
+          } catch (renderError) {
+            console.error('Render products error:', renderError);
+          }
+        } else {
+          errorHandler.handleError('加载产品数据失败');
+        }
       }
     } catch (error) {
       console.error('Load products data error:', error);
