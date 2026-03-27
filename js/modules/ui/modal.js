@@ -1,16 +1,17 @@
-class FrontendModal {
-  constructor(frontend) {
-    this.frontend = frontend;
+class ModalManager {
+  constructor() {
+    this.currentLightboxImages = [];
+    this.currentLightboxIndex = 0;
   }
-  
-  showProductDetails(product) {
+
+  showProductDetails(product, seriesNameMap, getProductTranslation) {
     const modal = document.getElementById('product-modal');
     
     if (!modal) return;
     
-    const seriesDisplayName = this.frontend.state.seriesNameMap[product.seriesId] || product.seriesId;
-    const translatedName = this.frontend.getProductTranslation(product.name, 'name');
-    const translatedDesc = product.description ? this.frontend.getProductTranslation(product.description, 'desc') : '';
+    const seriesDisplayName = seriesNameMap[product.seriesId] || product.seriesId;
+    const translatedName = getProductTranslation(product.name, 'name');
+    const translatedDesc = product.description ? getProductTranslation(product.description, 'desc') : '';
     
     // 更新弹窗内容 - 添加空值检查
     const mainImage = document.getElementById('modal-main-image');
@@ -95,7 +96,7 @@ class FrontendModal {
     if (!gallery) return;
     
     // 保存相关图片到全局变量，供灯箱使用
-    this.frontend.currentLightboxImages = images;
+    this.currentLightboxImages = images;
     
     let html = '';
     images.forEach((img, index) => {
@@ -140,8 +141,8 @@ class FrontendModal {
       lightbox.style.display = 'flex';
       
       // 设置灯箱图片列表
-      this.frontend.currentLightboxIndex = this.frontend.currentLightboxImages.indexOf(src);
-      this.frontend.updateLightboxCounter();
+      this.currentLightboxIndex = this.currentLightboxImages.indexOf(src);
+      this.updateLightboxCounter();
     }
   }
   
@@ -159,24 +160,40 @@ class FrontendModal {
   
   // 灯箱导航
   navigateLightbox(direction) {
-    if (this.frontend.currentLightboxImages.length === 0) return;
+    if (this.currentLightboxImages.length === 0) return;
 
-    this.frontend.currentLightboxIndex += direction;
+    this.currentLightboxIndex += direction;
 
     // 循环切换
-    if (this.frontend.currentLightboxIndex < 0) {
-      this.frontend.currentLightboxIndex = this.frontend.currentLightboxImages.length - 1;
-    } else if (this.frontend.currentLightboxIndex >= this.frontend.currentLightboxImages.length) {
-      this.frontend.currentLightboxIndex = 0;
+    if (this.currentLightboxIndex < 0) {
+      this.currentLightboxIndex = this.currentLightboxImages.length - 1;
+    } else if (this.currentLightboxIndex >= this.currentLightboxImages.length) {
+      this.currentLightboxIndex = 0;
     }
 
     const lightboxImage = document.getElementById('lightbox-image');
     if (lightboxImage) {
-      lightboxImage.src = this.frontend.currentLightboxImages[this.frontend.currentLightboxIndex];
-      this.frontend.updateLightboxCounter();
+      lightboxImage.src = this.currentLightboxImages[this.currentLightboxIndex];
+      this.updateLightboxCounter();
     }
+  }
+
+  // 更新灯箱计数器
+  updateLightboxCounter() {
+    const counter = document.getElementById('lightbox-counter');
+    if (counter) {
+      counter.textContent = `${this.currentLightboxIndex + 1}/${this.currentLightboxImages.length}`;
+    }
+  }
+
+  getCurrentLightboxImages() {
+    return this.currentLightboxImages;
+  }
+
+  getCurrentLightboxIndex() {
+    return this.currentLightboxIndex;
   }
 }
 
-// 导出类
-window.FrontendModal = FrontendModal;
+const modalManager = new ModalManager();
+export default modalManager;

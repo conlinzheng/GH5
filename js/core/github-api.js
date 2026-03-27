@@ -1,3 +1,5 @@
+import config from './config.js';
+
 class GitHubAPI {
   constructor(owner = config.get('github.owner'), repo = config.get('github.repo')) {
     this.owner = owner;
@@ -325,3 +327,5 @@ if (typeof config !== 'undefined') {
     githubAPI.setToken(token);
   }
 }
+
+export default githubAPI;

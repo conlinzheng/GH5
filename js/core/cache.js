@@ -1,3 +1,5 @@
+import config from './config.js';
+
 class CacheManager {
   constructor() {
     this.prefix = config.get('cache.prefix', 'gh5_');
@@ -171,3 +173,4 @@ class CacheManager {
 }
 
 const cacheManager = new CacheManager();
+export default cacheManager;

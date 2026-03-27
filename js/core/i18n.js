@@ -1,3 +1,5 @@
+import config from './config.js';
+
 class I18n {
   constructor() {
     this.currentLang = config.get('i18n.defaultLang', 'zh');
@@ -340,3 +342,4 @@ class I18n {
 }
 
 const i18n = new I18n();
+export default i18n;

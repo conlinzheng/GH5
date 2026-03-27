@@ -226,12 +226,20 @@ class BrowseHistory {
     
     return date.toLocaleDateString();
   }
+
+  addProductView(product) {
+    this.add(product);
+  }
+
+  getRecentViews(max) {
+    return this.history.slice(0, max);
+  }
+
+  clearHistory() {
+    this.clear();
+  }
 }
 
 // 初始化浏览历史
 const browseHistory = new BrowseHistory();
-
-// 导出供其他模块使用
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = browseHistory;
-}
+export default browseHistory;

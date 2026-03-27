@@ -1,121 +1,14 @@
-class FrontendEvents {
+class FormEvents {
   constructor(frontend) {
     this.frontend = frontend;
   }
-  
-  setupEventListeners() {
-    // 系列筛选
-    document.querySelectorAll('.series-filter').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const seriesId = e.target.dataset.series;
-        this.frontend.filterBySeries(seriesId);
-      });
-    });
-    
-    // 分页
-    document.querySelectorAll('.pagination-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const page = parseInt(e.target.dataset.page);
-        this.frontend.goToPage(page);
-      });
-    });
-    
-    // 刷新数据按钮
-    const refreshBtn = document.getElementById('refresh-data');
-    if (refreshBtn) {
-      refreshBtn.addEventListener('click', () => {
-        this.frontend.refreshData();
-      });
-    }
 
-    // 搜索功能 - 直接绑定事件
-     const searchBtn = document.getElementById('search-btn');
-     if (searchBtn) {
-       searchBtn.addEventListener('click', () => {
-         const searchInput = document.getElementById('search-input');
-         if (searchInput) {
-           this.frontend.searchProducts(searchInput.value);
-         }
-       });
-     }
-
-     const clearBtn = document.getElementById('search-clear');
-     const searchInputEl = document.getElementById('search-input');
-     
-     if (clearBtn && searchInputEl) {
-       clearBtn.addEventListener('click', () => {
-         searchInputEl.value = '';
-         this.frontend.resetSearch();
-         this.frontend._updateClearButtonVisibility('');
-         searchInputEl.focus();
-       });
-       
-       searchInputEl.addEventListener('input', (e) => {
-         this.frontend._updateClearButtonVisibility(e.target.value);
-       });
-     }
-
-    // 回车键搜索
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && e.target.id === 'search-input') {
-        this.frontend.searchProducts(e.target.value);
-      }
-    });
-    
-    // 模态框关闭按钮
-    const modalClose = document.getElementById('modal-close');
-    if (modalClose) {
-      modalClose.addEventListener('click', () => {
-        this.frontend.closeProductDetails();
-      });
-    }
-    
-    // 模态框遮罩层
-    const modalOverlay = document.getElementById('modal-overlay');
-    if (modalOverlay) {
-      modalOverlay.addEventListener('click', () => {
-        this.frontend.closeProductDetails();
-      });
-    }
-    
-    // 键盘事件
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        this.frontend.closeProductDetails();
-        this.frontend.closeContactModal();
-      }
-    });
-    
-    // 联系我们弹窗关闭按钮
-    const contactModalClose = document.getElementById('contact-modal-close');
-    if (contactModalClose) {
-      contactModalClose.addEventListener('click', () => {
-        this.frontend.closeContactModal();
-      });
-    }
-    
-    // 联系我们弹窗遮罩层
-    const contactModalOverlay = document.getElementById('contact-modal-overlay');
-    if (contactModalOverlay) {
-      contactModalOverlay.addEventListener('click', () => {
-        this.frontend.closeContactModal();
-      });
-    }
-    
-    // 语言切换事件
-    document.addEventListener('languageChanged', (event) => {
-      this.frontend.state.currentLang = event.detail.language;
-      this.frontend._handleLanguageChange(event.detail.language);
-      this.frontend.updateContactModal();
-    });
-    
-    // 浏览历史点击事件
-    document.addEventListener('viewHistoryItem', (event) => {
-      const productId = event.detail.productId;
-      this.frontend.viewHistoryProduct(productId);
-    });
-    
+  setupFormEventListeners() {
     // 联系表单提交
+    this._setupContactFormListener();
+  }
+
+  _setupContactFormListener() {
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
       // 表单输入验证
@@ -196,7 +89,7 @@ class FrontendEvents {
       });
     }
   }
-  
+
   validateContactForm() {
     const form = document.getElementById('contact-form');
     const fields = form.querySelectorAll('input, textarea');
@@ -251,7 +144,12 @@ class FrontendEvents {
     }
     errorElement.textContent = message;
   }
+
+  handleFormSubmit(formData) {
+    // 处理表单提交事件
+    // 这里可以实现表单提交的逻辑
+  }
 }
 
-// 导出类
-window.FrontendEvents = FrontendEvents;
+const formEvents = new FormEvents(window.frontend);
+export default formEvents;

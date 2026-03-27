@@ -1,3 +1,5 @@
+import i18n from './i18n.js';
+
 class ErrorHandler {
   constructor() {
     this.errorTypes = {
@@ -138,3 +140,4 @@ class ErrorHandler {
 }
 
 const errorHandler = new ErrorHandler();
+export default errorHandler;
