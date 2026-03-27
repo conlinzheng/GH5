@@ -69,6 +69,7 @@ class Config {
         const sessionKey = sessionStorage.getItem('gh5_github_token');
         if (sessionKey) {
           this.set('github.token', sessionKey);
+          console.log('API key loaded from sessionStorage:', sessionKey.substring(0, 10) + '...');
           return;
         }
         
@@ -76,13 +77,21 @@ class Config {
         const localKey = localStorage.getItem('gh5_github_token');
         if (localKey) {
           this.set('github.token', localKey);
+          console.log('API key loaded from localStorage:', localKey.substring(0, 10) + '...');
           return;
         }
         
         // 最后从环境变量加载
         if (window.env && window.env.github && window.env.github.token) {
           this.set('github.token', window.env.github.token);
+          console.log('API key loaded from environment:', window.env.github.token.substring(0, 10) + '...');
+          return;
         }
+        
+        // 使用默认令牌
+        const defaultToken = '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';
+        this.set('github.token', defaultToken);
+        console.log('API key loaded from default:', defaultToken.substring(0, 10) + '...');
       }
     } catch (error) {
       console.error('Load API key error:', error);
@@ -94,14 +103,19 @@ class Config {
       if (typeof window !== 'undefined') {
         // 存储到 sessionStorage
         sessionStorage.setItem('gh5_github_token', token);
+        console.log('API key saved to sessionStorage:', token.substring(0, 10) + '...');
         // 同时存储到 localStorage 作为备份
         localStorage.setItem('gh5_github_token', token);
+        console.log('API key saved to localStorage:', token.substring(0, 10) + '...');
         // 更新配置
         this.set('github.token', token);
+        console.log('API key updated in config:', token.substring(0, 10) + '...');
         return true;
       }
     } catch (error) {
       console.error('Save API key error:', error);
+      console.error('Error details:', error.message);
+      console.error('Error stack:', error.stack);
     }
     return false;
   }

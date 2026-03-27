@@ -233,10 +233,21 @@ class GitHubAPI {
         'Content-Type': 'application/json'
       };
 
+      // 详细日志：检查令牌获取过程
+      console.log('Getting token for API request...');
       const token = this.getToken();
+      console.log('Token obtained:', token ? token.substring(0, 10) + '...' : 'No token');
+      
       if (token) {
         headers['Authorization'] = `token ${token}`;
+        console.log('Authorization header set:', token.substring(0, 10) + '...');
+      } else {
+        console.warn('No token available for API request');
       }
+
+      console.log('Making API request to:', url);
+      console.log('Request method:', options.method || 'GET');
+      console.log('Request headers:', headers);
 
       const response = await fetch(url, {
         ...options,
@@ -246,6 +257,9 @@ class GitHubAPI {
         }
       });
 
+      console.log('API response status:', response.status);
+      console.log('API response headers:', Object.fromEntries(response.headers));
+
       this._updateRateLimit(response);
 
       if (!response.ok) {
@@ -254,9 +268,13 @@ class GitHubAPI {
         throw error;
       }
 
-      return await response.json();
+      const responseData = await response.json();
+      console.log('API response data received:', responseData);
+      return responseData;
     } catch (error) {
       console.error('Fetch error:', error);
+      console.error('Error details:', error.message);
+      console.error('Error stack:', error.stack);
       // 网络错误或其他错误，抛出错误
       throw error;
     }
