@@ -549,13 +549,8 @@
     </div>
   </div>
   
-  <script src="js/config.js"></script>
-  <script src="js/error-handler.js"></script>
-  <script src="js/cache-manager.js"></script>
-  <script src="js/github-api.js"></script>
-  <script src="js/i18n.js"></script>
-  <script>
-
+  <script type="module">
+    import GH5 from './js/index.js';
     
     class AdminPanel {
       constructor() {
@@ -579,9 +574,9 @@
       }
       
       getImageUrl(seriesId, imageName) {
-        const owner = typeof config !== 'undefined' ? config.get('github.owner', 'conlinzheng') : 'conlinzheng';
-        const repo = typeof config !== 'undefined' ? config.get('github.repo', 'GH5') : 'GH5';
-        const productsPath = typeof config !== 'undefined' ? config.get('github.productsPath', '产品图') : '产品图';
+        const owner = GH5.config.get('github.owner', 'conlinzheng');
+        const repo = GH5.config.get('github.repo', 'GH5');
+        const productsPath = GH5.config.get('github.productsPath', '产品图');
         return `https://${owner}.github.io/${repo}/${productsPath}/${seriesId}/${imageName}`;
       }
       
@@ -760,19 +755,11 @@
               if (await this.validateApiToken(token)) {
                 console.log('API token validation successful, saving...');
                 // 保存 API 密钥
-                if (typeof config !== 'undefined') {
-                  const saveResult = config.saveApiKey(token);
-                  console.log('Config saveApiKey result:', saveResult);
-                } else {
-                  console.error('Config object is undefined');
-                }
+                const saveResult = GH5.config.saveApiKey(token);
+                console.log('Config saveApiKey result:', saveResult);
                 // 更新 GitHub API 实例的 token
-                if (typeof githubAPI !== 'undefined') {
-                  githubAPI.setToken(token);
-                  console.log('GitHub API token set successfully');
-                } else {
-                  console.error('GitHubAPI object is undefined');
-                }
+                GH5.githubAPI.setToken(token);
+                console.log('GitHub API token set successfully');
                 this.showStatus('API 密钥设置成功', 'success');
                 document.body.removeChild(dialog);
               } else {
@@ -794,7 +781,7 @@
       async validateApiToken(token) {
         try {
           // 验证 API 密钥是否有效（使用不需要user权限的端点）
-          const apiBaseUrl = typeof config !== 'undefined' ? config.get('github.apiBaseUrl', 'https://api.github.com') : 'https://api.github.com';
+          const apiBaseUrl = GH5.config.get('github.apiBaseUrl', 'https://api.github.com');
           const response = await fetch(`${apiBaseUrl}/rate_limit`, {
             headers: {
               'Authorization': `token ${token}`,
@@ -838,13 +825,13 @@
           this.showStatus('正在扫描...', 'info');
           
           // 清除缓存以确保获取最新数据
-          cacheManager.clearAll();
+          GH5.cacheManager.clearAll();
           
           // 加载系列名称映射
           await this.loadSeriesNameMap();
           
           // 扫描产品图目录
-          const series = await githubAPI.fetchDirectory('产品图');
+          const series = await GH5.githubAPI.fetchDirectory('产品图');
           this.series = series.filter(item => item.type === 'dir');
           
           // 扫描每个系列的产品数据
@@ -854,7 +841,7 @@
               // 尝试获取 products.json 文件
               let productsFile;
               try {
-                productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+                productsFile = await GH5.githubAPI.fetchFile(`${seriesItem.path}/products.json`);
               } catch (error) {
                 // 如果文件不存在，创建基于图片的产品数据
                 productsFile = await this.createProductsFromImages(seriesItem);
@@ -989,7 +976,7 @@
           
           await this.loadSeriesNameMap();
           
-          const series = await githubAPI.fetchDirectory('产品图');
+          const series = await GH5.githubAPI.fetchDirectory('产品图');
           this.series = series.filter(item => item.type === 'dir');
           
           let newProductsFound = 0;
@@ -999,12 +986,12 @@
             try {
               let productsFile;
               try {
-                productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+                productsFile = await GH5.githubAPI.fetchFile(`${seriesItem.path}/products.json`);
               } catch (error) {
                 productsFile = { products: {} };
               }
               
-              const files = await githubAPI.fetchDirectory(seriesItem.path);
+              const files = await GH5.githubAPI.fetchDirectory(seriesItem.path);
               const imageFiles = files.filter(file => {
                 const ext = file.name.split('.').pop().toLowerCase();
                 return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
@@ -1113,7 +1100,7 @@
             // 获取现有的 products.json 文件
             let productsFile;
             try {
-              productsFile = await githubAPI.fetchFile(`${series.path}/products.json`);
+              productsFile = await GH5.githubAPI.fetchFile(`${series.path}/products.json`);
             } catch (error) {
               productsFile = { products: {} };
             }
@@ -1144,10 +1131,10 @@
             const jsonContent = JSON.stringify(productsFile, null, 2);
             
             try {
-              await githubAPI.commitFile(filePath, jsonContent, `Add new products to ${seriesId}`);
+              await GH5.githubAPI.commitFile(filePath, jsonContent, `Add new products to ${seriesId}`);
             } catch (error) {
               if (error.status === 404) {
-                await githubAPI.commitFile(filePath, jsonContent, `Create products.json for ${seriesId}`);
+                await GH5.githubAPI.commitFile(filePath, jsonContent, `Create products.json for ${seriesId}`);
               } else {
                 throw error;
               }
@@ -1155,7 +1142,7 @@
           }
           
           // 清除缓存
-          cacheManager.clearAll();
+          GH5.cacheManager.clearAll();
           
           this.showStatus(`成功保存 ${newProducts.length} 个新增产品`, 'success');
         } catch (error) {
@@ -1187,7 +1174,7 @@
           
           let historyFile;
           try {
-            historyFile = await githubAPI.fetchFile(`${historyPath}/products-history.json`);
+            historyFile = await GH5.githubAPI.fetchFile(`${historyPath}/products-history.json`);
           } catch (error) {
             historyFile = { history: [] };
           }
@@ -1223,7 +1210,7 @@
             }
             
             const jsonContent = JSON.stringify(historyFile, null, 2);
-            await githubAPI.commitFile(`${historyPath}/products-history.json`, jsonContent, `Save product history: ${imageFileName}`);
+            await GH5.githubAPI.commitFile(`${historyPath}/products-history.json`, jsonContent, `Save product history: ${imageFileName}`);
           }
         } catch (error) {
           console.warn('保存产品历史记录失败:', error);
@@ -1235,7 +1222,7 @@
           const historyPath = '产品图/.history';
           let historyFile;
           try {
-            historyFile = await githubAPI.fetchFile(`${historyPath}/products-history.json`);
+            historyFile = await GH5.githubAPI.fetchFile(`${historyPath}/products-history.json`);
           } catch (error) {
             alert('暂无历史记录');
             return;
@@ -1286,7 +1273,7 @@
           await this.loadSeriesNameMap();
           
           // 获取所有系列
-          const series = await githubAPI.fetchDirectory('产品图');
+          const series = await GH5.githubAPI.fetchDirectory('产品图');
           this.series = series.filter(item => item.type === 'dir');
           
           let successCount = 0;
@@ -1315,7 +1302,7 @@
       
       async regenerateSeriesJson(seriesItem) {
         // 扫描系列目录下的图片文件
-        const files = await githubAPI.fetchDirectory(seriesItem.path);
+        const files = await GH5.githubAPI.fetchDirectory(seriesItem.path);
         const imageFiles = files.filter(file => {
           const ext = file.name.split('.').pop().toLowerCase();
           return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
@@ -1362,7 +1349,7 @@
         // 保存到 GitHub
         const filePath = `${seriesItem.path}/products.json`;
         const jsonContent = JSON.stringify(seriesJson, null, 2);
-        await githubAPI.commitFile(filePath, jsonContent, `Regenerate products.json for ${seriesItem.name}`);
+        await GH5.githubAPI.commitFile(filePath, jsonContent, `Regenerate products.json for ${seriesItem.name}`);
         
         return seriesJson;
       }
@@ -1370,13 +1357,13 @@
       async loadSeriesNameMap() {
         try {
           // 清除 config.json 的缓存以确保获取最新数据
-          cacheManager.clear('config.json');
+          GH5.cacheManager.clear('config.json');
           console.log('Config.json cache cleared in admin loadSeriesNameMap');
           
           // 尝试从配置文件加载系列名称映射和顺序
           let configFile;
           try {
-            configFile = await githubAPI.fetchFile('config.json');
+            configFile = await GH5.githubAPI.fetchFile('config.json');
             if (configFile) {
               if (configFile.seriesNameMap) {
                 this.seriesNameMap = configFile.seriesNameMap;
@@ -1403,7 +1390,7 @@
       async createProductsFromImages(seriesItem) {
         try {
           // 扫描系列目录下的图片文件
-          const files = await githubAPI.fetchDirectory(seriesItem.path);
+          const files = await GH5.githubAPI.fetchDirectory(seriesItem.path);
           const imageFiles = files.filter(file => {
             const ext = file.name.split('.').pop().toLowerCase();
             return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);

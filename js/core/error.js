@@ -67,11 +67,17 @@ class ErrorHandler {
     errorContainer.innerHTML = `
       <div class="error-content">
         <span class="error-message">${message}</span>
-        <button class="error-close" onclick="errorHandler.hideError()">&times;</button>
+        <button class="error-close">&times;</button>
       </div>
     `;
     
     document.body.appendChild(errorContainer);
+    
+    // 添加事件监听器
+    const closeButton = errorContainer.querySelector('.error-close');
+    if (closeButton) {
+      closeButton.addEventListener('click', () => this.hideError());
+    }
     
     setTimeout(() => {
       this.hideError();
@@ -92,11 +98,17 @@ class ErrorHandler {
     successContainer.innerHTML = `
       <div class="success-content">
         <span class="success-message">${message}</span>
-        <button class="success-close" onclick="errorHandler.hideSuccess()">&times;</button>
+        <button class="success-close">&times;</button>
       </div>
     `;
     
     document.body.appendChild(successContainer);
+    
+    // 添加事件监听器
+    const closeButton = successContainer.querySelector('.success-close');
+    if (closeButton) {
+      closeButton.addEventListener('click', () => this.hideSuccess());
+    }
     
     setTimeout(() => {
       this.hideSuccess();

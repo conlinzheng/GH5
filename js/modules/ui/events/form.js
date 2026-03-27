@@ -1,9 +1,13 @@
 class FormEvents {
-  constructor(frontend) {
-    this.frontend = frontend;
+  constructor() {
+    this.frontend = null;
   }
 
   setupFormEventListeners() {
+    // 获取frontend实例
+    this.frontend = window.frontend || window.GH5?.coreApp;
+    if (!this.frontend) return;
+    
     // 联系表单提交
     this._setupContactFormListener();
   }
@@ -151,5 +155,5 @@ class FormEvents {
   }
 }
 
-const formEvents = new FormEvents(window.frontend);
+const formEvents = new FormEvents();
 export default formEvents;

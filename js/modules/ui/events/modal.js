@@ -1,9 +1,13 @@
 class ModalEvents {
-  constructor(frontend) {
-    this.frontend = frontend;
+  constructor() {
+    this.frontend = null;
   }
 
   setupModalEventListeners() {
+    // 获取frontend实例
+    this.frontend = window.frontend || window.GH5?.coreApp;
+    if (!this.frontend) return;
+    
     // 模态框关闭按钮
     this._setupModalCloseListener();
     
@@ -76,5 +80,5 @@ class ModalEvents {
   }
 }
 
-const modalEvents = new ModalEvents(window.frontend);
+const modalEvents = new ModalEvents();
 export default modalEvents;

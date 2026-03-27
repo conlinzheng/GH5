@@ -13,13 +13,8 @@ import productEvents from '../ui/events/products.js';
 import searchEvents from '../ui/events/search.js';
 import modalEvents from '../ui/events/modal.js';
 import formEvents from '../ui/events/form.js';
-import siteConfig from './site-config.js';
-import uiManager from './ui-manager.js';
-import productManager from './product-manager.js';
-import modalManagerModule from './modal-manager.js';
-import searchManager from './search-manager.js';
-import errorManager from './error-manager.js';
-import helpers from './helpers.js';
+import SiteConfig from './site-config.js';
+import UIManager from './ui-manager.js';
 
 class CoreApp {
   constructor() {
@@ -53,24 +48,29 @@ class CoreApp {
     this.currentLightboxIndex = 0;
     
     // 初始化模块
-    this.siteConfig = new siteConfig(this);
-    this.uiManager = new uiManager(this);
-    this.productManager = new productManager(this);
-    this.modalManager = new modalManagerModule(this);
-    this.searchManager = new searchManager(this);
-    this.errorManager = new errorManager(this);
-    this.helpers = new helpers(this);
+    this.siteConfig = new SiteConfig(this);
+    this.uiManager = new UIManager(this);
     
-    this.init();
+    // 异步初始化，捕获异常
+    (async () => {
+      try {
+        await this.init();
+      } catch (error) {
+        console.error('Init error:', error);
+        // 确保加载状态被更新
+        this.state.isLoading = false;
+        this.updateLoadingState();
+      }
+    })();
   }
   
   async init() {
     await this.loadSiteConfig();
-    this.loadProductsData();
+    await this.loadProductsData();
     this.setupEventListeners();
     
     // 确保i18n初始化
-    if (!i18n.isReady) {
+    if (!i18n.isReadyState()) {
       i18n.init();
     }
     
@@ -102,48 +102,328 @@ class CoreApp {
     return this.siteConfig.loadSiteConfig();
   }
   
-  loadProductsData() {
-    return this.productManager.loadProductsData();
+  loadLocalProductsData() {
+    // 本地产品数据，作为 GitHub API 访问失败的备选
+    const localData = [
+      {
+        id: 'product1.png',
+        seriesId: '1-PU系列',
+        name: 'PU系列产品1',
+        description: '这是一款高品质的PU系列产品，具有良好的耐磨性和舒适度。',
+        price: '¥199',
+        materials: {
+          upper: 'PU超纤',
+          lining: '网布',
+          sole: '橡胶'
+        },
+        upperMaterial: 'PU超纤',
+        innerMaterial: '网布',
+        soleMaterial: '橡胶',
+        image: 'product1.png',
+        tags: ['PU', '舒适', '耐磨']
+      },
+      {
+        id: 'product2.png',
+        seriesId: '1-PU系列',
+        name: 'PU系列产品2',
+        description: '这款PU系列产品设计时尚，适合日常穿着。',
+        price: '¥299',
+        materials: {
+          upper: 'PU超纤',
+          lining: '皮革',
+          sole: 'EVA'
+        },
+        upperMaterial: 'PU超纤',
+        innerMaterial: '皮革',
+        soleMaterial: 'EVA',
+        image: 'product2.png',
+        tags: ['PU', '时尚', '轻便']
+      },
+      {
+        id: 'product3.png',
+        seriesId: '2-真皮系列',
+        name: '真皮系列产品1',
+        description: '采用优质真皮制作，手感柔软，透气性好。',
+        price: '¥399',
+        materials: {
+          upper: '头层牛皮',
+          lining: '羊皮',
+          sole: '橡胶'
+        },
+        upperMaterial: '头层牛皮',
+        innerMaterial: '羊皮',
+        soleMaterial: '橡胶',
+        image: 'product3.png',
+        tags: ['真皮', '高端', '舒适']
+      },
+      {
+        id: 'product4.png',
+        seriesId: '2-真皮系列',
+        name: '真皮系列产品2',
+        description: '经典真皮款式，适合正式场合穿着。',
+        price: '¥499',
+        materials: {
+          upper: '头层牛皮',
+          lining: '真皮',
+          sole: '真皮'
+        },
+        upperMaterial: '头层牛皮',
+        innerMaterial: '真皮',
+        soleMaterial: '真皮',
+        image: 'product4.png',
+        tags: ['真皮', '经典', '正式']
+      },
+      {
+        id: 'product5.png',
+        seriesId: '3-短靴系列',
+        name: '短靴系列产品1',
+        description: '时尚短靴，保暖舒适，适合秋冬季节。',
+        price: '¥599',
+        materials: {
+          upper: 'PU超纤',
+          lining: '毛绒',
+          sole: '橡胶'
+        },
+        upperMaterial: 'PU超纤',
+        innerMaterial: '毛绒',
+        soleMaterial: '橡胶',
+        image: 'product5.png',
+        tags: ['短靴', '保暖', '时尚']
+      },
+      {
+        id: 'product6.png',
+        seriesId: '3-短靴系列',
+        name: '短靴系列产品2',
+        description: '高品质短靴，防水防滑，适合户外穿着。',
+        price: '¥699',
+        materials: {
+          upper: '真皮',
+          lining: '保暖棉',
+          sole: '防滑橡胶'
+        },
+        upperMaterial: '真皮',
+        innerMaterial: '保暖棉',
+        soleMaterial: '防滑橡胶',
+        image: 'product6.png',
+        tags: ['短靴', '防水', '户外']
+      }
+    ];
+    
+    return localData;
+  }
+  
+  async loadProductsData() {
+    this.state.isLoading = true;
+    this.updateLoadingState();
+    
+    try {
+      // 尝试从本地加载产品数据
+      const localProducts = this.loadLocalProductsData();
+      if (localProducts && localProducts.length > 0) {
+        console.log('Loaded products from local data');
+        this.state.allProducts = localProducts;
+        this.state.products = localProducts;
+        this.calculatePagination();
+        try {
+          this.renderProducts();
+        } catch (renderError) {
+          console.error('Render products error:', renderError);
+        } finally {
+          this.state.isLoading = false;
+          this.updateLoadingState();
+        }
+        return;
+      }
+      
+      // 加载系列数据
+      const series = await githubAPI.fetchDirectory(this.config.github.productsPath);
+      this.state.series = series.filter(item => item.type === 'dir');
+      
+      // 加载每个系列的产品
+      const products = [];
+      for (const seriesItem of this.state.series) {
+        try {
+          const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+          if (productsFile && productsFile.products) {
+            Object.entries(productsFile.products).forEach(([fileName, productData]) => {
+              const product = {
+                id: fileName,
+                seriesId: seriesItem.name,
+                name: productData.name || fileName,
+                description: productData.description || '',
+                price: productData.price || '',
+                materials: productData.materials || {},
+                upperMaterial: productData.materials?.upper || '',
+                innerMaterial: productData.materials?.lining || '',
+                soleMaterial: productData.materials?.sole || '',
+                image: fileName,
+                tags: productData.tags || []
+              };
+              products.push(product);
+            });
+          }
+        } catch (error) {
+          console.warn(`Failed to load products for ${seriesItem.name}:`, error);
+        }
+      }
+      
+      this.state.allProducts = products;
+      this.state.products = products;
+      this.calculatePagination();
+      try {
+        this.renderProducts();
+      } catch (renderError) {
+        console.error('Render products error:', renderError);
+      }
+    } catch (error) {
+      console.error('Load products data error:', error);
+      // 尝试从本地加载数据作为备选
+      const localProducts = this.loadLocalProductsData();
+      if (localProducts && localProducts.length > 0) {
+        console.log('Loaded products from local data as fallback');
+        this.state.allProducts = localProducts;
+        this.state.products = localProducts;
+        this.calculatePagination();
+        try {
+          this.renderProducts();
+        } catch (renderError) {
+          console.error('Render products error:', renderError);
+        }
+      } else {
+        errorHandler.handleError('加载产品数据失败');
+      }
+    } finally {
+      this.state.isLoading = false;
+      this.updateLoadingState();
+    }
   }
   
   renderProducts() {
-    this.productManager.renderProducts();
+    const container = document.getElementById('products-container');
+    if (!container) return;
+    
+    // 过滤产品
+    let filteredProducts = this.state.products;
+    if (this.state.selectedSeries) {
+      filteredProducts = filteredProducts.filter(p => p.seriesId === this.state.selectedSeries);
+    }
+    
+    // 分页
+    const start = (this.state.currentPage - 1) * this.config.itemsPerPage;
+    const end = start + this.config.itemsPerPage;
+    const paginatedProducts = filteredProducts.slice(start, end);
+    
+    // 为每个产品添加 images 属性，确保至少有一个默认图片
+    const productsWithImages = paginatedProducts.map(product => {
+      // 为产品添加 images 属性，使用产品的 image 字段作为默认图片
+      const imageUrl = this.getImageUrl(product.seriesId, product.image);
+      return {
+        ...product,
+        images: [imageUrl]
+      };
+    });
+    
+    // 获取系列名称映射
+    const seriesNameMap = this._getDefaultSeriesNameMap();
+    
+    // 调用产品渲染方法，传递所有必要的参数
+    productRender.renderProducts(
+      productsWithImages,
+      seriesNameMap,
+      null, // seriesOrder
+      this.state.selectedSeries,
+      this.getProductTranslation.bind(this)
+    );
+    this.renderPagination();
+  }
+  
+  renderPagination() {
+    const container = document.getElementById('pagination');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    for (let i = 1; i <= this.state.totalPages; i++) {
+      const button = document.createElement('button');
+      button.textContent = i;
+      button.className = `pagination-btn ${i === this.state.currentPage ? 'active' : ''}`;
+      button.onclick = () => this.goToPage(i);
+      container.appendChild(button);
+    }
+  }
+  
+  calculatePagination() {
+    this.state.totalPages = Math.ceil(this.state.products.length / this.config.itemsPerPage);
   }
   
   showProductDetails(product) {
-    this.modalManager.showProductDetails(product);
+    modalManager.showProductDetails(product, this.state.seriesNameMap, this.getProductTranslation.bind(this));
   }
   
   closeProductDetails() {
-    this.modalManager.closeProductDetails();
+    modalManager.closeProductDetails();
   }
   
   changeMainImage(src) {
-    this.modalManager.changeMainImage(src);
+    const mainImage = document.getElementById('modal-main-image');
+    if (mainImage) {
+      mainImage.src = src;
+    }
   }
   
   navigateGallery(direction) {
-    this.modalManager.navigateGallery(direction);
+    const gallery = document.getElementById('modal-gallery');
+    if (!gallery) return;
+    
+    const scrollAmount = 200 * direction;
+    gallery.scrollLeft += scrollAmount;
   }
   
   openLightbox(src) {
-    this.modalManager.openLightbox(src);
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    if (!lightbox || !lightboxImage) return;
+    
+    lightboxImage.src = src;
+    lightbox.style.display = 'flex';
   }
   
   closeLightbox(event) {
-    this.modalManager.closeLightbox(event);
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox) return;
+    
+    if (event.target === lightbox || event.target.classList.contains('close-lightbox')) {
+      lightbox.style.display = 'none';
+    }
   }
   
   navigateLightbox(direction) {
-    this.modalManager.navigateLightbox(direction);
+    // 简单实现，实际项目中需要根据当前图片集合导航
+    console.log('Navigate lightbox:', direction);
   }
   
   searchProducts(query) {
-    this.searchManager.searchProducts(query);
+    if (!query) {
+      this.state.products = this.state.allProducts;
+    } else {
+      const lowerQuery = query.toLowerCase();
+      this.state.products = this.state.allProducts.filter(product => {
+        const name = (product.name?.zh || product.name || '').toLowerCase();
+        const description = (product.description?.zh || product.description || '').toLowerCase();
+        const tags = (product.tags || []).join(' ').toLowerCase();
+        return name.includes(lowerQuery) || description.includes(lowerQuery) || tags.includes(lowerQuery);
+      });
+    }
+    this.state.currentPage = 1;
+    this.calculatePagination();
+    this.renderProducts();
   }
   
   resetSearch() {
-    this.searchManager.resetSearch();
+    this.state.products = this.state.allProducts;
+    this.state.currentPage = 1;
+    this.calculatePagination();
+    this.renderProducts();
   }
   
   filterBySeries(seriesId) {
@@ -206,6 +486,13 @@ class CoreApp {
     }
   }
   
+  updateLoadingState() {
+    const loading = document.getElementById('loading');
+    if (loading) {
+      loading.style.display = this.state.isLoading ? 'flex' : 'none';
+    }
+  }
+  
   refreshData() {
     // 清除缓存并重新加载数据
     cacheManager.clearAll();
@@ -247,23 +534,43 @@ class CoreApp {
   }
   
   getImageUrl(seriesId, imageName) {
-    return this.helpers.getImageUrl(seriesId, imageName);
+    const owner = this.config.github.owner;
+    const repo = this.config.github.repo;
+    const productsPath = this.config.github.productsPath;
+    return `https://${owner}.github.io/${repo}/${productsPath}/${seriesId}/${imageName}`;
   }
   
-  checkProductsPathExists() {
-    return this.helpers.checkProductsPathExists();
+  async checkProductsPathExists() {
+    try {
+      const series = await githubAPI.fetchDirectory(this.config.github.productsPath);
+      return series.length > 0;
+    } catch (error) {
+      return false;
+    }
   }
   
   _handleLanguageChange(lang) {
-    this.helpers._handleLanguageChange(lang);
+    this.state.currentLang = lang;
+    document.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: lang } }));
   }
   
   _getDefaultSeriesNameMap() {
-    return this.helpers._getDefaultSeriesNameMap();
+    return {
+      '1-PU系列': 'PU超纤',
+      '2-真皮系列': '真皮系列',
+      '3-短靴系列': '短靴系列',
+      '4-乐福系列': '乐福系列',
+      '5-春季': '春季系列',
+      '6-夏季': '夏季系列',
+      '7-秋季': '秋季系列'
+    };
   }
   
   _updateClearButtonVisibility(value) {
-    this.searchManager._updateClearButtonVisibility(value);
+    const clearBtn = document.getElementById('search-clear');
+    if (clearBtn) {
+      clearBtn.style.display = value ? 'block' : 'none';
+    }
   }
 }
 

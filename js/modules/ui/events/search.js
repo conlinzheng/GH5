@@ -1,9 +1,13 @@
 class SearchEvents {
-  constructor(frontend) {
-    this.frontend = frontend;
+  constructor() {
+    this.frontend = null;
   }
 
   setupSearchEventListeners() {
+    // 获取frontend实例
+    this.frontend = window.frontend || window.GH5?.coreApp;
+    if (!this.frontend) return;
+    
     // 搜索按钮
     this._setupSearchButtonListener();
     
@@ -77,5 +81,5 @@ class SearchEvents {
   }
 }
 
-const searchEvents = new SearchEvents(window.frontend);
+const searchEvents = new SearchEvents();
 export default searchEvents;

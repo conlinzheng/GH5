@@ -1,5 +1,6 @@
 import githubAPI from '../../core/github-api.js';
 import cacheManager from '../../core/cache.js';
+import i18n from '../../core/i18n.js';
 
 class SiteConfig {
   constructor(frontend) {
@@ -30,9 +31,7 @@ class SiteConfig {
     }
   }
 
-  loadSiteConfig() {
-    return this.loadSiteConfig();
-  }
+
 
   getConfig(key, defaultValue) {
     const config = this.frontend.state.siteConfig;

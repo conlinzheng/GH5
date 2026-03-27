@@ -1,9 +1,13 @@
 class ProductEvents {
-  constructor(frontend) {
-    this.frontend = frontend;
+  constructor() {
+    this.frontend = null;
   }
 
   setupProductEventListeners() {
+    // 获取frontend实例
+    this.frontend = window.frontend || window.GH5?.coreApp;
+    if (!this.frontend) return;
+    
     // 系列筛选
     this._setupSeriesFilterListeners();
     
@@ -52,5 +56,5 @@ class ProductEvents {
   }
 }
 
-const productEvents = new ProductEvents(window.frontend);
+const productEvents = new ProductEvents();
 export default productEvents;

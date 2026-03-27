@@ -1120,11 +1120,9 @@
     </div>
   </div>
   
-  <script src="js/config.js"></script>
-  <script src="js/error-handler.js"></script>
-  <script src="js/cache-manager.js"></script>
-  <script src="js/github-api.js"></script>
-  <script>
+  <script type="module">
+    import GH5 from './js/index.js';
+    
     class ConfigManager {
       constructor() {
         this.config = {};
@@ -1157,8 +1155,8 @@
       async loadConfig() {
         this.showLoading(true);
         try {
-          cacheManager.clear('config.json');
-          this.config = await githubAPI.fetchFile('config.json');
+          GH5.cacheManager.clear('config.json');
+          this.config = await GH5.githubAPI.fetchFile('config.json');
           
           this.fillFormData();
           this.updatePreview();
@@ -2187,7 +2185,7 @@
       async refreshSeriesList() {
         try {
           this.showLoading(true);
-          const series = await githubAPI.fetchDirectory('产品图');
+          const series = await GH5.githubAPI.fetchDirectory('产品图');
           const seriesList = series.filter(item => item.type === 'dir');
           
           const select = document.getElementById('product-series-select');
@@ -2219,7 +2217,7 @@
         try {
           this.showLoading(true);
           const filePath = `产品图/${seriesName}/products.json`;
-          const productsFile = await githubAPI.fetchFile(filePath);
+          const productsFile = await GH5.githubAPI.fetchFile(filePath);
           
           if (!productsFile || !productsFile.products) {
             document.getElementById('product-translation-list').innerHTML = '<p style="color: #666;">该系列暂无产品</p>';
@@ -2339,7 +2337,7 @@
           
           // 保存文件
           const jsonContent = JSON.stringify(productsFile, null, 2);
-          await githubAPI.commitFile(filePath, jsonContent, `Update product translations for ${seriesName}`);
+          await GH5.githubAPI.commitFile(filePath, jsonContent, `Update product translations for ${seriesName}`);
           
           this.showStatus('产品翻译保存成功', 'success');
         } catch (error) {
@@ -2354,8 +2352,8 @@
         this.showLoading(true);
         try {
           const jsonContent = JSON.stringify(this.config, null, 2);
-          await githubAPI.commitFile('config.json', jsonContent, 'Update site configuration');
-          cacheManager.clearAll();
+          await GH5.githubAPI.commitFile('config.json', jsonContent, 'Update site configuration');
+          GH5.cacheManager.clearAll();
           this.showStatus('保存成功！', 'success');
         } catch (error) {
           console.error('Save config error:', error);

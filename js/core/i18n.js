@@ -264,7 +264,7 @@ class I18n {
     return names[lang] || lang;
   }
 
-  isReady() {
+  isReadyState() {
     return this.isReady;
   }
 

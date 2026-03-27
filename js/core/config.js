@@ -64,7 +64,7 @@ class Config {
   loadApiKey() {
     try {
       // 尝试从安全存储加载 API 密钥
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined' && typeof localStorage !== 'undefined') {
         // 优先从 sessionStorage 加载
         const sessionKey = sessionStorage.getItem('gh5_github_token');
         if (sessionKey) {
@@ -95,6 +95,7 @@ class Config {
       }
     } catch (error) {
       console.error('Load API key error:', error);
+      // 即使加载API密钥失败，也要确保config实例能正常创建
     }
   }
   

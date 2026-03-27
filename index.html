@@ -255,6 +255,36 @@
         frontend.closeContactModal();
       }
     }
+    
+    function openLightbox(src) {
+      if (typeof frontend !== 'undefined') {
+        frontend.openLightbox(src);
+      }
+    }
+    
+    function closeLightbox(event) {
+      if (typeof frontend !== 'undefined') {
+        frontend.closeLightbox(event);
+      }
+    }
+    
+    function navigateLightbox(direction) {
+      if (typeof frontend !== 'undefined') {
+        frontend.navigateLightbox(direction);
+      }
+    }
+    
+    function changeMainImage(src) {
+      if (typeof frontend !== 'undefined') {
+        frontend.changeMainImage(src);
+      }
+    }
+    
+    function navigateGallery(direction) {
+      if (typeof frontend !== 'undefined') {
+        frontend.navigateGallery(direction);
+      }
+    }
   </script>
 </body>
 </html>

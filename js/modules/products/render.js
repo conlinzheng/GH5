@@ -115,7 +115,7 @@ class ProductRender {
         <div class="product-image-carousel">
           ${product.images.map((image, index) => `
             <div class="carousel-item ${index === 0 ? 'active' : ''}">
-              <img src="${image}" alt="${translatedName} ${index + 1}" loading="lazy" onerror="console.error('图片加载失败:', '${image}'); this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOTk5Ij7mlrDlrabliLDop6Pph448L3RleHQ+PC9zdmc+';">
+              <img src="${image}" alt="${translatedName} ${index + 1}" loading="lazy" onerror="console.error('Image load failed:', '${image}'); this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOTk5Ij5JbWFnZSBsb2FkIGZhaWxlZDwvdGV4dD48L3N2Zz4='">
             </div>
           `).join('')}
           <div class="carousel-controls">
@@ -128,7 +128,7 @@ class ProductRender {
     } else {
       imageCarousel = `
         <div class="product-image">
-          <img src="${product.images[0]}" alt="${translatedName}" loading="lazy" onerror="console.error('图片加载失败:', '${product.images[0]}'); this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOTk5Ij7mlrDlrabliLDop6Pph448L3RleHQ+PC9zdmc+';">
+          <img src="${product.images[0]}" alt="${translatedName}" loading="lazy" onerror="console.error('Image load failed:', '${product.images[0]}'); this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOTk5Ij5JbWFnZSBsb2FkIGZhaWxlZDwvdGV4dD48L3N2Zz4='">
         </div>
       `;
     }
@@ -144,7 +144,7 @@ class ProductRender {
     console.log('标签HTML:', tagsHtml);
     
     div.innerHTML = `
-      <div class="product-image-container" onclick="frontend.showProductDetails(${JSON.stringify(product).replace(/"/g, '&quot;')})">
+      <div class="product-image-container">
         ${imageCarousel}
       </div>
       <div class="product-info">
@@ -153,6 +153,16 @@ class ProductRender {
         ${tagsHtml}
       </div>
     `;
+    
+    // 添加点击事件监听器
+    const imageContainer = div.querySelector('.product-image-container');
+    if (imageContainer) {
+      imageContainer.addEventListener('click', () => {
+        if (typeof window.frontend !== 'undefined') {
+          window.frontend.showProductDetails(product);
+        }
+      });
+    }
     
     // 添加图片轮播功能
     if (product.images.length > 1) {
