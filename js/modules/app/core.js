@@ -85,6 +85,12 @@ class CoreApp {
       this.updateFormLabels();
       console.log('Language changed to:', newLang);
     });
+    
+    // 监听浏览历史项目点击事件
+    document.addEventListener('viewHistoryItem', (event) => {
+      const productId = event.detail.productId;
+      this.viewHistoryProduct(productId);
+    });
   }
   
   setupEventListeners() {
@@ -534,10 +540,9 @@ class CoreApp {
   }
   
   getImageUrl(seriesId, imageName) {
-    const owner = this.config.github.owner;
-    const repo = this.config.github.repo;
+    // 使用本地路径来加载图片
     const productsPath = this.config.github.productsPath;
-    return `https://${owner}.github.io/${repo}/${productsPath}/${seriesId}/${imageName}`;
+    return `${productsPath}/${seriesId}/${imageName}`;
   }
   
   async checkProductsPathExists() {
