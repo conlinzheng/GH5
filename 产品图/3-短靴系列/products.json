@@ -6,19 +6,22 @@
   },
   "products": {
     "00A (1).jpg": {
-      "name": "短靴",
-      "description": "短靴111",
-      "price": "10",
-      "tags": [
-        "新品"
-      ],
-      "materials": {
-        "upper": "皮",
-        "lining": "皮",
-        "sole": "发泡"
+      "name": {
+        "zh": "00A",
+        "en": "00A",
+        "ko": "00A"
       },
-      "customizable": "true",
-      "minOrder": "111"
+      "description": {
+        "zh": "00A - 高品质产品",
+        "en": "00A - High quality product",
+        "ko": "00A - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
     },
     "中文+ (1).png": {
       "name": {
@@ -37,90 +40,6 @@
         "lining": "",
         "sole": ""
       }
-    },
-    "中文+ (2).png": {
-      "name": {
-        "zh": "中文+",
-        "en": "中文+",
-        "ko": "中文+"
-      },
-      "description": {
-        "zh": "",
-        "en": "",
-        "ko": ""
-      },
-      "price": "",
-      "tags": [],
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      },
-      "customizable": "",
-      "minOrder": ""
-    },
-    "中文+ (3).png": {
-      "name": {
-        "zh": "中文+",
-        "en": "中文+",
-        "ko": "中文+"
-      },
-      "description": {
-        "zh": "",
-        "en": "",
-        "ko": ""
-      },
-      "price": "",
-      "tags": [],
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      },
-      "customizable": "",
-      "minOrder": ""
-    },
-    "中文+ (4).png": {
-      "name": {
-        "zh": "中文+",
-        "en": "中文+",
-        "ko": "中文+"
-      },
-      "description": {
-        "zh": "",
-        "en": "",
-        "ko": ""
-      },
-      "price": "",
-      "tags": [],
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      },
-      "customizable": "",
-      "minOrder": ""
-    },
-    "中文+ (5).png": {
-      "name": {
-        "zh": "中文+",
-        "en": "中文+",
-        "ko": "中文+"
-      },
-      "description": {
-        "zh": "",
-        "en": "",
-        "ko": ""
-      },
-      "price": "",
-      "tags": [],
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      },
-      "customizable": "",
-      "minOrder": ""
     }
   },
   "order": [

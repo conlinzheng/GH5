@@ -5,6 +5,24 @@
     "ko": "5-春季"
   },
   "products": {
+    "99 (1).png": {
+      "name": {
+        "zh": "99",
+        "en": "99",
+        "ko": "99"
+      },
+      "description": {
+        "zh": "99 - 高品质产品",
+        "en": "99 - High quality product",
+        "ko": "99 - 고품질 제품"
+      },
+      "price": "",
+      "materials": {
+        "upper": "",
+        "lining": "",
+        "sole": ""
+      }
+    },
     "新款1 (1).jpg": {
       "name": {
         "zh": "新款1",
@@ -22,76 +40,10 @@
         "lining": "",
         "sole": ""
       }
-    },
-    "99 (1).png": {
-      "name": {
-        "zh": "44",
-        "en": "44",
-        "ko": "44"
-      },
-      "description": {
-        "zh": "44",
-        "en": "44",
-        "ko": "44"
-      },
-      "price": "44",
-      "tags": [
-        "45"
-      ],
-      "materials": {
-        "upper": "44",
-        "lining": "44",
-        "sole": "44"
-      },
-      "customizable": "true",
-      "minOrder": "44"
-    },
-    "99 (2).png": {
-      "name": {
-        "zh": "44",
-        "en": "44",
-        "ko": "44"
-      },
-      "description": {
-        "zh": "44",
-        "en": "44",
-        "ko": "44"
-      },
-      "price": "44",
-      "tags": [
-        "45"
-      ],
-      "materials": {
-        "upper": "44",
-        "lining": "44",
-        "sole": "44"
-      },
-      "customizable": "true",
-      "minOrder": "44"
-    },
-    "新款1 (2).jpg": {
-      "name": {
-        "zh": "新款1",
-        "en": "新款1",
-        "ko": "新款1"
-      },
-      "description": {
-        "zh": "",
-        "en": "",
-        "ko": ""
-      },
-      "price": "",
-      "tags": [],
-      "materials": {
-        "upper": "",
-        "lining": "",
-        "sole": ""
-      },
-      "customizable": "",
-      "minOrder": ""
     }
   },
   "order": [
+    "99",
     "新款1"
   ]
 }
