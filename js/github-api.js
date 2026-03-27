@@ -3,7 +3,7 @@ class GitHubAPI {
     this.owner = owner;
     this.repo = repo;
     this.baseUrl = config.get('github.apiBaseUrl', 'https://api.github.com');
-    // 直接从config获取token，不存储在实例中
+    this.token = null;
     this.rateLimit = {
       remaining: 60,
       reset: Date.now() + 3600000
@@ -11,14 +11,20 @@ class GitHubAPI {
   }
 
   setToken(token) {
-    // 保存到配置中
-    if (typeof config !== 'undefined') {
-      config.saveApiKey(token);
+    this.token = token;
+    if (token) {
+      // 保存到配置中
+      if (typeof config !== 'undefined') {
+        config.saveApiKey(token);
+      }
     }
   }
 
   getToken() {
-    // 总是从配置中获取最新的token
+    if (this.token) {
+      return this.token;
+    }
+    // 从配置中获取
     if (typeof config !== 'undefined') {
       return config.get('github.token');
     }
@@ -227,23 +233,9 @@ class GitHubAPI {
         'Content-Type': 'application/json'
       };
 
-      // 每次请求都从config重新获取令牌，确保使用最新的令牌
-      let token = null;
-      // 优先从config对象获取令牌
-      if (typeof config !== 'undefined') {
-        token = config.get('github.token');
-        console.log('Token from config:', token ? token.substring(0, 10) + '...' : 'No token');
-      }
-      // 再尝试从实例获取
-      if (!token) {
-        token = this.getToken();
-        console.log('Token from instance:', token ? token.substring(0, 10) + '...' : 'No token');
-      }
+      const token = this.getToken();
       if (token) {
         headers['Authorization'] = `token ${token}`;
-        console.log('Using token for API request:', token.substring(0, 10) + '...');
-      } else {
-        console.warn('No token found for API request');
       }
 
       const response = await fetch(url, {

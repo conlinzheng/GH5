@@ -31,7 +31,7 @@ class FrontendProducts {
       const products = [];
       
       // 限制并发请求数量
-      const maxConcurrentRequests = 3;
+      const maxConcurrentRequests = 2;
       const seriesBatches = [];
       
       // 将系列分成批次
@@ -41,63 +41,36 @@ class FrontendProducts {
       
       // 按批次处理系列
       for (const batch of seriesBatches) {
-        // 检查API限流状态
-        const rateLimitInfo = githubAPI.getRateLimitInfo();
-        if (rateLimitInfo.isLimited) {
-          const waitTime = rateLimitInfo.resetInMinutes;
-          console.log(`API rate limit reached, waiting ${waitTime} minutes...`);
-          
-          // 显示用户友好的提示
-          const message = typeof i18n !== 'undefined' 
-            ? `API请求过于频繁，请${waitTime}分钟后重试` 
-            : `API rate limit reached. Please try again in ${waitTime} minutes.`;
-          
-          this.frontend._showError(message);
-          
-          await githubAPI.waitForRateLimitReset();
-          
-          // 清除错误提示
-          const errorElement = document.getElementById('error-message');
-          if (errorElement) {
-            errorElement.style.display = 'none';
-          }
-        }
-        
         const batchPromises = batch.map(async (seriesItem) => {
           try {
-            // 并行获取系列目录和产品数据文件
-            const [files, productsFile] = await Promise.all([
-              githubAPI.fetchDirectory(seriesItem.path).catch(error => {
-                console.warn(`Failed to fetch directory for ${seriesItem.name}:`, error);
-                return [];
-              }),
-              (async () => {
-                // 只有在缓存不存在时才请求API
-                const cachedData = cacheManager.get(`${seriesItem.path}/products.json`);
-                if (cachedData) {
-                  console.log(`Using cached data for ${seriesItem.path}/products.json`);
-                  return cachedData;
-                }
-                try {
-                  const data = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
-                  // 缓存数据
-                  cacheManager.set(`${seriesItem.path}/products.json`, data, this.frontend.config.cacheTTL);
-                  return data;
-                } catch (error) {
-                  console.warn(`Failed to load products.json for ${seriesItem.name}:`, error);
-                  return { products: {} };
-                }
-              })()
-            ]);
+            // 检查API限流状态
+            const rateLimitInfo = githubAPI.getRateLimitInfo();
+            if (rateLimitInfo.isLimited) {
+              const waitTime = rateLimitInfo.resetInMinutes;
+              console.log(`API rate limit reached, waiting ${waitTime} minutes...`);
+              
+              // 显示用户友好的提示
+              const message = typeof i18n !== 'undefined' 
+                ? `API请求过于频繁，请${waitTime}分钟后重试` 
+                : `API rate limit reached. Please try again in ${waitTime} minutes.`;
+              
+              this.frontend._showError(message);
+              
+              await githubAPI.waitForRateLimitReset();
+              
+              // 清除错误提示
+              const errorElement = document.getElementById('error-message');
+              if (errorElement) {
+                errorElement.style.display = 'none';
+              }
+            }
             
-            console.log('Files in directory:', files);
-            
+            // 获取系列目录下的所有文件
+            const files = await githubAPI.fetchDirectory(seriesItem.path);
             const imageFiles = files.filter(file => {
               const ext = file.name.split('.').pop().toLowerCase();
               return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
             });
-            
-            console.log('Image files found:', imageFiles);
             
             // 按产品名称分组图片
             const productGroups = {};
@@ -109,7 +82,22 @@ class FrontendProducts {
               productGroups[productName].push(file.name);
             });
             
-            console.log('Product groups:', productGroups);
+            // 获取产品数据文件
+            let productsFile;
+            try {
+              // 只有在缓存不存在时才请求API
+              const cachedData = cacheManager.get(`${seriesItem.path}/products.json`);
+              if (cachedData) {
+                productsFile = cachedData;
+                console.log(`Using cached data for ${seriesItem.path}/products.json`);
+              } else {
+                productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+                // 缓存数据
+                cacheManager.set(`${seriesItem.path}/products.json`, productsFile, this.frontend.config.cacheTTL);
+              }
+            } catch (error) {
+              productsFile = { products: {} };
+            }
             
             // 为每个产品创建数据
             const productsByGroup = {};
@@ -160,8 +148,6 @@ class FrontendProducts {
               };
               
               console.log('构建的产品对象:', product);
-              console.log('产品图片数量:', product.images.length);
-              console.log('第一张图片URL:', product.images[0]);
               
               productsByGroup[productName] = product;
             });
@@ -181,6 +167,9 @@ class FrontendProducts {
             Object.values(productsByGroup).forEach(product => {
               products.push(product);
             });
+            
+            // 添加请求间隔，避免API限流
+            await new Promise(resolve => setTimeout(resolve, 500));
           } catch (error) {
             console.warn(`Failed to load products for ${seriesItem.name}:`, error);
           }
@@ -188,9 +177,6 @@ class FrontendProducts {
         
         // 等待批次请求完成
         await Promise.all(batchPromises);
-        
-        // 添加批次间的间隔，避免API限流
-        await new Promise(resolve => setTimeout(resolve, 300));
       }
 
       console.log('产品数据加载完成，产品数量:', products.length);
@@ -220,6 +206,13 @@ class FrontendProducts {
       this.frontend.state.isLoading = false;
       this.frontend._showLoading(false);
     }
+  }
+  
+  _loadLocalFallbackData() {
+    // 加载本地回退数据
+    this.frontend.state.products = [];
+    this.frontend.state.allProducts = [];
+    console.log('Loaded fallback local data');
   }
   
   async loadSeriesNameMap() {

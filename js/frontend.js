@@ -39,56 +39,26 @@ class Frontend {
   }
   
   async init() {
-    try {
-      console.log('Starting frontend initialization...');
-      
-      // 确保认证令牌已加载
-      if (typeof config !== 'undefined') {
-        config.loadApiKey();
-      }
-      
-      // 检查产品图目录是否存在
-      await this.checkProductsPathExists();
-      
-      // 加载站点配置
-      await this.loadSiteConfig();
-      
-      // 确保i18n初始化
-      if (typeof i18n !== 'undefined' && !i18n.isReady) {
-        i18n.init();
-      }
-      
-      // 设置事件监听器
-      this.setupEventListeners();
-      
-      // 加载产品数据（不使用await，避免阻塞UI）
-      this.loadProductsData().catch(error => {
-        console.error('Failed to load products data:', error);
-        this.state.isLoading = false;
-        this._showLoading(false);
-        // 显示错误信息
-        this.showErrorMessage('加载产品数据失败，请刷新页面重试');
-      });
-      
-      // 监听语言变化事件
-      document.addEventListener('languageChanged', (event) => {
-        const newLang = event.detail.language;
-        this.state.currentLang = newLang;
-        this.updatePageTitle();
-        this.updateCarousel();
-        this.updateContactModal();
-        this.updateFooter();
-        this.updateFormLabels();
-        console.log('Language changed to:', newLang);
-      });
-      
-      console.log('Frontend initialization completed');
-    } catch (error) {
-      console.error('Initialization error:', error);
-      this.state.isLoading = false;
-      this._showLoading(false);
-      this.showErrorMessage('初始化失败，请刷新页面重试');
+    await this.loadSiteConfig();
+    this.loadProductsData();
+    this.setupEventListeners();
+    
+    // 确保i18n初始化
+    if (typeof i18n !== 'undefined' && !i18n.isReady) {
+      i18n.init();
     }
+    
+    // 监听语言变化事件
+    document.addEventListener('languageChanged', (event) => {
+      const newLang = event.detail.language;
+      this.state.currentLang = newLang;
+      this.updatePageTitle();
+      this.updateCarousel();
+      this.updateContactModal();
+      this.updateFooter();
+      this.updateFormLabels();
+      console.log('Language changed to:', newLang);
+    });
   }
   
   // 显示错误信息

@@ -65,13 +65,24 @@ class Config {
     try {
       // 尝试从安全存储加载 API 密钥
       if (typeof window !== 'undefined') {
-        // 强制使用默认令牌，忽略缓存
-        const defaultToken = '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';
-        this.set('github.token', defaultToken);
-        // 同时保存到 localStorage 和 sessionStorage，确保使用最新的令牌
-        localStorage.setItem('gh5_github_token', defaultToken);
-        sessionStorage.setItem('gh5_github_token', defaultToken);
-        console.log('API key loaded:', defaultToken.substring(0, 10) + '...');
+        // 优先从 sessionStorage 加载
+        const sessionKey = sessionStorage.getItem('gh5_github_token');
+        if (sessionKey) {
+          this.set('github.token', sessionKey);
+          return;
+        }
+        
+        // 然后从 localStorage 加载
+        const localKey = localStorage.getItem('gh5_github_token');
+        if (localKey) {
+          this.set('github.token', localKey);
+          return;
+        }
+        
+        // 最后从环境变量加载
+        if (window.env && window.env.github && window.env.github.token) {
+          this.set('github.token', window.env.github.token);
+        }
       }
     } catch (error) {
       console.error('Load API key error:', error);
