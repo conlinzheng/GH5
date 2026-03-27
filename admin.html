@@ -750,45 +750,20 @@
           const token = document.getElementById('api-token-input').value;
           if (token) {
             try {
-              console.log('Attempting to validate API token:', token.substring(0, 10) + '...');
-              // 验证 API 密钥是否有效
-              const isValid = await this.validateApiToken(token);
-              
-              if (isValid) {
-                console.log('API token validation successful, saving...');
-                // 保存 API 密钥
-                const saveResult = GH5.config.saveApiKey(token);
-                console.log('Config saveApiKey result:', saveResult);
-                // 更新 GitHub API 实例的 token
-                GH5.githubAPI.setToken(token);
-                console.log('GitHub API token set successfully');
-                this.showStatus('API 密钥设置成功', 'success');
-                document.body.removeChild(dialog);
-              } else {
-                console.log('API token validation failed');
-                // 即使验证失败，也允许用户强制保存
-                if (confirm('API 密钥验证失败，但您仍可以尝试保存并使用。是否继续保存？')) {
-                  // 保存 API 密钥
-                  const saveResult = GH5.config.saveApiKey(token);
-                  console.log('Config saveApiKey result:', saveResult);
-                  // 更新 GitHub API 实例的 token
-                  GH5.githubAPI.setToken(token);
-                  console.log('GitHub API token set despite validation failure');
-                  this.showStatus('API 密钥已保存（验证失败，可能需要检查网络连接或令牌权限）', 'warning');
-                  document.body.removeChild(dialog);
-                }
-              }
+              console.log('Saving API token:', token.substring(0, 10) + '...');
+              // 直接保存 API 密钥，跳过验证
+              const saveResult = GH5.config.saveApiKey(token);
+              console.log('Config saveApiKey result:', saveResult);
+              // 更新 GitHub API 实例的 token
+              GH5.githubAPI.setToken(token);
+              console.log('GitHub API token set successfully');
+              this.showStatus('API 密钥设置成功', 'success');
+              document.body.removeChild(dialog);
             } catch (error) {
               console.error('Set API token error:', error);
               console.error('Error details:', error.message);
               console.error('Error stack:', error.stack);
-              // 错误时也允许保存
-              if (confirm('设置过程中出现错误，但您仍可以尝试保存令牌。是否继续保存？')) {
-                const saveResult = GH5.config.saveApiKey(token);
-                GH5.githubAPI.setToken(token);
-                this.showStatus('API 密钥已保存（设置过程中出现错误）', 'warning');
-                document.body.removeChild(dialog);
-              }
+              this.showStatus('API 密钥设置失败: ' + error.message, 'error');
             }
           } else {
             this.showStatus('请输入 API 密钥', 'error');
