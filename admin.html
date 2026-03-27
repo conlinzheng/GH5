@@ -755,19 +755,34 @@
           const token = document.getElementById('api-token-input').value;
           if (token) {
             try {
+              console.log('Attempting to validate API token:', token.substring(0, 10) + '...');
               // 验证 API 密钥是否有效
               if (await this.validateApiToken(token)) {
+                console.log('API token validation successful, saving...');
                 // 保存 API 密钥
-                config.saveApiKey(token);
+                if (typeof config !== 'undefined') {
+                  const saveResult = config.saveApiKey(token);
+                  console.log('Config saveApiKey result:', saveResult);
+                } else {
+                  console.error('Config object is undefined');
+                }
                 // 更新 GitHub API 实例的 token
-                githubAPI.setToken(token);
+                if (typeof githubAPI !== 'undefined') {
+                  githubAPI.setToken(token);
+                  console.log('GitHub API token set successfully');
+                } else {
+                  console.error('GitHubAPI object is undefined');
+                }
                 this.showStatus('API 密钥设置成功', 'success');
                 document.body.removeChild(dialog);
               } else {
+                console.log('API token validation failed');
                 this.showStatus('API 密钥验证失败，请检查输入的密钥是否正确', 'error');
               }
             } catch (error) {
               console.error('Set API token error:', error);
+              console.error('Error details:', error.message);
+              console.error('Error stack:', error.stack);
               this.showStatus('API 密钥设置失败: ' + error.message, 'error');
             }
           } else {
@@ -779,17 +794,32 @@
       async validateApiToken(token) {
         try {
           // 验证 API 密钥是否有效（使用不需要user权限的端点）
-          const response = await fetch('https://api.github.com/rate_limit', {
+          const apiBaseUrl = typeof config !== 'undefined' ? config.get('github.apiBaseUrl', 'https://api.github.com') : 'https://api.github.com';
+          const response = await fetch(`${apiBaseUrl}/rate_limit`, {
             headers: {
               'Authorization': `token ${token}`,
               'Accept': 'application/vnd.github.v3+json'
             }
           });
           
+          console.log('API token validation response status:', response.status);
+          console.log('API token validation response headers:', Object.fromEntries(response.headers));
+          
           // 检查响应状态
-          return response.status === 200;
+          if (response.status === 200) {
+            console.log('API token validation successful');
+            return true;
+          } else if (response.status === 401) {
+            console.log('API token validation failed: Unauthorized');
+            return false;
+          } else {
+            console.log('API token validation failed with status:', response.status);
+            return false;
+          }
         } catch (error) {
           console.error('Validate API token error:', error);
+          console.error('Error details:', error.message);
+          console.error('Error stack:', error.stack);
           return false;
         }
       }
