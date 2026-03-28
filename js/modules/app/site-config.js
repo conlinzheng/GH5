@@ -15,6 +15,10 @@ class SiteConfig {
       // 使用i18n的当前语言设置
       this.frontend.state.currentLang = typeof i18n !== 'undefined' ? i18n.getCurrentLanguage() : config.pageSettings?.defaultLanguage || 'zh';
       this.frontend.state.translations = config.translations || {};
+      // 保存系列名称映射
+      if (config.seriesNameMap) {
+        this.frontend.state.seriesNameMap = config.seriesNameMap;
+      }
       this.frontend.updateContactModal();
       this.frontend.updatePageTitle();
       this.frontend.updateCarousel();
@@ -28,6 +32,8 @@ class SiteConfig {
         pageAssets: {}
       };
       this.frontend.state.translations = {};
+      // 使用默认系列名称映射
+      this.frontend.state.seriesNameMap = this.frontend._getDefaultSeriesNameMap();
     }
   }
 

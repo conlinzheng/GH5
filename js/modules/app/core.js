@@ -335,7 +335,9 @@ class CoreApp {
     });
     
     // 获取系列名称映射
-    const seriesNameMap = this._getDefaultSeriesNameMap();
+    const seriesNameMap = this.state.seriesNameMap && Object.keys(this.state.seriesNameMap).length > 0 
+      ? this.state.seriesNameMap 
+      : this._getDefaultSeriesNameMap();
     
     // 调用产品渲染方法，传递所有必要的参数
     productRender.renderProducts(
