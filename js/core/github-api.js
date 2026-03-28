@@ -35,7 +35,9 @@ class GitHubAPI {
 
   async fetchDirectory(path = '') {
     try {
-      const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${path}`;
+      // 对路径进行URL编码，确保中文字符正确处理
+      const encodedPath = encodeURIComponent(path);
+      const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${encodedPath}`;
       console.log('Fetching directory:', url);
       const response = await this._fetch(url);
       
@@ -63,7 +65,9 @@ class GitHubAPI {
 
   async fetchFile(path) {
     try {
-      const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${path}`;
+      // 对路径进行URL编码，确保中文字符正确处理
+      const encodedPath = encodeURIComponent(path);
+      const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${encodedPath}`;
       console.log('Fetching file:', url);
       const response = await this._fetch(url);
       
@@ -92,7 +96,9 @@ class GitHubAPI {
 
   async commitFile(path, content, message = 'Update file') {
     try {
-      const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${path}`;
+      // 对路径进行URL编码，确保中文字符正确处理
+      const encodedPath = encodeURIComponent(path);
+      const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${encodedPath}`;
       const base64Content = this._base64Encode(content);
 
       const body = {
@@ -127,7 +133,9 @@ class GitHubAPI {
 
   async getFileSHA(path) {
     try {
-      const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${path}`;
+      // 对路径进行URL编码，确保中文字符正确处理
+      const encodedPath = encodeURIComponent(path);
+      const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${encodedPath}`;
       const response = await this._fetch(url);
       return response ? response.sha : null;
     } catch (error) {
@@ -145,7 +153,9 @@ class GitHubAPI {
         throw new Error('File not found');
       }
 
-      const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${path}`;
+      // 对路径进行URL编码，确保中文字符正确处理
+      const encodedPath = encodeURIComponent(path);
+      const url = `${this.baseUrl}/repos/${this.owner}/${this.repo}/contents/${encodedPath}`;
       const body = {
         message: message,
         sha: sha
