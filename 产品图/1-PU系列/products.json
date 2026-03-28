@@ -1,21 +1,9 @@
 {
-  "seriesName": {
-    "zh": "1-PU系列",
-    "en": "1-PU系列",
-    "ko": "1-PU系列"
-  },
+  "seriesName": "1-PU系列",
   "products": {
     "中文 (1).png": {
-      "name": {
-        "zh": "中文",
-        "en": "中文",
-        "ko": "中文"
-      },
-      "description": {
-        "zh": "中文 - 高品质产品",
-        "en": "中文 - High quality product",
-        "ko": "中文 - 고품질 제품"
-      },
+      "name": "中文",
+      "description": "中文 - 高品质产品",
       "price": "",
       "materials": {
         "upper": "",
@@ -24,16 +12,8 @@
       }
     },
     "产品1 (1).jpg": {
-      "name": {
-        "zh": "产品1",
-        "en": "产品1",
-        "ko": "产品1"
-      },
-      "description": {
-        "zh": "产品1 - 高品质产品",
-        "en": "产品1 - High quality product",
-        "ko": "产品1 - 고품질 제품"
-      },
+      "name": "产品1",
+      "description": "产品1 - 高品质产品",
       "price": "",
       "materials": {
         "upper": "",
