@@ -250,11 +250,24 @@ class GitHubAPI {
       const token = this.getToken();
       console.log('Token obtained:', token ? token.substring(0, 10) + '...' : 'No token');
       
-      // 直接使用无授权头的请求，避免401错误
-      console.log('Using public access for read-only operations');
+      // 对于写操作（PUT、POST、DELETE）使用授权头，读操作（GET）不使用
+      const method = options.method || 'GET';
+      const isWriteOperation = ['PUT', 'POST', 'DELETE'].includes(method);
+      
+      if (isWriteOperation) {
+        console.log('Using authenticated access for write operations');
+        if (token) {
+          headers['Authorization'] = `token ${token}`;
+          console.log('Authorization header set:', token.substring(0, 10) + '...');
+        } else {
+          console.log('No token available for write operations, this may cause 401 errors');
+        }
+      } else {
+        console.log('Using public access for read-only operations');
+      }
 
       console.log('Making API request to:', url);
-      console.log('Request method:', options.method || 'GET');
+      console.log('Request method:', method);
       console.log('Request headers:', headers);
 
       const response = await fetch(url, {

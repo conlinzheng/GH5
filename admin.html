@@ -731,7 +731,10 @@
             // 检查是否点击了系列卡片本身
             const seriesCard = e.target.closest('.series-card');
             if (seriesCard && seriesCard.dataset.seriesName) {
-              this.showSeriesProducts(seriesCard.dataset.seriesName);
+              // 确保不是点击了按钮
+              if (!e.target.closest('button')) {
+                this.showSeriesProducts(seriesCard.dataset.seriesName);
+              }
             }
           });
         }
@@ -1609,7 +1612,7 @@
           card.className = 'series-card';
           card.draggable = true;
           card.dataset.seriesName = seriesItem.name;
-          card.onclick = () => this.showSeriesProducts(seriesItem.name);
+          // 移除直接的onclick事件，使用事件委托处理
           card.innerHTML = `
             <h3>${displayName}</h3>
             <div class="series-folder-name">文件夹: ${seriesItem.name}</div>
@@ -2269,6 +2272,18 @@
             } catch (error) {
               if (error.status === 404) {
                 await GH5.githubAPI.commitFile(filePath, jsonContent, `Create products.json for series: ${seriesName}`);
+              } else if (error.status === 401 || error.status === 403) {
+                // 对于公开仓库，尝试不使用 API 密钥重新保存
+                try {
+                  console.log('尝试不使用 API 密钥重新保存...');
+                  // 清除 API 密钥
+                  GH5.config.saveApiKey('');
+                  GH5.githubAPI.setToken('');
+                  // 重新保存
+                  await GH5.githubAPI.commitFile(filePath, jsonContent, `Update series display name: ${newDisplayName}`);
+                } catch (retryError) {
+                  throw new Error('API 密钥无效或已过期，但仓库是公开的，尝试无密钥访问失败');
+                }
               } else {
                 throw error;
               }
@@ -2278,7 +2293,11 @@
             this.scanFiles(); // 重新扫描以更新数据
           } catch (error) {
             console.error('Edit series error:', error);
-            this.showStatus('系列名称更新失败: ' + error.message, 'error');
+            let errorMessage = '系列名称更新失败: ' + error.message;
+            if (error.status === 401 || error.status === 403) {
+              errorMessage = '系列名称更新失败: API 密钥无效或已过期';
+            }
+            this.showStatus(errorMessage, 'error');
           }
         }
       }
@@ -2541,41 +2560,26 @@
             };
           });
           
-          // 生成本地产品数据的JSON字符串
-          const localDataJson = JSON.stringify(localData, null, 2);
+          // 生成local-data.js文件内容
+          const localDataJsContent = '// 本地产品数据，作为 GitHub API 访问失败的备选\nexport const localProductsData = ' + JSON.stringify(localData, null, 2) + ';\n\nexport default localProductsData;';
           
-          // 生成完整的 core.js 文件内容
-          let coreJsContent = 'import config from \'./core/config.js\';\n' +
-'import githubAPI from \'./core/github-api.js\';\n' +
-'import cacheManager from \'./core/cache.js\';\n' +
-'import errorHandler from \'./core/error.js\';\n' +
-'import i18n from \'./core/i18n.js\';\n' +
-'import productDataStore from \'../products/data-store.js\';\n' +
-'import productDataProcess from \'../products/data-process.js\';\n' +
-'import productRender from \'../products/render.js\';\n' +
-'import productSearch from \'../products/search.js\';\n' +
-'import modalManager from \'../ui/modal.js\';\n' +
-'import browseHistory from \'../ui/history.js\';\n' +
-'import productEvents from \'../ui/events/products.js\';\n' +
-'import searchEvents from \'../ui/events/search.js\';\n' +
-'import modalEvents from \'../ui/events/modal.js\';\n' +
-'import formEvents from \'../ui/events/form.js\';\n' +
-'import SiteConfig from \'./site-config.js\';\n' +
-'import UIManager from \'./ui-manager.js\';\n' +
-'\n' +
-'class CoreApp {\n' +
-'  constructor() {\n' +
-'    this.config = {\n' +
-'      cacheTTL: 3600,\n' +
-'      itemsPerPage: 12,\n' +
-'      github: {\n' +
-'        owner: config.get(\'github.owner\', \'conlinzheng\'),\n' +
-'        repo: config.get(\'github.repo\', \'GH5\'),\n' +
-'        branch: config.get(\'github.branch\', \'main\'),\n' +
-'        productsPath: config.get(\'github.productsPath\', \'产品图\'),\n' +
-'        token: config.get(\'github.token\')\n' +
-'      }\n' +
-'    };\n' +
+          // 创建下载链接
+          const blob = new Blob([localDataJsContent], { type: 'application/javascript' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'local-data.js';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          this.showStatus('本地数据保存成功，请将下载的 local-data.js 文件替换到 js/modules/products/ 目录下', 'success');
+        } catch (error) {
+          console.error('Save local data error:', error);
+          this.showStatus('保存本地数据失败: ' + error.message, 'error');
+        }
+      }\n' +
 '    \n' +
 '    this.state = {\n' +
 '      products: [],\n' +
