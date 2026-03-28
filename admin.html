@@ -600,67 +600,72 @@
       
       // 设置拖拽排序功能
       setupDragAndDrop() {
-        // 系列排序
+        this.setupSeriesDragAndDrop();
+        this.setupProductDragAndDrop();
+      }
+      
+      // 设置系列拖拽排序
+      setupSeriesDragAndDrop() {
         const seriesList = document.getElementById('series-list');
-        if (seriesList) {
-          let draggedItem = null;
-          
-          seriesList.addEventListener('dragstart', (e) => {
-            if (e.target.classList.contains('series-card')) {
-              draggedItem = e.target;
-              setTimeout(() => {
-                e.target.style.opacity = '0.5';
-              }, 0);
-            }
-          });
-          
-          seriesList.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            const afterElement = this.getDragAfterElement(seriesList, e.clientY);
-            const currentElement = draggedItem;
-            if (afterElement == null) {
-              seriesList.appendChild(currentElement);
-            } else {
-              seriesList.insertBefore(currentElement, afterElement);
-            }
-          });
-          
-          seriesList.addEventListener('dragend', (e) => {
-            e.target.style.opacity = '1';
-            draggedItem = null;
-          });
-        }
+        if (!seriesList) return;
         
-        // 产品排序
+        let draggedItem = null;
+        
+        seriesList.addEventListener('dragstart', (e) => {
+          if (e.target.classList.contains('series-card')) {
+            draggedItem = e.target;
+            setTimeout(() => {
+              e.target.style.opacity = '0.5';
+            }, 0);
+          }
+        });
+        
+        seriesList.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          const afterElement = this.getDragAfterElement(seriesList, e.clientY);
+          if (afterElement == null) {
+            seriesList.appendChild(draggedItem);
+          } else {
+            seriesList.insertBefore(draggedItem, afterElement);
+          }
+        });
+        
+        seriesList.addEventListener('dragend', (e) => {
+          e.target.style.opacity = '1';
+          draggedItem = null;
+        });
+      }
+      
+      // 设置产品拖拽排序
+      setupProductDragAndDrop() {
         const fileList = document.getElementById('file-list');
-        if (fileList) {
-          let draggedItem = null;
-          
-          fileList.addEventListener('dragstart', (e) => {
-            if (e.target.classList.contains('file-item')) {
-              draggedItem = e.target;
-              setTimeout(() => {
-                e.target.style.opacity = '0.5';
-              }, 0);
-            }
-          });
-          
-          fileList.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            const afterElement = this.getDragAfterElement(fileList, e.clientY);
-            const currentElement = draggedItem;
-            if (afterElement == null) {
-              fileList.appendChild(currentElement);
-            } else {
-              fileList.insertBefore(currentElement, afterElement);
-            }
-          });
-          
-          fileList.addEventListener('dragend', (e) => {
-            e.target.style.opacity = '1';
-            draggedItem = null;
-          });
-        }
+        if (!fileList) return;
+        
+        let draggedItem = null;
+        
+        fileList.addEventListener('dragstart', (e) => {
+          if (e.target.classList.contains('file-item')) {
+            draggedItem = e.target;
+            setTimeout(() => {
+              e.target.style.opacity = '0.5';
+            }, 0);
+          }
+        });
+        
+        fileList.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          const afterElement = this.getDragAfterElement(fileList, e.clientY);
+          if (afterElement == null) {
+            fileList.appendChild(draggedItem);
+          } else {
+            fileList.insertBefore(draggedItem, afterElement);
+          }
+        });
+        
+        fileList.addEventListener('dragend', (e) => {
+          e.target.style.opacity = '1';
+          draggedItem = null;
+        });
       }
       
       // 获取拖拽元素应该插入的位置
@@ -690,6 +695,24 @@
           }
         };
         
+        // 绑定主要按钮事件
+        this.bindMainButtonEvents(bindEvent);
+        
+        // 绑定排序和保存按钮事件
+        this.bindSaveButtonEvents(bindEvent);
+        
+        // 绑定表单事件
+        bindEvent('edit-form', 'submit', (e) => {
+          e.preventDefault();
+          this.saveProduct();
+        });
+        
+        // 绑定动态生成元素的事件
+        this.bindDynamicElementEvents();
+      }
+      
+      // 绑定主要按钮事件
+      bindMainButtonEvents(bindEvent) {
         bindEvent('btn-scan', 'click', () => this.scanFiles());
         bindEvent('btn-scan-new', 'click', () => this.scanNewProducts());
         bindEvent('btn-refresh', 'click', () => this.refreshData());
@@ -699,67 +722,74 @@
         bindEvent('btn-import', 'click', () => this.importData());
         bindEvent('btn-set-token', 'click', () => this.setApiToken());
         bindEvent('btn-save-local', 'click', () => this.saveLocalData());
-        
-        // 保存排序按钮
+      }
+      
+      // 绑定保存按钮事件
+      bindSaveButtonEvents(bindEvent) {
         bindEvent('btn-save-series-order', 'click', () => this.saveSeriesOrder());
         bindEvent('btn-save-product-order', 'click', () => this.saveProductOrder());
-        
-        // 保存产品数据按钮
         bindEvent('btn-save-product', 'click', () => this.saveProduct());
-        
-        // 一键折叠/展开所有图片按钮
         bindEvent('btn-toggle-all-images', 'click', () => this.toggleAllImages());
-        
-        bindEvent('edit-form', 'submit', (e) => {
-          e.preventDefault();
-          this.saveProduct();
-        });
-        
-        // 事件委托处理动态生成的按钮
+      }
+      
+      // 绑定动态生成元素的事件
+      bindDynamicElementEvents() {
+        // 绑定系列列表事件
         const seriesList = document.getElementById('series-list');
         if (seriesList) {
           seriesList.addEventListener('click', (e) => {
-            // 检查是否点击了编辑按钮
-            const editButton = e.target.closest('.btn-edit');
-            if (editButton && editButton.dataset.series) {
-              e.stopPropagation();
-              this.editSeries(editButton.dataset.series);
-              return;
-            }
-            
-            // 检查是否点击了查看按钮
-            const viewButton = e.target.closest('.btn-view');
-            if (viewButton && viewButton.dataset.series) {
-              e.stopPropagation();
-              this.viewSeries(viewButton.dataset.series);
-              return;
-            }
-            
-            // 检查是否点击了系列卡片本身
-            const seriesCard = e.target.closest('.series-card');
-            if (seriesCard && seriesCard.dataset.seriesName) {
-              // 确保不是点击了按钮
-              if (!e.target.closest('button')) {
-                this.showSeriesProducts(seriesCard.dataset.seriesName);
-              }
-            }
+            this.handleSeriesListClick(e);
           });
         }
         
+        // 绑定文件列表事件
         const fileList = document.getElementById('file-list');
         if (fileList) {
           fileList.addEventListener('click', (e) => {
-            if (e.target.classList.contains('btn-edit') && e.target.dataset.productId) {
-              this.editProduct(e.target.dataset.productId, e.target.dataset.seriesId);
-            } else if (e.target.classList.contains('btn-view') && e.target.dataset.productId) {
-              this.viewProduct(e.target.dataset.productId, e.target.dataset.seriesId);
-            } else if (e.target.classList.contains('btn-toggle')) {
-              const productItem = e.target.closest('.file-item');
-              if (productItem && productItem.dataset.productName) {
-                this.toggleProductImages(productItem.dataset.productName);
-              }
-            }
+            this.handleFileListClick(e);
           });
+        }
+      }
+      
+      // 处理系列列表点击事件
+      handleSeriesListClick(e) {
+        // 检查是否点击了编辑按钮
+        const editButton = e.target.closest('.btn-edit');
+        if (editButton && editButton.dataset.series) {
+          e.stopPropagation();
+          this.editSeries(editButton.dataset.series);
+          return;
+        }
+        
+        // 检查是否点击了查看按钮
+        const viewButton = e.target.closest('.btn-view');
+        if (viewButton && viewButton.dataset.series) {
+          e.stopPropagation();
+          this.viewSeries(viewButton.dataset.series);
+          return;
+        }
+        
+        // 检查是否点击了系列卡片本身
+        const seriesCard = e.target.closest('.series-card');
+        if (seriesCard && seriesCard.dataset.seriesName) {
+          // 确保不是点击了按钮
+          if (!e.target.closest('button')) {
+            this.showSeriesProducts(seriesCard.dataset.seriesName);
+          }
+        }
+      }
+      
+      // 处理文件列表点击事件
+      handleFileListClick(e) {
+        if (e.target.classList.contains('btn-edit') && e.target.dataset.productId) {
+          this.editProduct(e.target.dataset.productId, e.target.dataset.seriesId);
+        } else if (e.target.classList.contains('btn-view') && e.target.dataset.productId) {
+          this.viewProduct(e.target.dataset.productId, e.target.dataset.seriesId);
+        } else if (e.target.classList.contains('btn-toggle')) {
+          const productItem = e.target.closest('.file-item');
+          if (productItem && productItem.dataset.productName) {
+            this.toggleProductImages(productItem.dataset.productName);
+          }
         }
       }
       
@@ -1440,13 +1470,10 @@
         const scanBtn = document.getElementById('btn-scan');
         const scanNewBtn = document.getElementById('btn-scan-new');
         
-        if (scanBtn) scanBtn.disabled = true;
-        if (scanNewBtn) scanNewBtn.disabled = true;
+        this.disableScanButtons(scanBtn, scanNewBtn);
         
         try {
-          const startTime = new Date();
-          document.getElementById('last-scan').textContent = startTime.toLocaleString();
-          
+          this.updateLastScanTime();
           this.showStatus('正在扫描...', 'info');
           
           // 清除缓存以确保获取最新数据
@@ -1456,144 +1483,166 @@
           await this.loadSeriesNameMap();
           
           // 扫描产品图目录
-          const series = await GH5.githubAPI.fetchDirectory('产品图');
-          this.series = series.filter(item => item.type === 'dir');
+          await this.scanSeriesDirectories();
           
           // 扫描每个系列的产品数据
-          const products = [];
-          const productPromises = this.series.map(async (seriesItem) => {
-            try {
-              // 尝试获取 products.json 文件
-              let productsFile;
-              try {
-                productsFile = await GH5.githubAPI.fetchFile(`${seriesItem.path}/products.json`);
-              } catch (error) {
-                // 如果文件不存在，创建基于图片的产品数据
-                productsFile = await this.createProductsFromImages(seriesItem);
-              }
-              
-              if (productsFile && productsFile.products) {
-                // 存储产品顺序
-                if (productsFile.order) {
-                  this.productOrders[seriesItem.name] = productsFile.order;
-                }
-                
-                if (productsFile.order) {
-                  const orderNames = productsFile.order;
-                  const validOrderNames = [];
-                  
-                  // 按排序顺序加载产品
-                  orderNames.forEach(productName => {
-                    // 找到对应的产品数据（查找匹配的文件名）
-                    const productEntry = Object.entries(productsFile.products).find(([fileName, productData]) => {
-                      return this.extractProductName(fileName) === productName;
-                    });
-                    
-                    if (productEntry) {
-                      validOrderNames.push(productName);
-                      const [fileName, productData] = productEntry;
-                      const materials = productData.materials || productData;
-                      const product = {
-                        id: fileName,
-                        seriesId: seriesItem.name,
-                        name: typeof productData.name === 'object' ? (productData.name?.zh || productName) : (productData.name || productName),
-                        description: typeof productData.description === 'object' ? (productData.description?.zh || '') : (productData.description || ''),
-                        price: productData.price || '',
-                        materials: materials,
-                        upperMaterial: materials?.upper || '',
-                        innerMaterial: materials?.lining || '',
-                        soleMaterial: materials?.sole || '',
-                        image: fileName,
-                        isMainImage: this.isMainImage(fileName)
-                      };
-                      products.push(product);
-                    }
-                  });
-                  
-                  // 添加未在排序中的产品（包括 order 中找不到匹配的）
-                  Object.entries(productsFile.products).forEach(([fileName, productData]) => {
-                    const productName = this.extractProductName(fileName);
-                    if (!validOrderNames.includes(productName)) {
-                      const materials = productData.materials || productData;
-                      const product = {
-                        id: fileName,
-                        seriesId: seriesItem.name,
-                        name: typeof productData.name === 'object' ? (productData.name?.zh || productName) : (productData.name || productName),
-                        description: typeof productData.description === 'object' ? (productData.description?.zh || '') : (productData.description || ''),
-                        price: productData.price || '',
-                        materials: materials,
-                        upperMaterial: materials?.upper || '',
-                        innerMaterial: materials?.lining || '',
-                        soleMaterial: materials?.sole || '',
-                        image: fileName,
-                        isMainImage: this.isMainImage(fileName)
-                      };
-                      products.push(product);
-                    }
-                  });
-                } else {
-                  // 没有排序信息，直接加载
-                  const productEntries = Object.entries(productsFile.products);
-                  productEntries.forEach(([fileName, productData]) => {
-                    const productName = this.extractProductName(fileName);
-                    const materials = productData.materials || productData;
-                    const product = {
-                      id: fileName,
-                      seriesId: seriesItem.name,
-                      name: typeof productData.name === 'object' ? (productData.name?.zh || productName) : (productData.name || productName),
-                      description: typeof productData.description === 'object' ? (productData.description?.zh || '') : (productData.description || ''),
-                      price: productData.price || '',
-                      materials: materials,
-                      upperMaterial: materials?.upper || '',
-                      innerMaterial: materials?.lining || '',
-                      soleMaterial: materials?.sole || '',
-                      image: fileName,
-                      isMainImage: this.isMainImage(fileName)
-                    };
-                    products.push(product);
-                  });
-                }
-              }
-            } catch (error) {
-              console.warn(`Failed to load products for ${seriesItem.name}:`, error);
-            }
-          });
-          
-          await Promise.all(productPromises);
+          const products = await this.scanProductsForAllSeries();
           this.products = products;
           
           this.updateUI();
           this.showStatus('扫描完成', 'success');
         } catch (error) {
-          console.error('Scan files error:', error);
-          let errorMessage = '扫描失败: ' + error.message;
-          if (error.status === 401 || error.status === 403) {
-            // 对于公开仓库，尝试不使用 API 密钥重新加载
-            try {
-              console.log('尝试不使用 API 密钥重新加载数据...');
-              // 清除 API 密钥
-              GH5.config.saveApiKey('');
-              GH5.githubAPI.setToken('');
-              // 重新扫描
-              await this.scanFiles();
-              return;
-            } catch (retryError) {
-              errorMessage = 'API 密钥无效或已过期，但仓库是公开的，尝试无密钥访问失败';
-            }
-          } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
-            errorMessage = 'API 请求频率超限，请稍后再试';
-          } else if (error.status === 404) {
-            errorMessage = '文件路径不存在';
-          } else if (error.status === 422) {
-            errorMessage = '数据格式错误，请检查输入';
-          }
-          this.showStatus(errorMessage, 'error');
+          await this.handleScanError(error);
         } finally {
-          const scanBtn = document.getElementById('btn-scan');
-          const scanNewBtn = document.getElementById('btn-scan-new');
-          if (scanBtn) scanBtn.disabled = false;
-          if (scanNewBtn) scanNewBtn.disabled = false;
+          this.enableScanButtons(scanBtn, scanNewBtn);
         }
+      }
+      
+      // 禁用扫描按钮
+      disableScanButtons(scanBtn, scanNewBtn) {
+        if (scanBtn) scanBtn.disabled = true;
+        if (scanNewBtn) scanNewBtn.disabled = true;
+      }
+      
+      // 启用扫描按钮
+      enableScanButtons(scanBtn, scanNewBtn) {
+        if (scanBtn) scanBtn.disabled = false;
+        if (scanNewBtn) scanNewBtn.disabled = false;
+      }
+      
+      // 更新最后扫描时间
+      updateLastScanTime() {
+        const startTime = new Date();
+        document.getElementById('last-scan').textContent = startTime.toLocaleString();
+      }
+      
+      // 扫描系列目录
+      async scanSeriesDirectories() {
+        const series = await GH5.githubAPI.fetchDirectory('产品图');
+        this.series = series.filter(item => item.type === 'dir');
+      }
+      
+      // 扫描所有系列的产品数据
+      async scanProductsForAllSeries() {
+        const products = [];
+        const productPromises = this.series.map(async (seriesItem) => {
+          try {
+            await this.scanProductsForSeries(seriesItem, products);
+          } catch (error) {
+            console.warn(`Failed to load products for ${seriesItem.name}:`, error);
+          }
+        });
+        
+        await Promise.all(productPromises);
+        return products;
+      }
+      
+      // 扫描单个系列的产品数据
+      async scanProductsForSeries(seriesItem, products) {
+        // 尝试获取 products.json 文件
+        let productsFile;
+        try {
+          productsFile = await GH5.githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+        } catch (error) {
+          // 如果文件不存在，创建基于图片的产品数据
+          productsFile = await this.createProductsFromImages(seriesItem);
+        }
+        
+        if (productsFile && productsFile.products) {
+          // 存储产品顺序
+          if (productsFile.order) {
+            this.productOrders[seriesItem.name] = productsFile.order;
+          }
+          
+          if (productsFile.order) {
+            await this.loadProductsWithOrder(seriesItem, productsFile, products);
+          } else {
+            await this.loadProductsWithoutOrder(seriesItem, productsFile, products);
+          }
+        }
+      }
+      
+      // 按排序顺序加载产品
+      async loadProductsWithOrder(seriesItem, productsFile, products) {
+        const orderNames = productsFile.order;
+        const validOrderNames = [];
+        
+        // 按排序顺序加载产品
+        orderNames.forEach(productName => {
+          // 找到对应的产品数据（查找匹配的文件名）
+          const productEntry = Object.entries(productsFile.products).find(([fileName, productData]) => {
+            return this.extractProductName(fileName) === productName;
+          });
+          
+          if (productEntry) {
+            validOrderNames.push(productName);
+            const [fileName, productData] = productEntry;
+            this.addProductToCollection(seriesItem, fileName, productData, products);
+          }
+        });
+        
+        // 添加未在排序中的产品（包括 order 中找不到匹配的）
+        Object.entries(productsFile.products).forEach(([fileName, productData]) => {
+          const productName = this.extractProductName(fileName);
+          if (!validOrderNames.includes(productName)) {
+            this.addProductToCollection(seriesItem, fileName, productData, products);
+          }
+        });
+      }
+      
+      // 没有排序信息时加载产品
+      async loadProductsWithoutOrder(seriesItem, productsFile, products) {
+        const productEntries = Object.entries(productsFile.products);
+        productEntries.forEach(([fileName, productData]) => {
+          this.addProductToCollection(seriesItem, fileName, productData, products);
+        });
+      }
+      
+      // 添加产品到集合
+      addProductToCollection(seriesItem, fileName, productData, products) {
+        const productName = this.extractProductName(fileName);
+        const materials = productData.materials || productData;
+        const product = {
+          id: fileName,
+          seriesId: seriesItem.name,
+          name: typeof productData.name === 'object' ? (productData.name?.zh || productName) : (productData.name || productName),
+          description: typeof productData.description === 'object' ? (productData.description?.zh || '') : (productData.description || ''),
+          price: productData.price || '',
+          materials: materials,
+          upperMaterial: materials?.upper || '',
+          innerMaterial: materials?.lining || '',
+          soleMaterial: materials?.sole || '',
+          image: fileName,
+          isMainImage: this.isMainImage(fileName)
+        };
+        products.push(product);
+      }
+      
+      // 处理扫描错误
+      async handleScanError(error) {
+        console.error('Scan files error:', error);
+        let errorMessage = '扫描失败: ' + error.message;
+        if (error.status === 401 || error.status === 403) {
+          // 对于公开仓库，尝试不使用 API 密钥重新加载
+          try {
+            console.log('尝试不使用 API 密钥重新加载数据...');
+            // 清除 API 密钥
+            GH5.config.saveApiKey('');
+            GH5.githubAPI.setToken('');
+            // 重新扫描
+            await this.scanFiles();
+            return;
+          } catch (retryError) {
+            errorMessage = 'API 密钥无效或已过期，但仓库是公开的，尝试无密钥访问失败';
+          }
+        } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
+          errorMessage = 'API 请求频率超限，请稍后再试';
+        } else if (error.status === 404) {
+          errorMessage = '文件路径不存在';
+        } else if (error.status === 422) {
+          errorMessage = '数据格式错误，请检查输入';
+        }
+        this.showStatus(errorMessage, 'error');
       }
       
       async loadSeriesNameMap() {
