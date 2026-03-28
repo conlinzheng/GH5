@@ -312,20 +312,7 @@ class CoreApp {
     } catch (error) {
       console.error('Load products data error:', error);
       
-      // 检查是否是API认证错误
-      if (error.status === 401 || error.status === 403) {
-        // 显示API密钥输入弹窗
-        const token = await this.promptForApiToken();
-        if (token) {
-          // 保存API密钥
-          config.saveApiKey(token);
-          githubAPI.setToken(token);
-          // 重新尝试加载数据
-          return this.loadProductsData();
-        }
-      }
-      
-      // 尝试从本地加载数据作为备选
+      // 尝试从本地加载数据作为备选，不再强制要求输入API密钥
       const localProducts = this.loadLocalProductsData();
       if (localProducts && localProducts.length > 0) {
         console.log('Loaded products from local data as fallback');

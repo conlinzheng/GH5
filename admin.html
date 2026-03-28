@@ -710,12 +710,26 @@
         const seriesList = document.getElementById('series-list');
         if (seriesList) {
           seriesList.addEventListener('click', (e) => {
-            if (e.target.classList.contains('btn-edit') && e.target.dataset.series) {
+            // 检查是否点击了编辑按钮
+            const editButton = e.target.closest('.btn-edit');
+            if (editButton && editButton.dataset.series) {
               e.stopPropagation();
-              this.editSeries(e.target.dataset.series);
-            } else if (e.target.classList.contains('btn-view') && e.target.dataset.series) {
+              this.editSeries(editButton.dataset.series);
+              return;
+            }
+            
+            // 检查是否点击了查看按钮
+            const viewButton = e.target.closest('.btn-view');
+            if (viewButton && viewButton.dataset.series) {
               e.stopPropagation();
-              this.viewSeries(e.target.dataset.series);
+              this.viewSeries(viewButton.dataset.series);
+              return;
+            }
+            
+            // 检查是否点击了系列卡片本身
+            const seriesCard = e.target.closest('.series-card');
+            if (seriesCard && seriesCard.dataset.seriesName) {
+              this.showSeriesProducts(seriesCard.dataset.seriesName);
             }
           });
         }
