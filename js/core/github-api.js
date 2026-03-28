@@ -250,12 +250,8 @@ class GitHubAPI {
       const token = this.getToken();
       console.log('Token obtained:', token ? token.substring(0, 10) + '...' : 'No token');
       
-      if (token) {
-        headers['Authorization'] = `token ${token}`;
-        console.log('Authorization header set:', token.substring(0, 10) + '...');
-      } else {
-        console.log('No token available, using public access for read-only operations');
-      }
+      // 直接使用无授权头的请求，避免401错误
+      console.log('Using public access for read-only operations');
 
       console.log('Making API request to:', url);
       console.log('Request method:', options.method || 'GET');
@@ -275,23 +271,6 @@ class GitHubAPI {
       this._updateRateLimit(response);
 
       if (!response.ok) {
-        // 对于公开仓库的只读操作，401 错误可能是因为没有 token，但应该仍然可以访问
-        if (response.status === 401 && !token && (options.method === 'GET' || !options.method)) {
-          console.log('401 error without token, trying without authorization header');
-          // 移除授权头并重试
-          const { Authorization, ...noAuthHeaders } = headers;
-          const retryResponse = await fetch(url, {
-            ...options,
-            headers: noAuthHeaders
-          });
-          
-          if (retryResponse.ok) {
-            console.log('Retry successful without authorization header');
-            const responseData = await retryResponse.json();
-            return responseData;
-          }
-        }
-        
         const error = new Error(`HTTP error! status: ${response.status}`);
         error.status = response.status;
         throw error;
