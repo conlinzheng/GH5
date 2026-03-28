@@ -1,21 +1,9 @@
 {
-  "seriesName": {
-    "zh": "3-短靴系列",
-    "en": "3-短靴系列",
-    "ko": "3-短靴系列"
-  },
+  "seriesName": "3-短靴系列",
   "products": {
     "00A (1).jpg": {
-      "name": {
-        "zh": "00A",
-        "en": "00A",
-        "ko": "00A"
-      },
-      "description": {
-        "zh": "00A - 高品质产品",
-        "en": "00A - High quality product",
-        "ko": "00A - 고품질 제품"
-      },
+      "name": "00A",
+      "description": "00A - 高品质产品",
       "price": "",
       "materials": {
         "upper": "",
@@ -24,16 +12,8 @@
       }
     },
     "中文+ (1).png": {
-      "name": {
-        "zh": "中文+",
-        "en": "中文+",
-        "ko": "中文+"
-      },
-      "description": {
-        "zh": "中文+ - 高品质产品",
-        "en": "中文+ - High quality product",
-        "ko": "中文+ - 고품질 제품"
-      },
+      "name": "中文+",
+      "description": "中文+ - 高品质产品",
       "price": "",
       "materials": {
         "upper": "",

@@ -1,9 +1,5 @@
 {
-  "seriesName": {
-    "zh": ".history",
-    "en": ".history",
-    "ko": ".history"
-  },
+  "seriesName": ".history",
   "products": {},
   "order": []
 }
