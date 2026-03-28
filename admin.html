@@ -449,7 +449,7 @@
           </div>
           <p style="color: #666; font-size: 14px; margin-bottom: 15px;">拖拽产品可以调整系列内显示顺序</p>
           <div style="margin-bottom: 15px;">
-            <button id="btn-toggle-all-images" class="btn-toggle" onclick="adminPanel.toggleAllImages()">一键折叠/展开所有图片</button>
+            <button id="btn-toggle-all-images" class="btn-toggle">一键折叠/展开所有图片</button>
           </div>
           <div id="file-list-container" style="max-height: 70vh; overflow-y: auto; padding-right: 5px;">
             <ul id="file-list" class="file-list" style="min-height: 200px;">
@@ -527,7 +527,7 @@
                   <input type="text" id="product-image" name="image" required>
                 </div>
               </div>
-              <button type="button" class="btn-save" style="width: 100%; margin-top: 15px;" onclick="adminPanel.saveProduct()">💾 保存产品数据</button>
+              <button type="button" class="btn-save" id="btn-save-product" style="width: 100%; margin-top: 15px;">💾 保存产品数据</button>
             </form>
           </div>
         </div>
@@ -580,11 +580,14 @@
         return `https://${owner}.github.io/${repo}/${productsPath}/${seriesId}/${imageName}`;
       }
       
-      init() {
-        this.setupEventListeners();
+      async init() {
         this.loadCacheStatus();
-        this.scanFiles();
+        this.setupEventListeners();
         this.setupDragAndDrop();
+        // 延迟扫描，避免页面加载时立即弹出 API 密钥设置弹窗
+        setTimeout(() => {
+          this.scanFiles();
+        }, 1000);
       }
       
       // 设置拖拽排序功能
@@ -692,15 +695,59 @@
         bindEvent('btn-save-series-order', 'click', () => this.saveSeriesOrder());
         bindEvent('btn-save-product-order', 'click', () => this.saveProductOrder());
         
+        // 保存产品数据按钮
+        bindEvent('btn-save-product', 'click', () => this.saveProduct());
+        
+        // 一键折叠/展开所有图片按钮
+        bindEvent('btn-toggle-all-images', 'click', () => this.toggleAllImages());
+        
         bindEvent('edit-form', 'submit', (e) => {
           e.preventDefault();
           this.saveProduct();
         });
+        
+        // 事件委托处理动态生成的按钮
+        const seriesList = document.getElementById('series-list');
+        if (seriesList) {
+          seriesList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-edit') && e.target.dataset.series) {
+              e.stopPropagation();
+              this.editSeries(e.target.dataset.series);
+            } else if (e.target.classList.contains('btn-view') && e.target.dataset.series) {
+              e.stopPropagation();
+              this.viewSeries(e.target.dataset.series);
+            }
+          });
+        }
+        
+        const fileList = document.getElementById('file-list');
+        if (fileList) {
+          fileList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-edit') && e.target.dataset.productId) {
+              this.editProduct(e.target.dataset.productId, e.target.dataset.seriesId);
+            } else if (e.target.classList.contains('btn-view') && e.target.dataset.productId) {
+              this.viewProduct(e.target.dataset.productId, e.target.dataset.seriesId);
+            } else if (e.target.classList.contains('btn-toggle')) {
+              const productItem = e.target.closest('.file-item');
+              if (productItem && productItem.dataset.productName) {
+                this.toggleProductImages(productItem.dataset.productName);
+              }
+            }
+          });
+        }
       }
       
       setApiToken() {
+        // 检查是否已经存在API密钥设置弹窗
+        const existingDialog = document.querySelector('#api-token-dialog');
+        if (existingDialog) {
+          // 如果存在，先移除
+          existingDialog.remove();
+        }
+        
         // 创建更安全的 API 密钥输入对话框
         const dialog = document.createElement('div');
+        dialog.id = 'api-token-dialog';
         dialog.style.cssText = `
           position: fixed;
           top: 0;
@@ -741,32 +788,55 @@
         document.body.appendChild(dialog);
         
         // 取消按钮事件
-        document.getElementById('cancel-token-btn').addEventListener('click', () => {
-          document.body.removeChild(dialog);
-        });
+        const cancelBtn = dialogContent.querySelector('#cancel-token-btn');
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', () => {
+            dialog.remove();
+          });
+        }
         
         // 保存按钮事件
-        document.getElementById('save-token-btn').addEventListener('click', async () => {
-          const token = document.getElementById('api-token-input').value;
-          if (token) {
-            try {
-              console.log('Saving API token:', token.substring(0, 10) + '...');
-              // 直接保存 API 密钥，跳过验证
-              const saveResult = GH5.config.saveApiKey(token);
-              console.log('Config saveApiKey result:', saveResult);
-              // 更新 GitHub API 实例的 token
-              GH5.githubAPI.setToken(token);
-              console.log('GitHub API token set successfully');
-              this.showStatus('API 密钥设置成功', 'success');
-              document.body.removeChild(dialog);
-            } catch (error) {
-              console.error('Set API token error:', error);
-              console.error('Error details:', error.message);
-              console.error('Error stack:', error.stack);
-              this.showStatus('API 密钥设置失败: ' + error.message, 'error');
+        const saveBtn = dialogContent.querySelector('#save-token-btn');
+        if (saveBtn) {
+          saveBtn.addEventListener('click', async () => {
+            const tokenInput = dialogContent.querySelector('#api-token-input');
+            if (tokenInput) {
+              const token = tokenInput.value;
+              if (token) {
+                try {
+                  console.log('Saving API token:', token.substring(0, 10) + '...');
+                  // 直接保存 API 密钥，跳过验证
+                  const saveResult = GH5.config.saveApiKey(token);
+                  console.log('Config saveApiKey result:', saveResult);
+                  // 更新 GitHub API 实例的 token
+                  GH5.githubAPI.setToken(token);
+                  console.log('GitHub API token set successfully');
+                  this.showStatus('API 密钥设置成功', 'success');
+                  dialog.remove();
+                } catch (error) {
+                  console.error('Set API token error:', error);
+                  console.error('Error details:', error.message);
+                  console.error('Error stack:', error.stack);
+                  this.showStatus('API 密钥设置失败: ' + error.message, 'error');
+                }
+              } else {
+                this.showStatus('请输入 API 密钥', 'error');
+              }
             }
-          } else {
-            this.showStatus('请输入 API 密钥', 'error');
+          });
+        }
+        
+        // 点击背景关闭弹窗
+        dialog.addEventListener('click', (e) => {
+          if (e.target === dialog) {
+            dialog.remove();
+          }
+        });
+        
+        // 按ESC键关闭弹窗
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && document.getElementById('api-token-dialog')) {
+            dialog.remove();
           }
         });
       }
@@ -949,11 +1019,7 @@
           console.error('Scan files error:', error);
           let errorMessage = '扫描失败: ' + error.message;
           if (error.status === 401 || error.status === 403) {
-            errorMessage = 'API 密钥无效或已过期，请重新设置';
-            // 提示用户设置 API 密钥
-            if (confirm('API 密钥无效，请设置 GitHub API 密钥以继续操作。')) {
-              this.setApiToken();
-            }
+            errorMessage = 'API 密钥无效或已过期，请点击"设置 API 密钥"按钮重新设置';
           } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
             errorMessage = 'API 请求频率超限，请稍后再试';
           } else if (error.status === 404) {
@@ -1061,11 +1127,7 @@
           console.error('Scan new products error:', error);
           let errorMessage = '扫描新增产品失败: ' + error.message;
           if (error.status === 401 || error.status === 403) {
-            errorMessage = 'API 密钥无效或已过期，请重新设置';
-            // 提示用户设置 API 密钥
-            if (confirm('API 密钥无效，请设置 GitHub API 密钥以继续操作。')) {
-              this.setApiToken();
-            }
+            errorMessage = 'API 密钥无效或已过期，请点击"设置 API 密钥"按钮重新设置';
           } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
             errorMessage = 'API 请求频率超限，请稍后再试';
           } else if (error.status === 404) {
@@ -1155,11 +1217,7 @@
           console.error('Save new products error:', error);
           let errorMessage = '保存新增产品失败: ' + error.message;
           if (error.status === 401 || error.status === 403) {
-            errorMessage = 'API 密钥无效或已过期，请重新设置';
-            // 提示用户设置 API 密钥
-            if (confirm('API 密钥无效，请设置 GitHub API 密钥以继续操作。')) {
-              this.setApiToken();
-            }
+            errorMessage = 'API 密钥无效或已过期，请点击"设置 API 密钥"按钮重新设置';
           } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
             errorMessage = 'API 请求频率超限，请稍后再试';
           } else if (error.status === 404) {
@@ -1533,8 +1591,8 @@
               <div class="progress-fill" style="width: ${seriesProducts.length > 0 ? '100%' : '0%'}"></div>
             </div>
             <div class="file-actions">
-              <button class="btn-edit" onclick="event.stopPropagation(); adminPanel.editSeries('${seriesItem.name}')">编辑</button>
-              <button class="btn-view" onclick="event.stopPropagation(); adminPanel.viewSeries('${seriesItem.name}')">查看</button>
+              <button class="btn-edit" data-series="${seriesItem.name}">编辑</button>
+              <button class="btn-view" data-series="${seriesItem.name}">查看</button>
             </div>
           `;
           seriesList.appendChild(card);
@@ -1670,8 +1728,8 @@
                 <small>系列: ${seriesDisplayName}</small>
               </div>
               <div class="file-actions">
-                <button class="btn-edit" onclick="adminPanel.editProduct('${mainImage.id}', '${mainImage.seriesId}')">编辑</button>
-                <button class="btn-view" onclick="adminPanel.viewProduct('${mainImage.id}', '${mainImage.seriesId}')">查看</button>
+                <button class="btn-edit" data-product-id="${mainImage.id}" data-series-id="${mainImage.seriesId}">编辑</button>
+                <button class="btn-view" data-product-id="${mainImage.id}" data-series-id="${mainImage.seriesId}">查看</button>
               </div>
             `;
             
@@ -1728,7 +1786,7 @@
                   <small style="color: #666;">系列: ${seriesDisplayName}</small>
                 </div>
                 <div class="file-actions" style="flex-shrink: 0;">
-                  <button class="btn-view" onclick="adminPanel.viewProduct('${product.id}', '${product.seriesId}')">查看</button>
+                  <button class="btn-view" data-product-id="${product.id}" data-series-id="${product.seriesId}">查看</button>
                 </div>
               `;
               
@@ -2422,7 +2480,13 @@
     }
     
     // 初始化管理面板
-    const adminPanel = new AdminPanel();
+    (async () => {
+      const adminPanel = new AdminPanel();
+      // 暴露到全局作用域
+      window.adminPanel = adminPanel;
+      // 调用异步初始化方法
+      await adminPanel.init();
+    })();
   </script>
 </body>
 </html>
