@@ -1,21 +1,9 @@
 {
-  "seriesName": {
-    "zh": "7-秋季",
-    "en": "7-秋季",
-    "ko": "7-秋季"
-  },
+  "seriesName": "7-秋季",
   "products": {
     "@@@ (1).png": {
-      "name": {
-        "zh": "@@@",
-        "en": "@@@",
-        "ko": "@@@"
-      },
-      "description": {
-        "zh": "@@@ - 高品质产品",
-        "en": "@@@ - High quality product",
-        "ko": "@@@ - 고품질 제품"
-      },
+      "name": "@@@",
+      "description": "@@@ - 高品质产品",
       "price": "",
       "materials": {
         "upper": "",
