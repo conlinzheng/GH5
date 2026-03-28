@@ -582,13 +582,20 @@
       }
       
       async init() {
-        this.loadCacheStatus();
         this.setupEventListeners();
         this.setupDragAndDrop();
         // 延迟扫描，避免页面加载时立即弹出 API 密钥设置弹窗
         setTimeout(() => {
           this.scanFiles();
         }, 1000);
+      }
+      
+      loadCacheStatus() {
+        // 加载缓存状态
+        const cacheStatus = document.getElementById('cache-status');
+        if (cacheStatus) {
+          cacheStatus.textContent = '已加载';
+        }
       }
       
       // 设置拖拽排序功能
@@ -757,6 +764,7 @@
       }
       
       setApiToken() {
+        console.log('setApiToken method called');
         // 检查是否已经存在API密钥设置弹窗
         const existingDialog = document.querySelector('#api-token-dialog');
         if (existingDialog) {
@@ -805,22 +813,28 @@
         
         dialog.appendChild(dialogContent);
         document.body.appendChild(dialog);
+        console.log('API token dialog created and added to DOM');
         
         // 取消按钮事件
         const cancelBtn = dialogContent.querySelector('#cancel-token-btn');
         if (cancelBtn) {
           cancelBtn.addEventListener('click', () => {
+            console.log('Cancel button clicked');
             dialog.remove();
           });
+        } else {
+          console.error('Cancel button not found');
         }
         
         // 保存按钮事件
         const saveBtn = dialogContent.querySelector('#save-token-btn');
         if (saveBtn) {
           saveBtn.addEventListener('click', async () => {
+            console.log('Save button clicked');
             const tokenInput = dialogContent.querySelector('#api-token-input');
             if (tokenInput) {
               const token = tokenInput.value;
+              console.log('Token input value:', token ? token.substring(0, 10) + '...' : 'empty');
               if (token) {
                 try {
                   console.log('Saving API token:', token.substring(0, 10) + '...');
@@ -839,15 +853,21 @@
                   this.showStatus('API 密钥设置失败: ' + error.message, 'error');
                 }
               } else {
+                console.log('Empty token input');
                 this.showStatus('请输入 API 密钥', 'error');
               }
+            } else {
+              console.error('Token input not found');
             }
           });
+        } else {
+          console.error('Save button not found');
         }
         
         // 点击背景关闭弹窗
         dialog.addEventListener('click', (e) => {
           if (e.target === dialog) {
+            console.log('Dialog background clicked');
             dialog.remove();
           }
         });
@@ -855,55 +875,10 @@
         // 按ESC键关闭弹窗
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape' && document.getElementById('api-token-dialog')) {
+            console.log('Escape key pressed');
             dialog.remove();
           }
         });
-      }
-      
-      async validateApiToken(token) {
-        try {
-          // 验证 API 密钥是否有效（使用不需要user权限的端点）
-          const apiBaseUrl = GH5.config.get('github.apiBaseUrl', 'https://api.github.com');
-          console.log('Validating API token:', token.substring(0, 10) + '...');
-          console.log('API base URL:', apiBaseUrl);
-          
-          const response = await fetch(`${apiBaseUrl}/rate_limit`, {
-            headers: {
-              'Authorization': `token ${token}`,
-              'Accept': 'application/vnd.github.v3+json'
-            }
-          });
-          
-          console.log('API token validation response status:', response.status);
-          console.log('API token validation response headers:', Object.fromEntries(response.headers));
-          
-          // 获取响应内容
-          try {
-            const responseData = await response.json();
-            console.log('API token validation response data:', responseData);
-          } catch (jsonError) {
-            console.error('Error parsing response JSON:', jsonError);
-          }
-          
-          // 检查响应状态
-          if (response.status === 200) {
-            console.log('API token validation successful');
-            return true;
-          } else if (response.status === 401) {
-            console.log('API token validation failed: Unauthorized');
-            return false;
-          } else {
-            console.log('API token validation failed with status:', response.status);
-            return false;
-          }
-        } catch (error) {
-          console.error('Validate API token error:', error);
-          console.error('Error details:', error.message);
-          console.error('Error stack:', error.stack);
-          // 网络错误时，允许用户继续，因为令牌可能是有效的
-          console.log('Network error during validation, allowing token to be saved');
-          return true;
-        }
       }
       
       async scanFiles() {
@@ -1064,408 +1039,6 @@
           if (scanBtn) scanBtn.disabled = false;
           if (scanNewBtn) scanNewBtn.disabled = false;
         }
-      }
-      
-      async scanNewProducts() {
-        const scanBtn = document.getElementById('btn-scan');
-        const scanNewBtn = document.getElementById('btn-scan-new');
-        
-        if (scanBtn) scanBtn.disabled = true;
-        if (scanNewBtn) scanNewBtn.disabled = true;
-        
-        try {
-          this.showStatus('正在扫描新增产品...', 'info');
-          
-          await this.loadSeriesNameMap();
-          
-          const series = await GH5.githubAPI.fetchDirectory('产品图');
-          this.series = series.filter(item => item.type === 'dir');
-          
-          let newProductsFound = 0;
-          const newProducts = [];
-          
-          for (const seriesItem of this.series) {
-            try {
-              let productsFile;
-              try {
-                productsFile = await GH5.githubAPI.fetchFile(`${seriesItem.path}/products.json`);
-              } catch (error) {
-                productsFile = { products: {} };
-              }
-              
-              const files = await GH5.githubAPI.fetchDirectory(seriesItem.path);
-              const imageFiles = files.filter(file => {
-                const ext = file.name.split('.').pop().toLowerCase();
-                return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
-              });
-              
-              const existingProductImages = new Set(Object.keys(productsFile.products || {}));
-              
-              for (const file of imageFiles) {
-                if (!existingProductImages.has(file.name)) {
-                  const productName = this.extractProductName(file.name);
-                  newProducts.push({
-                    seriesId: seriesItem.name,
-                    image: file.name,
-                    name: productName,
-                    seriesName: this.seriesNameMap[seriesItem.name] || seriesItem.name
-                  });
-                  newProductsFound++;
-                }
-              }
-            } catch (error) {
-              console.warn(`扫描系列 ${seriesItem.name} 失败:`, error);
-            }
-          }
-          
-          if (newProductsFound === 0) {
-            this.showStatus('没有发现新增产品', 'info');
-          } else {
-            this.showStatus(`发现 ${newProductsFound} 个新增产品`, 'success');
-            
-            let message = `发现 ${newProductsFound} 个新增产品：\n\n`;
-            newProducts.forEach((p, i) => {
-              message += `${i + 1}. ${p.name} (${p.seriesName})\n`;
-            });
-            message += '\n点击"确定"跳转到产品管理页面进行编辑';
-            
-            if (confirm(message)) {
-              const firstNewProduct = newProducts[0];
-              this.currentSeries = firstNewProduct.seriesId;
-              
-              // 先将新增产品保存到 products.json
-              await this.saveNewProducts(newProducts);
-              
-              // 更新系列选择器
-              const seriesSelect = document.getElementById('series-select');
-              if (seriesSelect) {
-                seriesSelect.value = firstNewProduct.seriesId;
-              }
-              
-              // 重新扫描文件以加载最新数据
-              await this.scanFiles();
-              
-              // 找到并编辑新增产品
-              const productItem = this.products.find(p => p.image === firstNewProduct.image && p.seriesId === firstNewProduct.seriesId);
-              if (productItem) {
-                this.editProduct(productItem.id, productItem.seriesId);
-              }
-            }
-          }
-          
-        } catch (error) {
-          console.error('Scan new products error:', error);
-          let errorMessage = '扫描新增产品失败: ' + error.message;
-          if (error.status === 401 || error.status === 403) {
-            errorMessage = 'API 密钥无效或已过期，请点击"设置 API 密钥"按钮重新设置';
-          } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
-            errorMessage = 'API 请求频率超限，请稍后再试';
-          } else if (error.status === 404) {
-            errorMessage = '文件路径不存在';
-          } else if (error.status === 422) {
-            errorMessage = '数据格式错误，请检查输入';
-          }
-          this.showStatus(errorMessage, 'error');
-        } finally {
-          const scanBtn = document.getElementById('btn-scan');
-          const scanNewBtn = document.getElementById('btn-scan-new');
-          if (scanBtn) scanBtn.disabled = false;
-          if (scanNewBtn) scanNewBtn.disabled = false;
-        }
-      }
-      
-      async saveNewProducts(newProducts) {
-        try {
-          this.showStatus('正在保存新增产品...', 'info');
-          
-          // 按系列分组
-          const productsBySeries = {};
-          newProducts.forEach(product => {
-            if (!productsBySeries[product.seriesId]) {
-              productsBySeries[product.seriesId] = [];
-            }
-            productsBySeries[product.seriesId].push(product);
-          });
-          
-          // 对每个系列保存产品
-          for (const [seriesId, products] of Object.entries(productsBySeries)) {
-            const series = this.series.find(s => s.name === seriesId);
-            if (!series) {
-              console.warn(`系列 ${seriesId} 不存在`);
-              continue;
-            }
-            
-            // 获取现有的 products.json 文件
-            let productsFile;
-            try {
-              productsFile = await GH5.githubAPI.fetchFile(`${series.path}/products.json`);
-            } catch (error) {
-              productsFile = { products: {} };
-            }
-            
-            // 添加新增产品
-            products.forEach(product => {
-              if (!productsFile.products) {
-                productsFile.products = {};
-              }
-              
-              productsFile.products[product.image] = {
-                name: product.name,
-                description: '',
-                price: '',
-                tags: [],
-                materials: {
-                  upper: '',
-                  lining: '',
-                  sole: ''
-                },
-                customizable: '',
-                minOrder: ''
-              };
-            });
-            
-            // 保存文件
-            const filePath = `${series.path}/products.json`;
-            const jsonContent = JSON.stringify(productsFile, null, 2);
-            
-            try {
-              await GH5.githubAPI.commitFile(filePath, jsonContent, `Add new products to ${seriesId}`);
-            } catch (error) {
-              if (error.status === 404) {
-                await GH5.githubAPI.commitFile(filePath, jsonContent, `Create products.json for ${seriesId}`);
-              } else {
-                throw error;
-              }
-            }
-          }
-          
-          // 清除缓存
-          GH5.cacheManager.clearAll();
-          
-          this.showStatus(`成功保存 ${newProducts.length} 个新增产品`, 'success');
-        } catch (error) {
-          console.error('Save new products error:', error);
-          let errorMessage = '保存新增产品失败: ' + error.message;
-          if (error.status === 401 || error.status === 403) {
-            errorMessage = 'API 密钥无效或已过期，请点击"设置 API 密钥"按钮重新设置';
-          } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
-            errorMessage = 'API 请求频率超限，请稍后再试';
-          } else if (error.status === 404) {
-            errorMessage = '文件路径不存在';
-          } else if (error.status === 422) {
-            errorMessage = '数据格式错误，请检查输入';
-          }
-          this.showStatus(errorMessage, 'error');
-          throw error;
-        }
-      }
-      
-      async saveProductHistory(seriesId, imageFileName, newData) {
-        try {
-          const HISTORY_MAX_ENTRIES = 100;
-          const historyPath = '产品图/.history';
-          const timestamp = new Date().toISOString();
-          
-          let historyFile;
-          try {
-            historyFile = await GH5.githubAPI.fetchFile(`${historyPath}/products-history.json`);
-          } catch (error) {
-            historyFile = { history: [] };
-          }
-          
-          if (newData) {
-            const historyEntry = {
-              timestamp: timestamp,
-              seriesId: seriesId,
-              imageFileName: imageFileName,
-              data: {
-                name: newData.name,
-                description: newData.description,
-                price: newData.price,
-                tags: newData.tags,
-                materials: {
-                  upper: newData.upperMaterial,
-                  lining: newData.innerMaterial,
-                  sole: newData.soleMaterial
-                },
-                customizable: newData.customizable,
-                minOrder: newData.minOrder
-              }
-            };
-            
-            if (!historyFile.history) {
-              historyFile.history = [];
-            }
-            
-            historyFile.history.unshift(historyEntry);
-            
-            if (historyFile.history.length > HISTORY_MAX_ENTRIES) {
-              historyFile.history = historyFile.history.slice(0, HISTORY_MAX_ENTRIES);
-            }
-            
-            const jsonContent = JSON.stringify(historyFile, null, 2);
-            await GH5.githubAPI.commitFile(`${historyPath}/products-history.json`, jsonContent, `Save product history: ${imageFileName}`);
-          }
-        } catch (error) {
-          console.warn('保存产品历史记录失败:', error);
-        }
-      }
-      
-      async viewProductHistory(seriesId, imageFileName) {
-        try {
-          const historyPath = '产品图/.history';
-          let historyFile;
-          try {
-            historyFile = await GH5.githubAPI.fetchFile(`${historyPath}/products-history.json`);
-          } catch (error) {
-            alert('暂无历史记录');
-            return;
-          }
-          
-          if (!historyFile.history || historyFile.history.length === 0) {
-            alert('暂无历史记录');
-            return;
-          }
-          
-          const productHistory = historyFile.history.filter(h => 
-            h.seriesId === seriesId && h.imageFileName === imageFileName
-          );
-          
-          if (productHistory.length === 0) {
-            alert('暂无该产品的历史记录');
-            return;
-          }
-          
-          let message = `产品 "${imageFileName}" 的历史记录：\n\n`;
-          productHistory.forEach((entry, index) => {
-            const date = new Date(entry.timestamp).toLocaleString();
-            message += `--- 第 ${index + 1} 次修改 (${date}) ---\n`;
-            if (entry.data) {
-              message += `名称: ${entry.data.name || '无'}\n`;
-              message += `价格: ${entry.data.price || '无'}\n`;
-              message += `描述: ${entry.data.description || '无'}\n`;
-            }
-            message += '\n';
-          });
-          
-          alert(message);
-        } catch (error) {
-          console.error('查看历史记录失败:', error);
-          alert('查看历史记录失败: ' + error.message);
-        }
-      }
-      
-      async regenerateAllJson() {
-        const confirmed = confirm('确定要重新生成所有 products.json 文件吗？\n\n此操作将：\n1. 扫描每个系列目录下的所有图片\n2. 自动根据图片文件名生成产品数据\n3. 覆盖现有的 products.json 文件\n\n建议：此操作前请备份现有数据！');
-        
-        if (!confirmed) return;
-        
-        try {
-          this.showStatus('开始重新生成 JSON 文件...', 'info');
-          
-          // 加载系列名称映射
-          await this.loadSeriesNameMap();
-          
-          // 获取所有系列
-          const series = await GH5.githubAPI.fetchDirectory('产品图');
-          this.series = series.filter(item => item.type === 'dir');
-          
-          let successCount = 0;
-          let errorCount = 0;
-          
-          for (const seriesItem of this.series) {
-            try {
-              await this.regenerateSeriesJson(seriesItem);
-              successCount++;
-              this.showStatus(`正在处理: ${seriesItem.name} (${successCount}/${this.series.length})`, 'info');
-            } catch (error) {
-              console.error(`Failed to regenerate JSON for ${seriesItem.name}:`, error);
-              errorCount++;
-            }
-          }
-          
-          this.showStatus(`JSON 重新生成完成！成功: ${successCount}, 失败: ${errorCount}`, 'success');
-          
-          // 重新扫描以更新数据
-          await this.scanFiles();
-        } catch (error) {
-          console.error('Regenerate all JSON error:', error);
-          this.showStatus('重新生成 JSON 失败: ' + error.message, 'error');
-        }
-      }
-      
-      async regenerateSeriesJson(seriesItem) {
-        // 扫描系列目录下的图片文件
-        const files = await GH5.githubAPI.fetchDirectory(seriesItem.path);
-        const imageFiles = files.filter(file => {
-          const ext = file.name.split('.').pop().toLowerCase();
-          return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
-        });
-        
-        // 按产品分组图片
-        const productGroups = {};
-        
-        imageFiles.forEach(file => {
-          const productName = this.extractProductName(file.name);
-          if (!productGroups[productName]) {
-            productGroups[productName] = [];
-          }
-          productGroups[productName].push(file.name);
-        });
-        
-        // 生成产品数据
-        const products = {};
-        const order = [];
-        
-        Object.entries(productGroups).forEach(([productName, images]) => {
-          const mainImage = images.find(img => this.isMainImage(img)) || images[0];
-          order.push(productName);
-          
-          products[mainImage] = {
-            name: {
-              zh: productName,
-              en: productName,
-              ko: productName
-            },
-            description: {
-              zh: `${productName} - 高品质产品`,
-              en: `${productName} - High quality product`,
-              ko: `${productName} - 고품질 제품`
-            },
-            price: '',
-            materials: {
-              upper: '',
-              lining: '',
-              sole: ''
-            },
-            tags: [],
-            customizable: false,
-            minimumOrder: 1
-          };
-        });
-        
-        // 构建 JSON 文件内容
-        const seriesJson = {
-          seriesName: {
-            zh: seriesItem.name,
-            en: seriesItem.name,
-            ko: seriesItem.name
-          },
-          displayName: {
-            zh: this.seriesNameMap[seriesItem.name] || seriesItem.name,
-            en: this.seriesNameMap[seriesItem.name] || seriesItem.name,
-            ko: this.seriesNameMap[seriesItem.name] || seriesItem.name
-          },
-          products: products,
-          order: order
-        };
-        
-        // 保存到 GitHub
-        const filePath = `${seriesItem.path}/products.json`;
-        const jsonContent = JSON.stringify(seriesJson, null, 2);
-        await GH5.githubAPI.commitFile(filePath, jsonContent, `Regenerate products.json for ${seriesItem.name}`);
-        
-        return seriesJson;
       }
       
       async loadSeriesNameMap() {
@@ -1673,205 +1246,98 @@
           });
           
           // 渲染未在排序中的产品组
-          productGroups.forEach(([productName, productGroup]) => {
-            if (!productOrder.includes(productName)) {
-              this.renderProductGroup(productName, productGroup, fileList);
+          productGroups.forEach(([groupName, group]) => {
+            if (!productOrder.includes(groupName)) {
+              this.renderProductGroup(groupName, group, fileList);
             }
           });
         } else {
-          // 没有排序信息，直接渲染所有产品组
-          productGroups.forEach(([productName, productGroup]) => {
-            this.renderProductGroup(productName, productGroup, fileList);
+          // 没有排序信息，按默认顺序渲染
+          productGroups.forEach(([groupName, group]) => {
+            this.renderProductGroup(groupName, group, fileList);
           });
         }
       }
       
-      // 渲染产品组
-      renderProductGroup(productName, productGroup, fileList) {
-          // 分离主图和其他图片
-          const mainImage = productGroup.find(p => p.isMainImage);
-          const otherImages = productGroup.filter(p => !p.isMainImage);
-          
-          // 创建产品组容器
-          const groupContainer = document.createElement('li');
-          groupContainer.className = 'file-item';
-          groupContainer.draggable = true;
-          groupContainer.style.borderBottom = '2px solid #e9ecef';
-          groupContainer.style.padding = '20px';
-          groupContainer.style.marginBottom = '10px';
-          groupContainer.style.backgroundColor = '#fff';
-          groupContainer.style.borderRadius = '8px';
-          groupContainer.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-          groupContainer.dataset.productName = productName;
-          
-          // 产品组标题和折叠按钮
-          const groupHeader = document.createElement('div');
-          groupHeader.style.display = 'flex';
-          groupHeader.style.justifyContent = 'space-between';
-          groupHeader.style.alignItems = 'center';
-          groupHeader.style.marginBottom = '15px';
-          
-          const groupTitle = document.createElement('div');
-          groupTitle.style.fontWeight = 'bold';
-          groupTitle.style.fontSize = '16px';
-          groupTitle.textContent = `产品: ${productGroup[0].name}`;
-          
-          const toggleBtn = document.createElement('button');
-          toggleBtn.className = 'btn-toggle';
-          toggleBtn.textContent = otherImages.length > 0 ? `展开其他图片 (${otherImages.length})` : '无其他图片';
-          toggleBtn.disabled = otherImages.length === 0;
-          toggleBtn.onclick = () => this.toggleProductImages(productName);
-          
-          groupHeader.appendChild(groupTitle);
-          groupHeader.appendChild(toggleBtn);
-          groupContainer.appendChild(groupHeader);
-          
-          // 主图容器（始终显示）
-          const mainImageContainer = document.createElement('div');
-          mainImageContainer.className = 'main-image-container';
-          mainImageContainer.style.display = 'flex';
-          mainImageContainer.style.flexWrap = 'wrap';
-          mainImageContainer.style.gap = '15px';
-          mainImageContainer.style.marginBottom = '10px';
-          
-          if (mainImage) {
-            const seriesDisplayName = this.seriesNameMap[mainImage.seriesId] || mainImage.seriesId;
-            const imageItem = document.createElement('div');
-            imageItem.style.display = 'flex';
-            imageItem.style.alignItems = 'center';
-            imageItem.style.gap = '10px';
-            imageItem.style.padding = '10px';
-            imageItem.style.backgroundColor = '#e8f5e9';
-            imageItem.style.borderRadius = '4px';
-            imageItem.style.minWidth = '300px';
-            imageItem.style.border = '2px solid #4caf50';
-            
-            const imageUrl = this.getImageUrl(mainImage.seriesId, mainImage.image);
-            
-            imageItem.innerHTML = `
-              <div style="width: 60px; height: 60px; overflow: hidden; border-radius: 4px;">
-                <img src="${imageUrl}" alt="${mainImage.name}" style="width: 100%; height: 100%; object-fit: cover;">
-              </div>
-              <div style="flex: 1;">
-                <strong>${mainImage.image}</strong><span style="color: green; font-size: 12px; margin-left: 5px;">(主图)</span>
-                <br>
-                <small>系列: ${seriesDisplayName}</small>
-              </div>
-              <div class="file-actions">
-                <button class="btn-edit" data-product-id="${mainImage.id}" data-series-id="${mainImage.seriesId}">编辑</button>
-                <button class="btn-view" data-product-id="${mainImage.id}" data-series-id="${mainImage.seriesId}">查看</button>
-              </div>
-            `;
-            
-            mainImageContainer.appendChild(imageItem);
-          }
-          
-          groupContainer.appendChild(mainImageContainer);
-          
-          // 其他图片容器（可折叠）
-          if (otherImages.length > 0) {
-            const otherImagesContainer = document.createElement('div');
-            otherImagesContainer.className = 'other-images-container';
-            otherImagesContainer.dataset.productName = productName;
-            otherImagesContainer.style.display = 'none';
-            otherImagesContainer.style.flexWrap = 'wrap';
-            otherImagesContainer.style.gap = '15px';
-            otherImagesContainer.style.padding = '15px';
-            otherImagesContainer.style.marginTop = '15px';
-            otherImagesContainer.style.backgroundColor = '#f8f9fa';
-            otherImagesContainer.style.borderRadius = '8px';
-            otherImagesContainer.style.border = '1px solid #dee2e6';
-            otherImagesContainer.style.maxHeight = '500px';
-            otherImagesContainer.style.overflowY = 'auto';
-            
-            otherImages.forEach(product => {
-              const seriesDisplayName = this.seriesNameMap[product.seriesId] || product.seriesId;
-              
-              const imageItem = document.createElement('div');
-              imageItem.style.display = 'flex';
-              imageItem.style.alignItems = 'center';
-              imageItem.style.gap = '10px';
-              imageItem.style.padding = '8px';
-              imageItem.style.backgroundColor = '#ffffff';
-              imageItem.style.borderRadius = '6px';
-              imageItem.style.minWidth = '250px';
-              imageItem.style.border = '1px solid #e9ecef';
-              imageItem.style.transition = 'box-shadow 0.2s';
-              
-              imageItem.onmouseenter = () => {
-                imageItem.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-              };
-              imageItem.onmouseleave = () => {
-                imageItem.style.boxShadow = 'none';
-              };
-              
-              const imageUrl = this.getImageUrl(product.seriesId, product.image);
-              
-              imageItem.innerHTML = `
-                <div style="width: 45px; height: 45px; overflow: hidden; border-radius: 4px; flex-shrink: 0;">
-                  <img src="${imageUrl}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div style="flex: 1; min-width: 0;">
-                  <div style="font-weight: 500; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${product.image}</div>
-                  <small style="color: #666;">系列: ${seriesDisplayName}</small>
-                </div>
-                <div class="file-actions" style="flex-shrink: 0;">
-                  <button class="btn-view" data-product-id="${product.id}" data-series-id="${product.seriesId}">查看</button>
-                </div>
-              `;
-              
-              otherImagesContainer.appendChild(imageItem);
-            });
-            
-            groupContainer.appendChild(otherImagesContainer);
-          }
-          
-          fileList.appendChild(groupContainer);
+      renderProductGroup(productName, products, container) {
+        const mainProduct = products.find(p => p.isMainImage) || products[0];
+        if (!mainProduct) return;
+        
+        const productItem = document.createElement('li');
+        productItem.className = 'file-item';
+        productItem.draggable = true;
+        productItem.dataset.productName = productName;
+        
+        const imageUrl = this.getImageUrl(mainProduct.seriesId, mainProduct.image);
+        
+        productItem.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="${imageUrl}" alt="${productName}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+            <div style="flex: 1;">
+              <h4 style="margin: 0 0 5px 0;">${mainProduct.name}</h4>
+              <p style="margin: 0; font-size: 12px; color: #666;">系列: ${this.seriesNameMap[mainProduct.seriesId] || mainProduct.seriesId}</p>
+            </div>
+            <div class="file-actions">
+              <button class="btn-edit" data-product-id="${mainProduct.id}" data-series-id="${mainProduct.seriesId}">编辑</button>
+              <button class="btn-view" data-product-id="${mainProduct.id}" data-series-id="${mainProduct.seriesId}">查看</button>
+              <button class="btn-toggle">图片</button>
+            </div>
+          </div>
+          <div class="other-images-container" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; display: none;">
+            <h5 style="margin: 0 0 10px 0; font-size: 14px;">所有图片</h5>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              ${products.map(product => {
+                const imgUrl = this.getImageUrl(product.seriesId, product.image);
+                return `
+                  <div style="text-align: center;">
+                    <img src="${imgUrl}" alt="${product.image}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
+                    <p style="margin: 5px 0 0 0; font-size: 11px; color: #666;">${product.image}</p>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+        
+        container.appendChild(productItem);
       }
       
-      // 切换单个产品的其他图片显示/隐藏
       toggleProductImages(productName) {
-        const container = document.querySelector(`.other-images-container[data-product-name="${productName}"]`);
-        const btn = document.querySelector(`li[data-product-name="${productName}"] .btn-toggle`);
-        
-        if (container) {
-          if (container.style.display === 'none') {
-            container.style.display = 'flex';
-            if (btn) btn.textContent = '折叠其他图片';
-          } else {
-            container.style.display = 'none';
-            if (btn) {
-              const count = container.children.length;
-              btn.textContent = `展开其他图片 (${count})`;
+        const productItem = document.querySelector(`.file-item[data-product-name="${productName}"]`);
+        if (productItem) {
+          const imagesContainer = productItem.querySelector('.other-images-container');
+          if (imagesContainer) {
+            if (imagesContainer.style.display === 'none' || imagesContainer.style.display === '') {
+              imagesContainer.style.display = 'block';
+            } else {
+              imagesContainer.style.display = 'none';
             }
           }
         }
       }
       
-      // 一键切换所有产品的其他图片显示/隐藏
       toggleAllImages() {
         const allContainers = document.querySelectorAll('.other-images-container');
-        const allButtons = document.querySelectorAll('.file-item .btn-toggle');
+        let allVisible = true;
         
-        // 检查当前状态（如果有一个是显示的，就全部折叠；否则全部展开）
-        const anyVisible = Array.from(allContainers).some(container => container.style.display !== 'none');
-        
-        allContainers.forEach((container, index) => {
-          if (anyVisible) {
-            // 全部折叠
-            container.style.display = 'none';
-            const count = container.children.length;
-            if (allButtons[index]) {
-              allButtons[index].textContent = `展开其他图片 (${count})`;
-            }
-          } else {
-            // 全部展开
-            container.style.display = 'flex';
-            if (allButtons[index]) {
-              allButtons[index].textContent = '折叠其他图片';
-            }
+        // 检查是否所有图片都已展开
+        allContainers.forEach(container => {
+          if (container.style.display === 'none' || container.style.display === '') {
+            allVisible = false;
           }
         });
+        
+        // 如果所有都已展开，则折叠所有
+        if (allVisible) {
+          allContainers.forEach(container => {
+            container.style.display = 'none';
+          });
+        } else {
+          // 否则展开所有
+          allContainers.forEach(container => {
+            container.style.display = 'block';
+          });
+        }
       }
       
       updateSystemStatus() {
@@ -1880,38 +1346,25 @@
       }
       
       updateSeriesSelect() {
-        const select = document.getElementById('product-series');
-        select.innerHTML = '';
-        
-        this.series.forEach(seriesItem => {
-          const displayName = this.seriesNameMap[seriesItem.name] || seriesItem.name;
-          const option = document.createElement('option');
-          option.value = seriesItem.name;
-          option.textContent = displayName;
-          select.appendChild(option);
-        });
+        const seriesSelect = document.getElementById('product-series');
+        if (seriesSelect) {
+          seriesSelect.innerHTML = '';
+          this.series.forEach(seriesItem => {
+            const option = document.createElement('option');
+            option.value = seriesItem.name;
+            option.textContent = this.seriesNameMap[seriesItem.name] || seriesItem.name;
+            seriesSelect.appendChild(option);
+          });
+        }
       }
       
       editProduct(productId, seriesId) {
         const product = this.products.find(p => p.id === productId && p.seriesId === seriesId);
         if (product) {
           this.currentEditingProduct = product;
-          
-          // 处理产品名称
-          if (product.name && typeof product.name === 'object') {
-            document.getElementById('product-name').value = product.name.zh || '';
-          } else {
-            document.getElementById('product-name').value = product.name || '';
-          }
-          
-          // 处理产品描述
-          if (product.description && typeof product.description === 'object') {
-            document.getElementById('product-description').value = product.description.zh || '';
-          } else {
-            document.getElementById('product-description').value = product.description || '';
-          }
-          
+          document.getElementById('product-name').value = product.name || '';
           document.getElementById('product-price').value = product.price || '';
+          document.getElementById('product-description').value = product.description || '';
           document.getElementById('product-upper-material').value = product.upperMaterial || '';
           document.getElementById('product-inner-material').value = product.innerMaterial || '';
           document.getElementById('product-sole-material').value = product.soleMaterial || '';
@@ -1923,642 +1376,46 @@
         }
       }
       
-      async saveProduct() {
-        try {
-          // 获取中文输入
-          const name = document.getElementById('product-name').value.trim();
-          const description = document.getElementById('product-description').value.trim();
-          const priceInput = document.getElementById('product-price');
-          const tagsInput = document.getElementById('product-tags');
-          
-          const price = priceInput ? priceInput.value.trim() : '';
-          
-          if (!name) {
-            this.showStatus('产品名称不能为空', 'error');
-            return;
-          }
-          
-          if (name.length > 200) {
-            this.showStatus('产品名称不能超过 200 个字符', 'error');
-            return;
-          }
-          
-          if (description.length > 1000) {
-            this.showStatus('产品描述不能超过 1000 个字符', 'error');
-            return;
-          }
-          
-          if (price && !/^\d+(\.\d{1,2})?$/.test(price)) {
-            this.showStatus('价格格式不正确，请输入有效的数字', 'error');
-            return;
-          }
-          
-          const tags = tagsInput ? tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-          
-          if (tags.length > 10) {
-            this.showStatus('标签数量不能超过 10 个', 'error');
-            return;
-          }
-          
-          const formData = {
-            name: name,
-            description: description,
-            price: price,
-            tags: tags,
-            upperMaterial: document.getElementById('product-upper-material').value,
-            innerMaterial: document.getElementById('product-inner-material').value,
-            soleMaterial: document.getElementById('product-sole-material').value,
-            customizable: document.getElementById('product-customizable').value,
-            minOrder: document.getElementById('product-min-order').value,
-            seriesId: document.getElementById('product-series').value,
-            image: document.getElementById('product-image').value
-          };
-          
-          // 找到对应的系列
-          const series = this.series.find(s => s.name === formData.seriesId);
-          if (!series) {
-            throw new Error('系列不存在');
-          }
-          
-          // 清除该系列 products.json 的缓存
-          GH5.cacheManager.clear(`${series.path}/products.json`);
-          
-          // 获取现有的 products.json 文件
-          let productsFile;
-          try {
-            productsFile = await GH5.githubAPI.fetchFile(`${series.path}/products.json`);
-          } catch (error) {
-            // 如果文件不存在，创建新文件
-            productsFile = { products: {} };
-          }
-          
-          // 提取产品名称
-          const productName = this.extractProductName(formData.image);
-          
-          // 获取系列目录下的所有图片文件
-          const files = await GH5.githubAPI.fetchDirectory(series.path);
-          const imageFiles = files.filter(file => {
-            const ext = file.name.split('.').pop().toLowerCase();
-            return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
-          });
-          
-          // 找到同组的所有图片
-          const sameGroupImages = imageFiles.filter(file => {
-            return this.extractProductName(file.name) === productName;
-          });
-          
-          // 更新同组的所有图片产品数据
-          sameGroupImages.forEach(file => {
-            productsFile.products[file.name] = {
-              name: {
-                zh: formData.name,
-                en: formData.name,
-                ko: formData.name
-              },
-              description: {
-                zh: formData.description,
-                en: formData.description,
-                ko: formData.description
-              },
-              price: formData.price,
-              tags: formData.tags,
-              materials: {
-                upper: formData.upperMaterial,
-                lining: formData.innerMaterial,
-                sole: formData.soleMaterial
-              },
-              customizable: formData.customizable === 'true',
-              minimumOrder: parseInt(formData.minOrder) || 1
-            };
-          });
-          
-          // 保存文件
-          const filePath = `${series.path}/products.json`;
-          const jsonContent = JSON.stringify(productsFile, null, 2);
-          
-          try {
-            // 尝试更新文件
-            await GH5.githubAPI.commitFile(filePath, jsonContent, `Update product: ${formData.name}`);
-          } catch (error) {
-            // 如果更新失败（可能是文件不存在），尝试创建文件
-            if (error.status === 404) {
-              await GH5.githubAPI.commitFile(filePath, jsonContent, `Create product: ${formData.name}`);
-            } else {
-              throw error;
-            }
-          }
-          
-          // 产品保存成功后，保存历史记录
-          await this.saveProductHistory(formData.seriesId, formData.image, formData);
-          
-          this.showStatus('产品保存成功，同组图片已自动更新', 'success');
-          this.scanFiles(); // 重新扫描以更新数据
-          // 清除首页缓存，确保首页显示最新数据
-          GH5.cacheManager.clearAll();
-        } catch (error) {
-          console.error('Save product error:', error);
-          let errorMessage = '保存失败';
-          let suggestion = '';
-          
-          if (!error) {
-            errorMessage = '未知错误';
-          } else if (error.status === 401 || error.status === 403) {
-            errorMessage = 'API 密钥无效或已过期';
-            suggestion = '请点击"设置 API 密钥"按钮重新设置';
-          } else if (error.status === 404) {
-            errorMessage = '文件或目录不存在';
-            suggestion = '请检查产品图目录结构是否正确';
-          } else if (error.status === 422) {
-            errorMessage = '数据格式错误';
-            suggestion = '请检查输入内容是否包含特殊字符';
-          } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
-            errorMessage = 'API 请求频率超限';
-            suggestion = '请稍后再试，或检查 API 配额';
-          } else if (error.message && (error.message.includes('network') || error.message.includes('Network'))) {
-            errorMessage = '网络连接失败';
-            suggestion = '请检查网络连接后重试';
-          } else if (error.message) {
-            errorMessage = error.message;
-          }
-          
-          this.showStatus(`${errorMessage}${suggestion ? ' - ' + suggestion : ''}`, 'error');
-        }
-      }
-      
-      async deleteProduct(productId, seriesId) {
-        if (confirm('确定要删除这个产品吗？')) {
-          try {
-            // 找到对应的系列
-            const series = this.series.find(s => s.name === seriesId);
-            if (!series) {
-              throw new Error('系列不存在');
-            }
-            
-            // 获取现有的 products.json 文件
-            const productsFile = await GH5.githubAPI.fetchFile(`${series.path}/products.json`);
-            if (!productsFile || !productsFile.products) {
-              throw new Error('产品数据文件不存在');
-            }
-            
-            // 删除产品
-            delete productsFile.products[productId];
-            
-            // 保存文件
-            const filePath = `${series.path}/products.json`;
-            const jsonContent = JSON.stringify(productsFile, null, 2);
-            
-            await GH5.githubAPI.commitFile(filePath, jsonContent, `Delete product: ${productId}`);
-            
-            this.showStatus('产品删除成功', 'success');
-            this.scanFiles(); // 重新扫描以更新数据
-          } catch (error) {
-            console.error('Delete product error:', error);
-            this.showStatus('删除失败: ' + error.message, 'error');
-          }
-        }
-      }
-      
-      // 保存系列排序
-      async saveSeriesOrder() {
-        try {
-          const seriesList = document.getElementById('series-list');
-          const seriesCards = seriesList.querySelectorAll('.series-card');
-          const seriesOrder = Array.from(seriesCards).map(card => card.dataset.seriesName);
-          
-          // 先获取现有的配置文件，以保留其他数据（如 seriesNameMap）
-          let configFile = {};
-          try {
-            const existingConfig = await GH5.githubAPI.fetchFile('config.json');
-            if (existingConfig) {
-              configFile = existingConfig;
-            }
-          } catch (error) {
-            // 文件不存在，使用空对象
-            console.log('Config file not found, creating new one');
-          }
-          
-          // 更新系列顺序
-          configFile.seriesOrder = seriesOrder;
-          
-          const filePath = 'config.json';
-          const jsonContent = JSON.stringify(configFile, null, 2);
-          
-          try {
-            await GH5.githubAPI.commitFile(filePath, jsonContent, 'Update series order');
-          } catch (error) {
-            if (error.status === 404) {
-              await GH5.githubAPI.commitFile(filePath, jsonContent, 'Create config file for series order');
-            } else {
-              throw error;
-            }
-          }
-          
-          this.showStatus('系列排序保存成功', 'success');
-          this.scanFiles(); // 重新扫描以更新数据
-        } catch (error) {
-          console.error('Save series order error:', error);
-          this.showStatus('保存系列排序失败: ' + error.message, 'error');
-        }
-      }
-      
-      // 保存产品排序
-      async saveProductOrder() {
-        try {
-          if (!this.currentSeries) {
-            this.showStatus('请先选择一个系列', 'error');
-            return;
-          }
-          
-          const fileList = document.getElementById('file-list');
-          const productItems = fileList.querySelectorAll('.file-item');
-          const productOrder = Array.from(productItems).map(item => {
-            // 从产品组中提取产品名称（使用data属性）
-            return item.dataset.productName;
-          });
-          
-          // 找到对应的系列
-          const series = this.series.find(s => s.name === this.currentSeries);
-          if (!series) {
-            throw new Error('系列不存在');
-          }
-          
-          // 获取现有的 products.json 文件
-          let productsFile;
-          try {
-            productsFile = await GH5.githubAPI.fetchFile(`${series.path}/products.json`);
-          } catch (error) {
-            throw new Error('产品文件不存在');
-          }
-          
-          // 添加排序信息
-          productsFile.order = productOrder;
-          
-          // 保存文件
-          const filePath = `${series.path}/products.json`;
-          const jsonContent = JSON.stringify(productsFile, null, 2);
-          await GH5.githubAPI.commitFile(filePath, jsonContent, `Update product order for series: ${this.currentSeries}`);
-          
-          this.showStatus('产品排序保存成功', 'success');
-          this.scanFiles(); // 重新扫描以更新数据
-        } catch (error) {
-          console.error('Save product order error:', error);
-          this.showStatus('保存产品排序失败: ' + error.message, 'error');
-        }
-      }
-      
       viewProduct(productId, seriesId) {
         const product = this.products.find(p => p.id === productId && p.seriesId === seriesId);
         if (product) {
-          alert(`产品信息:\n名称: ${product.name}\n描述: ${product.description || '无'}\n价格: ${product.price || '无'}\n材质: ${product.materials || '无'}\n系列: ${product.seriesId}\n图片: ${product.image}`);
-        }
-      }
-      
-      async editSeries(seriesName) {
-        // 获取系列相关信息
-        const series = this.series.find(s => s.name === seriesName);
-        const seriesProducts = this.products.filter(p => p.seriesId === seriesName);
-        
-        // 获取当前显示名称
-        let currentDisplayName = seriesName;
-        try {
-          const productsFile = await GH5.githubAPI.fetchFile(`${series.path}/products.json`);
-          if (productsFile && productsFile.displayName) {
-            currentDisplayName = productsFile.displayName.zh || seriesName;
-          }
-        } catch (error) {
-          console.warn('Failed to load products.json for series:', error);
-        }
-        
-        // 构建提示信息
-        const infoMessage = `系列信息:\n` +
-          `文件夹名称: ${seriesName}\n` +
-          `当前显示名称: ${currentDisplayName}\n` +
-          `产品数量: ${seriesProducts.length}\n` +
-          `文件夹路径: ${series ? series.path : '未知'}\n\n` +
-          `请输入新的系列显示名称:`;
-        
-        const newDisplayName = prompt(infoMessage, currentDisplayName);
-        if (newDisplayName && newDisplayName !== currentDisplayName) {
-          try {
-            // 获取现有的 products.json 文件
-            let productsFile;
-            try {
-              productsFile = await GH5.githubAPI.fetchFile(`${series.path}/products.json`);
-            } catch (error) {
-              // 如果文件不存在，创建新文件
-              productsFile = {
-                seriesName: {
-                  zh: seriesName,
-                  en: seriesName,
-                  ko: seriesName
-                },
-                products: {}
-              };
-            }
-            
-            // 更新显示名称
-            productsFile.displayName = {
-              zh: newDisplayName,
-              en: newDisplayName,
-              ko: newDisplayName
-            };
-            
-            // 保存文件
-            const filePath = `${series.path}/products.json`;
-            const jsonContent = JSON.stringify(productsFile, null, 2);
-            
-            try {
-              await GH5.githubAPI.commitFile(filePath, jsonContent, `Update series display name: ${newDisplayName}`);
-            } catch (error) {
-              if (error.status === 404) {
-                await GH5.githubAPI.commitFile(filePath, jsonContent, `Create products.json for series: ${seriesName}`);
-              } else if (error.status === 401 || error.status === 403) {
-                // 对于公开仓库，尝试不使用 API 密钥重新保存
-                try {
-                  console.log('尝试不使用 API 密钥重新保存...');
-                  // 清除 API 密钥
-                  GH5.config.saveApiKey('');
-                  GH5.githubAPI.setToken('');
-                  // 重新保存
-                  await GH5.githubAPI.commitFile(filePath, jsonContent, `Update series display name: ${newDisplayName}`);
-                } catch (retryError) {
-                  throw new Error('API 密钥无效或已过期，但仓库是公开的，尝试无密钥访问失败');
-                }
-              } else {
-                throw error;
-              }
-            }
-            
-            this.showStatus('系列名称更新成功', 'success');
-            this.scanFiles(); // 重新扫描以更新数据
-          } catch (error) {
-            console.error('Edit series error:', error);
-            let errorMessage = '系列名称更新失败: ' + error.message;
-            if (error.status === 401 || error.status === 403) {
-              errorMessage = '系列名称更新失败: API 密钥无效或已过期';
-            }
-            this.showStatus(errorMessage, 'error');
-          }
-        }
-      }
-      
-      async saveSeriesNameMap() {
-        try {
-          // 先获取现有的配置文件，以保留其他数据（如 seriesOrder）
-          let configData = {};
-          try {
-            const existingConfig = await GH5.githubAPI.fetchFile('config.json');
-            if (existingConfig) {
-              configData = existingConfig;
-            }
-          } catch (error) {
-            // 文件不存在，使用空对象
-            console.log('Config file not found, creating new one');
-          }
+          const imageUrl = this.getImageUrl(product.seriesId, product.image);
+          let message = `产品详情：\n\n`;
+          message += `名称: ${product.name || '无'}\n`;
+          message += `价格: ${product.price || '无'}\n`;
+          message += `描述: ${product.description || '无'}\n`;
+          message += `鞋面材质: ${product.upperMaterial || '无'}\n`;
+          message += `内里材质: ${product.innerMaterial || '无'}\n`;
+          message += `鞋底材质: ${product.soleMaterial || '无'}\n`;
+          message += `是否支持定制: ${product.customizable ? '是' : '否'}\n`;
+          message += `起订量: ${product.minOrder || '无'}\n`;
+          message += `标签: ${product.tags ? product.tags.join(', ') : '无'}\n`;
+          message += `系列: ${this.seriesNameMap[product.seriesId] || product.seriesId}\n`;
+          message += `图片: ${product.image}\n`;
+          message += `图片URL: ${imageUrl}\n`;
           
-          // 更新系列名称映射
-          configData.seriesNameMap = this.seriesNameMap;
-          
-          const jsonContent = JSON.stringify(configData, null, 2);
-          
-          try {
-            // 尝试更新配置文件
-            await GH5.githubAPI.commitFile('config.json', jsonContent, 'Update series name map');
-          } catch (error) {
-            // 如果文件不存在，尝试创建文件
-            if (error.status === 404) {
-              await GH5.githubAPI.commitFile('config.json', jsonContent, 'Create config file');
-            } else {
-              throw error;
-            }
-          }
-        } catch (error) {
-          console.error('Save series name map error:', error);
-          throw error;
+          alert(message);
         }
       }
       
-      viewSeries(seriesName) {
-        const seriesProducts = this.products.filter(p => p.seriesId === seriesName);
-        const displayName = this.seriesNameMap[seriesName] || seriesName;
-        let message = `系列: ${displayName}\n产品数量: ${seriesProducts.length}\n\n产品列表:\n`;
-        seriesProducts.forEach(product => {
-          message += `- ${product.name} (${product.image})\n`;
-        });
-        alert(message);
-      }
-      
-      refreshData() {
-        this.scanFiles();
-      }
-      
-      clearCache() {
-        GH5.cacheManager.clearAll();
-        this.loadCacheStatus();
-        this.showStatus('缓存已清除', 'success');
-      }
-      
-      loadCacheStatus() {
-        const cachedData = GH5.cacheManager.get('products_data');
-        const cacheStatus = document.getElementById('cache-status');
-        if (cachedData) {
-          cacheStatus.textContent = '已缓存';
-        } else {
-          cacheStatus.textContent = '未缓存';
-        }
-      }
-      
-      exportData() {
-        const data = {
-          seriesNameMap: this.seriesNameMap,
-          products: {},
-          exportTime: new Date().toISOString()
-        };
-        
-        // 按系列分组产品
-        this.products.forEach(product => {
-          if (!data.products[product.seriesId]) {
-            data.products[product.seriesId] = {};
-          }
-          data.products[product.seriesId][product.image] = {
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            tags: product.tags,
-            materials: {
-              upper: product.upperMaterial,
-              lining: product.innerMaterial,
-              sole: product.soleMaterial
-            },
-            customizable: product.customizable,
-            minOrder: product.minOrder
-          };
-        });
-        
-        const dataStr = JSON.stringify(data, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `gh5-data-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        
-        URL.revokeObjectURL(url);
-        this.showStatus('数据导出成功', 'success');
-      }
-      
-      async importData() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.onchange = async (e) => {
-          const file = e.target.files[0];
-          if (file) {
-            // 显示确认对话框
-            if (!confirm('导入将覆盖现有数据，确定要继续吗？')) {
-              return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-              try {
-                const data = JSON.parse(event.target.result);
-                
-                // 数据验证
-                if (!data || typeof data !== 'object') {
-                  throw new Error('导入数据格式错误');
-                }
-                
-                // 导入系列名称映射
-                if (data.seriesNameMap) {
-                  this.seriesNameMap = data.seriesNameMap;
-                  await this.saveSeriesNameMap();
-                }
-                
-                // 导入产品数据
-                if (data.products && typeof data.products === 'object') {
-                  const seriesCount = Object.keys(data.products).length;
-                  if (seriesCount > 0) {
-                    this.showStatus(`正在导入 ${seriesCount} 个系列的产品...`, 'info');
-                    
-                    let importedCount = 0;
-                    for (const [seriesId, products] of Object.entries(data.products)) {
-                      const series = this.series.find(s => s.name === seriesId);
-                      if (series) {
-                        try {
-                          const filePath = `${series.path}/products.json`;
-                          const productsFile = { products };
-                          const jsonContent = JSON.stringify(productsFile, null, 2);
-                          
-                          try {
-                            await GH5.githubAPI.commitFile(filePath, jsonContent, `Import products for ${seriesId}`);
-                          } catch (error) {
-                            if (error.status === 404) {
-                              await GH5.githubAPI.commitFile(filePath, jsonContent, `Create products.json for ${seriesId}`);
-                            } else if (error.status === 401 || error.status === 403) {
-                              throw new Error('API 密钥无效或已过期，请重新设置');
-                            } else {
-                              throw error;
-                            }
-                          }
-                          importedCount++;
-                        } catch (error) {
-                          console.warn(`导入系列 ${seriesId} 失败:`, error);
-                        }
-                      }
-                    }
-                    
-                    this.showStatus(`成功导入 ${importedCount} 个系列的产品`, 'success');
-                  } else {
-                    this.showStatus('导入数据中没有产品信息', 'info');
-                  }
-                } else {
-                  this.showStatus('导入数据中没有产品信息', 'info');
-                }
-                
-                this.scanFiles(); // 重新扫描以更新数据
-              } catch (error) {
-                console.error('Import data error:', error);
-                let errorMessage = '导入失败: ' + error.message;
-                if (error.status === 401 || error.status === 403) {
-                  errorMessage = 'API 密钥无效或已过期，请重新设置';
-                  if (confirm('API 密钥无效，请设置 GitHub API 密钥以继续操作。')) {
-                    this.setApiToken();
-                  }
-                } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
-                  errorMessage = 'API 请求频率超限，请稍后再试';
-                } else if (error.status === 404) {
-                  errorMessage = '文件路径不存在';
-                } else if (error.status === 422) {
-                  errorMessage = '数据格式错误，请检查输入';
-                }
-                this.showStatus(errorMessage, 'error');
-              }
-            };
-            reader.readAsText(file);
-          }
-        };
-        input.click();
-      }
-      
-      showStatus(message, type) {
-        const container = document.getElementById('status-container');
-        if (!container) {
-          console.warn('Status container not found');
-          // 作为后备，在控制台显示消息
-          console.log(`${type.toUpperCase()}: ${message}`);
-          return;
-        }
-        
-        container.innerHTML = '';
-        
-        const statusDiv = document.createElement('div');
-        statusDiv.className = `status-message status-${type}`;
-        statusDiv.textContent = message;
-        
-        container.appendChild(statusDiv);
-        
-        setTimeout(() => {
-          statusDiv.remove();
-        }, 3000);
-      }
-      
-      // 保存本地数据
-      saveLocalData() {
+      async saveLocalData() {
         try {
           this.showStatus('正在生成本地数据...', 'info');
           
-          // 生成本地产品数据
-          const localData = this.products.map(product => {
-            // 处理多语言字段
-            let name = product.name;
-            let description = product.description;
-            
-            if (typeof name === 'object') {
-              name = name.zh || product.name;
-            }
-            
-            if (typeof description === 'object') {
-              description = description.zh || product.description;
-            }
-            
-            return {
-              id: product.id,
-              seriesId: product.seriesId,
-              name: name,
-              description: description || '',
-              price: product.price || '',
-              materials: product.materials || {},
-              upperMaterial: product.upperMaterial || '',
-              innerMaterial: product.innerMaterial || '',
-              soleMaterial: product.soleMaterial || '',
-              image: product.image,
-              tags: product.tags || [],
-              customizable: product.customizable || false,
-              minimumOrder: product.minimumOrder || 1
-            };
-          });
+          // 收集所有产品数据
+          const localData = this.products.map(product => ({
+            id: product.id,
+            seriesId: product.seriesId,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            materials: product.materials,
+            upperMaterial: product.upperMaterial,
+            innerMaterial: product.innerMaterial,
+            soleMaterial: product.soleMaterial,
+            image: product.image,
+            isMainImage: product.isMainImage
+          }));
           
           // 生成local-data.js文件内容
           const localDataJsContent = '// 本地产品数据，作为 GitHub API 访问失败的备选\nexport const localProductsData = ' + JSON.stringify(localData, null, 2) + ';\n\nexport default localProductsData;';
@@ -2574,525 +1431,32 @@
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
           
-          this.showStatus('本地数据保存成功，请将下载的 local-data.js 文件替换到 js/modules/products/ 目录下', 'success');
-        } catch (error) {
-          console.error('Save local data error:', error);
-          this.showStatus('保存本地数据失败: ' + error.message, 'error');
-        }
-      }\n' +
-'    \n' +
-'    this.state = {\n' +
-'      products: [],\n' +
-'      allProducts: [],\n' +
-'      series: [],\n' +
-'      seriesNameMap: {},\n' +
-'      seriesOrder: [],\n' +
-'      currentPage: 1,\n' +
-'      totalPages: 1,\n' +
-'      isLoading: false,\n' +
-'      selectedSeries: null,\n' +
-'      siteConfig: null,\n' +
-'      currentLang: \'zh\',\n' +
-'      translations: {}\n' +
-'    };\n' +
-'    \n' +
-'    this.currentLightboxImages = [];\n' +
-'    this.currentLightboxIndex = 0;\n' +
-'    \n' +
-'    // 初始化模块\n' +
-'    this.siteConfig = new SiteConfig(this);\n' +
-'    this.uiManager = new UIManager(this);\n' +
-'    \n' +
-'    // 异步初始化，捕获异常\n' +
-'    (async () => {\n' +
-'      try {\n' +
-'        await this.init();\n' +
-'      } catch (error) {\n' +
-'        console.error(\'Init error:\', error);\n' +
-'        // 确保加载状态被更新\n' +
-'        this.state.isLoading = false;\n' +
-'        this.updateLoadingState();\n' +
-'      }\n' +
-'    })();\n' +
-'  }\n' +
-'  \n' +
-'  async init() {\n' +
-'    await this.loadSiteConfig();\n' +
-'    await this.loadProductsData();\n' +
-'    this.setupEventListeners();\n' +
-'    \n' +
-'    // 确保i18n初始化\n' +
-'    if (!i18n.isReadyState()) {\n' +
-'      i18n.init();\n' +
-'    }\n' +
-'    \n' +
-'    // 监听语言变化事件\n' +
-'    document.addEventListener(\'languageChanged\', (event) => {\n' +
-'      const newLang = event.detail.language;\n' +
-'      this.state.currentLang = newLang;\n' +
-'      this.updatePageTitle();\n' +
-'      this.updateCarousel();\n' +
-'      this.updateContactModal();\n' +
-'      this.updateFooter();\n' +
-'      this.updateFormLabels();\n' +
-'      console.log(\'Language changed to:\', newLang);\n' +
-'    });\n' +
-'    \n' +
-'    // 监听浏览历史项目点击事件\n' +
-'    document.addEventListener(\'viewHistoryItem\', (event) => {\n' +
-'      const productId = event.detail.productId;\n' +
-'      this.viewHistoryProduct(productId);\n' +
-'    });\n' +
-'  }\n' +
-'  \n' +
-'  setupEventListeners() {\n' +
-'    // 产品事件\n' +
-'    productEvents.setupProductEventListeners();\n' +
-'    // 搜索事件\n' +
-'    searchEvents.setupSearchEventListeners();\n' +
-'    // 模态框事件\n' +
-'    modalEvents.setupModalEventListeners();\n' +
-'    // 表单事件\n' +
-'    formEvents.setupFormEventListeners();\n' +
-'  }\n' +
-'  \n' +
-'  async loadSiteConfig() {\n' +
-'    return this.siteConfig.loadSiteConfig();\n' +
-'  }\n' +
-'  \n' +
-'  loadLocalProductsData() {\n' +
-'    // 本地产品数据，作为 GitHub API 访问失败的备选\n' +
-'    const localData = ' + localDataJson + ';\n' +
-'    \n' +
-'    return localData;\n' +
-'  }\n' +
-'  \n' +
-'  async loadProductsData() {\n' +
-'    this.state.isLoading = true;\n' +
-'    this.updateLoadingState();\n' +
-'    \n' +
-'    try {\n' +
-'      // 清除缓存，确保获取最新数据\n' +
-'      cacheManager.clearAll();\n' +
-'      console.log(\'Cache cleared before loading products data\');\n' +
-'      \n' +
-'      // 加载系列数据\n' +
-'      const series = await githubAPI.fetchDirectory(this.config.github.productsPath);\n' +
-'      this.state.series = series.filter(item => item.type === \'dir\');\n' +
-'      \n' +
-'      // 加载每个系列的产品\n' +
-'      const products = [];\n' +
-'      const seriesNameMap = {};\n' +
-'      const seriesOrder = [];\n' +
-'      \n' +
-'      for (const seriesItem of this.state.series) {\n' +
-'        try {\n' +
-'          const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);\n' +
-'          if (productsFile) {\n' +
-'            // 构建系列名称映射\n' +
-'            if (productsFile.displayName) {\n' +
-'              seriesNameMap[seriesItem.name] = productsFile.displayName.zh || seriesItem.name;\n' +
-'            } else {\n' +
-'              seriesNameMap[seriesItem.name] = seriesItem.name;\n' +
-'            }\n' +
-'            \n' +
-'            // 添加到系列顺序\n' +
-'            seriesOrder.push(seriesItem.name);\n' +
-'            \n' +
-'            // 加载产品数据\n' +
-'            if (productsFile.products) {\n' +
-'              Object.entries(productsFile.products).forEach(([fileName, productData]) => {\n' +
-'                const product = {\n' +
-'                  id: fileName,\n' +
-'                  seriesId: seriesItem.name,\n' +
-'                  name: productData.name?.zh || productData.name || fileName,\n' +
-'                  description: productData.description?.zh || productData.description || \'\',\n' +
-'                  price: productData.price || \'\',\n' +
-'                  materials: productData.materials || {},\n' +
-'                  upperMaterial: productData.materials?.upper || \'\',\n' +
-'                  innerMaterial: productData.materials?.lining || \'\',\n' +
-'                  soleMaterial: productData.materials?.sole || \'\',\n' +
-'                  image: fileName,\n' +
-'                  tags: productData.tags || [],\n' +
-'                  customizable: productData.customizable || false,\n' +
-'                  minimumOrder: productData.minimumOrder || 1\n' +
-'                };\n' +
-'                products.push(product);\n' +
-'              });\n' +
-'            }\n' +
-'          }\n' +
-'        } catch (error) {\n' +
-'          console.warn(`Failed to load products for ${seriesItem.name}:`, error);\n' +
-'        }\n' +
-'      }\n' +
-'      \n' +
-'      // 更新系列名称映射和顺序\n' +
-'      this.state.seriesNameMap = seriesNameMap;\n' +
-'      this.state.seriesOrder = seriesOrder;\n' +
-'      \n' +
-'      if (products.length > 0) {\n' +
-'        console.log(\'Loaded products from GitHub API\');\n' +
-'        this.state.allProducts = products;\n' +
-'        this.state.products = products;\n' +
-'        this.calculatePagination();\n' +
-'        try {\n' +
-'          this.renderProducts();\n' +
-'        } catch (renderError) {\n' +
-'          console.error(\'Render products error:\', renderError);\n' +
-'        }\n' +
-'      } else {\n' +
-'        // 尝试从本地加载数据作为备选\n' +
-'        const localProducts = this.loadLocalProductsData();\n' +
-'        if (localProducts && localProducts.length > 0) {\n' +
-'          console.log(\'Loaded products from local data as fallback\');\n' +
-'          this.state.allProducts = localProducts;\n' +
-'          this.state.products = localProducts;\n' +
-'          this.calculatePagination();\n' +
-'          try {\n' +
-'            this.renderProducts();\n' +
-'          } catch (renderError) {\n' +
-'            console.error(\'Render products error:\', renderError);\n' +
-'          }\n' +
-'        } else {\n' +
-'          errorHandler.handleError(\'加载产品数据失败\');\n' +
-'        }\n' +
-'      }\n' +
-'    } catch (error) {\n' +
-'      console.error(\'Load products data error:\', error);\n' +
-'      \n' +
-'      // 尝试从本地加载数据作为备选，不再强制要求输入API密钥\n' +
-'      const localProducts = this.loadLocalProductsData();\n' +
-'      if (localProducts && localProducts.length > 0) {\n' +
-'        console.log(\'Loaded products from local data as fallback\');\n' +
-'        this.state.allProducts = localProducts;\n' +
-'        this.state.products = localProducts;\n' +
-'        this.calculatePagination();\n' +
-'        try {\n' +
-'          this.renderProducts();\n' +
-'        } catch (renderError) {\n' +
-'          console.error(\'Render products error:\', renderError);\n' +
-'        }\n' +
-'      } else {\n' +
-'        errorHandler.handleError(\'加载产品数据失败\');\n' +
-'      }\n' +
-'    } finally {\n' +
-'      this.state.isLoading = false;\n' +
-'      this.updateLoadingState();\n' +
-'    }\n' +
-'  }\n' +
-'  \n' +
-'  renderProducts() {\n' +
-'    const container = document.getElementById(\'products-container\');\n' +
-'    if (!container) return;\n' +
-'    \n' +
-'    // 过滤产品\n' +
-'    let filteredProducts = this.state.products;\n' +
-'    if (this.state.selectedSeries) {\n' +
-'      filteredProducts = filteredProducts.filter(p => p.seriesId === this.state.selectedSeries);\n' +
-'    }\n' +
-'    \n' +
-'    // 分页\n' +
-'    const start = (this.state.currentPage - 1) * this.config.itemsPerPage;\n' +
-'    const end = start + this.config.itemsPerPage;\n' +
-'    const paginatedProducts = filteredProducts.slice(start, end);\n' +
-'    \n' +
-'    // 为每个产品添加 images 属性，确保至少有一个默认图片\n' +
-'    const productsWithImages = paginatedProducts.map(product => {\n' +
-'      // 为产品添加 images 属性，使用产品的 image 字段作为默认图片\n' +
-'      const imageUrl = this.getImageUrl(product.seriesId, product.image);\n' +
-'      return {\n' +
-'        ...product,\n' +
-'        images: [imageUrl]\n' +
-'      }\n' +
-'    });\n' +
-'    \n' +
-'    // 获取系列名称映射\n' +
-'    const seriesNameMap = this.state.seriesNameMap && Object.keys(this.state.seriesNameMap).length > 0 \n' +
-'      ? this.state.seriesNameMap \n' +
-'      : this._getDefaultSeriesNameMap();\n' +
-'    \n' +
-'    // 获取系列顺序\n' +
-'    const seriesOrder = this.state.seriesOrder && this.state.seriesOrder.length > 0 \n' +
-'      ? this.state.seriesOrder \n' +
-'      : Object.keys(seriesNameMap);\n' +
-'    \n' +
-'    // 调用产品渲染方法，传递所有必要的参数\n' +
-'    productRender.renderProducts(\n' +
-'      productsWithImages,\n' +
-'      seriesNameMap,\n' +
-'      seriesOrder,\n' +
-'      this.state.selectedSeries,\n' +
-'      this.getProductTranslation.bind(this)\n' +
-'    );\n' +
-'    this.renderPagination();\n' +
-'  }\n' +
-'  \n' +
-'  renderPagination() {\n' +
-'    const container = document.getElementById(\'pagination\');\n' +
-'    if (!container) return;\n' +
-'    \n' +
-'    container.innerHTML = \'\';\n' +
-'    \n' +
-'    for (let i = 1; i <= this.state.totalPages; i++) {\n' +
-'      const button = document.createElement(\'button\');\n' +
-'      button.textContent = i;\n' +
-'      button.className = `pagination-btn ${i === this.state.currentPage ? \'active\' : \'\'}`;\n' +
-'      button.onclick = () => this.goToPage(i);\n' +
-'      container.appendChild(button);\n' +
-'    }\n' +
-'  }\n' +
-'  \n' +
-'  calculatePagination() {\n' +
-'    this.state.totalPages = Math.ceil(this.state.products.length / this.config.itemsPerPage);\n' +
-'  }\n' +
-'  \n' +
-'  showProductDetails(product) {\n' +
-'    modalManager.showProductDetails(product, this.state.seriesNameMap, this.getProductTranslation.bind(this));\n' +
-'  }\n' +
-'  \n' +
-'  closeProductDetails() {\n' +
-'    modalManager.closeProductDetails();\n' +
-'  }\n' +
-'  \n' +
-'  changeMainImage(src) {\n' +
-'    const mainImage = document.getElementById(\'modal-main-image\');\n' +
-'    if (mainImage) {\n' +
-'      mainImage.src = src;\n' +
-'    }\n' +
-'  }\n' +
-'  \n' +
-'  navigateGallery(direction) {\n' +
-'    const gallery = document.getElementById(\'modal-gallery\');\n' +
-'    if (!gallery) return;\n' +
-'    \n' +
-'    const scrollAmount = 200 * direction;\n' +
-'    gallery.scrollLeft += scrollAmount;\n' +
-'  }\n' +
-'  \n' +
-'  openLightbox(src) {\n' +
-'    const lightbox = document.getElementById(\'lightbox\');\n' +
-'    const lightboxImage = document.getElementById(\'lightbox-image\');\n' +
-'    if (!lightbox || !lightboxImage) return;\n' +
-'    \n' +
-'    lightboxImage.src = src;\n' +
-'    lightbox.style.display = \'flex\';\n' +
-'  }\n' +
-'  \n' +
-'  closeLightbox(event) {\n' +
-'    const lightbox = document.getElementById(\'lightbox\');\n' +
-'    if (!lightbox) return;\n' +
-'    \n' +
-'    if (event.target === lightbox || event.target.classList.contains(\'close-lightbox\')) {\n' +
-'      lightbox.style.display = \'none\';\n' +
-'    }\n' +
-'  }\n' +
-'  \n' +
-'  navigateLightbox(direction) {\n' +
-'    // 简单实现，实际项目中需要根据当前图片集合导航\n' +
-'    console.log(\'Navigate lightbox:\', direction);\n' +
-'  }\n' +
-'  \n' +
-'  searchProducts(query) {\n' +
-'    if (!query) {\n' +
-'      this.state.products = this.state.allProducts;\n' +
-'    } else {\n' +
-'      const lowerQuery = query.toLowerCase();\n' +
-'      this.state.products = this.state.allProducts.filter(product => {\n' +
-'        const name = (product.name?.zh || product.name || \'\').toLowerCase();\n' +
-'        const description = (product.description?.zh || product.description || \'\').toLowerCase();\n' +
-'        const tags = (product.tags || []).join(\' \').toLowerCase();\n' +
-'        return name.includes(lowerQuery) || description.includes(lowerQuery) || tags.includes(lowerQuery);\n' +
-'      });\n' +
-'    }\n' +
-'    this.state.currentPage = 1;\n' +
-'    this.calculatePagination();\n' +
-'    this.renderProducts();\n' +
-'  }\n' +
-'  \n' +
-'  resetSearch() {\n' +
-'    this.state.products = this.state.allProducts;\n' +
-'    this.state.currentPage = 1;\n' +
-'    this.calculatePagination();\n' +
-'    this.renderProducts();\n' +
-'  }\n' +
-'  \n' +
-'  filterBySeries(seriesId) {\n' +
-'    this.state.selectedSeries = seriesId;\n' +
-'    this.state.currentPage = 1;\n' +
-'    this.renderProducts();\n' +
-'  }\n' +
-'  \n' +
-'  goToPage(page) {\n' +
-'    if (page < 1 || page > this.state.totalPages) return;\n' +
-'    this.state.currentPage = page;\n' +
-'    this.renderProducts();\n' +
-'  }\n' +
-'  \n' +
-'  viewHistoryProduct(productId) {\n' +
-'    // 查找产品\n' +
-'    const product = this.state.allProducts.find(p => p.id === productId);\n' +
-'    if (product) {\n' +
-'      // 显示产品详情\n' +
-'      this.showProductDetails(product);\n' +
-'    }\n' +
-'  }\n' +
-'  \n' +
-'  getProductTranslation(zhText, fieldType = \'name\') {\n' +
-'    if (!zhText || this.state.currentLang === \'zh\') {\n' +
-'      return zhText;\n' +
-'    }\n' +
-'    \n' +
-'    const translations = this.state.translations;\n' +
-'    if (!translations || Object.keys(translations).length === 0) {\n' +
-'      return zhText;\n' +
-'    }\n' +
-'    \n' +
-'    for (const [key, value] of Object.entries(translations)) {\n' +
-'      if (value.zh === zhText) {\n' +
-'        return value[this.state.currentLang] || zhText;\n' +
-'      }\n' +
-'    }\n' +
-'    \n' +
-'    return zhText;\n' +
-'  }\n' +
-'  \n' +
-'  updateLightboxCounter() {\n' +
-'    const counter = document.getElementById(\'lightbox-counter\');\n' +
-'    const prevBtn = document.querySelector(\'.lightbox-prev\');\n' +
-'    const nextBtn = document.querySelector(\'.lightbox-next\');\n' +
-'\n' +
-'    // 如果只有一张图片，隐藏计数器和导航按钮\n' +
-'    if (this.currentLightboxImages.length <= 1) {\n' +
-'      if (counter) counter.textContent = \'\';\n' +
-'      if (prevBtn) prevBtn.style.display = \'none\';\n' +
-'      if (nextBtn) nextBtn.style.display = \'none\';\n' +
-'    } else {\n' +
-'      // 多张图片，显示计数器和导航按钮\n' +
-'      if (counter) {\n' +
-'        counter.textContent = `${this.currentLightboxIndex + 1} / ${this.currentLightboxImages.length}`;\n' +
-'      }\n' +
-'      if (prevBtn) prevBtn.style.display = \'block\';\n' +
-'      if (nextBtn) nextBtn.style.display = \'block\';\n' +
-'    }\n' +
-'  }\n' +
-'  \n' +
-'  updateLoadingState() {\n' +
-'    const loading = document.getElementById(\'loading\');\n' +
-'    if (loading) {\n' +
-'      loading.style.display = this.state.isLoading ? \'flex\' : \'none\';\n' +
-'    }\n' +
-'  }\n' +
-'  \n' +
-'  refreshData() {\n' +
-'    // 清除缓存并重新加载数据\n' +
-'    cacheManager.clearAll();\n' +
-'    console.log(\'Data refreshed by user\');\n' +
-'    this.loadProductsData();\n' +
-'  }\n' +
-'  \n' +
-'  // 委托给其他模块的方法\n' +
-'  updatePageTitle() {\n' +
-'    this.uiManager.updatePageTitle();\n' +
-'  }\n' +
-'  \n' +
-'  updateCarousel() {\n' +
-'    this.uiManager.updateCarousel();\n' +
-'  }\n' +
-'  \n' +
-'  updateContactModal() {\n' +
-'    this.uiManager.updateContactModal();\n' +
-'  }\n' +
-'  \n' +
-'  updateFooter() {\n' +
-'    this.uiManager.updateFooter();\n' +
-'  }\n' +
-'  \n' +
-'  updateFormLabels() {\n' +
-'    this.uiManager.updateFormLabels();\n' +
-'  }\n' +
-'  \n' +
-'  openContactModal() {\n' +
-'    this.uiManager.openContactModal();\n' +
-'  }\n' +
-'  \n' +
-'  closeContactModal() {\n' +
-'    this.uiManager.closeContactModal();\n' +
-'  }\n' +
-'  \n' +
-'  getFormspreeUrl() {\n' +
-'    return this.uiManager.getFormspreeUrl();\n' +
-'  }\n' +
-'  \n' +
-'  getImageUrl(seriesId, imageName) {\n' +
-'    // 使用本地路径来加载图片\n' +
-'    const productsPath = this.config.github.productsPath;\n' +
-'    return `${productsPath}/${seriesId}/${imageName}`;\n' +
-'  }\n' +
-'  \n' +
-'  async checkProductsPathExists() {\n' +
-'    try {\n' +
-'      const series = await githubAPI.fetchDirectory(this.config.github.productsPath);\n' +
-'      return series.length > 0;\n' +
-'    } catch (error) {\n' +
-'      return false;\n' +
-'    }\n' +
-'  }\n' +
-'  \n' +
-'  _handleLanguageChange(lang) {\n' +
-'    this.state.currentLang = lang;\n' +
-'    document.dispatchEvent(new CustomEvent(\'languageChanged\', { detail: { language: lang } }));\n' +
-'  }\n' +
-'  \n' +
-'  _getDefaultSeriesNameMap() {\n' +
-'    return {\n' +
-'      \'1-PU系列\': \'1-PU系列\',\n' +
-'      \'2-真皮系列\': \'2-真皮系列\',\n' +
-'      \'3-短靴系列\': \'3-短靴系列\',\n' +
-'      \'4-乐福系列\': \'4-乐福系列\',\n' +
-'      \'5-春季\': \'5-春季\',\n' +
-'      \'6-夏季\': \'6-夏季\',\n' +
-'      \'7-秋季\': \'7-秋季\'\n' +
-'    };\n' +
-'  }\n' +
-'  \n' +
-'  _updateClearButtonVisibility(value) {\n' +
-'    const clearBtn = document.getElementById(\'search-clear\');\n' +
-'    if (clearBtn) {\n' +
-'      clearBtn.style.display = value ? \'block\' : \'none\';\n' +
-'    }\n' +
-'  }\n' +
-'}\n' +
-'// 导出实例\n' +
-'const coreApp = new CoreApp();\n' +
-'export default coreApp;'
-          
-          // 创建下载链接
-          const blob = new Blob([coreJsContent], { type: 'application/javascript' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'core.js';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          
-          this.showStatus('本地数据保存成功，请将下载的 core.js 文件替换到 js/modules/app/ 目录下', 'success');
+          this.showStatus('本地数据保存成功', 'success');
         } catch (error) {
           console.error('Save local data error:', error);
           this.showStatus('保存本地数据失败: ' + error.message, 'error');
         }
       }
+      
+      showStatus(message, type = 'info') {
+        const statusContainer = document.getElementById('status-container');
+        if (!statusContainer) return;
+        
+        const statusElement = document.createElement('div');
+        statusElement.className = `status-message status-${type}`;
+        statusElement.textContent = message;
+        
+        statusContainer.appendChild(statusElement);
+        
+        // 3秒后自动移除
+        setTimeout(() => {
+          statusElement.remove();
+        }, 3000);
+      }
     }
     
-    // 初始化管理面板
-    (async () => {
-      const adminPanel = new AdminPanel();
-      // 暴露到全局作用域
-      window.adminPanel = adminPanel;
-      // 调用异步初始化方法
-      await adminPanel.init();
-    })();
+    // 初始化 AdminPanel
+    const adminPanel = new AdminPanel();
   </script>
 </body>
 </html>
