@@ -881,6 +881,561 @@
         });
       }
       
+      async saveProduct() {
+        console.log('Saving product...');
+        const saveBtn = document.getElementById('btn-save-product');
+        if (saveBtn) saveBtn.disabled = true;
+        
+        try {
+          this.showStatus('正在保存产品数据...', 'info');
+          
+          // 获取表单数据
+          const formData = {
+            name: document.getElementById('product-name').value,
+            price: document.getElementById('product-price').value,
+            description: document.getElementById('product-description').value,
+            upperMaterial: document.getElementById('product-upper-material').value,
+            innerMaterial: document.getElementById('product-inner-material').value,
+            soleMaterial: document.getElementById('product-sole-material').value,
+            customizable: document.getElementById('product-customizable').value,
+            minOrder: document.getElementById('product-min-order').value,
+            tags: document.getElementById('product-tags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
+            seriesId: document.getElementById('product-series').value,
+            image: document.getElementById('product-image').value
+          };
+          
+          // 验证必填字段
+          if (!formData.name || !formData.seriesId || !formData.image) {
+            this.showStatus('请填写必填字段', 'error');
+            return;
+          }
+          
+          // 找到当前编辑的产品
+          const productIndex = this.products.findIndex(p => p.id === this.currentEditingProduct?.id && p.seriesId === this.currentEditingProduct?.seriesId);
+          
+          if (productIndex >= 0) {
+            // 更新现有产品
+            const updatedProduct = {
+              ...this.products[productIndex],
+              ...formData,
+              materials: {
+                upper: formData.upperMaterial,
+                lining: formData.innerMaterial,
+                sole: formData.soleMaterial
+              }
+            };
+            
+            this.products[productIndex] = updatedProduct;
+            
+            // 保存到GitHub
+            try {
+              // 获取现有产品数据
+              const productsFile = await GH5.githubAPI.fetchFile(`${updatedProduct.seriesId}/products.json`);
+              
+              if (productsFile && productsFile.products) {
+                // 更新产品数据
+                productsFile.products[updatedProduct.image] = {
+                  name: updatedProduct.name,
+                  description: updatedProduct.description,
+                  price: updatedProduct.price,
+                  materials: updatedProduct.materials
+                };
+                
+                // 保存到GitHub
+                const productsJsonContent = JSON.stringify(productsFile, null, 2);
+                await GH5.githubAPI.commitFile(
+                  `${updatedProduct.seriesId}/products.json`,
+                  productsJsonContent,
+                  `Update product ${updatedProduct.name}`
+                );
+                
+                this.showStatus('产品数据保存成功', 'success');
+                // 更新UI
+                this.updateFileList();
+              } else {
+                this.showStatus('产品数据文件格式错误', 'error');
+              }
+            } catch (error) {
+              console.error('Save product to GitHub error:', error);
+              this.showStatus('产品数据已更新（本地），但保存到GitHub失败: ' + error.message, 'warning');
+              // 更新UI
+              this.updateFileList();
+            }
+          } else {
+            this.showStatus('未找到要保存的产品', 'error');
+          }
+        } catch (error) {
+          console.error('Save product error:', error);
+          this.showStatus('保存产品数据失败: ' + error.message, 'error');
+        } finally {
+          const saveBtn = document.getElementById('btn-save-product');
+          if (saveBtn) saveBtn.disabled = false;
+        }
+      }
+      
+      async saveProductOrder() {
+        console.log('Saving product order...');
+        const saveBtn = document.getElementById('btn-save-product-order');
+        if (saveBtn) saveBtn.disabled = true;
+        
+        try {
+          this.showStatus('正在保存产品顺序...', 'info');
+          
+          // 按系列保存产品顺序
+          const fileList = document.getElementById('file-list');
+          const productItems = fileList.querySelectorAll('.file-item');
+          
+          // 按系列分组产品
+          const productOrderBySeries = {};
+          productItems.forEach(item => {
+            const productName = item.dataset.productName;
+            const product = this.products.find(p => this.extractProductName(p.image) === productName);
+            if (product) {
+              if (!productOrderBySeries[product.seriesId]) {
+                productOrderBySeries[product.seriesId] = [];
+              }
+              productOrderBySeries[product.seriesId].push(productName);
+            }
+          });
+          
+          let savedCount = 0;
+          
+          // 保存每个系列的产品顺序
+          for (const [seriesId, productOrder] of Object.entries(productOrderBySeries)) {
+            try {
+              // 尝试获取现有产品数据
+              let productsFile = {};
+              try {
+                productsFile = await GH5.githubAPI.fetchFile(`${seriesId}/products.json`);
+              } catch (error) {
+                // 文件不存在，创建新的
+                productsFile = { products: {} };
+              }
+              
+              // 更新产品顺序
+              productsFile.order = productOrder;
+              
+              // 保存到GitHub
+              const productsJsonContent = JSON.stringify(productsFile, null, 2);
+              await GH5.githubAPI.commitFile(
+                `${seriesId}/products.json`,
+                productsJsonContent,
+                `Update product order for ${seriesId}`
+              );
+              
+              // 更新本地数据
+              this.productOrders[seriesId] = productOrder;
+              
+              savedCount++;
+            } catch (error) {
+              console.error(`Save product order for ${seriesId} error:`, error);
+              // 即使保存到GitHub失败，也要更新本地状态
+              this.productOrders[seriesId] = productOrder;
+            }
+          }
+          
+          if (savedCount > 0) {
+            this.showStatus(`成功保存 ${savedCount} 个系列的产品顺序`, 'success');
+          } else {
+            this.showStatus('产品顺序已更新（本地），但保存到GitHub失败', 'warning');
+          }
+        } catch (error) {
+          console.error('Save product order error:', error);
+          this.showStatus('保存产品顺序失败: ' + error.message, 'error');
+        } finally {
+          const saveBtn = document.getElementById('btn-save-product-order');
+          if (saveBtn) saveBtn.disabled = false;
+        }
+      }
+      
+      async saveSeriesOrder() {
+        console.log('Saving series order...');
+        const saveBtn = document.getElementById('btn-save-series-order');
+        if (saveBtn) saveBtn.disabled = true;
+        
+        try {
+          this.showStatus('正在保存系列顺序...', 'info');
+          
+          // 获取当前系列顺序
+          const seriesList = document.getElementById('series-list');
+          const seriesCards = seriesList.querySelectorAll('.series-card');
+          const seriesOrder = Array.from(seriesCards).map(card => card.dataset.seriesName);
+          
+          // 保存到配置文件
+          try {
+            // 尝试获取现有配置
+            let config = {};
+            try {
+              config = await GH5.githubAPI.fetchFile('config.json');
+            } catch (error) {
+              // 配置文件不存在，创建新的
+              config = {};
+            }
+            
+            // 更新系列顺序
+            config.seriesOrder = seriesOrder;
+            
+            // 保存到GitHub
+            const configJsonContent = JSON.stringify(config, null, 2);
+            await GH5.githubAPI.commitFile(
+              'config.json',
+              configJsonContent,
+              'Update series order'
+            );
+            
+            // 更新本地数据
+            this.seriesOrder = seriesOrder;
+            
+            this.showStatus('系列顺序保存成功', 'success');
+          } catch (error) {
+            console.error('Save series order to GitHub error:', error);
+            // 即使保存到GitHub失败，也要更新本地状态
+            this.seriesOrder = seriesOrder;
+            this.showStatus('系列顺序已更新（本地），但保存到GitHub失败: ' + error.message, 'warning');
+          }
+        } catch (error) {
+          console.error('Save series order error:', error);
+          this.showStatus('保存系列顺序失败: ' + error.message, 'error');
+        } finally {
+          const saveBtn = document.getElementById('btn-save-series-order');
+          if (saveBtn) saveBtn.disabled = false;
+        }
+      }
+      
+      async importData() {
+        console.log('Importing data...');
+        try {
+          // 创建文件选择输入
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.json';
+          
+          // 监听文件选择
+          input.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              try {
+                this.showStatus('正在导入数据...', 'info');
+                
+                // 读取文件内容
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                  try {
+                    const importedData = JSON.parse(event.target.result);
+                    
+                    // 验证数据格式
+                    if (importedData.products && Array.isArray(importedData.products)) {
+                      // 更新数据
+                      this.products = importedData.products;
+                      if (importedData.series) this.series = importedData.series;
+                      if (importedData.seriesNameMap) this.seriesNameMap = importedData.seriesNameMap;
+                      if (importedData.seriesOrder) this.seriesOrder = importedData.seriesOrder;
+                      if (importedData.productOrders) this.productOrders = importedData.productOrders;
+                      
+                      // 更新UI
+                      this.updateUI();
+                      this.showStatus('数据导入成功', 'success');
+                    } else {
+                      this.showStatus('导入数据格式错误', 'error');
+                    }
+                  } catch (parseError) {
+                    console.error('Parse JSON error:', parseError);
+                    this.showStatus('JSON解析失败: ' + parseError.message, 'error');
+                  }
+                };
+                reader.onerror = (error) => {
+                  console.error('Read file error:', error);
+                  this.showStatus('文件读取失败', 'error');
+                };
+                reader.readAsText(file);
+              } catch (error) {
+                console.error('Import data error:', error);
+                this.showStatus('数据导入失败: ' + error.message, 'error');
+              }
+            }
+          });
+          
+          // 触发文件选择
+          input.click();
+        } catch (error) {
+          console.error('Open file dialog error:', error);
+          this.showStatus('打开文件选择器失败: ' + error.message, 'error');
+        }
+      }
+      
+      async exportData() {
+        console.log('Exporting data...');
+        try {
+          this.showStatus('正在导出数据...', 'info');
+          
+          // 收集所有数据
+          const exportData = {
+            products: this.products,
+            series: this.series,
+            seriesNameMap: this.seriesNameMap,
+            seriesOrder: this.seriesOrder,
+            productOrders: this.productOrders,
+            exportDate: new Date().toISOString()
+          };
+          
+          // 生成JSON内容
+          const jsonContent = JSON.stringify(exportData, null, 2);
+          
+          // 创建下载链接
+          const blob = new Blob([jsonContent], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `gh5-export-${new Date().toISOString().split('T')[0]}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          this.showStatus('数据导出成功', 'success');
+        } catch (error) {
+          console.error('Export data error:', error);
+          this.showStatus('数据导出失败: ' + error.message, 'error');
+        }
+      }
+      
+      async regenerateAllJson() {
+        console.log('Regenerating all JSON files...');
+        const regenerateBtn = document.getElementById('btn-regenerate-json');
+        if (regenerateBtn) regenerateBtn.disabled = true;
+        
+        try {
+          this.showStatus('正在重新生成JSON文件...', 'info');
+          
+          // 加载系列名称映射
+          await this.loadSeriesNameMap();
+          
+          // 扫描产品图目录
+          const series = await GH5.githubAPI.fetchDirectory('产品图');
+          const dirSeries = series.filter(item => item.type === 'dir');
+          
+          let regeneratedCount = 0;
+          
+          // 为每个系列重新生成products.json文件
+          for (const seriesItem of dirSeries) {
+            try {
+              // 扫描系列目录下的图片文件
+              const files = await GH5.githubAPI.fetchDirectory(seriesItem.path);
+              const imageFiles = files.filter(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+              });
+              
+              // 按产品分组图片
+              const productGroups = {};
+              imageFiles.forEach(file => {
+                const productName = this.extractProductName(file.name);
+                if (!productGroups[productName]) {
+                  productGroups[productName] = [];
+                }
+                productGroups[productName].push(file.name);
+              });
+              
+              // 为每个产品创建数据
+              const products = {};
+              Object.entries(productGroups).forEach(([productName, images]) => {
+                // 找到主图
+                const mainImage = images.find(img => this.isMainImage(img)) || images[0];
+                
+                products[mainImage] = {
+                  name: this.getProductDisplayName(productName),
+                  description: '',
+                  price: '',
+                  materials: {}
+                };
+              });
+              
+              // 生成products.json内容
+              const productsJsonContent = JSON.stringify({
+                products: products,
+                displayName: {
+                  zh: this.seriesNameMap[seriesItem.name] || seriesItem.name
+                }
+              }, null, 2);
+              
+              // 保存到GitHub
+              await GH5.githubAPI.commitFile(
+                `${seriesItem.path}/products.json`,
+                productsJsonContent,
+                `Regenerate products.json for ${seriesItem.name}`
+              );
+              
+              regeneratedCount++;
+            } catch (error) {
+              console.warn(`Failed to regenerate JSON for ${seriesItem.name}:`, error);
+            }
+          }
+          
+          this.showStatus(`成功重新生成 ${regeneratedCount} 个JSON文件`, 'success');
+          // 重新扫描所有文件以更新UI
+          await this.scanFiles();
+        } catch (error) {
+          console.error('Regenerate all JSON error:', error);
+          this.showStatus('重新生成JSON文件失败: ' + error.message, 'error');
+        } finally {
+          const regenerateBtn = document.getElementById('btn-regenerate-json');
+          if (regenerateBtn) regenerateBtn.disabled = false;
+        }
+      }
+      
+      async clearCache() {
+        console.log('Clearing cache...');
+        try {
+          this.showStatus('正在清除缓存...', 'info');
+          
+          // 清除缓存管理器中的缓存
+          GH5.cacheManager.clearAll();
+          
+          // 清除本地存储和会话存储
+          if (typeof localStorage !== 'undefined') {
+            localStorage.clear();
+          }
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.clear();
+          }
+          
+          // 更新缓存状态显示
+          const cacheStatus = document.getElementById('cache-status');
+          if (cacheStatus) {
+            cacheStatus.textContent = '已清除';
+          }
+          
+          this.showStatus('缓存清除成功', 'success');
+        } catch (error) {
+          console.error('Clear cache error:', error);
+          this.showStatus('缓存清除失败: ' + error.message, 'error');
+        }
+      }
+      
+      async refreshData() {
+        console.log('Refreshing data...');
+        try {
+          this.showStatus('正在刷新数据...', 'info');
+          
+          // 清除缓存
+          GH5.cacheManager.clearAll();
+          
+          // 重新扫描所有文件
+          await this.scanFiles();
+          
+          this.showStatus('数据刷新成功', 'success');
+        } catch (error) {
+          console.error('Refresh data error:', error);
+          this.showStatus('数据刷新失败: ' + error.message, 'error');
+        }
+      }
+      
+      async scanNewProducts() {
+        console.log('Scanning for new products...');
+        const scanNewBtn = document.getElementById('btn-scan-new');
+        if (scanNewBtn) scanNewBtn.disabled = true;
+        
+        try {
+          this.showStatus('正在扫描新增产品...', 'info');
+          
+          // 加载系列名称映射
+          await this.loadSeriesNameMap();
+          
+          // 扫描产品图目录
+          const series = await GH5.githubAPI.fetchDirectory('产品图');
+          const dirSeries = series.filter(item => item.type === 'dir');
+          
+          let newProductsCount = 0;
+          
+          // 扫描每个系列的新增产品
+          for (const seriesItem of dirSeries) {
+            try {
+              // 尝试获取现有产品数据
+              let existingProducts = {};
+              try {
+                const productsFile = await GH5.githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+                if (productsFile && productsFile.products) {
+                  existingProducts = productsFile.products;
+                }
+              } catch (error) {
+                // 文件不存在，继续执行
+              }
+              
+              // 扫描系列目录下的图片文件
+              const files = await GH5.githubAPI.fetchDirectory(seriesItem.path);
+              const imageFiles = files.filter(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+              });
+              
+              // 按产品分组图片
+              const productGroups = {};
+              imageFiles.forEach(file => {
+                const productName = this.extractProductName(file.name);
+                if (!productGroups[productName]) {
+                  productGroups[productName] = [];
+                }
+                productGroups[productName].push(file.name);
+              });
+              
+              // 检查是否有新增产品
+              const newProducts = {};
+              Object.entries(productGroups).forEach(([productName, images]) => {
+                // 找到主图
+                const mainImage = images.find(img => this.isMainImage(img)) || images[0];
+                // 检查是否已存在
+                if (!existingProducts[mainImage]) {
+                  newProducts[mainImage] = {
+                    name: this.getProductDisplayName(productName),
+                    description: '',
+                    price: '',
+                    materials: {}
+                  };
+                  newProductsCount++;
+                }
+              });
+              
+              // 如果有新增产品，更新products.json文件
+              if (Object.keys(newProducts).length > 0) {
+                const updatedProducts = {
+                  ...existingProducts,
+                  ...newProducts
+                };
+                
+                const productsJsonContent = JSON.stringify({
+                  products: updatedProducts,
+                  displayName: {
+                    zh: this.seriesNameMap[seriesItem.name] || seriesItem.name
+                  }
+                }, null, 2);
+                
+                await GH5.githubAPI.commitFile(
+                  `${seriesItem.path}/products.json`,
+                  productsJsonContent,
+                  `Add new products to ${seriesItem.name}`
+                );
+              }
+            } catch (error) {
+              console.warn(`Failed to scan new products for ${seriesItem.name}:`, error);
+            }
+          }
+          
+          if (newProductsCount > 0) {
+            this.showStatus(`成功扫描到 ${newProductsCount} 个新增产品`, 'success');
+            // 重新扫描所有文件以更新UI
+            await this.scanFiles();
+          } else {
+            this.showStatus('没有发现新增产品', 'info');
+          }
+        } catch (error) {
+          console.error('Scan new products error:', error);
+          this.showStatus('扫描新增产品失败: ' + error.message, 'error');
+        } finally {
+          const scanNewBtn = document.getElementById('btn-scan-new');
+          if (scanNewBtn) scanNewBtn.disabled = false;
+        }
+      }
+      
       async scanFiles() {
         const scanBtn = document.getElementById('btn-scan');
         const scanNewBtn = document.getElementById('btn-scan-new');
