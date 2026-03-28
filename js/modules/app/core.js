@@ -257,8 +257,8 @@ class CoreApp {
                 const product = {
                   id: fileName,
                   seriesId: seriesItem.name,
-                  name: productData.name || fileName,
-                  description: productData.description || '',
+                  name: productData.name?.zh || productData.name || fileName,
+                  description: productData.description?.zh || productData.description || '',
                   price: productData.price || '',
                   materials: productData.materials || {},
                   upperMaterial: productData.materials?.upper || '',
@@ -311,6 +311,20 @@ class CoreApp {
       }
     } catch (error) {
       console.error('Load products data error:', error);
+      
+      // 检查是否是API认证错误
+      if (error.status === 401 || error.status === 403) {
+        // 显示API密钥输入弹窗
+        const token = await this.promptForApiToken();
+        if (token) {
+          // 保存API密钥
+          config.saveApiKey(token);
+          githubAPI.setToken(token);
+          // 重新尝试加载数据
+          return this.loadProductsData();
+        }
+      }
+      
       // 尝试从本地加载数据作为备选
       const localProducts = this.loadLocalProductsData();
       if (localProducts && localProducts.length > 0) {
@@ -330,6 +344,92 @@ class CoreApp {
       this.state.isLoading = false;
       this.updateLoadingState();
     }
+  }
+  
+  // 显示API密钥输入弹窗
+  promptForApiToken() {
+    return new Promise((resolve) => {
+      // 创建弹窗
+      const dialog = document.createElement('div');
+      dialog.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+      `;
+      
+      const dialogContent = document.createElement('div');
+      dialogContent.style.cssText = `
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        max-width: 400px;
+      `;
+      
+      dialogContent.innerHTML = `
+        <h3>设置 GitHub API 密钥</h3>
+        <p style="margin-bottom: 15px; color: #666; font-size: 14px;">GitHub API 认证失败，请输入有效的 API 密钥以继续</p>
+        <div style="margin-bottom: 15px;">
+          <label for="api-token-input" style="display: block; margin-bottom: 5px; font-weight: 500;">API 密钥</label>
+          <input type="password" id="api-token-input" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button id="cancel-token-btn" style="padding: 8px 16px; border: 1px solid #ced4da; border-radius: 4px; background-color: white; cursor: pointer;">取消</button>
+          <button id="save-token-btn" style="padding: 8px 16px; border: none; border-radius: 4px; background-color: #007bff; color: white; cursor: pointer;">保存</button>
+        </div>
+      `;
+      
+      dialog.appendChild(dialogContent);
+      document.body.appendChild(dialog);
+      
+      // 取消按钮事件
+      const cancelBtn = dialogContent.querySelector('#cancel-token-btn');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          dialog.remove();
+          resolve(null);
+        });
+      }
+      
+      // 保存按钮事件
+      const saveBtn = dialogContent.querySelector('#save-token-btn');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+          const tokenInput = dialogContent.querySelector('#api-token-input');
+          if (tokenInput) {
+            const token = tokenInput.value;
+            dialog.remove();
+            resolve(token);
+          } else {
+            resolve(null);
+          }
+        });
+      }
+      
+      // 点击背景关闭弹窗
+      dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) {
+          dialog.remove();
+          resolve(null);
+        }
+      });
+      
+      // 按ESC键关闭弹窗
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          dialog.remove();
+          resolve(null);
+        }
+      });
+    });
   }
   
   renderProducts() {
@@ -596,13 +696,13 @@ class CoreApp {
   
   _getDefaultSeriesNameMap() {
     return {
-      '1-PU系列': 'PU超纤',
-      '2-真皮系列': '真皮系列',
-      '3-短靴系列': '短靴系列',
-      '4-乐福系列': '乐福系列',
-      '5-春季': '春季系列',
-      '6-夏季': '夏季系列',
-      '7-秋季': '秋季系列'
+      '1-PU系列': '1-PU系列',
+      '2-真皮系列': '2-真皮系列',
+      '3-短靴系列': '3-短靴系列',
+      '4-乐福系列': '4-乐福系列',
+      '5-春季': '5-春季',
+      '6-夏季': '6-夏季',
+      '7-秋季': '7-秋季'
     };
   }
   
