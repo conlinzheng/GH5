@@ -424,6 +424,7 @@
     <button id="btn-regenerate-json" style="background-color: #ff9800; color: white;">🔄 重新生成JSON</button>
     <button id="btn-export">导出数据</button>
     <button id="btn-import">导入数据</button>
+    <button id="btn-save-local" style="background-color: #9c27b0; color: white;">💾 保存本地数据</button>
     <button id="btn-set-token">设置 API 密钥</button>
     </div>
     
@@ -690,6 +691,7 @@
         bindEvent('btn-export', 'click', () => this.exportData());
         bindEvent('btn-import', 'click', () => this.importData());
         bindEvent('btn-set-token', 'click', () => this.setApiToken());
+        bindEvent('btn-save-local', 'click', () => this.saveLocalData());
         
         // 保存排序按钮
         bindEvent('btn-save-series-order', 'click', () => this.saveSeriesOrder());
@@ -2501,6 +2503,584 @@
         setTimeout(() => {
           statusDiv.remove();
         }, 3000);
+      }
+      
+      // 保存本地数据
+      saveLocalData() {
+        try {
+          this.showStatus('正在生成本地数据...', 'info');
+          
+          // 生成本地产品数据
+          const localData = this.products.map(product => {
+            // 处理多语言字段
+            let name = product.name;
+            let description = product.description;
+            
+            if (typeof name === 'object') {
+              name = name.zh || product.name;
+            }
+            
+            if (typeof description === 'object') {
+              description = description.zh || product.description;
+            }
+            
+            return {
+              id: product.id,
+              seriesId: product.seriesId,
+              name: name,
+              description: description || '',
+              price: product.price || '',
+              materials: product.materials || {},
+              upperMaterial: product.upperMaterial || '',
+              innerMaterial: product.innerMaterial || '',
+              soleMaterial: product.soleMaterial || '',
+              image: product.image,
+              tags: product.tags || [],
+              customizable: product.customizable || false,
+              minimumOrder: product.minimumOrder || 1
+            };
+          });
+          
+          // 生成本地产品数据的JSON字符串
+          const localDataJson = JSON.stringify(localData, null, 2);
+          
+          // 生成完整的 core.js 文件内容
+          let coreJsContent = 'import config from \'./core/config.js\';\n' +
+'import githubAPI from \'./core/github-api.js\';\n' +
+'import cacheManager from \'./core/cache.js\';\n' +
+'import errorHandler from \'./core/error.js\';\n' +
+'import i18n from \'./core/i18n.js\';\n' +
+'import productDataStore from \'../products/data-store.js\';\n' +
+'import productDataProcess from \'../products/data-process.js\';\n' +
+'import productRender from \'../products/render.js\';\n' +
+'import productSearch from \'../products/search.js\';\n' +
+'import modalManager from \'../ui/modal.js\';\n' +
+'import browseHistory from \'../ui/history.js\';\n' +
+'import productEvents from \'../ui/events/products.js\';\n' +
+'import searchEvents from \'../ui/events/search.js\';\n' +
+'import modalEvents from \'../ui/events/modal.js\';\n' +
+'import formEvents from \'../ui/events/form.js\';\n' +
+'import SiteConfig from \'./site-config.js\';\n' +
+'import UIManager from \'./ui-manager.js\';\n' +
+'\n' +
+'class CoreApp {\n' +
+'  constructor() {\n' +
+'    this.config = {\n' +
+'      cacheTTL: 3600,\n' +
+'      itemsPerPage: 12,\n' +
+'      github: {\n' +
+'        owner: config.get(\'github.owner\', \'conlinzheng\'),\n' +
+'        repo: config.get(\'github.repo\', \'GH5\'),\n' +
+'        branch: config.get(\'github.branch\', \'main\'),\n' +
+'        productsPath: config.get(\'github.productsPath\', \'产品图\'),\n' +
+'        token: config.get(\'github.token\')\n' +
+'      }\n' +
+'    };\n' +
+'    \n' +
+'    this.state = {\n' +
+'      products: [],\n' +
+'      allProducts: [],\n' +
+'      series: [],\n' +
+'      seriesNameMap: {},\n' +
+'      seriesOrder: [],\n' +
+'      currentPage: 1,\n' +
+'      totalPages: 1,\n' +
+'      isLoading: false,\n' +
+'      selectedSeries: null,\n' +
+'      siteConfig: null,\n' +
+'      currentLang: \'zh\',\n' +
+'      translations: {}\n' +
+'    };\n' +
+'    \n' +
+'    this.currentLightboxImages = [];\n' +
+'    this.currentLightboxIndex = 0;\n' +
+'    \n' +
+'    // 初始化模块\n' +
+'    this.siteConfig = new SiteConfig(this);\n' +
+'    this.uiManager = new UIManager(this);\n' +
+'    \n' +
+'    // 异步初始化，捕获异常\n' +
+'    (async () => {\n' +
+'      try {\n' +
+'        await this.init();\n' +
+'      } catch (error) {\n' +
+'        console.error(\'Init error:\', error);\n' +
+'        // 确保加载状态被更新\n' +
+'        this.state.isLoading = false;\n' +
+'        this.updateLoadingState();\n' +
+'      }\n' +
+'    })();\n' +
+'  }\n' +
+'  \n' +
+'  async init() {\n' +
+'    await this.loadSiteConfig();\n' +
+'    await this.loadProductsData();\n' +
+'    this.setupEventListeners();\n' +
+'    \n' +
+'    // 确保i18n初始化\n' +
+'    if (!i18n.isReadyState()) {\n' +
+'      i18n.init();\n' +
+'    }\n' +
+'    \n' +
+'    // 监听语言变化事件\n' +
+'    document.addEventListener(\'languageChanged\', (event) => {\n' +
+'      const newLang = event.detail.language;\n' +
+'      this.state.currentLang = newLang;\n' +
+'      this.updatePageTitle();\n' +
+'      this.updateCarousel();\n' +
+'      this.updateContactModal();\n' +
+'      this.updateFooter();\n' +
+'      this.updateFormLabels();\n' +
+'      console.log(\'Language changed to:\', newLang);\n' +
+'    });\n' +
+'    \n' +
+'    // 监听浏览历史项目点击事件\n' +
+'    document.addEventListener(\'viewHistoryItem\', (event) => {\n' +
+'      const productId = event.detail.productId;\n' +
+'      this.viewHistoryProduct(productId);\n' +
+'    });\n' +
+'  }\n' +
+'  \n' +
+'  setupEventListeners() {\n' +
+'    // 产品事件\n' +
+'    productEvents.setupProductEventListeners();\n' +
+'    // 搜索事件\n' +
+'    searchEvents.setupSearchEventListeners();\n' +
+'    // 模态框事件\n' +
+'    modalEvents.setupModalEventListeners();\n' +
+'    // 表单事件\n' +
+'    formEvents.setupFormEventListeners();\n' +
+'  }\n' +
+'  \n' +
+'  async loadSiteConfig() {\n' +
+'    return this.siteConfig.loadSiteConfig();\n' +
+'  }\n' +
+'  \n' +
+'  loadLocalProductsData() {\n' +
+'    // 本地产品数据，作为 GitHub API 访问失败的备选\n' +
+'    const localData = ' + localDataJson + ';\n' +
+'    \n' +
+'    return localData;\n' +
+'  }\n' +
+'  \n' +
+'  async loadProductsData() {\n' +
+'    this.state.isLoading = true;\n' +
+'    this.updateLoadingState();\n' +
+'    \n' +
+'    try {\n' +
+'      // 清除缓存，确保获取最新数据\n' +
+'      cacheManager.clearAll();\n' +
+'      console.log(\'Cache cleared before loading products data\');\n' +
+'      \n' +
+'      // 加载系列数据\n' +
+'      const series = await githubAPI.fetchDirectory(this.config.github.productsPath);\n' +
+'      this.state.series = series.filter(item => item.type === \'dir\');\n' +
+'      \n' +
+'      // 加载每个系列的产品\n' +
+'      const products = [];\n' +
+'      const seriesNameMap = {};\n' +
+'      const seriesOrder = [];\n' +
+'      \n' +
+'      for (const seriesItem of this.state.series) {\n' +
+'        try {\n' +
+'          const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);\n' +
+'          if (productsFile) {\n' +
+'            // 构建系列名称映射\n' +
+'            if (productsFile.displayName) {\n' +
+'              seriesNameMap[seriesItem.name] = productsFile.displayName.zh || seriesItem.name;\n' +
+'            } else {\n' +
+'              seriesNameMap[seriesItem.name] = seriesItem.name;\n' +
+'            }\n' +
+'            \n' +
+'            // 添加到系列顺序\n' +
+'            seriesOrder.push(seriesItem.name);\n' +
+'            \n' +
+'            // 加载产品数据\n' +
+'            if (productsFile.products) {\n' +
+'              Object.entries(productsFile.products).forEach(([fileName, productData]) => {\n' +
+'                const product = {\n' +
+'                  id: fileName,\n' +
+'                  seriesId: seriesItem.name,\n' +
+'                  name: productData.name?.zh || productData.name || fileName,\n' +
+'                  description: productData.description?.zh || productData.description || \'\',\n' +
+'                  price: productData.price || \'\',\n' +
+'                  materials: productData.materials || {},\n' +
+'                  upperMaterial: productData.materials?.upper || \'\',\n' +
+'                  innerMaterial: productData.materials?.lining || \'\',\n' +
+'                  soleMaterial: productData.materials?.sole || \'\',\n' +
+'                  image: fileName,\n' +
+'                  tags: productData.tags || [],\n' +
+'                  customizable: productData.customizable || false,\n' +
+'                  minimumOrder: productData.minimumOrder || 1\n' +
+'                };\n' +
+'                products.push(product);\n' +
+'              });\n' +
+'            }\n' +
+'          }\n' +
+'        } catch (error) {\n' +
+'          console.warn(`Failed to load products for ${seriesItem.name}:`, error);\n' +
+'        }\n' +
+'      }\n' +
+'      \n' +
+'      // 更新系列名称映射和顺序\n' +
+'      this.state.seriesNameMap = seriesNameMap;\n' +
+'      this.state.seriesOrder = seriesOrder;\n' +
+'      \n' +
+'      if (products.length > 0) {\n' +
+'        console.log(\'Loaded products from GitHub API\');\n' +
+'        this.state.allProducts = products;\n' +
+'        this.state.products = products;\n' +
+'        this.calculatePagination();\n' +
+'        try {\n' +
+'          this.renderProducts();\n' +
+'        } catch (renderError) {\n' +
+'          console.error(\'Render products error:\', renderError);\n' +
+'        }\n' +
+'      } else {\n' +
+'        // 尝试从本地加载数据作为备选\n' +
+'        const localProducts = this.loadLocalProductsData();\n' +
+'        if (localProducts && localProducts.length > 0) {\n' +
+'          console.log(\'Loaded products from local data as fallback\');\n' +
+'          this.state.allProducts = localProducts;\n' +
+'          this.state.products = localProducts;\n' +
+'          this.calculatePagination();\n' +
+'          try {\n' +
+'            this.renderProducts();\n' +
+'          } catch (renderError) {\n' +
+'            console.error(\'Render products error:\', renderError);\n' +
+'          }\n' +
+'        } else {\n' +
+'          errorHandler.handleError(\'加载产品数据失败\');\n' +
+'        }\n' +
+'      }\n' +
+'    } catch (error) {\n' +
+'      console.error(\'Load products data error:\', error);\n' +
+'      \n' +
+'      // 尝试从本地加载数据作为备选，不再强制要求输入API密钥\n' +
+'      const localProducts = this.loadLocalProductsData();\n' +
+'      if (localProducts && localProducts.length > 0) {\n' +
+'        console.log(\'Loaded products from local data as fallback\');\n' +
+'        this.state.allProducts = localProducts;\n' +
+'        this.state.products = localProducts;\n' +
+'        this.calculatePagination();\n' +
+'        try {\n' +
+'          this.renderProducts();\n' +
+'        } catch (renderError) {\n' +
+'          console.error(\'Render products error:\', renderError);\n' +
+'        }\n' +
+'      } else {\n' +
+'        errorHandler.handleError(\'加载产品数据失败\');\n' +
+'      }\n' +
+'    } finally {\n' +
+'      this.state.isLoading = false;\n' +
+'      this.updateLoadingState();\n' +
+'    }\n' +
+'  }\n' +
+'  \n' +
+'  renderProducts() {\n' +
+'    const container = document.getElementById(\'products-container\');\n' +
+'    if (!container) return;\n' +
+'    \n' +
+'    // 过滤产品\n' +
+'    let filteredProducts = this.state.products;\n' +
+'    if (this.state.selectedSeries) {\n' +
+'      filteredProducts = filteredProducts.filter(p => p.seriesId === this.state.selectedSeries);\n' +
+'    }\n' +
+'    \n' +
+'    // 分页\n' +
+'    const start = (this.state.currentPage - 1) * this.config.itemsPerPage;\n' +
+'    const end = start + this.config.itemsPerPage;\n' +
+'    const paginatedProducts = filteredProducts.slice(start, end);\n' +
+'    \n' +
+'    // 为每个产品添加 images 属性，确保至少有一个默认图片\n' +
+'    const productsWithImages = paginatedProducts.map(product => {\n' +
+'      // 为产品添加 images 属性，使用产品的 image 字段作为默认图片\n' +
+'      const imageUrl = this.getImageUrl(product.seriesId, product.image);\n' +
+'      return {\n' +
+'        ...product,\n' +
+'        images: [imageUrl]\n' +
+'      }\n' +
+'    });\n' +
+'    \n' +
+'    // 获取系列名称映射\n' +
+'    const seriesNameMap = this.state.seriesNameMap && Object.keys(this.state.seriesNameMap).length > 0 \n' +
+'      ? this.state.seriesNameMap \n' +
+'      : this._getDefaultSeriesNameMap();\n' +
+'    \n' +
+'    // 获取系列顺序\n' +
+'    const seriesOrder = this.state.seriesOrder && this.state.seriesOrder.length > 0 \n' +
+'      ? this.state.seriesOrder \n' +
+'      : Object.keys(seriesNameMap);\n' +
+'    \n' +
+'    // 调用产品渲染方法，传递所有必要的参数\n' +
+'    productRender.renderProducts(\n' +
+'      productsWithImages,\n' +
+'      seriesNameMap,\n' +
+'      seriesOrder,\n' +
+'      this.state.selectedSeries,\n' +
+'      this.getProductTranslation.bind(this)\n' +
+'    );\n' +
+'    this.renderPagination();\n' +
+'  }\n' +
+'  \n' +
+'  renderPagination() {\n' +
+'    const container = document.getElementById(\'pagination\');\n' +
+'    if (!container) return;\n' +
+'    \n' +
+'    container.innerHTML = \'\';\n' +
+'    \n' +
+'    for (let i = 1; i <= this.state.totalPages; i++) {\n' +
+'      const button = document.createElement(\'button\');\n' +
+'      button.textContent = i;\n' +
+'      button.className = `pagination-btn ${i === this.state.currentPage ? \'active\' : \'\'}`;\n' +
+'      button.onclick = () => this.goToPage(i);\n' +
+'      container.appendChild(button);\n' +
+'    }\n' +
+'  }\n' +
+'  \n' +
+'  calculatePagination() {\n' +
+'    this.state.totalPages = Math.ceil(this.state.products.length / this.config.itemsPerPage);\n' +
+'  }\n' +
+'  \n' +
+'  showProductDetails(product) {\n' +
+'    modalManager.showProductDetails(product, this.state.seriesNameMap, this.getProductTranslation.bind(this));\n' +
+'  }\n' +
+'  \n' +
+'  closeProductDetails() {\n' +
+'    modalManager.closeProductDetails();\n' +
+'  }\n' +
+'  \n' +
+'  changeMainImage(src) {\n' +
+'    const mainImage = document.getElementById(\'modal-main-image\');\n' +
+'    if (mainImage) {\n' +
+'      mainImage.src = src;\n' +
+'    }\n' +
+'  }\n' +
+'  \n' +
+'  navigateGallery(direction) {\n' +
+'    const gallery = document.getElementById(\'modal-gallery\');\n' +
+'    if (!gallery) return;\n' +
+'    \n' +
+'    const scrollAmount = 200 * direction;\n' +
+'    gallery.scrollLeft += scrollAmount;\n' +
+'  }\n' +
+'  \n' +
+'  openLightbox(src) {\n' +
+'    const lightbox = document.getElementById(\'lightbox\');\n' +
+'    const lightboxImage = document.getElementById(\'lightbox-image\');\n' +
+'    if (!lightbox || !lightboxImage) return;\n' +
+'    \n' +
+'    lightboxImage.src = src;\n' +
+'    lightbox.style.display = \'flex\';\n' +
+'  }\n' +
+'  \n' +
+'  closeLightbox(event) {\n' +
+'    const lightbox = document.getElementById(\'lightbox\');\n' +
+'    if (!lightbox) return;\n' +
+'    \n' +
+'    if (event.target === lightbox || event.target.classList.contains(\'close-lightbox\')) {\n' +
+'      lightbox.style.display = \'none\';\n' +
+'    }\n' +
+'  }\n' +
+'  \n' +
+'  navigateLightbox(direction) {\n' +
+'    // 简单实现，实际项目中需要根据当前图片集合导航\n' +
+'    console.log(\'Navigate lightbox:\', direction);\n' +
+'  }\n' +
+'  \n' +
+'  searchProducts(query) {\n' +
+'    if (!query) {\n' +
+'      this.state.products = this.state.allProducts;\n' +
+'    } else {\n' +
+'      const lowerQuery = query.toLowerCase();\n' +
+'      this.state.products = this.state.allProducts.filter(product => {\n' +
+'        const name = (product.name?.zh || product.name || \'\').toLowerCase();\n' +
+'        const description = (product.description?.zh || product.description || \'\').toLowerCase();\n' +
+'        const tags = (product.tags || []).join(\' \').toLowerCase();\n' +
+'        return name.includes(lowerQuery) || description.includes(lowerQuery) || tags.includes(lowerQuery);\n' +
+'      });\n' +
+'    }\n' +
+'    this.state.currentPage = 1;\n' +
+'    this.calculatePagination();\n' +
+'    this.renderProducts();\n' +
+'  }\n' +
+'  \n' +
+'  resetSearch() {\n' +
+'    this.state.products = this.state.allProducts;\n' +
+'    this.state.currentPage = 1;\n' +
+'    this.calculatePagination();\n' +
+'    this.renderProducts();\n' +
+'  }\n' +
+'  \n' +
+'  filterBySeries(seriesId) {\n' +
+'    this.state.selectedSeries = seriesId;\n' +
+'    this.state.currentPage = 1;\n' +
+'    this.renderProducts();\n' +
+'  }\n' +
+'  \n' +
+'  goToPage(page) {\n' +
+'    if (page < 1 || page > this.state.totalPages) return;\n' +
+'    this.state.currentPage = page;\n' +
+'    this.renderProducts();\n' +
+'  }\n' +
+'  \n' +
+'  viewHistoryProduct(productId) {\n' +
+'    // 查找产品\n' +
+'    const product = this.state.allProducts.find(p => p.id === productId);\n' +
+'    if (product) {\n' +
+'      // 显示产品详情\n' +
+'      this.showProductDetails(product);\n' +
+'    }\n' +
+'  }\n' +
+'  \n' +
+'  getProductTranslation(zhText, fieldType = \'name\') {\n' +
+'    if (!zhText || this.state.currentLang === \'zh\') {\n' +
+'      return zhText;\n' +
+'    }\n' +
+'    \n' +
+'    const translations = this.state.translations;\n' +
+'    if (!translations || Object.keys(translations).length === 0) {\n' +
+'      return zhText;\n' +
+'    }\n' +
+'    \n' +
+'    for (const [key, value] of Object.entries(translations)) {\n' +
+'      if (value.zh === zhText) {\n' +
+'        return value[this.state.currentLang] || zhText;\n' +
+'      }\n' +
+'    }\n' +
+'    \n' +
+'    return zhText;\n' +
+'  }\n' +
+'  \n' +
+'  updateLightboxCounter() {\n' +
+'    const counter = document.getElementById(\'lightbox-counter\');\n' +
+'    const prevBtn = document.querySelector(\'.lightbox-prev\');\n' +
+'    const nextBtn = document.querySelector(\'.lightbox-next\');\n' +
+'\n' +
+'    // 如果只有一张图片，隐藏计数器和导航按钮\n' +
+'    if (this.currentLightboxImages.length <= 1) {\n' +
+'      if (counter) counter.textContent = \'\';\n' +
+'      if (prevBtn) prevBtn.style.display = \'none\';\n' +
+'      if (nextBtn) nextBtn.style.display = \'none\';\n' +
+'    } else {\n' +
+'      // 多张图片，显示计数器和导航按钮\n' +
+'      if (counter) {\n' +
+'        counter.textContent = `${this.currentLightboxIndex + 1} / ${this.currentLightboxImages.length}`;\n' +
+'      }\n' +
+'      if (prevBtn) prevBtn.style.display = \'block\';\n' +
+'      if (nextBtn) nextBtn.style.display = \'block\';\n' +
+'    }\n' +
+'  }\n' +
+'  \n' +
+'  updateLoadingState() {\n' +
+'    const loading = document.getElementById(\'loading\');\n' +
+'    if (loading) {\n' +
+'      loading.style.display = this.state.isLoading ? \'flex\' : \'none\';\n' +
+'    }\n' +
+'  }\n' +
+'  \n' +
+'  refreshData() {\n' +
+'    // 清除缓存并重新加载数据\n' +
+'    cacheManager.clearAll();\n' +
+'    console.log(\'Data refreshed by user\');\n' +
+'    this.loadProductsData();\n' +
+'  }\n' +
+'  \n' +
+'  // 委托给其他模块的方法\n' +
+'  updatePageTitle() {\n' +
+'    this.uiManager.updatePageTitle();\n' +
+'  }\n' +
+'  \n' +
+'  updateCarousel() {\n' +
+'    this.uiManager.updateCarousel();\n' +
+'  }\n' +
+'  \n' +
+'  updateContactModal() {\n' +
+'    this.uiManager.updateContactModal();\n' +
+'  }\n' +
+'  \n' +
+'  updateFooter() {\n' +
+'    this.uiManager.updateFooter();\n' +
+'  }\n' +
+'  \n' +
+'  updateFormLabels() {\n' +
+'    this.uiManager.updateFormLabels();\n' +
+'  }\n' +
+'  \n' +
+'  openContactModal() {\n' +
+'    this.uiManager.openContactModal();\n' +
+'  }\n' +
+'  \n' +
+'  closeContactModal() {\n' +
+'    this.uiManager.closeContactModal();\n' +
+'  }\n' +
+'  \n' +
+'  getFormspreeUrl() {\n' +
+'    return this.uiManager.getFormspreeUrl();\n' +
+'  }\n' +
+'  \n' +
+'  getImageUrl(seriesId, imageName) {\n' +
+'    // 使用本地路径来加载图片\n' +
+'    const productsPath = this.config.github.productsPath;\n' +
+'    return `${productsPath}/${seriesId}/${imageName}`;\n' +
+'  }\n' +
+'  \n' +
+'  async checkProductsPathExists() {\n' +
+'    try {\n' +
+'      const series = await githubAPI.fetchDirectory(this.config.github.productsPath);\n' +
+'      return series.length > 0;\n' +
+'    } catch (error) {\n' +
+'      return false;\n' +
+'    }\n' +
+'  }\n' +
+'  \n' +
+'  _handleLanguageChange(lang) {\n' +
+'    this.state.currentLang = lang;\n' +
+'    document.dispatchEvent(new CustomEvent(\'languageChanged\', { detail: { language: lang } }));\n' +
+'  }\n' +
+'  \n' +
+'  _getDefaultSeriesNameMap() {\n' +
+'    return {\n' +
+'      \'1-PU系列\': \'1-PU系列\',\n' +
+'      \'2-真皮系列\': \'2-真皮系列\',\n' +
+'      \'3-短靴系列\': \'3-短靴系列\',\n' +
+'      \'4-乐福系列\': \'4-乐福系列\',\n' +
+'      \'5-春季\': \'5-春季\',\n' +
+'      \'6-夏季\': \'6-夏季\',\n' +
+'      \'7-秋季\': \'7-秋季\'\n' +
+'    };\n' +
+'  }\n' +
+'  \n' +
+'  _updateClearButtonVisibility(value) {\n' +
+'    const clearBtn = document.getElementById(\'search-clear\');\n' +
+'    if (clearBtn) {\n' +
+'      clearBtn.style.display = value ? \'block\' : \'none\';\n' +
+'    }\n' +
+'  }\n' +
+'}\n' +
+'\n' +
+'// 导出实例
+' +
+'const coreApp = new CoreApp();
+' +
+'export default coreApp;';
+          
+          // 创建下载链接
+          const blob = new Blob([coreJsContent], { type: 'application/javascript' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'core.js';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          this.showStatus('本地数据保存成功，请将下载的 core.js 文件替换到 js/modules/app/ 目录下', 'success');
+        } catch (error) {
+          console.error('Save local data error:', error);
+          this.showStatus('保存本地数据失败: ' + error.message, 'error');
+        }
       }
     }
     
