@@ -1334,20 +1334,40 @@
           order.push(productName);
           
           products[mainImage] = {
-            name: productName,
-            description: `${productName} - 高品质产品`,
+            name: {
+              zh: productName,
+              en: productName,
+              ko: productName
+            },
+            description: {
+              zh: `${productName} - 高品质产品`,
+              en: `${productName} - High quality product`,
+              ko: `${productName} - 고품질 제품`
+            },
             price: '',
             materials: {
               upper: '',
               lining: '',
               sole: ''
-            }
+            },
+            tags: [],
+            customizable: false,
+            minimumOrder: 1
           };
         });
         
         // 构建 JSON 文件内容
         const seriesJson = {
-          seriesName: seriesItem.name,
+          seriesName: {
+            zh: seriesItem.name,
+            en: seriesItem.name,
+            ko: seriesItem.name
+          },
+          displayName: {
+            zh: this.seriesNameMap[seriesItem.name] || seriesItem.name,
+            en: this.seriesNameMap[seriesItem.name] || seriesItem.name,
+            ko: this.seriesNameMap[seriesItem.name] || seriesItem.name
+          },
           products: products,
           order: order
         };
@@ -1362,29 +1382,40 @@
       
       async loadSeriesNameMap() {
         try {
-          // 清除 config.json 的缓存以确保获取最新数据
-          GH5.cacheManager.clear('config.json');
-          console.log('Config.json cache cleared in admin loadSeriesNameMap');
+          // 从各系列的 products.json 文件中加载系列名称映射
+          const series = await GH5.githubAPI.fetchDirectory('产品图');
+          const dirSeries = series.filter(item => item.type === 'dir');
           
-          // 尝试从配置文件加载系列名称映射和顺序
-          let configFile;
+          const seriesNameMap = {};
+          
+          for (const seriesItem of dirSeries) {
+            try {
+              const productsFile = await GH5.githubAPI.fetchFile(`${seriesItem.path}/products.json`);
+              if (productsFile && productsFile.displayName) {
+                seriesNameMap[seriesItem.name] = productsFile.displayName.zh || seriesItem.name;
+              } else {
+                seriesNameMap[seriesItem.name] = seriesItem.name;
+              }
+            } catch (error) {
+              console.warn(`Failed to load products.json for ${seriesItem.name}:`, error);
+              seriesNameMap[seriesItem.name] = seriesItem.name;
+            }
+          }
+          
+          this.seriesNameMap = seriesNameMap;
+          console.log('Loaded seriesNameMap from products.json files:', this.seriesNameMap);
+          
+          // 尝试从配置文件加载系列顺序
           try {
-            configFile = await GH5.githubAPI.fetchFile('config.json');
-            if (configFile) {
-              if (configFile.seriesNameMap) {
-                this.seriesNameMap = configFile.seriesNameMap;
-                console.log('Loaded seriesNameMap from config.json:', this.seriesNameMap);
-              }
-              if (configFile.seriesOrder) {
-                this.seriesOrder = configFile.seriesOrder;
-              }
-            } else {
-              console.log('Config file is null, using existing seriesNameMap');
+            const configFile = await GH5.githubAPI.fetchFile('config.json');
+            if (configFile && configFile.seriesOrder) {
+              this.seriesOrder = configFile.seriesOrder;
+              console.log('Loaded seriesOrder from config.json:', this.seriesOrder);
             }
           } catch (error) {
-            console.error('Error fetching config.json:', error);
-            // 如果配置文件不存在或获取失败，保持现有的seriesNameMap不变
-            console.log('Using existing seriesNameMap:', this.seriesNameMap);
+            console.error('Error fetching config.json for seriesOrder:', error);
+            // 如果配置文件不存在或获取失败，使用默认顺序
+            this.seriesOrder = Object.keys(seriesNameMap);
           }
         } catch (error) {
           console.error('Load series name map error:', error);
@@ -1891,8 +1922,16 @@
           // 更新同组的所有图片产品数据
           sameGroupImages.forEach(file => {
             productsFile.products[file.name] = {
-              name: formData.name,
-              description: formData.description,
+              name: {
+                zh: formData.name,
+                en: formData.name,
+                ko: formData.name
+              },
+              description: {
+                zh: formData.description,
+                en: formData.description,
+                ko: formData.description
+              },
               price: formData.price,
               tags: formData.tags,
               materials: {
@@ -1900,8 +1939,8 @@
                 lining: formData.innerMaterial,
                 sole: formData.soleMaterial
               },
-              customizable: formData.customizable,
-              minOrder: formData.minOrder
+              customizable: formData.customizable === 'true',
+              minimumOrder: parseInt(formData.minOrder) || 1
             };
           });
           
@@ -2089,8 +2128,18 @@
       async editSeries(seriesName) {
         // 获取系列相关信息
         const series = this.series.find(s => s.name === seriesName);
-        const currentDisplayName = this.seriesNameMap[seriesName] || seriesName;
         const seriesProducts = this.products.filter(p => p.seriesId === seriesName);
+        
+        // 获取当前显示名称
+        let currentDisplayName = seriesName;
+        try {
+          const productsFile = await GH5.githubAPI.fetchFile(`${series.path}/products.json`);
+          if (productsFile && productsFile.displayName) {
+            currentDisplayName = productsFile.displayName.zh || seriesName;
+          }
+        } catch (error) {
+          console.warn('Failed to load products.json for series:', error);
+        }
         
         // 构建提示信息
         const infoMessage = `系列信息:\n` +
@@ -2103,13 +2152,42 @@
         const newDisplayName = prompt(infoMessage, currentDisplayName);
         if (newDisplayName && newDisplayName !== currentDisplayName) {
           try {
-            // 更新系列名称映射
-            this.seriesNameMap[seriesName] = newDisplayName;
-            console.log('Updated seriesNameMap:', this.seriesNameMap);
+            // 获取现有的 products.json 文件
+            let productsFile;
+            try {
+              productsFile = await GH5.githubAPI.fetchFile(`${series.path}/products.json`);
+            } catch (error) {
+              // 如果文件不存在，创建新文件
+              productsFile = {
+                seriesName: {
+                  zh: seriesName,
+                  en: seriesName,
+                  ko: seriesName
+                },
+                products: {}
+              };
+            }
             
-            // 保存到配置文件
-            await this.saveSeriesNameMap();
-            console.log('Saved seriesNameMap to config.json');
+            // 更新显示名称
+            productsFile.displayName = {
+              zh: newDisplayName,
+              en: newDisplayName,
+              ko: newDisplayName
+            };
+            
+            // 保存文件
+            const filePath = `${series.path}/products.json`;
+            const jsonContent = JSON.stringify(productsFile, null, 2);
+            
+            try {
+              await GH5.githubAPI.commitFile(filePath, jsonContent, `Update series display name: ${newDisplayName}`);
+            } catch (error) {
+              if (error.status === 404) {
+                await GH5.githubAPI.commitFile(filePath, jsonContent, `Create products.json for series: ${seriesName}`);
+              } else {
+                throw error;
+              }
+            }
             
             this.showStatus('系列名称更新成功', 'success');
             this.scanFiles(); // 重新扫描以更新数据

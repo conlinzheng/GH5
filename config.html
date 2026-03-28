@@ -2297,7 +2297,7 @@
         try {
           this.showLoading(true);
           const filePath = `产品图/${seriesName}/products.json`;
-          const productsFile = await githubAPI.fetchFile(filePath);
+          const productsFile = await GH5.githubAPI.fetchFile(filePath);
           
           if (!productsFile || !productsFile.products) {
             this.showStatus('产品数据不存在', 'error');

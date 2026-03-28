@@ -4,6 +4,11 @@
     "en": "1-PU系列",
     "ko": "1-PU系列"
   },
+  "displayName": {
+    "zh": "11",
+    "en": "11",
+    "ko": "11"
+  },
   "products": {
     "中文 (1).png": {
       "name": {
@@ -21,7 +26,10 @@
         "upper": "",
         "lining": "",
         "sole": ""
-      }
+      },
+      "tags": [],
+      "customizable": false,
+      "minimumOrder": 1
     },
     "产品1 (1).jpg": {
       "name": {
@@ -39,7 +47,10 @@
         "upper": "",
         "lining": "",
         "sole": ""
-      }
+      },
+      "tags": [],
+      "customizable": true,
+      "minimumOrder": 10
     }
   },
   "order": [

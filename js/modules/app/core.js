@@ -35,6 +35,7 @@ class CoreApp {
       allProducts: [],
       series: [],
       seriesNameMap: {},
+      seriesOrder: [],
       currentPage: 1,
       totalPages: 1,
       isLoading: false,
@@ -233,31 +234,53 @@ class CoreApp {
       
       // 加载每个系列的产品
       const products = [];
+      const seriesNameMap = {};
+      const seriesOrder = [];
+      
       for (const seriesItem of this.state.series) {
         try {
           const productsFile = await githubAPI.fetchFile(`${seriesItem.path}/products.json`);
-          if (productsFile && productsFile.products) {
-            Object.entries(productsFile.products).forEach(([fileName, productData]) => {
-              const product = {
-                id: fileName,
-                seriesId: seriesItem.name,
-                name: productData.name || fileName,
-                description: productData.description || '',
-                price: productData.price || '',
-                materials: productData.materials || {},
-                upperMaterial: productData.materials?.upper || '',
-                innerMaterial: productData.materials?.lining || '',
-                soleMaterial: productData.materials?.sole || '',
-                image: fileName,
-                tags: productData.tags || []
-              };
-              products.push(product);
-            });
+          if (productsFile) {
+            // 构建系列名称映射
+            if (productsFile.displayName) {
+              seriesNameMap[seriesItem.name] = productsFile.displayName.zh || seriesItem.name;
+            } else {
+              seriesNameMap[seriesItem.name] = seriesItem.name;
+            }
+            
+            // 添加到系列顺序
+            seriesOrder.push(seriesItem.name);
+            
+            // 加载产品数据
+            if (productsFile.products) {
+              Object.entries(productsFile.products).forEach(([fileName, productData]) => {
+                const product = {
+                  id: fileName,
+                  seriesId: seriesItem.name,
+                  name: productData.name || fileName,
+                  description: productData.description || '',
+                  price: productData.price || '',
+                  materials: productData.materials || {},
+                  upperMaterial: productData.materials?.upper || '',
+                  innerMaterial: productData.materials?.lining || '',
+                  soleMaterial: productData.materials?.sole || '',
+                  image: fileName,
+                  tags: productData.tags || [],
+                  customizable: productData.customizable || false,
+                  minimumOrder: productData.minimumOrder || 1
+                };
+                products.push(product);
+              });
+            }
           }
         } catch (error) {
           console.warn(`Failed to load products for ${seriesItem.name}:`, error);
         }
       }
+      
+      // 更新系列名称映射和顺序
+      this.state.seriesNameMap = seriesNameMap;
+      this.state.seriesOrder = seriesOrder;
       
       if (products.length > 0) {
         console.log('Loaded products from GitHub API');
@@ -339,11 +362,16 @@ class CoreApp {
       ? this.state.seriesNameMap 
       : this._getDefaultSeriesNameMap();
     
+    // 获取系列顺序
+    const seriesOrder = this.state.seriesOrder && this.state.seriesOrder.length > 0 
+      ? this.state.seriesOrder 
+      : Object.keys(seriesNameMap);
+    
     // 调用产品渲染方法，传递所有必要的参数
     productRender.renderProducts(
       productsWithImages,
       seriesNameMap,
-      null, // seriesOrder
+      seriesOrder,
       this.state.selectedSeries,
       this.getProductTranslation.bind(this)
     );
