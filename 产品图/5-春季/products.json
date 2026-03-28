@@ -1,21 +1,9 @@
 {
-  "seriesName": {
-    "zh": "5-春季",
-    "en": "5-春季",
-    "ko": "5-春季"
-  },
+  "seriesName": "5-春季",
   "products": {
     "99 (1).png": {
-      "name": {
-        "zh": "99",
-        "en": "99",
-        "ko": "99"
-      },
-      "description": {
-        "zh": "99 - 高品质产品",
-        "en": "99 - High quality product",
-        "ko": "99 - 고품질 제품"
-      },
+      "name": "99",
+      "description": "99 - 高品质产品",
       "price": "",
       "materials": {
         "upper": "",
@@ -24,16 +12,8 @@
       }
     },
     "新款1 (1).jpg": {
-      "name": {
-        "zh": "新款1",
-        "en": "新款1",
-        "ko": "新款1"
-      },
-      "description": {
-        "zh": "新款1 - 高品质产品",
-        "en": "新款1 - High quality product",
-        "ko": "新款1 - 고품질 제품"
-      },
+      "name": "新款1",
+      "description": "新款1 - 高品质产品",
       "price": "",
       "materials": {
         "upper": "",
