@@ -257,8 +257,10 @@ class GitHubAPI {
       if (isWriteOperation) {
         console.log('Using authenticated access for write operations');
         if (token) {
-          headers['Authorization'] = `token ${token}`;
-          console.log('Authorization header set:', token.substring(0, 10) + '...');
+          // 确保token只包含ASCII字符
+          const asciiToken = token.replace(/[^\x00-\x7F]/g, '');
+          headers['Authorization'] = `token ${asciiToken}`;
+          console.log('Authorization header set:', asciiToken.substring(0, 10) + '...');
         } else {
           console.log('No token available for write operations, this may cause 401 errors');
         }
