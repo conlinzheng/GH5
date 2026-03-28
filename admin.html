@@ -584,10 +584,8 @@
       async init() {
         this.setupEventListeners();
         this.setupDragAndDrop();
-        // 延迟扫描，避免页面加载时立即弹出 API 密钥设置弹窗
-        setTimeout(() => {
-          this.scanFiles();
-        }, 1000);
+        // 移除自动扫描，让用户手动点击扫描按钮
+        this.loadCacheStatus();
       }
       
       loadCacheStatus() {
