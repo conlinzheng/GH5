@@ -1496,8 +1496,8 @@
                       const product = {
                         id: fileName,
                         seriesId: seriesItem.name,
-                        name: productData.name || productName,
-                        description: productData.description || '',
+                        name: typeof productData.name === 'object' ? (productData.name?.zh || productName) : (productData.name || productName),
+                        description: typeof productData.description === 'object' ? (productData.description?.zh || '') : (productData.description || ''),
                         price: productData.price || '',
                         materials: materials,
                         upperMaterial: materials?.upper || '',
@@ -1518,8 +1518,8 @@
                       const product = {
                         id: fileName,
                         seriesId: seriesItem.name,
-                        name: productData.name || productName,
-                        description: productData.description || '',
+                        name: typeof productData.name === 'object' ? (productData.name?.zh || productName) : (productData.name || productName),
+                        description: typeof productData.description === 'object' ? (productData.description?.zh || '') : (productData.description || ''),
                         price: productData.price || '',
                         materials: materials,
                         upperMaterial: materials?.upper || '',
@@ -1540,8 +1540,8 @@
                     const product = {
                       id: fileName,
                       seriesId: seriesItem.name,
-                      name: productData.name?.zh || productData.name || productName,
-                      description: productData.description?.zh || productData.description || '',
+                      name: typeof productData.name === 'object' ? (productData.name?.zh || productName) : (productData.name || productName),
+                      description: typeof productData.description === 'object' ? (productData.description?.zh || '') : (productData.description || ''),
                       price: productData.price || '',
                       materials: materials,
                       upperMaterial: materials?.upper || '',
