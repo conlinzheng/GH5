@@ -1,6 +1,56 @@
 {
   "history": [
     {
+      "timestamp": "2026-03-28T09:00:26.305Z",
+      "seriesId": ".history",
+      "imageFileName": "产品1 (1).jpg",
+      "data": {
+        "name": {
+          "zh": {
+            "zh": "乐福",
+            "en": "产品1",
+            "ko": "产品1"
+          },
+          "en": {
+            "zh": "乐福",
+            "en": "产品1",
+            "ko": "产品1"
+          },
+          "ko": {
+            "zh": "乐福",
+            "en": "产品1",
+            "ko": "产品1"
+          }
+        },
+        "description": {
+          "zh": {
+            "zh": "产品1 - 高品质产品",
+            "en": "产品1 - 高品质产品",
+            "ko": "产品1 - 高品质产品"
+          },
+          "en": {
+            "zh": "产品1 - 高品质产品",
+            "en": "产品1 - 高品质产品",
+            "ko": "产品1 - 高品质产品"
+          },
+          "ko": {
+            "zh": "产品1 - 高品质产品",
+            "en": "产品1 - 高品质产品",
+            "ko": "产品1 - 高品质产品"
+          }
+        },
+        "price": "",
+        "tags": [],
+        "materials": {
+          "upper": "",
+          "lining": "",
+          "sole": ""
+        },
+        "customizable": "",
+        "minOrder": ""
+      }
+    },
+    {
       "timestamp": "2026-03-28T09:00:23.871Z",
       "seriesId": ".history",
       "imageFileName": "产品1 (1).jpg",
