@@ -1,10 +1,11 @@
 import config from './config.js';
 
 class I18n {
-  constructor() {
+  constructor(frontendInstance = null) {
     this.currentLang = config.get('i18n.defaultLang', 'zh');
     this.defaultLang = config.get('i18n.defaultLang', 'zh');
     this.supportedLangs = config.get('i18n.supportedLangs', ['zh', 'en', 'ko']);
+    this.frontend = frontendInstance;
     this.translations = {
       zh: {
         site: {
@@ -130,6 +131,24 @@ class I18n {
     this.isReady = false;
   }
 
+  /**
+   * 设置frontend实例
+   * @param {Object} frontendInstance - frontend实例
+   */
+  setFrontend(frontendInstance) {
+    if (frontendInstance && typeof frontendInstance === 'object') {
+      this.frontend = frontendInstance;
+    }
+  }
+
+  /**
+   * 获取frontend实例
+   * @returns {Object|null} frontend实例
+   */
+  getFrontend() {
+    return this.frontend;
+  }
+
   init() {
     try {
       const savedLang = localStorage.getItem('gh5_language');
@@ -146,16 +165,25 @@ class I18n {
       this.updateLanguage();
       this._dispatchLanguageChanged();
       
-      if (typeof frontend !== 'undefined' && frontend.state && frontend.state.siteConfig) {
-        const configLang = frontend.state.siteConfig.pageSettings?.defaultLanguage;
+      // 使用注入的frontend实例，而不是全局变量
+      const frontendInstance = this.frontend;
+      if (frontendInstance && frontendInstance.state && frontendInstance.state.siteConfig) {
+        const configLang = frontendInstance.state.siteConfig.pageSettings?.defaultLanguage;
         if (configLang && this.supportedLangs.includes(configLang)) {
           this.currentLang = configLang;
           this.updateLanguage();
         }
-        frontend.state.currentLang = this.currentLang;
-        frontend.updateFooter();
-        frontend.updateCarousel();
-        frontend.updateFormLabels();
+        frontendInstance.state.currentLang = this.currentLang;
+        // 安全调用frontend方法
+        if (typeof frontendInstance.updateFooter === 'function') {
+          frontendInstance.updateFooter();
+        }
+        if (typeof frontendInstance.updateCarousel === 'function') {
+          frontendInstance.updateCarousel();
+        }
+        if (typeof frontendInstance.updateFormLabels === 'function') {
+          frontendInstance.updateFormLabels();
+        }
       }
       
       const langBtn = document.getElementById('language-toggle');
@@ -185,6 +213,12 @@ class I18n {
   }
 
   switchLanguage(lang) {
+    // 参数验证
+    if (!lang || typeof lang !== 'string') {
+      console.warn('Language parameter must be a non-empty string');
+      return false;
+    }
+    
     if (!this.supportedLangs.includes(lang)) {
       console.warn(`Language ${lang} is not supported`);
       return false;
@@ -196,11 +230,20 @@ class I18n {
       this.updateLanguage();
       this._dispatchLanguageChanged();
       
-      if (typeof frontend !== 'undefined' && frontend.state) {
-        frontend.state.currentLang = lang;
-        frontend.updateFooter();
-        frontend.updateCarousel();
-        frontend.updateFormLabels();
+      // 使用注入的frontend实例，而不是全局变量
+      const frontendInstance = this.frontend;
+      if (frontendInstance && frontendInstance.state) {
+        frontendInstance.state.currentLang = lang;
+        // 安全调用frontend方法
+        if (typeof frontendInstance.updateFooter === 'function') {
+          frontendInstance.updateFooter();
+        }
+        if (typeof frontendInstance.updateCarousel === 'function') {
+          frontendInstance.updateCarousel();
+        }
+        if (typeof frontendInstance.updateFormLabels === 'function') {
+          frontendInstance.updateFormLabels();
+        }
       }
       
       return true;
@@ -211,6 +254,12 @@ class I18n {
   }
 
   t(key) {
+    // 参数验证
+    if (!key || typeof key !== 'string') {
+      console.warn('Translation key must be a non-empty string');
+      return String(key);
+    }
+    
     try {
       const keys = key.split('.');
       let value = this.translations[this.currentLang];
@@ -232,7 +281,11 @@ class I18n {
   }
 
   getLocalizedField(obj, field) {
-    if (!obj || !field) {
+    // 参数验证
+    if (!obj || typeof obj !== 'object') {
+      return '';
+    }
+    if (!field || typeof field !== 'string') {
       return '';
     }
 
@@ -256,6 +309,11 @@ class I18n {
   }
 
   getLanguageName(lang) {
+    // 参数验证
+    if (!lang || typeof lang !== 'string') {
+      return '';
+    }
+    
     const names = {
       zh: '中文',
       en: 'English',
@@ -278,10 +336,16 @@ class I18n {
   }
 
   importTranslations(jsonString) {
+    // 参数验证
+    if (!jsonString || typeof jsonString !== 'string') {
+      console.error('Import translations error: jsonString must be a non-empty string');
+      return false;
+    }
+    
     try {
       const data = JSON.parse(jsonString);
       
-      if (typeof data !== 'object') {
+      if (typeof data !== 'object' || data === null) {
         throw new Error('Invalid translations format');
       }
 

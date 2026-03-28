@@ -10,10 +10,10 @@ const state = reactive({
 
 // 计算属性
 const getters = {
-  getProductById: (id) => {
+  getProductById: (state) => (id) => {
     return state.products.find(product => product.id === parseInt(id))
   },
-  getFilteredProducts: (query) => {
+  getFilteredProducts: (state) => (query) => {
     if (!query) return state.products
     const lowerQuery = query.toLowerCase()
     return state.products.filter(product => 

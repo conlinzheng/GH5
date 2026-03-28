@@ -94,7 +94,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import store from '../store'
 
@@ -135,11 +135,13 @@ const navigateLightbox = (direction) => {
 }
 
 const openContactModal = () => {
-  console.log('Opening contact modal...')
+  // 打开联系我们模态框
+  const event = new CustomEvent('open-contact-modal')
+  window.dispatchEvent(event)
 }
 
 // 监听路由参数变化，加载产品详情
-watch(() => route.params.id, async () => {
+const unwatch = watch(() => route.params.id, async () => {
   currentImageIndex.value = 0
   // 确保产品数据已加载
   if (store.state.products.length === 0) {
@@ -150,6 +152,11 @@ watch(() => route.params.id, async () => {
     store.addToHistory(product.value)
   }
 }, { immediate: true })
+
+// 组件卸载时清理watch
+onUnmounted(() => {
+  unwatch()
+})
 </script>
 
 <style scoped>

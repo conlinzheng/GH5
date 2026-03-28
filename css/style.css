@@ -3,7 +3,10 @@
   --primary-hover: #1d4ed8;
   --secondary-color: #64748b;
   --background-color: #ffffff;
+  --background-color-light: #f8fafc;
+  --background-secondary: #f1f5f9;
   --text-color: #1e293b;
+  --text-color-secondary: #64748b;
   --text-light: #64748b;
   --border-color: #e2e8f0;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -435,8 +438,8 @@ body {
 }
 
 .product-tag {
-  background-color: var(--background-color-light);
-  color: var(--text-color-secondary);
+  background-color: #f8fafc;
+  color: var(--text-light);
   padding: 4px 12px;
   border-radius: 12px;
   font-size: var(--font-size-sm);
@@ -976,7 +979,7 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: var(--background-secondary);
+  background-color: #f8fafc;
   color: var(--text-color);
   text-decoration: none;
   transition: all 0.3s ease;
@@ -1107,11 +1110,6 @@ body {
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: var(--spacing-md);
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 /* 错误提示样式 */
@@ -1307,16 +1305,7 @@ body {
   opacity: 1;
 }
 
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
+
 
 @keyframes slideOutRight {
   from {

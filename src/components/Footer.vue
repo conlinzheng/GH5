@@ -17,7 +17,8 @@
 <script setup>
 const openContactModal = () => {
   // 打开联系我们模态框
-  console.log('Opening contact modal...')
+  const event = new CustomEvent('open-contact-modal')
+  window.dispatchEvent(event)
 }
 </script>
 

@@ -63,35 +63,21 @@ class Config {
   
   loadApiKey() {
     try {
-      // 尝试从安全存储加载 API 密钥
-      if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined' && typeof localStorage !== 'undefined') {
-        // 优先从 sessionStorage 加载
-        const sessionKey = sessionStorage.getItem('gh5_github_token');
-        if (sessionKey) {
-          this.set('github.token', sessionKey);
-          console.log('API key loaded from sessionStorage:', sessionKey.substring(0, 10) + '...');
-          return;
-        }
-        
-        // 然后从 localStorage 加载
-        const localKey = localStorage.getItem('gh5_github_token');
-        if (localKey) {
-          this.set('github.token', localKey);
-          console.log('API key loaded from localStorage:', localKey.substring(0, 10) + '...');
-          return;
-        }
-        
-        // 最后从环境变量加载
+      // 仅从环境变量或配置文件加载 API 密钥（内存存储）
+      if (typeof window !== 'undefined') {
+        // 从环境变量加载
         if (window.env && window.env.github && window.env.github.token) {
-          this.set('github.token', window.env.github.token);
-          console.log('API key loaded from environment:', window.env.github.token.substring(0, 10) + '...');
-          return;
+          const token = window.env.github.token;
+          if (this.validateToken(token)) {
+            this.set('github.token', token);
+            console.log('API key loaded from environment');
+            return;
+          } else {
+            console.warn('Invalid token format in environment variable');
+          }
         }
         
-        // 使用默认令牌
-        const defaultToken = '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';
-        this.set('github.token', defaultToken);
-        console.log('API key loaded from default:', defaultToken.substring(0, 10) + '...');
+        console.log('No API key found in environment. Please set GITHUB_TOKEN in your environment.');
       }
     } catch (error) {
       console.error('Load API key error:', error);
@@ -99,18 +85,38 @@ class Config {
     }
   }
   
+  validateToken(token) {
+    // GitHub Token 格式验证
+    if (!token || typeof token !== 'string') {
+      return false;
+    }
+    
+    // 验证 Token 格式：ghp_ 开头，后跟40个字母数字字符
+    const tokenPattern = /^ghp_[a-zA-Z0-9]{36}$/;
+    
+    // 或者验证经典 Token 格式：40个十六进制字符
+    const classicTokenPattern = /^[a-f0-9]{40}$/;
+    
+    // 或者验证 fine-grained Token 格式：github_pat_ 开头
+    const fineGrainedPattern = /^github_pat_[a-zA-Z0-9_]{22,}$/;
+    
+    return tokenPattern.test(token) || 
+           classicTokenPattern.test(token) || 
+           fineGrainedPattern.test(token);
+  }
+  
   saveApiKey(token) {
     try {
       if (typeof window !== 'undefined') {
-        // 存储到 sessionStorage
-        sessionStorage.setItem('gh5_github_token', token);
-        console.log('API key saved to sessionStorage:', token.substring(0, 10) + '...');
-        // 同时存储到 localStorage 作为备份
-        localStorage.setItem('gh5_github_token', token);
-        console.log('API key saved to localStorage:', token.substring(0, 10) + '...');
-        // 更新配置
+        // 验证 Token 格式
+        if (!this.validateToken(token)) {
+          console.error('Invalid token format');
+          return false;
+        }
+        
+        // 仅存储到内存中，不写入 localStorage 或 sessionStorage
         this.set('github.token', token);
-        console.log('API key updated in config:', token.substring(0, 10) + '...');
+        console.log('API key saved to memory');
         return true;
       }
     } catch (error) {
@@ -124,11 +130,9 @@ class Config {
   removeApiKey() {
     try {
       if (typeof window !== 'undefined') {
-        // 从存储中移除
-        sessionStorage.removeItem('gh5_github_token');
-        localStorage.removeItem('gh5_github_token');
-        // 从配置中移除
+        // 仅从内存中移除
         this.set('github.token', null);
+        console.log('API key removed from memory');
         return true;
       }
     } catch (error) {

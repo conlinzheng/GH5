@@ -26,6 +26,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import store from '../store'
 
 const refreshData = () => {
@@ -34,9 +35,13 @@ const refreshData = () => {
   console.log('Refreshing data...')
 }
 
+const showHistory = ref(false)
+
 const toggleHistory = () => {
   // 切换浏览历史侧边栏
-  console.log('Toggling history...')
+  showHistory.value = !showHistory.value
+  const event = new CustomEvent('toggle-history', { detail: { visible: showHistory.value } })
+  window.dispatchEvent(event)
 }
 
 const toggleLanguage = () => {
