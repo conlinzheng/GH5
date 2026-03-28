@@ -1033,7 +1033,18 @@
           console.error('Scan files error:', error);
           let errorMessage = '扫描失败: ' + error.message;
           if (error.status === 401 || error.status === 403) {
-            errorMessage = 'API 密钥无效或已过期，请点击"设置 API 密钥"按钮重新设置';
+            // 对于公开仓库，尝试不使用 API 密钥重新加载
+            try {
+              console.log('尝试不使用 API 密钥重新加载数据...');
+              // 清除 API 密钥
+              GH5.config.saveApiKey('');
+              GH5.githubAPI.setToken('');
+              // 重新扫描
+              await this.scanFiles();
+              return;
+            } catch (retryError) {
+              errorMessage = 'API 密钥无效或已过期，但仓库是公开的，尝试无密钥访问失败';
+            }
           } else if (error.message && (error.message.includes('rate limit') || error.message.includes('API'))) {
             errorMessage = 'API 请求频率超限，请稍后再试';
           } else if (error.status === 404) {
