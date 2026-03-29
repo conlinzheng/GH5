@@ -4,8 +4,9 @@
       <div class="carousel-track" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
         <div class="carousel-slide" v-for="(slide, index) in slides" :key="index">
           <div class="carousel-content">
-            <h2 class="carousel-title">{{ slide.title }}</h2>
-            <p class="carousel-description">{{ slide.description }}</p>
+            <img :src="slide.image" :alt="slide.title.zh" class="carousel-image">
+            <h2 class="carousel-title">{{ slide.title.zh }}</h2>
+            <p class="carousel-description">{{ slide.description.zh }}</p>
           </div>
         </div>
       </div>
@@ -15,39 +16,36 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import carouselLoader from '../utils/carouselLoader'
 
 const props = defineProps({
-  slides: {
-    type: Array,
-    default: () => [
-      {
-        title: '欢迎来到 GH5',
-        description: '探索我们的优质产品'
-      },
-      {
-        title: '品质保证',
-        description: '我们致力于提供最优质的产品'
-      },
-      {
-        title: '专业服务',
-        description: '为您提供专业的产品咨询和服务'
-      }
-    ]
-  },
   interval: {
     type: Number,
     default: 5000
   }
 })
 
+const slides = ref([])
 const currentSlide = ref(0)
 let slideInterval = null
 
-const nextSlide = () => {
-  currentSlide.value = (currentSlide.value + 1) % props.slides.length
+const loadCarousel = async () => {
+  try {
+    const carouselData = await carouselLoader.loadCarouselFromFileSystem()
+    slides.value = carouselData
+  } catch (error) {
+    console.error('Failed to load carousel:', error)
+  }
 }
 
-onMounted(() => {
+const nextSlide = () => {
+  if (slides.value.length > 0) {
+    currentSlide.value = (currentSlide.value + 1) % slides.value.length
+  }
+}
+
+onMounted(async () => {
+  await loadCarousel()
   slideInterval = setInterval(nextSlide, props.interval)
 })
 

@@ -7,14 +7,10 @@
         </div>
         <nav class="nav">
           <button class="nav-btn" @click="refreshData" aria-label="刷新数据" title="刷新数据">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 10a6 6 0 0 1 6-6h4m0 0l-3-3m3 3l-3 3m3 9a6 6 0 0 1-6 6H6m0 0l3 3m-3-3l3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <img :src="icons.refresh" alt="刷新" class="nav-icon">
           </button>
           <button class="nav-btn" @click="toggleHistory" aria-label="浏览历史" title="浏览历史">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <img :src="icons.history" alt="历史" class="nav-icon">
           </button>
           <button class="nav-btn" @click="toggleLanguage" aria-label="切换语言">
             <span class="lang-text">{{ store.state.currentLanguage }}</span>
@@ -26,8 +22,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import store from '../store'
+import iconLoader from '../utils/iconLoader'
+
+const icons = ref({})
+
+const loadIcons = async () => {
+  try {
+    const loadedIcons = await iconLoader.loadIconsFromFileSystem()
+    icons.value = loadedIcons
+  } catch (error) {
+    console.error('Failed to load icons:', error)
+  }
+}
 
 const refreshData = () => {
   // 刷新数据的逻辑
@@ -48,7 +56,19 @@ const toggleLanguage = () => {
   // 切换语言
   store.toggleLanguage()
 }
+
+onMounted(async () => {
+  await loadIcons()
+})
 </script>
+
+<style scoped>
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  color: currentColor;
+}
+</style>
 
 <style scoped>
 /* 样式已在main.css中定义 */
